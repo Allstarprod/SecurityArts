@@ -1,0 +1,19 @@
+{
+  "name": "securityarts-server",
+  "version": "0.2.0",
+  "private": true,
+  "type": "module",
+  "description": "SecurityArts backend — API + static host with server-side sealing. Pluggable storage (file or Postgres/Supabase) and rate limiting for horizontal scale.",
+  "engines": { "node": ">=18" },
+  "scripts": {
+    "start": "node server.mjs",
+    "start:pg": "node --env-file=.env server.mjs",
+    "start:cluster": "CLUSTER=max node --env-file=.env server.mjs",
+    "check": "node --check server.mjs && node --check routes.mjs",
+    "test:e2e": "node test/e2e.mjs",
+    "verify:live": "node test/e2e.mjs postgres"
+  },
+  "optionalDependencies": {
+    "pg": "^8.13.0"
+  }
+}

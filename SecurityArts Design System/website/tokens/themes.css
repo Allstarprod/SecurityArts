@@ -1,0 +1,64 @@
+/* ============================================================
+   SecurityArts — Themes
+   The system is dark by default (the warm studio at night). This file
+   adds a LIGHT theme — the same studio in daylight: warm paper surfaces,
+   near-black ink, the same brass seal.
+
+   Mechanism: components reference the BASE tokens (--ink, --bone, --brass,
+   --line …). We re-declare those base tokens under [data-theme="light"] so
+   every component and semantic alias (which resolve via var() at use time)
+   flips automatically — no component changes required.
+
+   Apply by setting  <html data-theme="light">  (persist in localStorage
+   under "sa-theme"; a no-flash inline script sets it before first paint).
+   ============================================================ */
+
+:root { color-scheme: dark; }
+
+[data-theme="light"] {
+  color-scheme: light;
+
+  /* ── Surfaces (warm paper, light → lighter → pressed) ── */
+  --ink:   #ece8dc;   /* base canvas / page background          */
+  --ink-2: #f5f2ea;   /* raised panels, cards, inputs (paper)   */
+  --ink-3: #ddd8c8;   /* hover panels, pressed surfaces         */
+  /* --cream / --jet keep their meaning: the "mark on a surface"
+     demonstration pair, theme-independent. */
+
+  /* ── Ink / text (warm near-black → faint) ─────────────── */
+  --bone:       #1a1712;   /* primary text/ink                  */
+  --bone-dim:   #5d5747;   /* secondary text                    */
+  --bone-faint: #8b8474;   /* tertiary text, captions           */
+
+  /* ── Accent — deepen the brass for contrast on paper ──── */
+  --brass:      #9a7d31;
+  --brass-deep: #7c6323;
+  --brass-glow: rgba(154, 125, 49, 0.18);
+
+  /* ── Hairlines (now dark-on-light) ────────────────────── */
+  --line:        rgba(16, 15, 14, 0.12);
+  --line-strong: rgba(16, 15, 14, 0.22);
+
+  /* ── Status ───────────────────────────────────────────── */
+  --error: #b0563b;
+
+  /* ── Shadow — softer, warm, for a light ground ────────── */
+  --shadow-hover: 0 18px 40px -24px rgba(40, 34, 15, 0.30);
+  --shadow-pop:   0 20px 50px -20px rgba(40, 34, 15, 0.28);
+
+  /* ── Selection (brass on paper needs dark ink) ────────── */
+  --selection-fg: #17150f;
+}
+
+/* Grain reads as a bright veil in dark mode; on paper it should darken
+   the midtones instead. */
+[data-theme="light"] .sa-grain,
+[data-theme="light"] .grain { mix-blend-mode: multiply; opacity: 0.04; }
+
+/* The studio "Identity" band is a deliberate contrast flip. In dark mode
+   it's a light (cream) band; in light mode make it a dark band so it still
+   reads as a distinct section rather than paper-on-paper. */
+[data-theme="light"] .identity        { background: #141210; color: #f4f1e9; }
+[data-theme="light"] .identity .lbl   { color: #8f8877; }
+[data-theme="light"] .identity__title { color: #f4f1e9; }
+[data-theme="light"] .identity__intro { color: #a39e92; }

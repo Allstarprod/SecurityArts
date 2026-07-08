@@ -1,0 +1,667 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Discover — SecurityArts · verified human work</title>
+  <meta name="description" content="A visual discovery board where every piece carries a SecurityArts verified-human seal. Search, save to boards, and get your own work cryptographically verified." />
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300..600;1,9..144,300..500&family=Geist:wght@300..600&family=Geist+Mono:wght@400;500&display=swap" rel="stylesheet" />
+
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='18' fill='%230c0c0b'/%3E%3Cg fill='none' stroke='%23f4f1e9' stroke-width='4.2'%3E%3Cpath d='M 50 13 A 7.22 7.22 0 0 1 64.16 15.82 A 7.22 7.22 0 0 1 76.16 23.84 A 7.22 7.22 0 0 1 84.18 35.84 A 7.22 7.22 0 0 1 87 50 A 7.22 7.22 0 0 1 84.18 64.16 A 7.22 7.22 0 0 1 76.16 76.16 A 7.22 7.22 0 0 1 64.16 84.18 A 7.22 7.22 0 0 1 50 87 A 7.22 7.22 0 0 1 35.84 84.18 A 7.22 7.22 0 0 1 23.84 76.16 A 7.22 7.22 0 0 1 15.82 64.16 A 7.22 7.22 0 0 1 13 50 A 7.22 7.22 0 0 1 15.82 35.84 A 7.22 7.22 0 0 1 23.84 23.84 A 7.22 7.22 0 0 1 35.84 15.82 A 7.22 7.22 0 0 1 50 13 Z'/%3E%3Ccircle cx='50' cy='50' r='27'/%3E%3C/g%3E%3Cpath fill='%23f4f1e9' d='M 50 34.5 L 53.76 44.82 L 64.74 45.21 L 56.09 51.98 L 59.11 62.54 L 50 56.4 L 40.89 62.54 L 43.91 51.98 L 35.26 45.21 L 46.24 44.82 Z'/%3E%3C/svg%3E" />
+
+  <style>
+  :root {
+    --ink: #0c0c0b; --ink-2: #131312; --ink-3: #1b1a18;
+    --cream: #e8e4d8; --jet: #100f0e;
+    --bone: #f4f1e9; --bone-dim: #a39e92; --bone-faint: #6f6b62;
+    --brass: #c2a14e; --brass-deep: #9c7e34;
+    --line: rgba(244,241,233,0.12); --line-strong: rgba(244,241,233,0.22);
+    --gutter: clamp(1rem, 3.5vw, 3.5rem);
+    --serif: "Fraunces", "Times New Roman", serif;
+    --sans: "Geist", -apple-system, system-ui, sans-serif;
+    --mono: "Geist Mono", ui-monospace, "SFMono-Regular", monospace;
+    --ease: cubic-bezier(0.16, 1, 0.3, 1);
+  }
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  html { -webkit-text-size-adjust: 100%; }
+  @media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation-duration: 0.001ms !important; transition-duration: 0.001ms !important; } }
+  body { background: var(--ink); color: var(--bone); font-family: var(--sans); font-weight: 360; font-size: clamp(1rem,0.95rem+0.25vw,1.0625rem); line-height: 1.55; letter-spacing: 0.005em; -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; overflow-x: hidden; min-height: 100vh; }
+  img, svg { display: block; max-width: 100%; }
+  a { color: inherit; text-decoration: none; }
+  button { font: inherit; }
+  ::selection { background: var(--brass); color: var(--ink); }
+  .svg-defs { position: absolute; width: 0; height: 0; }
+  .skip-link { position: fixed; top: 0; left: 50%; transform: translate(-50%,-120%); background: var(--bone); color: var(--ink); padding: 0.7rem 1.2rem; z-index: 200; font: 500 0.85rem/1 var(--mono); border-radius: 0 0 6px 6px; }
+  .skip-link:focus { transform: translate(-50%,0); }
+  :focus-visible { outline: 2px solid var(--brass); outline-offset: 3px; border-radius: 2px; }
+  .grain { position: fixed; inset: 0; z-index: 100; pointer-events: none; opacity: 0.045; mix-blend-mode: overlay; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E"); }
+
+  .seal { width: 100%; height: 100%; color: inherit; overflow: visible; }
+  .seal-scallop { stroke: currentColor; stroke-width: 2.1; fill: none; }
+  .seal-ring { stroke: currentColor; stroke-width: 1.5; fill: none; }
+  .seal-star { fill: currentColor; }
+  .mono { font-family: var(--mono); text-transform: uppercase; letter-spacing: 0.2em; font-size: 0.72rem; color: var(--bone-dim); }
+
+  /* app bar */
+  .appbar { position: sticky; top: 0; z-index: 60; display: flex; align-items: center; gap: clamp(0.7rem,2vw,1.6rem); padding: 0.85rem var(--gutter); background: color-mix(in srgb, var(--ink) 90%, transparent); backdrop-filter: blur(14px); border-bottom: 1px solid var(--line); }
+  .brand { display: inline-flex; align-items: center; gap: 0.6rem; flex: 0 0 auto; }
+  .brand__seal { width: 30px; height: 30px; transition: transform 0.9s var(--ease); }
+  .brand:hover .brand__seal { transform: rotate(22.5deg); }
+  .brand__word { font-family: var(--serif); font-weight: 460; font-size: 1.28rem; letter-spacing: -0.01em; }
+  .brand__sub { font-family: var(--mono); font-size: 0.6rem; letter-spacing: 0.22em; color: var(--brass); text-transform: uppercase; align-self: flex-start; margin-top: 0.15rem; }
+  .search { position: relative; flex: 1 1 auto; max-width: 540px; margin-inline: auto; }
+  .search > svg { position: absolute; left: 0.95rem; top: 50%; transform: translateY(-50%); width: 16px; height: 16px; color: var(--bone-faint); pointer-events: none; }
+  .search input { width: 100%; background: var(--ink-2); border: 1px solid var(--line); color: var(--bone); font-family: var(--sans); font-size: 0.95rem; padding: 0.75rem 1rem 0.75rem 2.6rem; border-radius: 100px; transition: border-color 0.25s var(--ease), background 0.25s var(--ease); }
+  .search input::placeholder { color: var(--bone-faint); }
+  .search input:focus { outline: none; border-color: var(--brass); background: var(--ink-3); }
+  .appbar__actions { display: flex; align-items: center; gap: 0.55rem; flex: 0 0 auto; }
+  .ghost-btn { display: inline-flex; align-items: center; gap: 0.5rem; cursor: pointer; font-family: var(--mono); font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.12em; color: var(--bone-dim); background: none; border: 1px solid var(--line-strong); padding: 0.6rem 0.9rem; border-radius: 100px; transition: all 0.25s var(--ease); }
+  .ghost-btn svg { width: 16px; height: 16px; }
+  .ghost-btn:hover { color: var(--bone); border-color: var(--bone); }
+  .ghost-btn__count { font-variant-numeric: tabular-nums; color: var(--brass); }
+  .solid-btn { display: inline-flex; align-items: center; gap: 0.45rem; cursor: pointer; font-family: var(--mono); font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.12em; color: var(--ink); background: var(--bone); border: 1px solid var(--bone); padding: 0.62rem 0.95rem; border-radius: 100px; transition: background 0.25s var(--ease), border-color 0.25s var(--ease); }
+  .solid-btn:hover { background: var(--brass); border-color: var(--brass); }
+
+  /* intro */
+  .disc-intro { padding: clamp(2.5rem,6vw,5rem) var(--gutter) clamp(1.5rem,3vw,2.5rem); max-width: 1100px; }
+  .disc-intro .eyebrow { font-family: var(--mono); font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.2em; color: var(--brass); display: inline-flex; align-items: center; gap: 0.6rem; margin-bottom: 1.4rem; }
+  .disc-intro .eyebrow::before { content: ""; width: 7px; height: 7px; border-radius: 50%; background: var(--brass); box-shadow: 0 0 0 4px rgba(194,161,78,0.16); }
+  .disc-intro h1 { font-family: var(--serif); font-weight: 340; font-optical-sizing: auto; font-size: clamp(2.4rem,1rem+6vw,5rem); line-height: 0.96; letter-spacing: -0.03em; margin-bottom: 1.4rem; }
+  .disc-intro h1 em { font-style: italic; color: var(--brass); }
+  .disc-intro p { color: var(--bone-dim); max-width: 56ch; font-size: clamp(1rem,0.95rem+0.3vw,1.15rem); }
+  .disc-intro p strong { color: var(--bone); font-weight: 460; }
+
+  /* filter bar */
+  .filterbar { position: sticky; top: 61px; z-index: 50; display: flex; align-items: center; gap: 1rem; padding: 0.85rem var(--gutter); background: color-mix(in srgb, var(--ink) 92%, transparent); backdrop-filter: blur(12px); border-bottom: 1px solid var(--line); }
+  .chips { display: flex; gap: 0.5rem; overflow-x: auto; scrollbar-width: none; flex: 1 1 auto; }
+  .chips::-webkit-scrollbar { display: none; }
+  .chip { flex: 0 0 auto; cursor: pointer; font-family: var(--mono); font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.1em; color: var(--bone-dim); background: none; border: 1px solid var(--line-strong); padding: 0.55rem 0.9rem; border-radius: 100px; white-space: nowrap; transition: all 0.2s var(--ease); }
+  .chip:hover { color: var(--bone); border-color: var(--bone); }
+  .chip.is-active { background: var(--bone); color: var(--ink); border-color: var(--bone); }
+  .viewing { flex: 0 0 auto; display: none; align-items: center; gap: 0.5rem; font-family: var(--mono); font-size: 0.66rem; letter-spacing: 0.1em; text-transform: uppercase; color: var(--brass); border: 1px solid var(--brass); border-radius: 100px; padding: 0.4rem 0.7rem; cursor: pointer; }
+  .viewing.show { display: inline-flex; }
+  .viewing svg { width: 12px; height: 12px; }
+  .result-count { flex: 0 0 auto; font-family: var(--mono); font-size: 0.68rem; letter-spacing: 0.12em; text-transform: uppercase; color: var(--bone-faint); white-space: nowrap; }
+  @media (max-width: 720px) { .result-count { display: none; } }
+
+  /* board / masonry */
+  .board { padding: clamp(1.5rem,3vw,2.5rem) var(--gutter) 4rem; column-width: 270px; column-gap: 18px; }
+  @media (max-width: 540px) { .board { column-width: 160px; column-gap: 12px; } }
+  .pin { break-inside: avoid; margin: 0 0 18px; position: relative; border-radius: 14px; overflow: hidden; background: var(--ink-2); border: 1px solid var(--line); display: block; width: 100%; transition: transform 0.4s var(--ease), border-color 0.3s var(--ease), box-shadow 0.4s var(--ease); }
+  @media (max-width: 540px) { .pin { margin-bottom: 12px; } }
+  .pin:hover { transform: translateY(-3px); border-color: var(--line-strong); box-shadow: 0 18px 40px -24px rgba(0,0,0,0.8); }
+  .pin__art { position: relative; width: 100%; overflow: hidden; }
+  .pin__art img, .pin__svg { width: 100%; height: 100%; display: block; }
+  .pin--own::after { content: "Your work"; position: absolute; bottom: 0.7rem; left: 0.7rem; z-index: 3; font-family: var(--mono); font-size: 0.54rem; letter-spacing: 0.14em; text-transform: uppercase; color: var(--ink); background: var(--brass); padding: 0.25rem 0.5rem; border-radius: 100px; }
+  .pin__badge { position: absolute; top: 0.7rem; left: 0.7rem; z-index: 3; display: inline-flex; align-items: center; gap: 0.4rem; background: color-mix(in srgb, var(--ink) 78%, transparent); backdrop-filter: blur(6px); border: 1px solid rgba(244,241,233,0.18); border-radius: 100px; padding: 0.3rem 0.6rem 0.3rem 0.45rem; font-family: var(--mono); font-size: 0.56rem; letter-spacing: 0.14em; text-transform: uppercase; color: var(--bone); }
+  .pin__badge svg { width: 15px; height: 15px; color: var(--brass); }
+  .pin__save { position: absolute; top: 0.7rem; right: 0.7rem; z-index: 3; width: 38px; height: 38px; border-radius: 50%; display: grid; place-items: center; cursor: pointer; border: 1px solid rgba(244,241,233,0.2); background: color-mix(in srgb, var(--ink) 72%, transparent); backdrop-filter: blur(6px); color: var(--bone); opacity: 0; transform: translateY(-4px); transition: all 0.25s var(--ease); }
+  .pin__save svg { width: 18px; height: 18px; }
+  .pin:hover .pin__save, .pin:focus-within .pin__save { opacity: 1; transform: translateY(0); }
+  .pin__save:hover { background: var(--bone); color: var(--ink); border-color: var(--bone); }
+  .pin__save.is-saved { opacity: 1; transform: translateY(0); background: var(--brass); color: var(--ink); border-color: var(--brass); }
+  .pin__meta { position: absolute; inset: auto 0 0 0; z-index: 2; padding: 1.7rem 0.85rem 0.75rem; background: linear-gradient(to top, rgba(7,7,6,0.94), rgba(7,7,6,0.55) 55%, transparent); opacity: 0; transform: translateY(8px); transition: opacity 0.3s var(--ease), transform 0.3s var(--ease); }
+  .pin:hover .pin__meta, .pin:focus-within .pin__meta { opacity: 1; transform: translateY(0); }
+  .pin__title { display: block; font-family: var(--serif); font-weight: 460; font-size: 1.05rem; line-height: 1.15; letter-spacing: -0.01em; }
+  .pin__artist { display: block; margin-top: 0.2rem; font-size: 0.78rem; color: var(--bone-dim); }
+  .pin__artist b { color: var(--brass); font-weight: 500; }
+  .board__empty { display: none; padding: 4rem var(--gutter) 6rem; text-align: center; }
+  .board__empty.show { display: block; }
+  .board__empty h2 { font-family: var(--serif); font-weight: 360; font-size: clamp(1.6rem,1rem+2vw,2.4rem); letter-spacing: -0.02em; margin-bottom: 0.6rem; }
+  .board__empty p { color: var(--bone-dim); }
+
+  /* footer */
+  .disc-foot { border-top: 1px solid var(--line); padding: 2.5rem var(--gutter); display: flex; flex-wrap: wrap; justify-content: space-between; gap: 1.2rem; align-items: center; }
+  .disc-foot a.backhome { font-family: var(--mono); font-size: 0.74rem; text-transform: uppercase; letter-spacing: 0.12em; color: var(--bone-dim); display: inline-flex; align-items: center; gap: 0.5rem; transition: color 0.25s var(--ease); }
+  .disc-foot a.backhome:hover { color: var(--bone); }
+  .disc-foot .mono { font-size: 0.68rem; letter-spacing: 0.14em; color: var(--bone-faint); }
+
+  /* scrim shared by panel + modal */
+  .scrim { position: fixed; inset: 0; z-index: 90; background: rgba(6,6,5,0.62); backdrop-filter: blur(3px); opacity: 0; visibility: hidden; transition: opacity 0.35s var(--ease), visibility 0.35s var(--ease); }
+  .scrim.show { opacity: 1; visibility: visible; }
+
+  /* boards slide-over */
+  .panel { position: fixed; top: 0; right: 0; bottom: 0; z-index: 95; width: min(420px, 92vw); background: var(--ink-2); border-left: 1px solid var(--line-strong); transform: translateX(100%); transition: transform 0.45s var(--ease); display: flex; flex-direction: column; }
+  .panel.show { transform: translateX(0); }
+  .panel__head { display: flex; align-items: center; justify-content: space-between; padding: 1.5rem var(--gutter); border-bottom: 1px solid var(--line); }
+  .panel__head h2 { font-family: var(--serif); font-weight: 400; font-size: 1.5rem; letter-spacing: -0.01em; }
+  .panel__close, .modal__close { background: none; border: 1px solid var(--line-strong); color: var(--bone); width: 36px; height: 36px; border-radius: 50%; display: grid; place-items: center; cursor: pointer; transition: all 0.25s var(--ease); }
+  .panel__close:hover, .modal__close:hover { border-color: var(--bone); background: var(--ink-3); }
+  .panel__close svg, .modal__close svg { width: 16px; height: 16px; }
+  .panel__body { overflow-y: auto; padding: 1.25rem var(--gutter) 2rem; flex: 1 1 auto; }
+  .newboard { display: flex; gap: 0.5rem; margin-bottom: 1.4rem; }
+  .newboard input { flex: 1 1 auto; background: var(--ink); border: 1px solid var(--line); color: var(--bone); font-family: var(--sans); font-size: 0.9rem; padding: 0.65rem 0.9rem; border-radius: 10px; }
+  .newboard input:focus { outline: none; border-color: var(--brass); }
+  .newboard button { flex: 0 0 auto; background: var(--bone); color: var(--ink); border: 0; border-radius: 10px; padding: 0 1rem; font-family: var(--mono); font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.1em; cursor: pointer; transition: background 0.25s var(--ease); }
+  .newboard button:hover { background: var(--brass); }
+  .board-list { list-style: none; display: flex; flex-direction: column; gap: 0.5rem; }
+  .board-row { display: flex; align-items: center; gap: 0.85rem; padding: 0.85rem 1rem; border: 1px solid var(--line); border-radius: 12px; cursor: pointer; transition: all 0.25s var(--ease); }
+  .board-row:hover { border-color: var(--line-strong); background: var(--ink-3); }
+  .board-row.is-active { border-color: var(--brass); background: linear-gradient(160deg, #1a1712, var(--ink-2) 70%); }
+  .board-row__seal { width: 30px; height: 30px; flex: 0 0 auto; color: var(--bone-faint); }
+  .board-row.is-active .board-row__seal { color: var(--brass); }
+  .board-row__main { flex: 1 1 auto; min-width: 0; }
+  .board-row__name { font-family: var(--serif); font-size: 1.1rem; font-weight: 440; letter-spacing: -0.01em; }
+  .board-row__count { font-family: var(--mono); font-size: 0.62rem; letter-spacing: 0.12em; text-transform: uppercase; color: var(--bone-faint); margin-top: 0.1rem; }
+  .board-row__del { flex: 0 0 auto; background: none; border: 0; color: var(--bone-faint); cursor: pointer; padding: 0.3rem; border-radius: 6px; transition: color 0.2s var(--ease); }
+  .board-row__del:hover { color: var(--bone); }
+  .board-row__del svg { width: 15px; height: 15px; }
+  .panel__hint { font-size: 0.8rem; color: var(--bone-faint); margin-top: 1.3rem; line-height: 1.5; }
+
+  /* upload modal */
+  .modal { position: fixed; z-index: 96; left: 50%; top: 50%; transform: translate(-50%, calc(-50% + 16px)); width: min(640px, 94vw); max-height: 92vh; overflow-y: auto; background: var(--ink-2); border: 1px solid var(--line-strong); border-radius: 18px; opacity: 0; visibility: hidden; transition: opacity 0.35s var(--ease), transform 0.35s var(--ease), visibility 0.35s var(--ease); }
+  .modal.show { opacity: 1; visibility: visible; transform: translate(-50%, -50%); }
+  .modal__head { display: flex; align-items: flex-start; justify-content: space-between; gap: 1rem; padding: 1.6rem clamp(1.25rem,3vw,2.2rem) 1rem; }
+  .modal__eyebrow { font-family: var(--mono); font-size: 0.66rem; text-transform: uppercase; letter-spacing: 0.18em; color: var(--brass); }
+  .modal__title { font-family: var(--serif); font-weight: 360; font-size: clamp(1.7rem,1rem+2vw,2.4rem); line-height: 1.02; letter-spacing: -0.02em; margin-top: 0.5rem; }
+  .modal__body { padding: 0 clamp(1.25rem,3vw,2.2rem) 1.8rem; }
+  .modal__sub { color: var(--bone-dim); font-size: 0.92rem; margin-bottom: 1.4rem; max-width: 48ch; }
+  .dropzone { border: 1.5px dashed var(--line-strong); border-radius: 14px; padding: 2rem 1.5rem; text-align: center; cursor: pointer; transition: all 0.25s var(--ease); background: var(--ink); }
+  .dropzone:hover, .dropzone.drag { border-color: var(--brass); background: var(--ink-3); }
+  .dropzone__seal { width: 44px; height: 44px; margin: 0 auto 0.9rem; color: var(--bone-faint); }
+  .dropzone p { font-size: 0.92rem; color: var(--bone-dim); }
+  .dropzone p b { color: var(--bone); font-weight: 500; }
+  .dropzone small { display: block; margin-top: 0.4rem; font-family: var(--mono); font-size: 0.62rem; letter-spacing: 0.1em; text-transform: uppercase; color: var(--bone-faint); }
+  .dz-preview { display: none; position: relative; border-radius: 14px; overflow: hidden; border: 1px solid var(--line); }
+  .dz-preview.show { display: block; }
+  .dz-preview img { width: 100%; max-height: 320px; object-fit: contain; background: #000; }
+  .dz-preview button { position: absolute; top: 0.6rem; right: 0.6rem; background: rgba(7,7,6,0.7); border: 1px solid var(--line-strong); color: var(--bone); border-radius: 50%; width: 32px; height: 32px; display: grid; place-items: center; cursor: pointer; }
+  .dz-preview button svg { width: 15px; height: 15px; }
+  .fields { display: grid; grid-template-columns: 1fr 1fr; gap: 0.9rem; margin-top: 1.2rem; }
+  .field { display: flex; flex-direction: column; gap: 0.4rem; }
+  .field.full { grid-column: 1 / -1; }
+  .field label { font-family: var(--mono); font-size: 0.62rem; text-transform: uppercase; letter-spacing: 0.14em; color: var(--bone-dim); }
+  .field input, .field select { background: var(--ink); border: 1px solid var(--line); color: var(--bone); font-family: var(--sans); font-size: 0.95rem; padding: 0.7rem 0.85rem; border-radius: 10px; }
+  .field input:focus, .field select:focus { outline: none; border-color: var(--brass); }
+  .field select { appearance: none; cursor: pointer; }
+  .modal__actions { display: flex; flex-wrap: wrap; gap: 0.7rem; margin-top: 1.5rem; align-items: center; }
+  .verify-btn { display: inline-flex; align-items: center; gap: 0.5rem; background: var(--bone); color: var(--ink); border: 0; border-radius: 100px; padding: 0.85rem 1.4rem; font-family: var(--mono); font-size: 0.74rem; text-transform: uppercase; letter-spacing: 0.1em; cursor: pointer; transition: background 0.25s var(--ease); }
+  .verify-btn:hover:not(:disabled) { background: var(--brass); }
+  .verify-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+  .verify-btn svg { width: 16px; height: 16px; }
+  .modal__note { font-size: 0.74rem; color: var(--bone-faint); line-height: 1.5; margin-top: 1.1rem; }
+
+  /* certificate */
+  .cert { display: none; margin-top: 1.4rem; border: 1px solid var(--brass); border-radius: 14px; overflow: hidden; background: linear-gradient(160deg, #19150d, var(--ink-2) 70%); }
+  .cert.show { display: block; animation: certIn 0.5s var(--ease); }
+  @keyframes certIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: none; } }
+  .cert__head { display: flex; align-items: center; gap: 0.8rem; padding: 1.1rem 1.3rem; border-bottom: 1px solid var(--line); }
+  .cert__seal { width: 40px; height: 40px; color: var(--brass); flex: 0 0 auto; }
+  .cert__head h3 { font-family: var(--serif); font-weight: 440; font-size: 1.15rem; }
+  .cert__head p { font-family: var(--mono); font-size: 0.6rem; letter-spacing: 0.12em; text-transform: uppercase; color: var(--brass); margin-top: 0.1rem; }
+  .cert__rows { padding: 1rem 1.3rem 1.3rem; display: grid; gap: 0.8rem; }
+  .cert__row { display: grid; grid-template-columns: 7.5rem 1fr; gap: 0.8rem; align-items: start; }
+  .cert__k { font-family: var(--mono); font-size: 0.6rem; text-transform: uppercase; letter-spacing: 0.12em; color: var(--bone-faint); padding-top: 0.15rem; }
+  .cert__v { font-family: var(--mono); font-size: 0.72rem; color: var(--bone); word-break: break-all; line-height: 1.5; }
+  .cert__v.brass { color: var(--brass); }
+  .cert__publish { display: inline-flex; align-items: center; gap: 0.5rem; margin: 0 1.3rem 1.3rem; background: var(--brass); color: var(--ink); border: 0; border-radius: 100px; padding: 0.8rem 1.3rem; font-family: var(--mono); font-size: 0.74rem; text-transform: uppercase; letter-spacing: 0.1em; cursor: pointer; transition: transform 0.25s var(--ease); }
+  .cert__publish:hover { transform: translateY(-2px); }
+
+  /* toast */
+  .toast { position: fixed; left: 50%; bottom: 1.6rem; transform: translate(-50%, 160%); z-index: 120; display: inline-flex; align-items: center; gap: 0.6rem; background: var(--bone); color: var(--ink); font-family: var(--mono); font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.1em; padding: 0.7rem 1.1rem; border-radius: 100px; box-shadow: 0 20px 50px -20px rgba(0,0,0,0.7); transition: transform 0.4s var(--ease); pointer-events: none; }
+  .toast.show { transform: translate(-50%, 0); }
+  .toast svg { width: 17px; height: 17px; color: var(--brass-deep); }
+
+  @media (max-width: 860px) { .brand__word, .brand__sub { display: none; } .solid-btn span.label { display: none; } }
+  @media (max-width: 600px) { .ghost-btn span.label { display: none; } .search { order: 3; flex-basis: 100%; max-width: none; margin: 0; } .appbar { flex-wrap: wrap; } .fields { grid-template-columns: 1fr; } }
+  </style>
+</head>
+<body>
+  <a class="skip-link" href="#board">Skip to the board</a>
+
+  <svg class="svg-defs" aria-hidden="true" focusable="false">
+    <symbol id="saSeal" viewBox="0 0 100 100">
+      <path class="seal-scallop" d="M 50.00 13.00 A 7.22 7.22 0 0 1 64.16 15.82 A 7.22 7.22 0 0 1 76.16 23.84 A 7.22 7.22 0 0 1 84.18 35.84 A 7.22 7.22 0 0 1 87.00 50.00 A 7.22 7.22 0 0 1 84.18 64.16 A 7.22 7.22 0 0 1 76.16 76.16 A 7.22 7.22 0 0 1 64.16 84.18 A 7.22 7.22 0 0 1 50.00 87.00 A 7.22 7.22 0 0 1 35.84 84.18 A 7.22 7.22 0 0 1 23.84 76.16 A 7.22 7.22 0 0 1 15.82 64.16 A 7.22 7.22 0 0 1 13.00 50.00 A 7.22 7.22 0 0 1 15.82 35.84 A 7.22 7.22 0 0 1 23.84 23.84 A 7.22 7.22 0 0 1 35.84 15.82 A 7.22 7.22 0 0 1 50.00 13.00 Z" />
+      <circle class="seal-ring" cx="50" cy="50" r="27" />
+      <path class="seal-star" d="M 50.00 34.50 L 53.76 44.82 L 64.74 45.21 L 56.09 51.98 L 59.11 62.54 L 50.00 56.40 L 40.89 62.54 L 43.91 51.98 L 35.26 45.21 L 46.24 44.82 Z" />
+    </symbol>
+  </svg>
+
+  <div class="grain" aria-hidden="true"></div>
+
+  <header class="appbar">
+    <a class="brand" href="index.html" aria-label="SecurityArts — home">
+      <svg class="brand__seal seal" aria-hidden="true"><use href="#saSeal" /></svg>
+      <span class="brand__word">Security<span>Arts</span></span>
+      <span class="brand__sub">Discover</span>
+    </a>
+    <form class="search" role="search" onsubmit="return false;">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg>
+      <input id="search" type="search" placeholder="Search verified human work — artist, title, medium…" aria-label="Search verified human work" autocomplete="off" />
+    </form>
+    <div class="appbar__actions">
+      <a class="ghost-btn" href="market.html" aria-label="Marketplace">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M6 6h15l-1.5 9h-12z"/><circle cx="9" cy="20" r="1"/><circle cx="18" cy="20" r="1"/><path d="M6 6 5 3H2"/></svg>
+        <span class="label">Market</span>
+      </a>
+      <button class="ghost-btn" id="boardsBtn" aria-haspopup="dialog">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M6 3h12a1 1 0 0 1 1 1v17l-7-4-7 4V4a1 1 0 0 1 1-1Z"/></svg>
+        <span class="label">Boards</span> <span class="ghost-btn__count" id="savedCount">0</span>
+      </button>
+      <button class="solid-btn" id="getVerifiedBtn">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M12 3 4 6v6c0 4.5 3.4 7.6 8 9 4.6-1.4 8-4.5 8-9V6l-8-3Z"/><path d="m9 12 2 2 4-4"/></svg>
+        <span class="label">Get verified</span>
+      </button>
+    </div>
+  </header>
+
+  <main id="main">
+    <section class="disc-intro">
+      <p class="eyebrow">Discover — verified human work</p>
+      <h1>A wall of work<br />no machine <em>made.</em></h1>
+      <p>
+        Every piece here carries a SecurityArts seal — a cryptographic signature
+        proving a <strong>human</strong> made it. Search it, save it into your
+        boards, and <strong>get your own work verified</strong> in seconds.
+      </p>
+    </section>
+
+    <div class="filterbar">
+      <div class="chips" id="chips" role="tablist" aria-label="Filter by medium"></div>
+      <button class="viewing" id="viewing" type="button">
+        <span id="viewingName"></span>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" aria-hidden="true"><path d="M18 6 6 18M6 6l12 12"/></svg>
+      </button>
+      <span class="result-count" id="resultCount"></span>
+    </div>
+
+    <section class="board" id="board" aria-label="Verified human artwork"></section>
+    <div class="board__empty" id="empty">
+      <h2>Nothing here — yet.</h2>
+      <p>Try a different medium, clear your search, or get a new piece verified.</p>
+    </div>
+  </main>
+
+  <footer class="disc-foot">
+    <a class="backhome" href="index.html"><span aria-hidden="true">←</span> Back to SecurityArts</a>
+    <p class="mono">Every work sealed · Authentic · Verified · Human</p>
+  </footer>
+
+  <!-- boards panel -->
+  <div class="scrim" id="scrim"></div>
+  <aside class="panel" id="boardsPanel" role="dialog" aria-label="Your boards" aria-modal="true">
+    <div class="panel__head">
+      <h2>Your boards</h2>
+      <button class="panel__close" id="panelClose" aria-label="Close boards"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6 6 18M6 6l12 12"/></svg></button>
+    </div>
+    <div class="panel__body">
+      <form class="newboard" id="newBoardForm">
+        <input id="newBoardName" type="text" placeholder="New board name…" aria-label="New board name" maxlength="40" />
+        <button type="submit">Create</button>
+      </form>
+      <ul class="board-list" id="boardList"></ul>
+      <p class="panel__hint">Open a board to view its saves and make it the target for the bookmark button. Saves are kept on this device.</p>
+    </div>
+  </aside>
+
+  <!-- upload / verify modal -->
+  <div class="modal" id="uploadModal" role="dialog" aria-label="Get your work verified" aria-modal="true">
+    <div class="modal__head">
+      <div>
+        <p class="modal__eyebrow">Human authentication</p>
+        <h2 class="modal__title">Get your work verified.</h2>
+      </div>
+      <button class="modal__close" id="modalClose" aria-label="Close"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6 6 18M6 6l12 12"/></svg></button>
+    </div>
+    <div class="modal__body">
+      <p class="modal__sub">Upload a piece you made by hand. We compute a cryptographic seal from the file itself, then publish it to the wall as verified human work.</p>
+
+      <div class="dropzone" id="dropzone" tabindex="0" role="button" aria-label="Upload an image">
+        <div class="dropzone__seal"><svg class="seal" aria-hidden="true"><use href="#saSeal"/></svg></div>
+        <p><b>Drop an image here</b> or click to browse</p>
+        <small>PNG · JPG · WEBP — stays on your device</small>
+      </div>
+      <input id="fileInput" type="file" accept="image/*" hidden />
+
+      <div class="dz-preview" id="dzPreview">
+        <img id="previewImg" alt="Selected artwork preview" />
+        <button type="button" id="clearFile" aria-label="Remove image"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6 6 18M6 6l12 12"/></svg></button>
+      </div>
+
+      <div class="fields">
+        <div class="field full">
+          <label for="fTitle">Title</label>
+          <input id="fTitle" type="text" placeholder="e.g. Low Tide, No.4" maxlength="60" />
+        </div>
+        <div class="field">
+          <label for="fArtist">Artist name</label>
+          <input id="fArtist" type="text" placeholder="Your name" maxlength="50" />
+        </div>
+        <div class="field">
+          <label for="fMedium">Medium</label>
+          <select id="fMedium"></select>
+        </div>
+      </div>
+
+      <div class="modal__actions">
+        <button class="verify-btn" id="verifyBtn" disabled>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M12 3 4 6v6c0 4.5 3.4 7.6 8 9 4.6-1.4 8-4.5 8-9V6l-8-3Z"/><path d="m9 12 2 2 4-4"/></svg>
+          <span id="verifyLabel">Generate seal &amp; verify</span>
+        </button>
+      </div>
+
+      <div class="cert" id="cert">
+        <div class="cert__head">
+          <div class="cert__seal"><svg class="seal" aria-hidden="true"><use href="#saSeal"/></svg></div>
+          <div>
+            <h3>Verified human-made</h3>
+            <p id="certAlgo">ECDSA P-256 · SHA-256</p>
+          </div>
+        </div>
+        <div class="cert__rows">
+          <div class="cert__row"><span class="cert__k">Content hash</span><span class="cert__v" id="certHash"></span></div>
+          <div class="cert__row"><span class="cert__k">Signature</span><span class="cert__v" id="certSig"></span></div>
+          <div class="cert__row"><span class="cert__k">Signer</span><span class="cert__v brass" id="certSigner"></span></div>
+          <div class="cert__row"><span class="cert__k">Sealed at</span><span class="cert__v" id="certTime"></span></div>
+        </div>
+        <button class="cert__publish" id="publishBtn">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+          Publish to the wall
+        </button>
+      </div>
+
+      <p class="modal__note">Demo: the hash and signature are computed locally in your browser with the Web Crypto API — nothing is uploaded. In production, SecurityArts embeds this seal invisibly into the file and registers it so origin can be checked anywhere online.</p>
+    </div>
+  </div>
+
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+  <script>
+  (function () {
+    "use strict";
+
+    /* ───────────────── data layer (persistent) ───────────────── */
+    var SA = (function () {
+      var K = { up: 'sa_uploads', bd: 'sa_boards', ac: 'sa_active' };
+      function read(k, d) { try { var v = JSON.parse(localStorage.getItem(k)); return v == null ? d : v; } catch (e) { return d; } }
+      function write(k, v) { try { localStorage.setItem(k, JSON.stringify(v)); return true; } catch (e) { return false; } }
+      var uploads = read(K.up, []);
+      var boards = read(K.bd, null);
+      if (!boards || !boards.length) { boards = [{ id: 'b_seed', name: 'Inspiration', pins: [] }]; write(K.bd, boards); }
+      var active = read(K.ac, boards[0].id);
+      if (!boards.some(function (b) { return b.id === active; })) active = boards[0].id;
+      var uid = function (p) { return p + '_' + Date.now().toString(36) + Math.floor(Math.random() * 1e4).toString(36); };
+      return {
+        uploads: uploads, boards: boards,
+        active: function () { return active; },
+        setActive: function (id) { active = id; write(K.ac, id); },
+        addBoard: function (name) { var b = { id: uid('b'), name: name, pins: [] }; boards.push(b); write(K.bd, boards); return b; },
+        removeBoard: function (id) { var i = boards.map(function (b) { return b.id; }).indexOf(id); if (i > -1 && boards.length > 1) { boards.splice(i, 1); if (active === id) { active = boards[0].id; write(K.ac, active); } write(K.bd, boards); } },
+        toggle: function (workId, boardId) { var b = boards.filter(function (x) { return x.id === boardId; })[0]; if (!b) return false; var i = b.pins.indexOf(workId); if (i > -1) b.pins.splice(i, 1); else b.pins.push(workId); write(K.bd, boards); return i === -1; },
+        inBoard: function (workId, boardId) { var b = boards.filter(function (x) { return x.id === boardId; })[0]; return b ? b.pins.indexOf(workId) > -1 : false; },
+        savedCount: function () { var s = {}; boards.forEach(function (b) { b.pins.forEach(function (p) { s[p] = 1; }); }); return Object.keys(s).length; },
+        boardById: function (id) { return boards.filter(function (b) { return b.id === id; })[0]; },
+        addUpload: function (w) { uploads.unshift(w); if (uploads.length > 12) uploads = uploads.slice(0, 12); SA.uploads = uploads; write(K.up, uploads); return w; }
+      };
+    })();
+
+    /* ───────────────── seeded generative catalog ───────────────── */
+    function mulberry32(a) { return function () { a |= 0; a = (a + 0x6D2B79F5) | 0; var t = Math.imul(a ^ (a >>> 15), 1 | a); t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t; return ((t ^ (t >>> 14)) >>> 0) / 4294967296; }; }
+    function shade(hex, amt) { var c = hex.replace('#', ''); if (c.length === 3) c = c.split('').map(function (x) { return x + x; }).join(''); var n = parseInt(c, 16), r = (n >> 16) & 255, g = (n >> 8) & 255, b = n & 255; var f = amt < 0 ? 0 : 255, t = Math.abs(amt) / 100; r = Math.round((f - r) * t) + r; g = Math.round((f - g) * t) + g; b = Math.round((f - b) * t) + b; return '#' + ((1 << 24) + (r << 16) + (g << 8) + b).toString(16).slice(1); }
+    var PAL = [
+      { bg: '#1f7a55', fg: '#e8e4d8', accent: '#c2a14e' }, { bg: '#b23a2c', fg: '#f4f1e9', accent: '#100f0e' },
+      { bg: '#3667cf', fg: '#e8e4d8', accent: '#c2a14e' }, { bg: '#a8862a', fg: '#100f0e', accent: '#f4f1e9' },
+      { bg: '#0c0c0b', fg: '#c2a14e', accent: '#b23a2c' }, { bg: '#e8e4d8', fg: '#100f0e', accent: '#b23a2c' },
+      { bg: '#7c7468', fg: '#f4f1e9', accent: '#100f0e' }, { bg: '#15302a', fg: '#c2a14e', accent: '#1f7a55' },
+      { bg: '#2a1d16', fg: '#c2a14e', accent: '#b23a2c' }, { bg: '#1a2740', fg: '#e8e4d8', accent: '#c2a14e' }
+    ];
+    function aField(p, r) { var cx = 80 + r() * 240, cy = 120 + r() * 360, rad = 170 + r() * 200, cx2 = r() * 400, cy2 = 220 + r() * 360, rad2 = 120 + r() * 170; return "<rect width='400' height='600' fill='" + shade(p.bg, -22) + "'/><circle cx='" + cx2 + "' cy='" + cy2 + "' r='" + rad2 + "' fill='" + p.fg + "' opacity='0.16'/><circle cx='" + cx + "' cy='" + cy + "' r='" + rad + "' fill='" + p.accent + "' opacity='0.6'/><circle cx='" + cx + "' cy='" + cy + "' r='" + (rad * 0.46) + "' fill='" + p.fg + "' opacity='0.92'/>"; }
+    function aArcs(p, r) { var cx = 140 + r() * 120, cy = 200 + r() * 200, n = 5 + (r() * 4 | 0), s = "<rect width='400' height='600' fill='" + p.bg + "'/>"; for (var i = 0; i < n; i++) s += "<circle cx='" + cx + "' cy='" + cy + "' r='" + (50 + i * (46 + r() * 22)) + "' fill='none' stroke='" + (i % 2 ? p.accent : p.fg) + "' stroke-width='" + (4 + r() * 7).toFixed(1) + "' opacity='" + (0.45 + 0.4 * r()).toFixed(2) + "'/>"; return s + "<circle cx='" + cx + "' cy='" + cy + "' r='30' fill='" + p.accent + "'/>"; }
+    function aBau(p, r) { var s = "<rect width='400' height='600' fill='" + p.bg + "'/>"; s += "<circle cx='" + (90 + r() * 200) + "' cy='" + (140 + r() * 130) + "' r='" + (85 + r() * 70) + "' fill='" + p.accent + "'/>"; s += "<path d='M0 " + (380 + r() * 120) + " a 200 200 0 0 1 400 0 Z' fill='" + p.fg + "' opacity='0.92'/>"; s += "<polygon points='" + (r() * 180) + ",90 " + (300 + r() * 80) + ",300 70,360' fill='" + p.accent + "' opacity='0.75'/>"; s += "<rect x='" + (r() * 260) + "' y='" + (60 + r() * 80) + "' width='" + (34 + r() * 36) + "' height='540' fill='" + p.fg + "' opacity='0.55'/>"; return s; }
+    function aPoster(p, r) { var G = 'AKMRSVZBQGW&', g = G[r() * G.length | 0]; return "<rect width='400' height='600' fill='" + p.bg + "'/><text x='200' y='405' text-anchor='middle' font-family='Fraunces, serif' font-size='440' font-weight='500' fill='" + p.fg + "'>" + g + "</text><rect x='40' y='520' width='" + (110 + r() * 170 | 0) + "' height='6' fill='" + p.accent + "'/>"; }
+    function aWaves(p, r) { var cols = [shade(p.bg, 14), p.accent, p.fg, shade(p.bg, -16), p.accent], s = "<rect width='400' height='600' fill='" + p.bg + "'/>", base = 110 + r() * 60; for (var i = 0; i < 6; i++) { var yy = base + i * 78, amp = 18 + r() * 42; s += "<path d='M0 " + yy.toFixed(0) + " C 130 " + (yy - amp).toFixed(0) + ", 270 " + (yy + amp).toFixed(0) + ", 400 " + yy.toFixed(0) + " L400 600 L0 600 Z' fill='" + cols[i % cols.length] + "' opacity='0.9'/>"; } return s; }
+    function aHalf(p, r) { var s = "<rect width='400' height='600' fill='" + p.bg + "'/>", gap = 38, ph = r() * 6.28; for (var y = 0; y < 600; y += gap) for (var x = 0; x < 400; x += gap) { var t = (x / 400 + y / 600) / 2, rad = 2 + t * 14 * (0.55 + 0.7 * Math.abs(Math.sin(x * 0.05 + y * 0.04 + ph))); s += "<circle cx='" + (x + gap / 2) + "' cy='" + (y + gap / 2) + "' r='" + rad.toFixed(1) + "' fill='" + p.fg + "'/>"; } return s + "<circle cx='" + (110 + r() * 180 | 0) + "' cy='" + (150 + r() * 260 | 0) + "' r='42' fill='" + p.accent + "'/>"; }
+    var GENS = { field: aField, arcs: aArcs, bau: aBau, poster: aPoster, waves: aWaves, half: aHalf };
+
+    var CATS = [{ key: 'all', label: 'All work' }, { key: 'illustration', label: 'Illustration' }, { key: 'painting', label: 'Painting' }, { key: '3d', label: '3D / CGI' }, { key: 'photography', label: 'Photography' }, { key: 'lettering', label: 'Lettering' }, { key: 'concept', label: 'Concept Art' }, { key: 'mixed', label: 'Mixed Media' }];
+    var MEDIUM = { illustration: 'Digital illustration', painting: 'Oil on linen', '3d': '3D render', photography: '35mm photograph', lettering: 'Hand lettering', concept: 'Concept art', mixed: 'Mixed media' };
+    var GEN_BY_CAT = { illustration: ['bau', 'half', 'field'], painting: ['field', 'waves'], '3d': ['arcs', 'bau'], photography: ['field', 'half'], lettering: ['poster'], concept: ['waves', 'arcs', 'field'], mixed: ['half', 'bau', 'waves'] };
+    var FIRST = ['Mara', 'Theo', 'Ines', 'Kofi', 'Lena', 'Diego', 'Yuki', 'Sol', 'Noa', 'Amara', 'Rune', 'Priya', 'Cael', 'Wren', 'Otto', 'Nadia', 'Emil', 'Suki', 'Iris', 'Bo', 'Lior', 'Tova', 'Ravi', 'June', 'Ash', 'Marisol', 'Hugo', 'Esme'];
+    var LAST = ['Okafor', 'Brandt', 'Vela', 'Mensah', 'Sato', 'Reyes', 'Lindqvist', 'Haddad', 'Moreau', 'Petrova', 'Nakamura', 'Adeyemi', 'Cole', 'Bauer', 'Ferro', 'Wynn', 'Asante', 'Kapoor', 'Olsen', 'Marsh', 'Delacroix', 'Quist', 'Romano', 'Ito', 'Vance', 'Castille', 'Berg', 'Faro'];
+    var TITLES = ['Static Bloom', 'Low Tide, No.4', 'Carrier Signal', 'The Long Field', 'Afterimage', 'Salt & Iron', 'Nocturne for a City', 'Paper Sun', 'Margin Notes', 'Quiet Engine', 'Ribbon of Smoke', 'Index of Birds', 'Held Breath', 'Slow Tangerine', 'Foundry', 'Cartographer', 'Warm Static', 'Folded Light', 'Eighth Avenue', 'Reliquary', 'Threshold', 'Drift Study', 'Copper Hours', 'Understory', 'Hand & Glass', 'North by Memory', 'Ash Garden', 'Tideline'];
+
+    var seeded = [];
+    for (var i = 0; i < 28; i++) {
+      var r0 = mulberry32(i * 2654435761 + 12345);
+      var cat = CATS[1 + (i % (CATS.length - 1))].key;
+      var pal = PAL[(i * 3 + (r0() * PAL.length | 0)) % PAL.length];
+      var pool = GEN_BY_CAT[cat], gk = pool[(r0() * pool.length) | 0];
+      var h = Math.round(220 + r0() * 250);
+      seeded.push({ id: 'p' + i, cat: cat, h: h, art: "<svg class='pin__svg' viewBox='0 0 400 600' preserveAspectRatio='xMidYMid slice' xmlns='http://www.w3.org/2000/svg' aria-hidden='true'>" + GENS[gk](pal, mulberry32(i * 99 + 7)) + "</svg>", title: TITLES[i % TITLES.length], artist: FIRST[i % FIRST.length] + ' ' + LAST[(i * 5 + 3) % LAST.length], medium: MEDIUM[cat] });
+    }
+    function allWorks() { return SA.uploads.concat(seeded); }
+
+    /* ───────────────── render ───────────────── */
+    var board = document.getElementById('board');
+    var SEALSVG = "<svg viewBox='0 0 100 100' aria-hidden='true' style='width:100%;height:100%'><use href='#saSeal'/></svg>";
+    var BOOKMARK = "<svg viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' aria-hidden='true'><path d='M6 3h12a1 1 0 0 1 1 1v17l-7-4-7 4V4a1 1 0 0 1 1-1Z'/></svg>";
+    function esc(s) { return String(s).replace(/[&<>"]/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]; }); }
+
+    function buildPin(w) {
+      var fig = document.createElement('figure');
+      fig.className = 'pin' + (w.own ? ' pin--own' : '');
+      fig.dataset.cat = w.cat; fig.dataset.id = w.id;
+      fig.dataset.text = (w.title + ' ' + w.artist + ' ' + w.medium).toLowerCase();
+      var art = w.img ? "<div class='pin__art'><img src='" + w.img + "' alt='" + esc(w.title) + " by " + esc(w.artist) + "' loading='lazy'></div>"
+        : "<div class='pin__art' style='height:" + w.h + "px'>" + w.art + "</div>";
+      fig.innerHTML = art
+        + "<span class='pin__badge'><span style='width:15px;height:15px;display:block'>" + SEALSVG + "</span>Verified</span>"
+        + "<button class='pin__save' type='button' aria-label='Save " + esc(w.title) + " to your board' aria-pressed='false'>" + BOOKMARK + "</button>"
+        + "<figcaption class='pin__meta'><span class='pin__title'>" + esc(w.title) + "</span><span class='pin__artist'><b>" + esc(w.artist) + "</b> · " + esc(w.medium) + "</span></figcaption>";
+      return fig;
+    }
+    function renderBoard() {
+      board.innerHTML = '';
+      allWorks().forEach(function (w) { board.appendChild(buildPin(w)); });
+      refreshSaves(); apply();
+    }
+
+    /* ───────────────── filtering ───────────────── */
+    var state = { q: '', cat: 'all', viewBoard: null };
+    var resultCountEl = document.getElementById('resultCount');
+    var emptyEl = document.getElementById('empty');
+    var viewingEl = document.getElementById('viewing');
+    var viewingName = document.getElementById('viewingName');
+
+    function apply() {
+      var shown = 0, pins = board.querySelectorAll('.pin');
+      pins.forEach(function (el) {
+        var id = el.dataset.id;
+        var ok = (state.cat === 'all' || el.dataset.cat === state.cat)
+          && (!state.q || el.dataset.text.indexOf(state.q) !== -1)
+          && (!state.viewBoard || SA.inBoard(id, state.viewBoard));
+        el.style.display = ok ? '' : 'none';
+        if (ok) shown++;
+      });
+      emptyEl.classList.toggle('show', shown === 0);
+      board.style.display = shown === 0 ? 'none' : '';
+      resultCountEl.textContent = shown + (shown === 1 ? ' work' : ' works');
+      viewingEl.classList.toggle('show', !!state.viewBoard);
+      if (state.viewBoard) { var b = SA.boardById(state.viewBoard); viewingName.textContent = 'In: ' + (b ? b.name : ''); }
+    }
+    function refreshSaves() {
+      document.getElementById('savedCount').textContent = SA.savedCount();
+      board.querySelectorAll('.pin').forEach(function (el) {
+        var on = SA.inBoard(el.dataset.id, SA.active());
+        var btn = el.querySelector('.pin__save');
+        btn.classList.toggle('is-saved', on); btn.setAttribute('aria-pressed', String(on));
+      });
+    }
+
+    /* chips */
+    var chipsWrap = document.getElementById('chips');
+    CATS.forEach(function (c, idx) {
+      var b = document.createElement('button');
+      b.className = 'chip' + (idx === 0 ? ' is-active' : ''); b.type = 'button'; b.textContent = c.label;
+      b.setAttribute('aria-pressed', idx === 0 ? 'true' : 'false');
+      b.addEventListener('click', function () {
+        state.cat = c.key;
+        chipsWrap.querySelectorAll('.chip').forEach(function (x) { x.classList.remove('is-active'); x.setAttribute('aria-pressed', 'false'); });
+        b.classList.add('is-active'); b.setAttribute('aria-pressed', 'true'); apply();
+      });
+      chipsWrap.appendChild(b);
+    });
+    document.getElementById('search').addEventListener('input', function (e) { state.q = e.target.value.trim().toLowerCase(); apply(); });
+    viewingEl.addEventListener('click', function () { state.viewBoard = null; apply(); });
+
+    /* save (delegated) */
+    var toast = document.getElementById('toast'), toastTimer;
+    function showToast(msg) { toast.innerHTML = "<span style='width:17px;height:17px;display:block'>" + SEALSVG + "</span>" + msg; toast.classList.add('show'); clearTimeout(toastTimer); toastTimer = setTimeout(function () { toast.classList.remove('show'); }, 1900); }
+    board.addEventListener('click', function (e) {
+      var btn = e.target.closest('.pin__save'); if (!btn) return;
+      var id = btn.closest('.pin').dataset.id;
+      var added = SA.toggle(id, SA.active());
+      var bd = SA.boardById(SA.active());
+      showToast(added ? 'Saved to ' + bd.name : 'Removed from ' + bd.name);
+      refreshSaves(); if (state.viewBoard) apply();
+    });
+
+    /* ───────────────── boards panel ───────────────── */
+    var scrim = document.getElementById('scrim');
+    var panel = document.getElementById('boardsPanel');
+    var boardList = document.getElementById('boardList');
+    function openPanel() { renderBoardList(); scrim.classList.add('show'); panel.classList.add('show'); }
+    function closeAll() { scrim.classList.remove('show'); panel.classList.remove('show'); document.getElementById('uploadModal').classList.remove('show'); }
+    document.getElementById('boardsBtn').addEventListener('click', openPanel);
+    document.getElementById('panelClose').addEventListener('click', closeAll);
+    scrim.addEventListener('click', closeAll);
+    document.addEventListener('keydown', function (e) { if (e.key === 'Escape') closeAll(); });
+
+    function renderBoardList() {
+      boardList.innerHTML = '';
+      SA.boards.forEach(function (b) {
+        var li = document.createElement('li');
+        li.className = 'board-row' + (b.id === SA.active() ? ' is-active' : '');
+        li.innerHTML = "<span class='board-row__seal'>" + SEALSVG + "</span>"
+          + "<span class='board-row__main'><span class='board-row__name'>" + esc(b.name) + "</span><span class='board-row__count'>" + b.pins.length + (b.pins.length === 1 ? ' piece' : ' pieces') + (b.id === SA.active() ? ' · active' : '') + "</span></span>"
+          + (SA.boards.length > 1 ? "<button class='board-row__del' aria-label='Delete board' data-del='" + b.id + "'><svg viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2'><path d='M3 6h18M8 6V4h8v2M19 6l-1 14H6L5 6'/></svg></button>" : '');
+        li.addEventListener('click', function (e) {
+          if (e.target.closest('[data-del]')) { SA.removeBoard(e.target.closest('[data-del]').dataset.del); renderBoardList(); refreshSaves(); if (state.viewBoard && !SA.boardById(state.viewBoard)) { state.viewBoard = null; } apply(); return; }
+          SA.setActive(b.id); state.viewBoard = b.id; renderBoardList(); refreshSaves(); apply(); closeAll();
+        });
+        boardList.appendChild(li);
+      });
+    }
+    document.getElementById('newBoardForm').addEventListener('submit', function (e) {
+      e.preventDefault();
+      var input = document.getElementById('newBoardName'); var name = input.value.trim();
+      if (!name) return; var b = SA.addBoard(name); SA.setActive(b.id); input.value = ''; renderBoardList(); refreshSaves(); showToast('Board created');
+    });
+
+    /* ───────────────── upload + verify ───────────────── */
+    var modal = document.getElementById('uploadModal');
+    var fileInput = document.getElementById('fileInput');
+    var dropzone = document.getElementById('dropzone');
+    var dzPreview = document.getElementById('dzPreview');
+    var previewImg = document.getElementById('previewImg');
+    var fTitle = document.getElementById('fTitle'), fArtist = document.getElementById('fArtist'), fMedium = document.getElementById('fMedium');
+    var verifyBtn = document.getElementById('verifyBtn'), verifyLabel = document.getElementById('verifyLabel');
+    var certEl = document.getElementById('cert');
+    var current = { file: null, dataUrl: null, ratio: 1, cert: null };
+
+    CATS.slice(1).forEach(function (c) { var o = document.createElement('option'); o.value = c.key; o.textContent = MEDIUM[c.key]; fMedium.appendChild(o); });
+
+    function openModal() { renderBoardList(); scrim.classList.add('show'); modal.classList.add('show'); setTimeout(function () { dropzone.focus(); }, 300); }
+    document.getElementById('getVerifiedBtn').addEventListener('click', openModal);
+    document.getElementById('modalClose').addEventListener('click', closeAll);
+
+    function checkReady() { verifyBtn.disabled = !(current.file && fTitle.value.trim() && fArtist.value.trim()); }
+    [fTitle, fArtist].forEach(function (el) { el.addEventListener('input', checkReady); });
+
+    dropzone.addEventListener('click', function () { fileInput.click(); });
+    dropzone.addEventListener('keydown', function (e) { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); fileInput.click(); } });
+    ['dragover', 'dragenter'].forEach(function (ev) { dropzone.addEventListener(ev, function (e) { e.preventDefault(); dropzone.classList.add('drag'); }); });
+    ['dragleave', 'drop'].forEach(function (ev) { dropzone.addEventListener(ev, function (e) { e.preventDefault(); dropzone.classList.remove('drag'); }); });
+    dropzone.addEventListener('drop', function (e) { var f = e.dataTransfer.files && e.dataTransfer.files[0]; if (f) handleFile(f); });
+    fileInput.addEventListener('change', function (e) { var f = e.target.files && e.target.files[0]; if (f) handleFile(f); });
+    document.getElementById('clearFile').addEventListener('click', resetFile);
+
+    function resetFile() { current.file = null; current.dataUrl = null; current.cert = null; dzPreview.classList.remove('show'); dropzone.style.display = ''; certEl.classList.remove('show'); verifyLabel.textContent = 'Generate seal & verify'; checkReady(); }
+
+    function handleFile(file) {
+      if (!/^image\//.test(file.type)) { showToast('Images only'); return; }
+      current.file = file;
+      downscale(file, 900).then(function (res) {
+        if (!res) { showToast('Could not read image'); current.file = null; return; }
+        current.dataUrl = res.url; current.ratio = res.ratio;
+        previewImg.src = res.url; dzPreview.classList.add('show'); dropzone.style.display = 'none';
+        if (!fTitle.value) fTitle.focus();
+        checkReady();
+      });
+    }
+    function downscale(file, max) {
+      return new Promise(function (res) {
+        var img = new Image();
+        img.onload = function () { var w = img.width, h = img.height, s = Math.min(1, max / Math.max(w, h)); var cw = Math.max(1, Math.round(w * s)), ch = Math.max(1, Math.round(h * s)); var c = document.createElement('canvas'); c.width = cw; c.height = ch; c.getContext('2d').drawImage(img, 0, 0, cw, ch); try { res({ url: c.toDataURL('image/jpeg', 0.82), ratio: ch / cw }); } catch (e) { res(null); } URL.revokeObjectURL(img.src); };
+        img.onerror = function () { res(null); };
+        img.src = URL.createObjectURL(file);
+      });
+    }
+
+    function hex(buf) { var b = new Uint8Array(buf), s = ''; for (var i = 0; i < b.length; i++) s += b[i].toString(16).padStart(2, '0'); return s; }
+    function fnvHex(bytes, len) { var out = ''; var seed = 0x811c9dc5; for (var k = 0; out.length < len; k++) { var hsh = (seed ^ (k * 0x01000193)) >>> 0; for (var i = 0; i < bytes.length; i++) { hsh ^= bytes[i]; hsh = (hsh + ((hsh << 1) + (hsh << 4) + (hsh << 7) + (hsh << 8) + (hsh << 24))) >>> 0; } out += ('0000000' + hsh.toString(16)).slice(-8); } return out.slice(0, len); }
+    async function sealFile(file) {
+      var buf = await file.arrayBuffer();
+      if (window.crypto && crypto.subtle && window.isSecureContext) {
+        try {
+          var hashBuf = await crypto.subtle.digest('SHA-256', buf);
+          var kp = await crypto.subtle.generateKey({ name: 'ECDSA', namedCurve: 'P-256' }, true, ['sign', 'verify']);
+          var sig = await crypto.subtle.sign({ name: 'ECDSA', hash: 'SHA-256' }, kp.privateKey, hashBuf);
+          var raw = await crypto.subtle.exportKey('raw', kp.publicKey);
+          var fp = hex(await crypto.subtle.digest('SHA-256', raw)).slice(0, 24);
+          return { hash: hex(hashBuf), sig: hex(sig), signer: 'sa:key:' + fp, algo: 'ECDSA P-256 · SHA-256', ts: new Date().toISOString() };
+        } catch (e) { /* fall through */ }
+      }
+      var bytes = new Uint8Array(buf);
+      return { hash: fnvHex(bytes, 64), sig: fnvHex(bytes, 96), signer: 'sa:key:' + fnvHex(bytes, 24), algo: 'local digest (fallback)', ts: new Date().toISOString() };
+    }
+
+    verifyBtn.addEventListener('click', async function () {
+      if (!current.file) return;
+      verifyBtn.disabled = true; verifyLabel.textContent = 'Sealing…';
+      try {
+        var cert = await sealFile(current.file);
+        current.cert = cert;
+        document.getElementById('certAlgo').textContent = cert.algo;
+        document.getElementById('certHash').textContent = cert.hash;
+        document.getElementById('certSig').textContent = cert.sig.slice(0, 48) + '…' + cert.sig.slice(-16);
+        document.getElementById('certSigner').textContent = cert.signer;
+        document.getElementById('certTime').textContent = cert.ts;
+        certEl.classList.add('show');
+        certEl.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        verifyLabel.textContent = 'Re-seal';
+      } catch (e) { showToast('Sealing failed'); verifyLabel.textContent = 'Generate seal & verify'; }
+      verifyBtn.disabled = false;
+    });
+
+    document.getElementById('publishBtn').addEventListener('click', function () {
+      if (!current.cert || !current.dataUrl) return;
+      var work = {
+        id: 'u_' + Date.now().toString(36), own: true,
+        title: fTitle.value.trim() || 'Untitled', artist: fArtist.value.trim() || 'Anonymous',
+        cat: fMedium.value, medium: MEDIUM[fMedium.value], img: current.dataUrl, cert: current.cert
+      };
+      SA.addUpload(work);
+      renderBoard();
+      closeAll();
+      // reset form for next time
+      resetFile(); fTitle.value = ''; fArtist.value = '';
+      showToast('Published — your work is on the wall');
+      window.scrollTo({ top: document.querySelector('.board').offsetTop - 120, behavior: 'smooth' });
+    });
+
+    /* ───────────────── boot ───────────────── */
+    renderBoard();
+
+    // deep link: index.html links to discover.html?submit=1 to open verify flow
+    if (/[?&]submit=1/.test(location.search)) setTimeout(openModal, 250);
+
+    // expose for integration/testing
+    window.SA = SA; window.__sa = { sealFile: sealFile, openModal: openModal, renderBoard: renderBoard };
+  })();
+  </script>
+</body>
+</html>

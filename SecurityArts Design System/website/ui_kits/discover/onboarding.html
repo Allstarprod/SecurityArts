@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Welcome — SecurityArts</title>
+<script>try{var t=localStorage.getItem('sa-theme');if(t)document.documentElement.setAttribute('data-theme',t)}catch(e){}</script>
+<link rel="icon" href="../../assets/favicon.svg" />
+<link rel="stylesheet" href="../../styles.css" />
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: var(--ink); color: var(--bone); font-family: var(--font-sans); font-weight: 360; font-size: var(--fs-body); -webkit-font-smoothing: antialiased; min-height: 100vh; overflow-x: hidden; transition: background var(--dur-mid) var(--ease), color var(--dur-mid) var(--ease); }
+  a { color: inherit; text-decoration: none; }
+  ::selection { background: var(--brass); color: var(--selection-fg, var(--ink)); }
+
+  .shell { min-height: 100vh; display: flex; flex-direction: column; }
+  .bar { display: flex; align-items: center; gap: 1rem; padding: 1.1rem var(--gutter-app); }
+  .brand { display: inline-flex; align-items: center; gap: 0.6rem; }
+  .brand svg { transition: transform 0.9s var(--ease); } .brand:hover svg { transform: rotate(22.5deg); }
+  .brand__word { font-family: var(--font-serif); font-weight: 460; font-size: 1.28rem; letter-spacing: -0.01em; }
+  .bar__right { margin-left: auto; display: flex; align-items: center; gap: 0.8rem; }
+  .skip { font-family: var(--font-mono); font-size: 0.68rem; text-transform: uppercase; letter-spacing: 0.12em; color: var(--bone-dim); transition: color 0.25s var(--ease); }
+  .skip:hover { color: var(--bone); }
+
+  /* progress rail */
+  .rail { display: flex; gap: 0.5rem; padding: 0 var(--gutter-app) 0.4rem; max-width: 900px; margin-inline: auto; width: 100%; }
+  .rail__seg { flex: 1; height: 3px; border-radius: 3px; background: var(--line-strong); overflow: hidden; }
+  .rail__seg i { display: block; height: 100%; width: 0; background: var(--brass); transition: width 0.5s var(--ease); }
+  .rail__seg.done i, .rail__seg.active i { width: 100%; }
+  .rail__seg.active i { width: 50%; }
+
+  .stage { flex: 1 1 auto; display: grid; place-items: center; padding: clamp(1.5rem,4vw,3.5rem) var(--gutter-app); }
+  .card { width: 100%; max-width: 900px; }
+  .step-eyebrow { font-family: var(--font-mono); font-size: 0.68rem; text-transform: uppercase; letter-spacing: 0.2em; color: var(--brass); display: flex; align-items: center; gap: 0.5rem; }
+  .step-title { font-family: var(--font-serif); font-weight: 340; font-optical-sizing: auto; font-size: clamp(2rem,1rem+3.4vw,3.4rem); line-height: 0.98; letter-spacing: -0.03em; margin: 0.9rem 0 0.7rem; }
+  .step-title em { font-style: italic; color: var(--brass); }
+  .step-sub { color: var(--bone-dim); font-size: var(--fs-lede); line-height: 1.55; max-width: 52ch; }
+  .step-body { margin-top: clamp(1.6rem,3vw,2.4rem); }
+
+  /* role cards */
+  .roles { display: grid; gap: 14px; grid-template-columns: 1fr; }
+  @media (min-width: 640px) { .roles { grid-template-columns: 1fr 1fr; } }
+  .role { text-align: left; cursor: pointer; background: var(--ink-2); border: 1px solid var(--line); border-radius: var(--radius-card); padding: 1.5rem; display: flex; flex-direction: column; gap: 0.7rem; transition: border-color 0.25s var(--ease), background 0.25s var(--ease), transform 0.3s var(--ease); }
+  .role:hover { border-color: var(--line-strong); transform: translateY(-3px); }
+  .role.sel { border-color: var(--brass); background: linear-gradient(160deg, #19150d, var(--ink-2) 70%); }
+  .role__seal { color: var(--bone-faint); } .role.sel .role__seal { color: var(--brass); }
+  .role__t { font-family: var(--font-serif); font-weight: 420; font-size: 1.5rem; letter-spacing: -0.015em; }
+  .role__b { color: var(--bone-dim); font-size: 0.92rem; line-height: 1.5; }
+
+  /* medium chips */
+  .chips { display: flex; flex-wrap: wrap; gap: 0.6rem; }
+  .mchip { cursor: pointer; font-family: var(--font-mono); font-size: 0.74rem; text-transform: uppercase; letter-spacing: 0.08em; color: var(--bone-dim); background: none; border: 1px solid var(--line-strong); border-radius: var(--radius-pill); padding: 0.7rem 1.1rem; display: inline-flex; align-items: center; gap: 0.5rem; transition: all 0.2s var(--ease); }
+  .mchip:hover { color: var(--bone); border-color: var(--bone); }
+  .mchip.sel { background: var(--brass); color: var(--ink); border-color: var(--brass); }
+  .mchip .tick { width: 14px; height: 14px; display: grid; place-items: center; }
+
+  /* artist suggestions */
+  .sugg { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 12px; }
+  .scard { display: flex; align-items: center; gap: 0.8rem; border: 1px solid var(--line); border-radius: var(--radius-card); background: var(--ink-2); padding: 0.9rem 1rem; transition: border-color 0.25s var(--ease); }
+  .scard.sel { border-color: var(--brass); }
+  .scard__main { flex: 1 1 auto; min-width: 0; }
+  .scard__name { font-family: var(--font-serif); font-weight: 440; font-size: 1.05rem; letter-spacing: -0.01em; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .scard__meta { font-family: var(--font-mono); font-size: 0.54rem; text-transform: uppercase; letter-spacing: 0.1em; color: var(--bone-faint); margin-top: 0.15rem; }
+  .follow-btn { flex: 0 0 auto; cursor: pointer; font-family: var(--font-mono); font-size: 0.6rem; text-transform: uppercase; letter-spacing: 0.1em; border-radius: var(--radius-pill); padding: 0.45rem 0.75rem; border: 1px solid var(--line-strong); background: none; color: var(--bone-dim); transition: all 0.2s var(--ease); }
+  .follow-btn:hover { color: var(--bone); border-color: var(--bone); }
+  .follow-btn.on { background: var(--brass); color: var(--ink); border-color: var(--brass); }
+
+  /* done */
+  .done { text-align: center; }
+  .done__seal { color: var(--brass); margin: 0 auto 1.4rem; }
+  .done__summary { display: flex; gap: 2.2rem; justify-content: center; flex-wrap: wrap; margin: 1.6rem 0; }
+  .ds { display: flex; flex-direction: column; gap: 0.2rem; }
+  .ds b { font-family: var(--font-serif); font-weight: 440; font-size: 1.8rem; letter-spacing: -0.02em; }
+  .ds span { font-family: var(--font-mono); font-size: 0.58rem; text-transform: uppercase; letter-spacing: 0.14em; color: var(--bone-faint); }
+
+  .foot { display: flex; align-items: center; justify-content: space-between; gap: 1rem; padding: 1.2rem var(--gutter-app) 1.8rem; max-width: 900px; margin-inline: auto; width: 100%; }
+  .count { font-family: var(--font-mono); font-size: 0.66rem; letter-spacing: 0.1em; text-transform: uppercase; color: var(--bone-faint); }
+
+  .grain { position: fixed; inset: 0; z-index: 100; pointer-events: none; opacity: 0.045; mix-blend-mode: overlay; background-image: var(--grain-url); }
+</style>
+</head>
+<body>
+<div id="root"></div>
+<div class="grain" aria-hidden="true"></div>
+<script src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" crossorigin="anonymous"></script>
+<script src="../../assets/catalog.js"></script>
+<script src="../../assets/store.js"></script>
+<script src="../../assets/genart.js"></script>
+<script src="../../assets/transition.js"></script>
+<script src="../../../../js/api.js"></script>
+<script src="../../_ds_bundle.js"></script>
+<script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y" crossorigin="anonymous"></script>
+<script type="text/babel">
+const { Seal, Icon, Button, Avatar, ThemeToggle } = window.SecurityArtsDesignSystem_f7e889;
+const C = window.SACatalog, S = window.SAStore;
+
+const MEDIUMS = [
+  ["painting", "Painting"], ["illustration", "Illustration"], ["3d", "3D & CGI"], ["photography", "Photography"],
+  ["lettering", "Lettering"], ["concept", "Concept art"], ["mixed", "Mixed media"],
+];
+const CAT_LABEL = Object.fromEntries(MEDIUMS);
+
+function App() {
+  const [step, setStep] = React.useState(0);
+  const [role, setRole] = React.useState(null);
+  const [cats, setCats] = React.useState(() => new Set());
+  const [, tick] = React.useState(0);
+
+  const toggleCat = (k) => setCats((prev) => { const n = new Set(prev); n.has(k) ? n.delete(k) : n.add(k); return n; });
+
+  // suggested artists filtered by chosen mediums (fallback: all)
+  const suggested = React.useMemo(() => {
+    const list = cats.size ? C.artists.filter((a) => cats.has(a.cat)) : C.artists;
+    return (list.length ? list : C.artists).slice(0, 8);
+  }, [step]);
+
+  const followCount = S.follows().length;
+  const steps = ["Role", "Taste", "Artists", "Done"];
+
+  const next = () => setStep((s) => Math.min(s + 1, 3));
+  const back = () => setStep((s) => Math.max(s - 1, 0));
+
+  const canNext = step === 0 ? !!role : step === 1 ? cats.size > 0 : true;
+  const finishHref = role === "artist" ? "dashboard.html" : "foryou.html";
+
+  return (
+    <div className="shell">
+      <div className="bar">
+        <a className="brand" href="welcome.html" aria-label="SecurityArts"><Seal size={30} /><span className="brand__word">SecurityArts</span></a>
+        <div className="bar__right">
+          <a className="skip" href="index.html">Skip for now</a>
+          <ThemeToggle size={36} />
+        </div>
+      </div>
+
+      <div className="rail">
+        {steps.map((_, i) => <div key={i} className={`rail__seg ${i < step ? "done" : i === step ? "active" : ""}`}><i /></div>)}
+      </div>
+
+      <div className="stage">
+        <div className="card">
+          {step === 0 ? (
+            <React.Fragment>
+              <p className="step-eyebrow"><Icon name="sparkle" size={14} /> Step 1 of 4</p>
+              <h1 className="step-title">Welcome. What brings<br />you <em>here?</em></h1>
+              <p className="step-sub">We'll tune SecurityArts around you. You can always do both later.</p>
+              <div className="step-body roles">
+                <button className={`role ${role === "collector" ? "sel" : ""}`} onClick={() => setRole("collector")}>
+                  <Seal size={34} className="role__seal" />
+                  <span className="role__t">I collect</span>
+                  <span className="role__b">Discover and buy verified human art, follow artists, and build a collection with provenance built in.</span>
+                </button>
+                <button className={`role ${role === "artist" ? "sel" : ""}`} onClick={() => setRole("artist")}>
+                  <Seal size={34} className="role__seal" />
+                  <span className="role__t">I make</span>
+                  <span className="role__b">Seal your work to prove it's yours, set your own licenses, and keep 80% of every sale.</span>
+                </button>
+              </div>
+            </React.Fragment>
+          ) : null}
+
+          {step === 1 ? (
+            <React.Fragment>
+              <p className="step-eyebrow"><Icon name="sparkle" size={14} /> Step 2 of 4</p>
+              <h1 className="step-title">What do you<br />love to <em>look at?</em></h1>
+              <p className="step-sub">Pick a few mediums. We'll seed your feed and suggest artists working in them.</p>
+              <div className="step-body chips">
+                {MEDIUMS.map(([k, label]) => (
+                  <button key={k} className={`mchip ${cats.has(k) ? "sel" : ""}`} onClick={() => toggleCat(k)}>
+                    {cats.has(k) ? <span className="tick"><Icon name="check" size={13} /></span> : null}{label}
+                  </button>
+                ))}
+              </div>
+            </React.Fragment>
+          ) : null}
+
+          {step === 2 ? (
+            <React.Fragment>
+              <p className="step-eyebrow"><Icon name="sparkle" size={14} /> Step 3 of 4</p>
+              <h1 className="step-title">Follow a few<br /><em>artists.</em></h1>
+              <p className="step-sub">{cats.size ? "Based on what you picked — " + Array.from(cats).map((c) => (CAT_LABEL[c] || c).toLowerCase()).join(", ") + "." : "A few verified artists to start."} Follow anyone that speaks to you.</p>
+              <div className="step-body sugg">
+                {suggested.map((a) => {
+                  const on = S.isFollowing(a.id);
+                  return (
+                    <div className={`scard ${on ? "sel" : ""}`} key={a.id}>
+                      <Avatar name={a.name} size={44} verified />
+                      <div className="scard__main">
+                        <div className="scard__name">{a.name}</div>
+                        <div className="scard__meta">{CAT_LABEL[a.cat] || a.cat} · {a.city.split(",")[0]}</div>
+                      </div>
+                      <button className={`follow-btn ${on ? "on" : ""}`} onClick={() => { S.toggleFollow(a.id); tick((n) => n + 1); }}>{on ? "Following" : "Follow"}</button>
+                    </div>
+                  );
+                })}
+              </div>
+            </React.Fragment>
+          ) : null}
+
+          {step === 3 ? (
+            <div className="done">
+              <Seal size={64} className="done__seal" spin spinDuration="80s" />
+              <h1 className="step-title">You're all set.</h1>
+              <p className="step-sub" style={{ marginInline: "auto" }}>Your feed is sealed and ready. Everything you like and follow from here keeps it sharp.</p>
+              <div className="done__summary">
+                <div className="ds"><b>{role === "artist" ? "Artist" : "Collector"}</b><span>Your role</span></div>
+                <div className="ds"><b>{cats.size}</b><span>Mediums</span></div>
+                <div className="ds"><b>{followCount}</b><span>Following</span></div>
+              </div>
+              <Button variant="solid" href={finishHref} arrow>{role === "artist" ? "Open your studio" : "Enter your feed"}</Button>
+            </div>
+          ) : null}
+        </div>
+      </div>
+
+      {step < 3 ? (
+        <div className="foot">
+          {step > 0 ? <Button variant="ghost" size="sm" onClick={back}>Back</Button> : <span className="count">Verified human art</span>}
+          <span className="count">{step === 2 ? followCount + " following" : steps[step]}</span>
+          <Button variant="solid" size="sm" arrow onClick={next} disabled={!canNext}>Continue</Button>
+        </div>
+      ) : null}
+    </div>
+  );
+}
+
+ReactDOM.createRoot(document.getElementById("root")).render(<App />);
+</script>
+</body>
+</html>

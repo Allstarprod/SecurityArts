@@ -1,0 +1,64 @@
+/* ============================================================
+   SecurityArts — Effects
+   Radii, hairlines, shadow, blur, motion, and the grain overlay.
+   Two ideas define the feel: full-round pills for every interactive
+   control, and shadow used only as a hover accent (never ambient).
+   ============================================================ */
+
+:root {
+  /* ── Corner radii ─────────────────────────────────────── */
+  --radius-sm:   8px;     /* small thumbnails                     */
+  --radius-md:   10px;    /* inputs, list rows                    */
+  --radius-lg:   12px;    /* surface tiles, license options       */
+  --radius-card: 14px;    /* cards, pins, product tiles           */
+  --radius-modal:18px;    /* dialogs                              */
+  --radius-pill: 100px;   /* buttons, chips, tags, badges         */
+  --radius-full: 50%;     /* icon buttons, dots, radios           */
+
+  /* ── Hairlines (see colors.css for the color values) ──── */
+  --border-width: 1px;
+
+  /* ── Shadow — accent only, warm-black, tight ──────────── */
+  --shadow-hover: 0 18px 40px -24px rgba(0, 0, 0, 0.8);   /* card lift   */
+  --shadow-pop:   0 20px 50px -20px rgba(0, 0, 0, 0.7);   /* toast/modal */
+
+  /* ── Blur (backdrop) ──────────────────────────────────── */
+  --blur-bar:   14px;   /* sticky headers / app bars              */
+  --blur-panel: 12px;   /* filter bars                            */
+  --blur-badge: 6px;    /* glass badges over artwork              */
+
+  /* ── Motion ───────────────────────────────────────────── */
+  --ease: cubic-bezier(0.16, 1, 0.3, 1);   /* @kind other */ /* the house easing */
+  --dur-fast:   0.25s;   /* @kind other */ /* hovers, chips                */
+  --dur-mid:    0.4s;    /* @kind other */ /* card lift, background shifts */
+  --dur-slow:   0.8s;    /* @kind other */ /* scroll reveals               */
+  --lift:       -2px;    /* @kind spacing */ /* button hover translate     */
+  --lift-card:  -3px;    /* @kind spacing */ /* card hover translate       */
+  --spin-dur:   90s;     /* @kind other */ /* ambient seal rotation        */
+
+  /* ── Grain overlay ────────────────────────────────────── */
+  /* Fixed full-viewport layer at z-index:100, opacity ~0.045,
+     mix-blend-mode: overlay. Reuse via .sa-grain below.        */
+  --grain-url: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E"); /* @kind other */
+}
+
+/* Optional utility: drop <div class="sa-grain"></div> as the last
+   element in a full-bleed surface to get the studio's film grain. */
+.sa-grain {
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  pointer-events: none;
+  opacity: 0.045;
+  mix-blend-mode: overlay;
+  background-image: var(--grain-url);
+}
+
+::selection { background: var(--selection-bg); color: var(--selection-fg); }
+
+/* Ambient seal rotation — referenced by the Seal component's `spin` prop
+   and any decorative bleed marks. */
+@keyframes sa-seal-spin { to { transform: rotate(360deg); } }
+
+/* Scroll-reveal used by marketing surfaces (opacity + rise). */
+@keyframes sa-reveal { from { opacity: 0; transform: translateY(26px); } to { opacity: 1; transform: none; } }

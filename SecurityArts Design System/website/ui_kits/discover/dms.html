@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Messages — SecurityArts</title>
+<script>try{var t=localStorage.getItem('sa-theme');if(t)document.documentElement.setAttribute('data-theme',t)}catch(e){}</script>
+<link rel="icon" href="../../assets/favicon.svg" />
+<link rel="stylesheet" href="../../styles.css" />
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body { height: 100%; }
+  body { background: var(--ink); color: var(--bone); font-family: var(--font-sans); font-weight: 360; font-size: var(--fs-body); -webkit-font-smoothing: antialiased; overflow: hidden; display: flex; flex-direction: column; transition: background var(--dur-mid) var(--ease), color var(--dur-mid) var(--ease); }
+  a { color: inherit; text-decoration: none; }
+  ::selection { background: var(--brass); color: var(--selection-fg, var(--ink)); }
+
+  .appbar { flex: 0 0 auto; display: flex; align-items: center; gap: clamp(0.7rem,2vw,1.5rem); padding: 0.85rem var(--gutter-app); background: color-mix(in srgb, var(--ink) 90%, transparent); backdrop-filter: blur(var(--blur-bar)); border-bottom: 1px solid var(--line); }
+  .brand { display: inline-flex; align-items: center; gap: 0.6rem; }
+  .brand svg { transition: transform 0.9s var(--ease); } .brand:hover svg { transform: rotate(22.5deg); }
+  .brand__word { font-family: var(--font-serif); font-weight: 460; font-size: 1.28rem; letter-spacing: -0.01em; }
+  .brand__sub { font-family: var(--font-mono); font-size: 0.6rem; letter-spacing: 0.22em; color: var(--brass); text-transform: uppercase; align-self: flex-start; margin-top: 0.15rem; }
+  .nav { display: flex; align-items: center; gap: 0.35rem; margin-left: auto; }
+  .nav a { position: relative; font-family: var(--font-mono); font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.12em; color: var(--bone-dim); padding: 0.55rem 0.7rem; border-radius: var(--radius-pill); transition: color 0.25s var(--ease), background 0.25s var(--ease); }
+  .nav a:hover { color: var(--bone); background: var(--ink-3); }
+  .nav a.active { color: var(--bone); }
+  @media (max-width: 720px) { .nav a.optional { display: none; } }
+
+  .shell { flex: 1 1 auto; display: grid; grid-template-columns: minmax(280px, 360px) 1fr; min-height: 0; }
+  @media (max-width: 760px) { .shell { grid-template-columns: 1fr; } .shell[data-view="thread"] .list { display: none; } .shell[data-view="list"] .thread { display: none; } }
+
+  /* list pane */
+  .list { border-right: 1px solid var(--line); display: flex; flex-direction: column; min-height: 0; }
+  .list__head { padding: 1.1rem var(--gutter-app) 0.6rem; }
+  .list__title { font-family: var(--font-serif); font-weight: 400; font-size: 1.6rem; letter-spacing: -0.02em; }
+  .list__scroll { overflow-y: auto; flex: 1 1 auto; padding-bottom: 1rem; }
+  .group-label { font-family: var(--font-mono); font-size: 0.58rem; text-transform: uppercase; letter-spacing: 0.16em; color: var(--bone-faint); padding: 1rem var(--gutter-app) 0.5rem; display: flex; align-items: center; gap: 0.5rem; }
+  .group-label .n { color: var(--brass); }
+  .row { display: flex; gap: 0.8rem; align-items: center; padding: 0.75rem var(--gutter-app); cursor: pointer; border-left: 2px solid transparent; transition: background 0.2s var(--ease); width: 100%; text-align: left; background: none; border-top: 0; border-right: 0; border-bottom: 0; color: inherit; }
+  .row:hover { background: var(--ink-2); }
+  .row.active { background: var(--ink-2); border-left-color: var(--brass); }
+  .row__main { flex: 1 1 auto; min-width: 0; }
+  .row__top { display: flex; justify-content: space-between; gap: 0.5rem; align-items: baseline; }
+  .row__name { font-family: var(--font-serif); font-weight: 460; font-size: 1.02rem; letter-spacing: -0.01em; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .row__time { font-family: var(--font-mono); font-size: 0.56rem; letter-spacing: 0.08em; color: var(--bone-faint); flex: 0 0 auto; }
+  .row__prev { font-size: 0.82rem; color: var(--bone-dim); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; margin-top: 0.1rem; }
+  .row__prev.req { color: var(--brass); }
+  .row__unread { width: 8px; height: 8px; border-radius: 50%; background: var(--brass); flex: 0 0 auto; }
+
+  /* thread pane */
+  .thread { display: flex; flex-direction: column; min-height: 0; }
+  .thread__head { flex: 0 0 auto; display: flex; align-items: center; gap: 0.8rem; padding: 0.8rem var(--gutter-app); border-bottom: 1px solid var(--line); }
+  .thread__back { display: none; }
+  @media (max-width: 760px) { .thread__back { display: grid; } }
+  .thread__id { flex: 1 1 auto; min-width: 0; }
+  .thread__name { font-family: var(--font-serif); font-weight: 460; font-size: 1.15rem; letter-spacing: -0.01em; display: flex; align-items: center; gap: 0.4rem; }
+  .thread__name .seal { color: var(--brass); }
+  .thread__sub { font-family: var(--font-mono); font-size: 0.58rem; letter-spacing: 0.1em; text-transform: uppercase; color: var(--bone-faint); margin-top: 0.15rem; }
+  .thread__scroll { flex: 1 1 auto; overflow-y: auto; padding: 1.6rem var(--gutter-app); display: flex; flex-direction: column; gap: 0.6rem; }
+  .daystamp { align-self: center; font-family: var(--font-mono); font-size: 0.56rem; letter-spacing: 0.14em; text-transform: uppercase; color: var(--bone-faint); margin: 0.5rem 0; }
+  .bubble { max-width: min(72%, 460px); padding: 0.7rem 0.95rem; border-radius: 16px; line-height: 1.45; font-size: 0.94rem; }
+  .bubble.them { align-self: flex-start; background: var(--ink-2); border: 1px solid var(--line); border-bottom-left-radius: 5px; }
+  .bubble.me { align-self: flex-end; background: var(--bone); color: var(--ink); border-bottom-right-radius: 5px; }
+  .bubble__time { display: block; margin-top: 0.35rem; font-family: var(--font-mono); font-size: 0.52rem; letter-spacing: 0.08em; opacity: 0.6; }
+
+  .reqbar { flex: 0 0 auto; display: flex; align-items: center; gap: 0.8rem; padding: 0.9rem var(--gutter-app); border-top: 1px solid var(--line); background: linear-gradient(180deg, transparent, var(--ink-2)); flex-wrap: wrap; }
+  .reqbar p { flex: 1 1 200px; font-size: 0.86rem; color: var(--bone-dim); }
+  .reqbar p b { color: var(--bone); font-weight: 460; }
+  .pending { flex: 0 0 auto; padding: 0.9rem var(--gutter-app); border-top: 1px solid var(--line); font-family: var(--font-mono); font-size: 0.68rem; letter-spacing: 0.1em; text-transform: uppercase; color: var(--brass); display: flex; align-items: center; gap: 0.5rem; }
+
+  .composer { flex: 0 0 auto; display: flex; gap: 0.6rem; align-items: flex-end; padding: 0.9rem var(--gutter-app) 1.1rem; border-top: 1px solid var(--line); }
+  .composer textarea { flex: 1 1 auto; resize: none; min-height: 44px; max-height: 140px; font-family: var(--font-sans); font-size: 0.95rem; color: var(--bone); background: var(--ink-2); border: 1px solid var(--line); border-radius: 22px; padding: 0.65rem 1rem; line-height: 1.4; }
+  .composer textarea:focus { outline: none; border-color: var(--brass); }
+
+  .empty { flex: 1 1 auto; display: grid; place-items: center; text-align: center; padding: 2rem; }
+  .empty__in { max-width: 34ch; }
+  .empty h2 { font-family: var(--font-serif); font-weight: 360; font-size: 1.7rem; letter-spacing: -0.02em; margin: 1rem 0 0.5rem; }
+  .empty p { color: var(--bone-dim); font-size: 0.92rem; line-height: 1.55; }
+
+  .grain { position: fixed; inset: 0; z-index: 100; pointer-events: none; opacity: 0.045; mix-blend-mode: overlay; background-image: var(--grain-url); }
+</style>
+</head>
+<body>
+<div id="root"></div>
+<div class="grain" aria-hidden="true"></div>
+<script src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" crossorigin="anonymous"></script>
+<script src="../../assets/catalog.js"></script>
+<script src="../../assets/store.js"></script>
+<script src="../../assets/genart.js"></script>
+<script src="../../assets/transition.js"></script>
+<script src="../../../../js/api.js"></script>
+<script src="../../_ds_bundle.js"></script>
+<script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y" crossorigin="anonymous"></script>
+<script type="text/babel">
+const { Seal, Icon, IconButton, Button, Avatar, ThemeToggle } = window.SecurityArtsDesignSystem_f7e889;
+const C = window.SACatalog, S = window.SAStore;
+
+function useStoreTick() { const [, set] = React.useState(0); React.useEffect(() => S.subscribe(() => set((n) => n + 1)), []); }
+function ago(ts) {
+  const s = (Date.now() - ts) / 1000;
+  if (s < 60) return "now";
+  if (s < 3600) return Math.floor(s / 60) + "m";
+  if (s < 86400) return Math.floor(s / 3600) + "h";
+  return Math.floor(s / 86400) + "d";
+}
+function clock(ts) { return new Date(ts).toLocaleTimeString([], { hour: "numeric", minute: "2-digit" }); }
+
+function AppBar() {
+  const pending = S.counts().pending;
+  return (
+    <header className="appbar">
+      <a className="brand" href="index.html" aria-label="SecurityArts Discover">
+        <Seal size={30} /><span className="brand__word">SecurityArts</span><span className="brand__sub">Messages</span>
+      </a>
+      <nav className="nav">
+        <a href="index.html" className="optional">Discover</a>
+        <a href="foryou.html" className="optional">For You</a>
+        <a href="dms.html" className="active">DMs</a>
+        <a href="verify.html" className="optional">Verify</a>
+        <a href="me.html" className="optional">You</a>
+        <a href="../market/index.html" className="optional">Market</a>
+        <ThemeToggle size={38} />
+      </nav>
+    </header>
+  );
+}
+
+function App() {
+  useStoreTick();
+  const list = S.threadList();
+  const requests = list.filter((t) => t.status === "incoming");
+  const convos = list.filter((t) => t.status !== "incoming");
+  const [sel, setSel] = React.useState(() => (convos[0] || list[0] || {}).artistId || null);
+  const [draft, setDraft] = React.useState("");
+  const [view, setView] = React.useState("list"); // mobile
+  const scrollRef = React.useRef();
+
+  React.useEffect(() => { if (sel) S.markRead(sel); }, [sel]);
+  React.useEffect(() => { const el = scrollRef.current; if (el) el.scrollTop = el.scrollHeight; });
+
+  const open = (id) => { setSel(id); setView("thread"); };
+  const thread = sel ? S.getThread(sel) : null;
+  const artist = sel ? C.artistById[sel] : null;
+
+  const send = () => { const t = draft.trim(); if (!t || !sel) return; S.sendMessage(sel, t); setDraft(""); };
+  const onKey = (e) => { if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); send(); } };
+
+  const Rows = ({ items }) => items.map((t) => {
+    const a = C.artistById[t.artistId]; if (!a) return null;
+    return (
+      <button key={t.artistId} className={`row ${sel === t.artistId ? "active" : ""}`} onClick={() => open(t.artistId)}>
+        <Avatar name={a.name} size={46} verified />
+        <div className="row__main">
+          <div className="row__top"><span className="row__name">{a.name}</span><span className="row__time">{t.last ? ago(t.last.ts) : ""}</span></div>
+          <div className={`row__prev ${t.status === "incoming" ? "req" : ""}`}>
+            {t.status === "requested" ? "Request sent · " : ""}{t.last ? (t.last.from === "me" ? "You: " : "") + t.last.text : "No messages yet"}
+          </div>
+        </div>
+        {t.unread ? <span className="row__unread" /> : null}
+      </button>
+    );
+  });
+
+  return (
+    <React.Fragment>
+      <AppBar />
+      <div className="shell" data-view={view}>
+        <div className="list">
+          <div className="list__head"><h1 className="list__title">Messages</h1></div>
+          <div className="list__scroll">
+            {requests.length ? <div className="group-label"><Icon name="bell" size={12} /> Requests <span className="n">· {requests.length}</span></div> : null}
+            <Rows items={requests} />
+            <div className="group-label">Conversations</div>
+            {convos.length ? <Rows items={convos} /> : <p style={{ padding: "0.5rem var(--gutter-app)", color: "var(--bone-faint)", fontSize: "0.85rem" }}>No conversations yet.</p>}
+          </div>
+        </div>
+
+        <div className="thread">
+          {thread && artist ? (
+            <React.Fragment>
+              <div className="thread__head">
+                <IconButton icon="arrowLeft" label="Back" className="thread__back" onClick={() => setView("list")} />
+                <Avatar name={artist.name} size={40} verified />
+                <div className="thread__id">
+                  <div className="thread__name">{artist.name}<Seal size={15} className="seal" /></div>
+                  <div className="thread__sub">@{artist.handle} · {artist.city}</div>
+                </div>
+                <a href={`profile.html?artist=${artist.id}`}><Button variant="ghost" size="sm">View profile</Button></a>
+              </div>
+
+              <div className="thread__scroll" ref={scrollRef}>
+                <span className="daystamp">{thread.status === "incoming" ? "Message request" : "Sealed conversation"}</span>
+                {thread.messages.map((m, i) => (
+                  <div key={i} className={`bubble ${m.from}`}>
+                    {m.text}
+                    <span className="bubble__time">{clock(m.ts)}</span>
+                  </div>
+                ))}
+              </div>
+
+              {thread.status === "incoming" ? (
+                <div className="reqbar">
+                  <p><b>{artist.name.split(" ")[0]}</b> wants to connect. Accept to open a conversation, or reply to accept.</p>
+                  <Button variant="solid" size="sm" onClick={() => S.accept(sel)}>Accept</Button>
+                  <Button variant="ghost" size="sm" onClick={() => { S.decline(sel); setSel((convos[0] || {}).artistId || null); }}>Decline</Button>
+                </div>
+              ) : thread.status === "requested" ? (
+                <div className="pending"><Icon name="shieldCheck" size={14} /> Request sent — waiting for {artist.name.split(" ")[0]} to accept</div>
+              ) : null}
+
+              <div className="composer">
+                <textarea value={draft} onChange={(e) => setDraft(e.target.value)} onKeyDown={onKey} rows={1}
+                  placeholder={thread.status === "incoming" ? "Reply to accept…" : "Write a message…"} />
+                <IconButton icon="send" variant="outline" active={!!draft.trim()} label="Send" onClick={send} />
+              </div>
+            </React.Fragment>
+          ) : (
+            <div className="empty"><div className="empty__in">
+              <Seal size={54} style={{ margin: "0 auto", color: "var(--bone-faint)" }} />
+              <h2>Your messages, sealed.</h2>
+              <p>Open a request or a conversation on the left. New requests arrive when you reach out to an artist from their profile.</p>
+              <div style={{ marginTop: "1.4rem" }}><a href="index.html"><Button variant="ghost" size="sm">Browse Discover</Button></a></div>
+            </div></div>
+          )}
+        </div>
+      </div>
+    </React.Fragment>
+  );
+}
+
+ReactDOM.createRoot(document.getElementById("root")).render(<App />);
+</script>
+</body>
+</html>

@@ -1,0 +1,279 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>You — SecurityArts</title>
+<script>try{var t=localStorage.getItem('sa-theme');if(t)document.documentElement.setAttribute('data-theme',t)}catch(e){}</script>
+<link rel="icon" href="../../assets/favicon.svg" />
+<link rel="stylesheet" href="../../styles.css" />
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: var(--ink); color: var(--bone); font-family: var(--font-sans); font-weight: 360; font-size: var(--fs-body); -webkit-font-smoothing: antialiased; overflow-x: hidden; min-height: 100vh; transition: background var(--dur-mid) var(--ease), color var(--dur-mid) var(--ease); }
+  a { color: inherit; text-decoration: none; }
+  ::selection { background: var(--brass); color: var(--selection-fg, var(--ink)); }
+
+  .appbar { position: sticky; top: 0; z-index: 60; display: flex; align-items: center; gap: clamp(0.7rem,2vw,1.5rem); padding: 0.85rem var(--gutter-app); background: color-mix(in srgb, var(--ink) 90%, transparent); backdrop-filter: blur(var(--blur-bar)); border-bottom: 1px solid var(--line); }
+  .brand { display: inline-flex; align-items: center; gap: 0.6rem; }
+  .brand svg { transition: transform 0.9s var(--ease); } .brand:hover svg { transform: rotate(22.5deg); }
+  .brand__word { font-family: var(--font-serif); font-weight: 460; font-size: 1.28rem; letter-spacing: -0.01em; }
+  .brand__sub { font-family: var(--font-mono); font-size: 0.6rem; letter-spacing: 0.22em; color: var(--brass); text-transform: uppercase; align-self: flex-start; margin-top: 0.15rem; }
+  .nav { display: flex; align-items: center; gap: 0.35rem; margin-left: auto; }
+  .nav a { position: relative; font-family: var(--font-mono); font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.12em; color: var(--bone-dim); padding: 0.55rem 0.7rem; border-radius: var(--radius-pill); transition: color 0.25s var(--ease), background 0.25s var(--ease); }
+  .nav a:hover { color: var(--bone); background: var(--ink-3); }
+  .nav a.active { color: var(--bone); }
+  .nav a .dot { position: absolute; top: 0.35rem; right: 0.35rem; width: 6px; height: 6px; border-radius: 50%; background: var(--brass); }
+  @media (max-width: 820px) { .nav a.optional { display: none; } }
+
+  .wrap { max-width: 1180px; margin-inline: auto; padding-inline: var(--gutter-app); }
+
+  .mehead { display: flex; align-items: center; gap: clamp(1rem,2.5vw,1.8rem); flex-wrap: wrap; padding: clamp(2rem,4vw,3.2rem) 0 clamp(1.2rem,2.5vw,1.8rem); }
+  .mehead__avatar { border-radius: 50%; box-shadow: 0 0 0 5px var(--ink), 0 0 0 6px var(--line-strong); }
+  .mehead__id { flex: 1 1 300px; }
+  .mehead__eyebrow { font-family: var(--font-mono); font-size: 0.66rem; text-transform: uppercase; letter-spacing: 0.18em; color: var(--brass); }
+  .mehead__name { font-family: var(--font-serif); font-weight: 400; font-size: clamp(2rem,1rem+2.6vw,3rem); letter-spacing: -0.03em; line-height: 1; margin-top: 0.45rem; }
+  .mehead__handle { font-family: var(--font-mono); font-size: 0.72rem; letter-spacing: 0.08em; color: var(--bone-dim); margin-top: 0.5rem; display: flex; gap: 0.9rem; flex-wrap: wrap; }
+  .mehead__handle .m { display: inline-flex; align-items: center; gap: 0.3rem; }
+  .mehead__actions { display: flex; gap: 0.6rem; align-items: center; }
+
+  .stats { display: flex; gap: 2.2rem; padding: 1.1rem 0; border-top: 1px solid var(--line); border-bottom: 1px solid var(--line); margin-bottom: clamp(1.5rem,3vw,2.2rem); }
+  .stat { display: flex; flex-direction: column; gap: 0.2rem; cursor: pointer; }
+  .stat b { font-family: var(--font-serif); font-weight: 440; font-size: clamp(1.4rem,1rem+1.2vw,1.9rem); letter-spacing: -0.02em; font-variant-numeric: tabular-nums; }
+  .stat span { font-family: var(--font-mono); font-size: 0.58rem; text-transform: uppercase; letter-spacing: 0.14em; color: var(--bone-faint); }
+  .stat.active b { color: var(--brass); }
+
+  .tabs { display: flex; gap: 0.4rem; border-bottom: 1px solid var(--line); margin-bottom: 1.6rem; }
+  .tab { font-family: var(--font-mono); font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.12em; color: var(--bone-dim); background: none; border: 0; cursor: pointer; padding: 0.7rem 0.5rem; border-bottom: 2px solid transparent; margin-bottom: -1px; transition: color 0.25s var(--ease), border-color 0.25s var(--ease); }
+  .tab:hover { color: var(--bone); }
+  .tab.active { color: var(--bone); border-bottom-color: var(--brass); }
+
+  .masonry { column-width: 240px; column-gap: 16px; }
+  .masonry .pinlink { display: block; break-inside: avoid; margin: 0 0 16px; }
+  .masonry .sa-pin { margin: 0; }
+  @media (max-width: 520px) { .masonry { column-width: 160px; column-gap: 12px; } .masonry .pinlink { margin-bottom: 12px; } }
+
+  /* following list */
+  .follows { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 14px; }
+  .fcard { display: flex; align-items: center; gap: 0.85rem; padding: 1rem 1.1rem; border: 1px solid var(--line); border-radius: var(--radius-card); background: var(--ink-2); transition: border-color 0.25s var(--ease); }
+  .fcard:hover { border-color: var(--line-strong); }
+  .fcard__main { flex: 1 1 auto; min-width: 0; }
+  .fcard__name { font-family: var(--font-serif); font-weight: 440; font-size: 1.1rem; letter-spacing: -0.01em; }
+  .fcard__meta { font-family: var(--font-mono); font-size: 0.56rem; text-transform: uppercase; letter-spacing: 0.1em; color: var(--bone-faint); margin-top: 0.15rem; }
+
+  /* purchases */
+  .buys { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 16px; }
+  .bcard { border: 1px solid var(--line); border-radius: var(--radius-card); overflow: hidden; background: var(--ink-2); }
+  .bcard__art { position: relative; aspect-ratio: 16/10; overflow: hidden; }
+  .bcard__art img { width: 100%; height: 100%; object-fit: cover; }
+  .bcard__badge { position: absolute; top: 0.6rem; left: 0.6rem; }
+  .bcard__info { padding: 0.9rem 1rem 1.1rem; }
+  .bcard__title { font-family: var(--font-serif); font-weight: 440; font-size: 1.1rem; letter-spacing: -0.01em; }
+  .bcard__sub { font-size: 0.82rem; color: var(--bone-dim); margin-top: 0.15rem; }
+  .bcard__seal { display: flex; align-items: center; gap: 0.5rem; margin-top: 0.8rem; padding-top: 0.8rem; border-top: 1px solid var(--line); font-family: var(--font-mono); font-size: 0.6rem; letter-spacing: 0.1em; text-transform: uppercase; color: var(--brass); transition: opacity 0.25s var(--ease); }
+  .bcard__seal:hover { opacity: 0.7; }pacing: 0.1em; text-transform: uppercase; color: var(--brass); }
+
+  .empty { text-align: center; padding: clamp(2.5rem,6vw,5rem) 1rem; }
+  .empty h2 { font-family: var(--font-serif); font-weight: 360; font-size: clamp(1.7rem,1rem+2vw,2.4rem); letter-spacing: -0.025em; margin-bottom: 0.6rem; }
+  .empty p { color: var(--bone-dim); max-width: 42ch; margin: 0 auto 1.4rem; line-height: 1.55; }
+
+  .foot { border-top: 1px solid var(--line); padding: 2.4rem var(--gutter-app); display: flex; flex-wrap: wrap; justify-content: space-between; gap: 1rem; margin-top: 3rem; }
+  .foot a { font-family: var(--font-mono); font-size: 0.74rem; text-transform: uppercase; letter-spacing: 0.12em; color: var(--bone-dim); }
+  .foot a:hover { color: var(--bone); }
+  .foot .m { font-family: var(--font-mono); font-size: 0.68rem; letter-spacing: 0.14em; color: var(--bone-faint); }
+
+  .grain { position: fixed; inset: 0; z-index: 100; pointer-events: none; opacity: 0.045; mix-blend-mode: overlay; background-image: var(--grain-url); }
+</style>
+</head>
+<body>
+<div id="root"></div>
+<div class="grain" aria-hidden="true"></div>
+<script src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" crossorigin="anonymous"></script>
+<script src="../../assets/catalog.js"></script>
+<script src="../../assets/store.js"></script>
+<script src="../../assets/genart.js"></script>
+<script src="../../assets/transition.js"></script>
+<script src="../../../../js/api.js"></script>
+<script src="../../_ds_bundle.js"></script>
+<script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y" crossorigin="anonymous"></script>
+<script type="text/babel">
+const { Seal, Icon, IconButton, Button, Avatar, Pin, VerifiedBadge, Toast, ThemeToggle } = window.SecurityArtsDesignSystem_f7e889;
+const C = window.SACatalog, S = window.SAStore;
+
+function useStoreTick() { const [, set] = React.useState(0); React.useEffect(() => S.subscribe(() => set((n) => n + 1)), []); }
+function money(n) { return "$" + n.toLocaleString("en-US"); }
+function strhash(s){var h=0;for(var i=0;i<s.length;i++)h=(Math.imul(31,h)+s.charCodeAt(i))|0;return h;}
+function sealId(id){return "SA-"+((strhash("seal"+id)>>>0).toString(36).toUpperCase()+"000000").slice(0,6);}
+
+/* Purchases: derived from the first liked works, so buying feels connected to taste.
+   Falls back to two seeded purchases so the tab is never empty on a fresh visit. */
+function derivePurchases(likedIds) {
+  const base = likedIds.slice(0, 3);
+  const ids = base.length ? base : ["w3", "w13"];
+  return ids.map((id, i) => {
+    const w = C.workById[id]; if (!w) return null;
+    const tier = ["Personal", "Commercial", "Exclusive"][strhash(id) % 3];
+    const mult = { Personal: 1, Commercial: 3, Exclusive: 9 }[tier];
+    return { work: w, tier, amt: w.price * mult, seal: sealId(id), daysAgo: 8 + i * 21 };
+  }).filter(Boolean);
+}
+function dateAgo(days) { const d = new Date(Date.now() - days * 864e5); return d.toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" }); }
+
+function AppBar() {
+  const pending = S.counts().pending;
+  return (
+    <header className="appbar">
+      <a className="brand" href="index.html" aria-label="SecurityArts Discover">
+        <Seal size={30} /><span className="brand__word">SecurityArts</span><span className="brand__sub">Account</span>
+      </a>
+      <nav className="nav">
+        <a href="index.html" className="optional">Discover</a>
+        <a href="foryou.html" className="optional">For You</a>
+        <a href="dms.html">DMs{pending ? <span className="dot" /> : null}</a>
+        <a href="verify.html" className="optional">Verify</a>
+        <a href="me.html" className="active">You</a>
+        <ThemeToggle size={38} />
+      </nav>
+    </header>
+  );
+}
+
+function App() {
+  useStoreTick();
+  const [tab, setTab] = React.useState("likes");
+  const [toast, setToast] = React.useState("");
+  const toastRef = React.useRef();
+  const show = (m) => { setToast(m); clearTimeout(toastRef.current); toastRef.current = setTimeout(() => setToast(""), 1900); };
+
+  const likedIds = S.likes();
+  const liked = likedIds.map((id) => C.workById[id]).filter(Boolean);
+  const followIds = S.follows();
+  const following = followIds.map((id) => C.artistById[id]).filter(Boolean);
+  const purchases = derivePurchases(likedIds);
+
+  return (
+    <React.Fragment>
+      <AppBar />
+      <div className="wrap">
+        <div className="mehead">
+          <Avatar name="You" size={108} className="mehead__avatar" />
+          <div className="mehead__id">
+            <p className="mehead__eyebrow">Your account</p>
+            <h1 className="mehead__name">You</h1>
+            <div className="mehead__handle">
+              <span className="m">@you</span>
+              <span className="m"><Icon name="heart" size={13} /> Collector</span>
+              <span className="m"><Icon name="shieldCheck" size={13} /> Member since 2026</span>
+            </div>
+          </div>
+          <div className="mehead__actions">
+            <a href="dashboard.html"><Button variant="ghost" size="sm">Switch to artist studio</Button></a>
+            <IconButton icon="share" label="Share" onClick={() => show("Profile link copied")} />
+          </div>
+        </div>
+
+        <div className="stats">
+          <div className={`stat ${tab === "likes" ? "active" : ""}`} onClick={() => setTab("likes")}><b>{liked.length}</b><span>Likes</span></div>
+          <div className={`stat ${tab === "following" ? "active" : ""}`} onClick={() => setTab("following")}><b>{following.length}</b><span>Following</span></div>
+          <div className={`stat ${tab === "purchases" ? "active" : ""}`} onClick={() => setTab("purchases")}><b>{purchases.length}</b><span>Purchases</span></div>
+        </div>
+
+        <div className="tabs">
+          <button className={`tab ${tab === "likes" ? "active" : ""}`} onClick={() => setTab("likes")}>Likes</button>
+          <button className={`tab ${tab === "following" ? "active" : ""}`} onClick={() => setTab("following")}>Following</button>
+          <button className={`tab ${tab === "purchases" ? "active" : ""}`} onClick={() => setTab("purchases")}>Purchases</button>
+        </div>
+
+        {tab === "likes" ? (
+          liked.length ? (
+            <div className="masonry">
+              {liked.map((w) => {
+                const a = C.artistById[w.artistId];
+                return (
+                  <a className="pinlink" key={w.id} href={a ? `profile.html?artist=${a.id}` : "#"}>
+                    <Pin art={<img src={SAGenArt.dataUri(w.seed, { cat: w.cat })} alt={w.title} />}
+                      title={w.title} artist={a ? a.name : "You"} badge="Verified"
+                      saved onSave={() => { S.toggleLike(w.id); show("Removed from likes"); }} />
+                  </a>
+                );
+              })}
+            </div>
+          ) : (
+            <div className="empty">
+              <Seal size={48} style={{ margin: "0 auto 1rem", color: "var(--bone-faint)" }} />
+              <h2>No likes yet.</h2>
+              <p>Tap the heart on any work in Discover — the pieces you like collect here and shape your For You feed.</p>
+              <a href="index.html"><Button variant="solid" arrow>Browse the wall</Button></a>
+            </div>
+          )
+        ) : null}
+
+        {tab === "following" ? (
+          following.length ? (
+            <div className="follows">
+              {following.map((a) => (
+                <div className="fcard" key={a.id}>
+                  <a href={`profile.html?artist=${a.id}`}><Avatar name={a.name} size={52} verified /></a>
+                  <div className="fcard__main">
+                    <a href={`profile.html?artist=${a.id}`}><div className="fcard__name">{a.name}</div></a>
+                    <div className="fcard__meta">{C.MEDIUM[a.cat] || a.cat} · {a.city.split(",")[0]}</div>
+                  </div>
+                  <Button variant="ghost" size="sm" onClick={() => { S.toggleFollow(a.id); show("Unfollowed " + a.name); }}>Following</Button>
+                </div>
+              ))}
+            </div>
+          ) : (
+            <div className="empty">
+              <Seal size={48} style={{ margin: "0 auto 1rem", color: "var(--bone-faint)" }} />
+              <h2>You're not following anyone yet.</h2>
+              <p>Open an artist from Discover and follow them — they'll show up here, and their new work will reach your feed.</p>
+              <a href="index.html"><Button variant="solid" arrow>Find artists</Button></a>
+            </div>
+          )
+        ) : null}
+
+        {tab === "purchases" ? (
+          purchases.length ? (
+            <div className="buys">
+              {purchases.map((p) => {
+                const a = C.artistById[p.work.artistId];
+                return (
+                  <div className="bcard" key={p.work.id}>
+                    <div className="bcard__art">
+                      <img src={SAGenArt.dataUri(p.work.seed, { cat: p.work.cat })} alt={p.work.title} />
+                      <VerifiedBadge className="bcard__badge">Owned</VerifiedBadge>
+                    </div>
+                    <div className="bcard__info">
+                      <div className="bcard__title">{p.work.title}</div>
+                      <div className="bcard__sub">{a ? a.name : ""} · {p.tier} license · {money(p.amt)}</div>
+                      <a href={`seal.html?id=${p.seal}`} className="bcard__seal"><Seal size={15} /> Seal {p.seal} · {dateAgo(p.daysAgo)}</a>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          ) : (
+            <div className="empty">
+              <Seal size={48} style={{ margin: "0 auto 1rem", color: "var(--bone-faint)" }} />
+              <h2>Nothing purchased yet.</h2>
+              <p>When you buy or license a sealed original in the market, it lands here with its certificate.</p>
+              <a href="../market/index.html"><Button variant="solid" arrow>Open the market</Button></a>
+            </div>
+          )
+        ) : null}
+      </div>
+
+      <footer className="foot">
+        <a href="index.html">← Back to Discover</a>
+        <span className="m">Your likes · Your artists · Your sealed collection</span>
+      </footer>
+
+      <Toast show={!!toast}>{toast}</Toast>
+    </React.Fragment>
+  );
+}
+
+ReactDOM.createRoot(document.getElementById("root")).render(<App />);
+</script>
+</body>
+</html>

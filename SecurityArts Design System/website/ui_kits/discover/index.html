@@ -1,0 +1,276 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Discover — SecurityArts</title>
+<script>try{var t=localStorage.getItem('sa-theme');if(t)document.documentElement.setAttribute('data-theme',t)}catch(e){}</script>
+<link rel="icon" href="../../assets/favicon.svg" />
+<link rel="stylesheet" href="../../styles.css" />
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: var(--ink); color: var(--bone); font-family: var(--font-sans); font-weight: 360; font-size: var(--fs-body); line-height: var(--lh-body); -webkit-font-smoothing: antialiased; overflow-x: hidden; min-height: 100vh; transition: background var(--dur-mid) var(--ease), color var(--dur-mid) var(--ease); }
+  a { color: inherit; text-decoration: none; }
+  ::selection { background: var(--brass); color: var(--selection-fg, var(--ink)); }
+
+  .appbar { position: sticky; top: 0; z-index: 60; display: flex; align-items: center; gap: clamp(0.6rem,1.6vw,1.2rem); padding: 0.85rem var(--gutter-app); background: color-mix(in srgb, var(--ink) 90%, transparent); backdrop-filter: blur(var(--blur-bar)); border-bottom: 1px solid var(--line); }
+  .brand { display: inline-flex; align-items: center; gap: 0.6rem; flex: 0 0 auto; }
+  .brand svg { transition: transform 0.9s var(--ease); }
+  .brand:hover svg { transform: rotate(22.5deg); }
+  .brand__word { font-family: var(--font-serif); font-weight: 460; font-size: 1.28rem; letter-spacing: -0.01em; }
+  .brand__sub { font-family: var(--font-mono); font-size: 0.6rem; letter-spacing: 0.22em; color: var(--brass); text-transform: uppercase; align-self: flex-start; margin-top: 0.15rem; }
+  .searchform { position: relative; flex: 1 1 auto; max-width: 440px; margin-inline: auto; }
+  .appbar__actions { display: flex; align-items: center; gap: 0.5rem; flex: 0 0 auto; }
+  .navlink { display: inline-flex; align-items: center; gap: 0.45rem; position: relative; font-family: var(--font-mono); font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.12em; color: var(--bone-dim); padding: 0.55rem 0.7rem; border-radius: var(--radius-pill); transition: color 0.25s var(--ease), background 0.25s var(--ease); cursor: pointer; background: none; border: 0; }
+  .navlink:hover { color: var(--bone); background: var(--ink-3); }
+  .navlink__count { color: var(--brass); font-variant-numeric: tabular-nums; }
+  .navlink .dot { position: absolute; top: 0.3rem; right: 0.35rem; width: 6px; height: 6px; border-radius: 50%; background: var(--brass); }
+  @media (max-width: 900px) { .navlink.optional { display: none; } }
+  @media (max-width: 620px) { .navlink__label { display: none; } }
+
+  .intro { padding: clamp(2.5rem,6vw,5rem) var(--gutter-app) clamp(1.5rem,3vw,2.5rem); max-width: 1100px; }
+  .intro h1 { font-family: var(--font-serif); font-weight: 340; font-optical-sizing: auto; font-size: var(--fs-title); line-height: 0.96; letter-spacing: -0.03em; margin: 1.2rem 0; }
+  .intro h1 em { font-style: italic; color: var(--brass); }
+  .intro p { color: var(--bone-dim); max-width: 56ch; font-size: var(--fs-lede); }
+  .intro p strong { color: var(--bone); font-weight: 460; }
+
+  .filterbar { position: sticky; top: 60px; z-index: 50; display: flex; align-items: center; gap: 1rem; padding: 0.85rem var(--gutter-app); background: color-mix(in srgb, var(--ink) 92%, transparent); backdrop-filter: blur(var(--blur-panel)); border-bottom: 1px solid var(--line); }
+  .chips { display: flex; gap: 0.5rem; overflow-x: auto; scrollbar-width: none; flex: 1 1 auto; }
+  .chips::-webkit-scrollbar { display: none; }
+  .count { flex: 0 0 auto; font-family: var(--font-mono); font-size: 0.68rem; letter-spacing: 0.12em; text-transform: uppercase; color: var(--bone-faint); white-space: nowrap; }
+  @media (max-width: 720px) { .count { display: none; } }
+
+  .board { padding: clamp(1.5rem,3vw,2.5rem) var(--gutter-app) 5rem; column-width: 260px; column-gap: 16px; }
+  .board .sa-pin { margin: 0 0 16px; }
+  .pinlink { display: block; break-inside: avoid; margin: 0 0 16px; }
+  .pinlink .sa-pin { margin: 0; }
+  @media (max-width: 540px) { .board { column-width: 160px; column-gap: 12px; } .pinlink { margin-bottom: 12px; } }
+  .empty { padding: 4rem var(--gutter-app) 6rem; text-align: center; }
+  .empty h2 { font-family: var(--font-serif); font-weight: 360; font-size: clamp(1.6rem,1rem+2vw,2.4rem); letter-spacing: -0.02em; margin-bottom: 0.6rem; }
+  .empty p { color: var(--bone-dim); }
+
+  .foot { border-top: 1px solid var(--line); padding: 2.5rem var(--gutter-app); display: flex; flex-wrap: wrap; justify-content: space-between; gap: 1.2rem; align-items: center; }
+  .foot a { font-family: var(--font-mono); font-size: 0.74rem; text-transform: uppercase; letter-spacing: 0.12em; color: var(--bone-dim); transition: color 0.25s var(--ease); }
+  .foot a:hover { color: var(--bone); }
+  .foot .m { font-family: var(--font-mono); font-size: 0.68rem; letter-spacing: 0.14em; color: var(--bone-faint); }
+
+  /* likes drawer */
+  .like-row { display: flex; align-items: center; gap: 0.8rem; padding: 0.6rem 0; border-bottom: 1px solid var(--line); }
+  .like-row__thumb { width: 48px; height: 60px; border-radius: var(--radius-sm); overflow: hidden; flex: 0 0 auto; background: var(--ink); }
+  .like-row__thumb img { width: 100%; height: 100%; object-fit: cover; }
+  .like-row__main { flex: 1 1 auto; min-width: 0; }
+  .like-row__title { font-family: var(--font-serif); font-weight: 440; font-size: 1rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .like-row__artist { font-family: var(--font-mono); font-size: 0.58rem; text-transform: uppercase; letter-spacing: 0.1em; color: var(--bone-faint); margin-top: 0.15rem; }
+  .likes-empty { color: var(--bone-dim); text-align: center; padding: 2.5rem 0; font-size: 0.9rem; line-height: 1.5; }
+
+  /* verify modal bits */
+  .mhead { padding: 1.6rem clamp(1.25rem,3vw,2.2rem) 1rem; }
+  .meyebrow { font-family: var(--font-mono); font-size: 0.66rem; text-transform: uppercase; letter-spacing: 0.18em; color: var(--brass); }
+  .mtitle { font-family: var(--font-serif); font-weight: 360; font-size: clamp(1.7rem,1rem+2vw,2.4rem); line-height: 1.02; letter-spacing: -0.02em; margin-top: 0.5rem; }
+  .mbody { padding: 0 clamp(1.25rem,3vw,2.2rem) 1.8rem; }
+  .msub { color: var(--bone-dim); font-size: 0.92rem; margin-bottom: 1.4rem; max-width: 48ch; }
+  .dropzone { border: 1.5px dashed var(--line-strong); border-radius: var(--radius-card); padding: 2rem 1.5rem; text-align: center; cursor: pointer; transition: all 0.25s var(--ease); background: var(--ink); }
+  .dropzone:hover { border-color: var(--brass); background: var(--ink-3); }
+  .dropzone p { font-size: 0.92rem; color: var(--bone-dim); margin-top: 0.9rem; }
+  .dropzone p b { color: var(--bone); }
+  .dropzone small { display: block; margin-top: 0.4rem; font-family: var(--font-mono); font-size: 0.62rem; letter-spacing: 0.1em; text-transform: uppercase; color: var(--bone-faint); }
+  .fields { display: grid; grid-template-columns: 1fr 1fr; gap: 0.9rem; margin-top: 1.2rem; }
+  @media (max-width: 600px) { .fields { grid-template-columns: 1fr; } }
+  .mactions { display: flex; flex-wrap: wrap; gap: 0.7rem; margin-top: 1.5rem; align-items: center; }
+  .mnote { font-size: 0.74rem; color: var(--bone-faint); line-height: 1.5; margin-top: 1.1rem; }
+
+  .grain { position: fixed; inset: 0; z-index: 100; pointer-events: none; opacity: 0.045; mix-blend-mode: overlay; background-image: var(--grain-url); }
+</style>
+</head>
+<body>
+<div id="root"></div>
+<div class="grain" aria-hidden="true"></div>
+<script src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" crossorigin="anonymous"></script>
+<script src="../../assets/catalog.js"></script>
+<script src="../../assets/store.js"></script>
+<script src="../../assets/genart.js"></script>
+<script src="../../assets/transition.js"></script>
+<script src="../../../../js/api.js"></script>
+<script src="../../_ds_bundle.js"></script>
+<script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y" crossorigin="anonymous"></script>
+<script type="text/babel">
+/* SecurityArts — Discover (verified-work wall) UI kit.
+   Catalog-driven wall of sealed human work: live search + medium filters, like
+   into your For You feed, open any artist's profile, and the get-verified flow.
+   Shares SACatalog + SAStore with Profile, For You and DMs. */
+const { Seal, Icon, IconButton, Input, Chip, Button, Field, Pin, Drawer, Modal, Certificate, Toast, ThemeToggle } =
+  window.SecurityArtsDesignSystem_f7e889;
+const C = window.SACatalog, S = window.SAStore;
+
+const CATS = [
+  ["all", "All work"], ["illustration", "Illustration"], ["painting", "Painting"], ["3d", "3D / CGI"],
+  ["photography", "Photography"], ["lettering", "Lettering"], ["concept", "Concept Art"], ["mixed", "Mixed Media"],
+];
+const rndHex = (n) => Array.from({ length: n }, () => "0123456789abcdef"[Math.floor(Math.random() * 16)]).join("");
+function useStoreTick() { const [, set] = React.useState(0); React.useEffect(() => S.subscribe(() => set((n) => n + 1)), []); }
+
+function AppBar({ q, setQ, onLikes, onVerify }) {
+  const c = S.counts();
+  return (
+    <header className="appbar">
+      <a className="brand" href="../studio/index.html" aria-label="SecurityArts home">
+        <Seal size={30} /><span className="brand__word">SecurityArts</span><span className="brand__sub">Discover</span>
+      </a>
+      <form className="searchform" onSubmit={(e) => e.preventDefault()} role="search">
+        <Input shape="pill" icon="search" type="search" value={q} onChange={(e) => setQ(e.target.value)} placeholder="Search sealed work — artist, title, medium…" aria-label="Search" />
+      </form>
+      <div className="appbar__actions">
+        <a className="navlink optional" href="welcome.html"><Icon name="home" size={15} /><span className="navlink__label">Home</span></a>
+        <a className="navlink optional" href="verify.html"><Icon name="shieldCheck" size={15} /><span className="navlink__label">Verify</span></a>
+        <a className="navlink optional" href="foryou.html"><Icon name="sparkle" size={15} /><span className="navlink__label">For You</span></a>
+        <a className="navlink" href="dms.html"><Icon name="message" size={15} /><span className="navlink__label">DMs</span>{c.pending ? <span className="dot" /> : null}</a>
+        <button className="navlink" onClick={onLikes}><Icon name="heart" size={15} /><span className="navlink__label">Likes</span> <span className="navlink__count">{c.likes}</span></button>
+        <a className="navlink optional" href="me.html"><Icon name="user" size={15} /><span className="navlink__label">You</span></a>
+        <Button variant="solid" size="sm" onClick={onVerify}>Get verified</Button>
+        <ThemeToggle size={38} />
+      </div>
+    </header>
+  );
+}
+
+function App() {
+  useStoreTick();
+  const [q, setQ] = React.useState("");
+  const [cat, setCat] = React.useState("all");
+  const [extra, setExtra] = React.useState([]); // published (session) works
+  const [likesOpen, setLikesOpen] = React.useState(false);
+  const [modal, setModal] = React.useState(false);
+  const [toast, setToast] = React.useState("");
+  const toastRef = React.useRef();
+  const [vTitle, setVTitle] = React.useState("");
+  const [vArtist, setVArtist] = React.useState("");
+  const [cert, setCert] = React.useState(null);
+  const showToast = (m) => { setToast(m); clearTimeout(toastRef.current); toastRef.current = setTimeout(() => setToast(""), 1900); };
+
+  const works = [...extra, ...C.works];
+  const visible = works.filter((w) => {
+    const a = C.artistById[w.artistId];
+    const hay = (w.title + " " + (w.artistName || (a && a.name) || "") + " " + w.medium).toLowerCase();
+    return (cat === "all" || w.cat === cat) && (!q || hay.includes(q.toLowerCase()));
+  });
+
+  const like = (id) => { const n = S.toggleLike(id); showToast(n ? "Added to your likes" : "Removed from likes"); };
+
+  const generateSeal = () => setCert({ algo: "ECDSA P-256 · SHA-256", hash: rndHex(64), sig: rndHex(96), signer: "sa:key:" + rndHex(12), ts: new Date().toISOString() });
+  const publish = async () => {
+    const id = "u_" + Date.now();
+    const cat = "illustration";
+    const title = vTitle.trim() || "Untitled";
+    const artist = vArtist.trim() || "You";
+    try {
+      // Server re-hashes the bytes and signs with the SecurityArts key — the
+      // authoritative seal. (The client-side cert above is a preview.)
+      if (window.SA_API) await window.SA_API.publishWork({ title, artist, cat, image: SAGenArt.dataUri(SAGenArt.hashStr(id), { cat }) });
+    } catch (_) { /* backend unreachable — the local pin below still stands */ }
+    setExtra([{ id, seed: SAGenArt.hashStr(id), cat, title, artistName: artist, medium: "Your work", own: true }, ...extra]);
+    setModal(false); setCert(null); setVTitle(""); setVArtist("");
+    showToast("Published — your work is on the wall");
+  };
+
+  const likedWorks = S.likes().map((id) => C.workById[id]).filter(Boolean);
+
+  return (
+    <React.Fragment>
+      <AppBar q={q} setQ={setQ} onLikes={() => setLikesOpen(true)} onVerify={() => setModal(true)} />
+
+      <main>
+        <section className="intro">
+          <p style={{ fontFamily: "var(--font-mono)", fontSize: "0.72rem", textTransform: "uppercase", letterSpacing: "0.2em", color: "var(--brass)" }}>Discover — verified human work</p>
+          <h1>A wall of work<br />no machine <em>made.</em></h1>
+          <p>Every piece here carries a SecurityArts seal — proof a <strong>human</strong> made it. Like what moves you to shape your <strong>For You</strong> feed, open an artist to follow or message them, and <strong>get your own work verified</strong> in seconds.</p>
+        </section>
+
+        <div className="filterbar">
+          <div className="chips">{CATS.map(([k, label]) => <Chip key={k} active={cat === k} onClick={() => setCat(k)}>{label}</Chip>)}</div>
+          <span className="count">{visible.length} sealed works</span>
+        </div>
+
+        {visible.length ? (
+          <section className="board">
+            {visible.map((w) => {
+              const a = C.artistById[w.artistId];
+              const artistName = w.artistName || (a && a.name) || "Unknown";
+              const pin = (
+                <Pin art={<img src={SAGenArt.dataUri(w.seed, { cat: w.cat })} alt={w.title + " by " + artistName} />}
+                  title={w.title} artist={artistName} own={w.own}
+                  saved={S.isLiked(w.id)} onSave={() => like(w.id)} />
+              );
+              return a
+                ? <a key={w.id} className="pinlink" href={`profile.html?artist=${a.id}`}>{pin}</a>
+                : <div key={w.id} className="pinlink">{pin}</div>;
+            })}
+          </section>
+        ) : (
+          <div className="empty"><h2>Nothing here — yet.</h2><p>Try a different medium, clear your search, or get a new piece verified.</p></div>
+        )}
+      </main>
+
+      <footer className="foot">
+        <a href="../studio/index.html">← Back to SecurityArts</a>
+        <span className="m">Every work sealed · Authentic · Verified · Human</span>
+      </footer>
+
+      <Drawer open={likesOpen} onClose={() => setLikesOpen(false)} title="Your likes"
+        footer={likedWorks.length ? <a href="foryou.html"><Button variant="solid" style={{ width: "100%" }} arrow>See your For You feed</Button></a> : null}>
+        {likedWorks.length ? likedWorks.map((w) => {
+          const a = C.artistById[w.artistId];
+          return (
+            <div className="like-row" key={w.id}>
+              <a className="like-row__thumb" href={a ? `profile.html?artist=${a.id}` : "#"}><img src={SAGenArt.dataUri(w.seed, { cat: w.cat })} alt="" /></a>
+              <div className="like-row__main">
+                <div className="like-row__title">{w.title}</div>
+                <div className="like-row__artist">{a ? a.name : "You"} · {w.medium}</div>
+              </div>
+              <IconButton icon="heart" active label="Unlike" onClick={() => S.toggleLike(w.id)} />
+            </div>
+          );
+        }) : <p className="likes-empty">No likes yet.<br />Tap the heart on any work — your For You feed is built from these.</p>}
+      </Drawer>
+
+      <Modal open={modal} onClose={() => { setModal(false); setCert(null); }} width="min(640px, 94vw)" label="Get your work verified">
+        <div className="mhead"><p className="meyebrow">Human authentication</p><h2 className="mtitle">Get your work verified.</h2></div>
+        <div className="mbody">
+          <p className="msub">Drop in a piece you made by hand. We compute a cryptographic seal in-browser, then you can publish it to the wall.</p>
+          <div className="dropzone" onClick={generateSeal}>
+            <Seal size={44} style={{ margin: "0 auto", color: "var(--bone-faint)" }} />
+            <p><b>Click to seal a sample piece</b> or drop an image</p>
+            <small>PNG · JPG · WEBP — hashed locally, never uploaded</small>
+          </div>
+          <div className="fields">
+            <Field label="Title" htmlFor="vt"><Input id="vt" value={vTitle} onChange={(e) => setVTitle(e.target.value)} placeholder="Untitled" /></Field>
+            <Field label="Artist" htmlFor="va"><Input id="va" value={vArtist} onChange={(e) => setVArtist(e.target.value)} placeholder="Your name" /></Field>
+          </div>
+          {cert ? (
+            <div style={{ marginTop: "1.4rem" }}>
+              <Certificate rows={[
+                { k: "Algorithm", v: cert.algo, brass: true },
+                { k: "Hash", v: cert.hash },
+                { k: "Signature", v: cert.sig.slice(0, 48) + "…" + cert.sig.slice(-16) },
+                { k: "Signer", v: cert.signer },
+                { k: "Sealed", v: cert.ts },
+              ]}>
+                <Button variant="brass" size="sm" arrow onClick={publish}>Publish to the wall</Button>
+              </Certificate>
+            </div>
+          ) : (
+            <div className="mactions"><Button variant="solid" size="sm" arrow onClick={generateSeal}>Generate seal &amp; verify</Button></div>
+          )}
+          <p className="mnote">Demo — the seal is computed from a sample. In production the SecurityArts key signs server-side and the hash is added to a public registry anyone can check.</p>
+        </div>
+      </Modal>
+
+      <Toast show={!!toast}>{toast}</Toast>
+    </React.Fragment>
+  );
+}
+
+ReactDOM.createRoot(document.getElementById("root")).render(<App />);
+</script>
+</body>
+</html>

@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Artist — SecurityArts</title>
+<script>try{var t=localStorage.getItem('sa-theme');if(t)document.documentElement.setAttribute('data-theme',t)}catch(e){}</script>
+<link rel="icon" href="../../assets/favicon.svg" />
+<link rel="stylesheet" href="../../styles.css" />
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: var(--ink); color: var(--bone); font-family: var(--font-sans); font-weight: 360; font-size: var(--fs-body); line-height: var(--lh-body); -webkit-font-smoothing: antialiased; overflow-x: hidden; min-height: 100vh; transition: background var(--dur-mid) var(--ease), color var(--dur-mid) var(--ease); }
+  a { color: inherit; text-decoration: none; }
+  ::selection { background: var(--brass); color: var(--selection-fg, var(--ink)); }
+
+  /* app bar (shared pattern across platform pages) */
+  .appbar { position: sticky; top: 0; z-index: 60; display: flex; align-items: center; gap: clamp(0.7rem,2vw,1.5rem); padding: 0.85rem var(--gutter-app); background: color-mix(in srgb, var(--ink) 90%, transparent); backdrop-filter: blur(var(--blur-bar)); border-bottom: 1px solid var(--line); }
+  .brand { display: inline-flex; align-items: center; gap: 0.6rem; flex: 0 0 auto; }
+  .brand svg { transition: transform 0.9s var(--ease); }
+  .brand:hover svg { transform: rotate(22.5deg); }
+  .brand__word { font-family: var(--font-serif); font-weight: 460; font-size: 1.28rem; letter-spacing: -0.01em; }
+  .brand__sub { font-family: var(--font-mono); font-size: 0.6rem; letter-spacing: 0.22em; color: var(--brass); text-transform: uppercase; align-self: flex-start; margin-top: 0.15rem; }
+  .nav { display: flex; align-items: center; gap: 0.35rem; margin-left: auto; }
+  .nav a { position: relative; font-family: var(--font-mono); font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.12em; color: var(--bone-dim); padding: 0.55rem 0.7rem; border-radius: var(--radius-pill); transition: color 0.25s var(--ease), background 0.25s var(--ease); }
+  .nav a:hover { color: var(--bone); background: var(--ink-3); }
+  .nav a.active { color: var(--bone); }
+  .nav a .dot { position: absolute; top: 0.35rem; right: 0.35rem; width: 6px; height: 6px; border-radius: 50%; background: var(--brass); }
+  @media (max-width: 720px) { .nav a.optional { display: none; } }
+
+  .wrap { max-width: 1180px; margin-inline: auto; padding-inline: var(--gutter-app); }
+
+  /* hero */
+  .cover { position: relative; height: clamp(150px, 22vw, 260px); overflow: hidden; background: var(--ink-2); border-bottom: 1px solid var(--line); }
+  .cover img { width: 100%; height: 100%; object-fit: cover; filter: saturate(0.9); }
+  .cover::after { content: ""; position: absolute; inset: 0; background: linear-gradient(to bottom, transparent 30%, var(--ink) 98%); }
+  .phead { position: relative; margin-top: clamp(-70px, -7vw, -56px); display: flex; gap: clamp(1rem,2.5vw,1.8rem); align-items: flex-end; flex-wrap: wrap; }
+  .phead__avatar { box-shadow: 0 0 0 5px var(--ink); border-radius: 50%; }
+  .phead__id { flex: 1 1 320px; padding-bottom: 0.3rem; }
+  .phead__name { font-family: var(--font-serif); font-weight: 400; font-size: clamp(1.8rem,1rem+2.6vw,2.9rem); letter-spacing: -0.025em; line-height: 1; display: flex; align-items: center; gap: 0.6rem; }
+  .phead__name .seal { color: var(--brass); }
+  .phead__handle { font-family: var(--font-mono); font-size: 0.75rem; letter-spacing: 0.08em; color: var(--bone-dim); margin-top: 0.5rem; display: flex; gap: 0.9rem; flex-wrap: wrap; align-items: center; }
+  .phead__handle .loc { display: inline-flex; align-items: center; gap: 0.3rem; }
+  .phead__actions { display: flex; gap: 0.6rem; align-items: center; padding-bottom: 0.4rem; }
+
+  .pbody { display: grid; gap: clamp(1.5rem,3vw,2.5rem); grid-template-columns: 1fr; margin-top: 1.8rem; }
+  @media (min-width: 900px) { .pbody { grid-template-columns: 300px 1fr; align-items: start; } }
+  .aside { display: flex; flex-direction: column; gap: 1.4rem; }
+  @media (min-width: 900px) { .aside { position: sticky; top: 84px; } }
+  .bio { color: var(--bone-dim); font-size: 0.98rem; line-height: 1.6; }
+  .tags { display: flex; flex-wrap: wrap; gap: 0.45rem; }
+  .stats { display: flex; gap: 1.4rem; padding: 1rem 0; border-top: 1px solid var(--line); border-bottom: 1px solid var(--line); }
+  .stat { display: flex; flex-direction: column; gap: 0.15rem; }
+  .stat b { font-family: var(--font-serif); font-weight: 440; font-size: 1.4rem; letter-spacing: -0.01em; font-variant-numeric: tabular-nums; }
+  .stat span { font-family: var(--font-mono); font-size: 0.58rem; text-transform: uppercase; letter-spacing: 0.14em; color: var(--bone-faint); }
+
+  .tabs { display: flex; gap: 0.4rem; border-bottom: 1px solid var(--line); margin-bottom: 1.4rem; }
+  .tab { font-family: var(--font-mono); font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.12em; color: var(--bone-dim); background: none; border: 0; cursor: pointer; padding: 0.7rem 0.5rem; border-bottom: 2px solid transparent; margin-bottom: -1px; transition: color 0.25s var(--ease), border-color 0.25s var(--ease); }
+  .tab:hover { color: var(--bone); }
+  .tab.active { color: var(--bone); border-bottom-color: var(--brass); }
+
+  .masonry { column-width: 240px; column-gap: 16px; }
+  .masonry .sa-pin { margin: 0 0 16px; }
+  @media (max-width: 520px) { .masonry { column-width: 160px; column-gap: 12px; } .masonry .sa-pin { margin-bottom: 12px; } }
+  .about { color: var(--bone-dim); line-height: 1.7; max-width: 60ch; }
+  .about p { margin-bottom: 1rem; }
+  .empty { padding: 3rem 0; color: var(--bone-dim); }
+
+  /* DM request modal */
+  .dm { padding: clamp(1.4rem,3vw,2rem); }
+  .dm__eyebrow { font-family: var(--font-mono); font-size: 0.62rem; text-transform: uppercase; letter-spacing: 0.16em; color: var(--brass); }
+  .dm__title { font-family: var(--font-serif); font-weight: 360; font-size: clamp(1.6rem,1rem+2vw,2.2rem); letter-spacing: -0.02em; margin: 0.4rem 0 0.3rem; }
+  .dm__who { display: flex; align-items: center; gap: 0.7rem; margin: 1rem 0; padding: 0.7rem 0.9rem; border: 1px solid var(--line); border-radius: var(--radius-lg); }
+  .dm__who b { font-family: var(--font-serif); font-weight: 440; }
+  .dm__who span { font-family: var(--font-mono); font-size: 0.6rem; letter-spacing: 0.1em; color: var(--bone-faint); text-transform: uppercase; }
+  .dm textarea { width: 100%; min-height: 96px; resize: vertical; font-family: var(--font-sans); font-size: 0.95rem; color: var(--bone); background: var(--ink); border: 1px solid var(--line); border-radius: var(--radius-md); padding: 0.8rem 0.9rem; line-height: 1.5; }
+  .dm textarea:focus { outline: none; border-color: var(--brass); }
+  .dm__note { font-size: 0.74rem; color: var(--bone-faint); line-height: 1.5; margin-top: 0.9rem; }
+  .dm__actions { display: flex; gap: 0.7rem; margin-top: 1.2rem; flex-wrap: wrap; }
+
+  .foot { border-top: 1px solid var(--line); padding: 2.4rem var(--gutter-app); display: flex; flex-wrap: wrap; justify-content: space-between; gap: 1rem; margin-top: 3rem; }
+  .foot a { font-family: var(--font-mono); font-size: 0.74rem; text-transform: uppercase; letter-spacing: 0.12em; color: var(--bone-dim); }
+  .foot a:hover { color: var(--bone); }
+  .foot .m { font-family: var(--font-mono); font-size: 0.68rem; letter-spacing: 0.14em; color: var(--bone-faint); }
+
+  .grain { position: fixed; inset: 0; z-index: 100; pointer-events: none; opacity: 0.045; mix-blend-mode: overlay; background-image: var(--grain-url); }
+</style>
+</head>
+<body>
+<div id="root"></div>
+<div class="grain" aria-hidden="true"></div>
+<script src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" crossorigin="anonymous"></script>
+<script src="../../assets/catalog.js"></script>
+<script src="../../assets/store.js"></script>
+<script src="../../assets/genart.js"></script>
+<script src="../../assets/transition.js"></script>
+<script src="../../../../js/api.js"></script>
+<script src="../../_ds_bundle.js"></script>
+<script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y" crossorigin="anonymous"></script>
+<script type="text/babel">
+const { Seal, Icon, IconButton, Button, Tag, Avatar, Pin, Modal, Toast, ThemeToggle } = window.SecurityArtsDesignSystem_f7e889;
+const C = window.SACatalog, S = window.SAStore;
+
+function useStoreTick() {
+  const [, set] = React.useState(0);
+  React.useEffect(() => S.subscribe(() => set((n) => n + 1)), []);
+  return null;
+}
+function fmt(n) { return n >= 1000 ? (n / 1000).toFixed(1).replace(/\.0$/, "") + "k" : String(n); }
+function qsArtist() {
+  const id = new URLSearchParams(location.search).get("artist");
+  return C.artistById[id] ? id : C.artists[0].id;
+}
+
+function AppBar() {
+  const pending = S.counts().pending;
+  return (
+    <header className="appbar">
+      <a className="brand" href="index.html" aria-label="SecurityArts Discover">
+        <Seal size={30} /><span className="brand__word">SecurityArts</span><span className="brand__sub">Discover</span>
+      </a>
+      <nav className="nav">
+        <a href="index.html">Discover</a>
+        <a href="foryou.html" className="optional">For You</a>
+        <a href="dms.html">DMs{pending ? <span className="dot" /> : null}</a>
+        <a href="verify.html" className="optional">Verify</a>
+        <a href="me.html" className="optional">You</a>
+        <a href="../market/index.html" className="optional">Market</a>
+        <ThemeToggle size={38} />
+      </nav>
+    </header>
+  );
+}
+
+function App() {
+  useStoreTick();
+  const [artistId, setArtistId] = React.useState(qsArtist);
+  const artist = C.artistById[artistId];
+  const works = C.worksByArtist[artistId] || [];
+  const [tab, setTab] = React.useState("works");
+  const [dmOpen, setDmOpen] = React.useState(false);
+  const [dmText, setDmText] = React.useState("");
+  const [toast, setToast] = React.useState("");
+  const toastRef = React.useRef();
+  const show = (m) => { setToast(m); clearTimeout(toastRef.current); toastRef.current = setTimeout(() => setToast(""), 2000); };
+
+  React.useEffect(() => { works.forEach((w) => {}); }, [artistId]);
+
+  const following = S.isFollowing(artistId);
+  const thread = S.getThread(artistId);
+  const dmState = thread ? thread.status : null;
+
+  const toggleFollow = () => { const now = S.toggleFollow(artistId); show(now ? "Following " + artist.name : "Unfollowed"); };
+  const openDM = () => { setDmText(""); setDmOpen(true); };
+  const sendRequest = () => {
+    const text = dmText.trim() || "Hi " + artist.name.split(" ")[0] + " — I love your work and would like to connect.";
+    S.requestDM(artistId, text); setDmOpen(false);
+    show("Request sent to " + artist.name.split(" ")[0]);
+  };
+
+  const messageLabel = dmState === "active" ? "Message" : dmState === "requested" ? "Requested" : "Message";
+
+  return (
+    <React.Fragment>
+      <AppBar />
+      <div className="cover"><img src={SAGenArt.dataUri(artist.id + "-cover", { cat: artist.cat })} alt="" /></div>
+
+      <div className="wrap">
+        <div className="phead">
+          <Avatar name={artist.name} size={112} verified className="phead__avatar" />
+          <div className="phead__id">
+            <h1 className="phead__name">{artist.name}<Seal size={22} className="seal" title="Verified human artist" /></h1>
+            <div className="phead__handle">
+              <span>@{artist.handle}</span>
+              <span className="loc"><Icon name="mapPin" size={13} /> {artist.city}</span>
+              <span className="loc"><Icon name="shieldCheck" size={13} /> Verified artist</span>
+            </div>
+          </div>
+          <div className="phead__actions">
+            <Button variant={following ? "ghost" : "solid"} size="sm" onClick={toggleFollow}>{following ? "Following" : "Follow"}</Button>
+            <Button variant="ghost" size="sm" onClick={openDM}>{messageLabel}</Button>
+            <IconButton icon="share" label="Share profile" onClick={() => show("Profile link copied")} />
+          </div>
+        </div>
+
+        <div className="pbody">
+          <aside className="aside">
+            <p className="bio">{artist.bio}</p>
+            <div className="tags">{artist.tags.map((t) => <Tag key={t}>{t}</Tag>)}</div>
+            <div className="stats">
+              <div className="stat"><b>{artist.works}</b><span>Sealed works</span></div>
+              <div className="stat"><b>{fmt(artist.followers)}</b><span>Followers</span></div>
+              <div className="stat"><b>{fmt(artist.following)}</b><span>Following</span></div>
+            </div>
+            {dmState ? (
+              <a href="dms.html" style={{ fontFamily: "var(--font-mono)", fontSize: "0.68rem", letterSpacing: "0.12em", textTransform: "uppercase", color: "var(--brass)", display: "inline-flex", gap: "0.4rem", alignItems: "center" }}>
+                <Icon name="message" size={14} /> {dmState === "requested" ? "Request pending — open DMs" : "Open conversation"}
+              </a>
+            ) : null}
+          </aside>
+
+          <div>
+            <div className="tabs">
+              <button className={`tab ${tab === "works" ? "active" : ""}`} onClick={() => setTab("works")}>Works · {works.length}</button>
+              <button className={`tab ${tab === "about" ? "active" : ""}`} onClick={() => setTab("about")}>About</button>
+            </div>
+
+            {tab === "works" ? (
+              <div className="masonry">
+                {works.map((w) => (
+                  <Pin key={w.id}
+                    art={<img src={SAGenArt.dataUri(w.seed, { cat: w.cat })} alt={w.title} />}
+                    title={w.title} artist={artist.name}
+                    badge="Verified"
+                    saved={S.isLiked(w.id)} onSave={() => { const n = S.toggleLike(w.id); show(n ? "Added to your likes" : "Removed"); }}
+                  />
+                ))}
+              </div>
+            ) : (
+              <div className="about">
+                <p>{artist.bio}</p>
+                <p>Working primarily in <b style={{ color: "var(--bone)" }}>{C.MEDIUM[artist.cat] || artist.cat}</b> from {artist.city}. Every piece is authenticated with a SecurityArts seal — a cryptographic signature proving a human made it, registered so any buyer or gallery can verify provenance.</p>
+                <p>To commission or license a work, follow {artist.name.split(" ")[0]} and send a message request.</p>
+              </div>
+            )}
+          </div>
+        </div>
+      </div>
+
+      <Modal open={dmOpen} onClose={() => setDmOpen(false)} width="min(520px, 94vw)" label="Send a message request">
+        <div className="dm">
+          <p className="dm__eyebrow">Message request</p>
+          <h2 className="dm__title">Reach out to {artist.name.split(" ")[0]}.</h2>
+          <div className="dm__who">
+            <Avatar name={artist.name} size={40} verified />
+            <div><b>{artist.name}</b><br /><span>@{artist.handle} · verified</span></div>
+          </div>
+          <textarea value={dmText} onChange={(e) => setDmText(e.target.value)} placeholder={"Say hello, ask about a piece, or propose a commission…"} maxLength={500} />
+          <p className="dm__note">Artists receive your note as a request. They'll see your profile and can accept to open a conversation — you won't share contact details until they do.</p>
+          <div className="dm__actions">
+            <Button variant="solid" size="sm" arrow onClick={sendRequest}>Send request</Button>
+            <Button variant="ghost" size="sm" onClick={() => setDmOpen(false)}>Cancel</Button>
+          </div>
+        </div>
+      </Modal>
+
+      <footer className="foot">
+        <a href="index.html">← Back to Discover</a>
+        <span className="m">Verified human · Sealed provenance · Licensed from the artist</span>
+      </footer>
+
+      <Toast show={!!toast}>{toast}</Toast>
+    </React.Fragment>
+  );
+}
+
+ReactDOM.createRoot(document.getElementById("root")).render(<App />);
+</script>
+</body>
+</html>

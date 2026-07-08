@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>SecurityArts — Verified human art</title>
+<script>try{var t=localStorage.getItem('sa-theme');if(t)document.documentElement.setAttribute('data-theme',t)}catch(e){}</script>
+<link rel="icon" href="../../assets/favicon.svg" />
+<link rel="stylesheet" href="../../styles.css" />
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; }
+  body { background: var(--ink); color: var(--bone); font-family: var(--font-sans); font-weight: 360; font-size: var(--fs-body); line-height: var(--lh-relaxed); -webkit-font-smoothing: antialiased; overflow-x: hidden; transition: background var(--dur-mid) var(--ease), color var(--dur-mid) var(--ease); }
+  a { color: inherit; text-decoration: none; }
+  ::selection { background: var(--brass); color: var(--selection-fg, var(--ink)); }
+
+  .wrap { max-width: var(--maxw); margin-inline: auto; }
+  .pad { padding-inline: var(--gutter-app); }
+
+  .appbar { position: sticky; top: 0; z-index: 60; display: flex; align-items: center; gap: clamp(0.7rem,2vw,1.5rem); padding: 0.85rem var(--gutter-app); background: color-mix(in srgb, var(--ink) 88%, transparent); backdrop-filter: blur(var(--blur-bar)); border-bottom: 1px solid transparent; transition: border-color 0.4s var(--ease), background 0.4s var(--ease); }
+  .appbar.stuck { border-bottom-color: var(--line); background: color-mix(in srgb, var(--ink) 92%, transparent); }
+  .brand { display: inline-flex; align-items: center; gap: 0.6rem; }
+  .brand svg { transition: transform 0.9s var(--ease); } .brand:hover svg { transform: rotate(22.5deg); }
+  .brand__word { font-family: var(--font-serif); font-weight: 460; font-size: 1.32rem; letter-spacing: -0.01em; }
+  .nav { display: flex; align-items: center; gap: 0.35rem; margin-left: auto; }
+  .nav a { font-family: var(--font-mono); font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.12em; color: var(--bone-dim); padding: 0.55rem 0.7rem; border-radius: var(--radius-pill); transition: color 0.25s var(--ease), background 0.25s var(--ease); }
+  .nav a:hover { color: var(--bone); background: var(--ink-3); }
+  @media (max-width: 780px) { .nav a.optional { display: none; } }
+
+  /* hero */
+  .hero { position: relative; overflow: hidden; padding: clamp(3rem,8vw,7rem) var(--gutter-app) clamp(2.5rem,5vw,4rem); }
+  .hero__bleed { position: absolute; top: -12%; right: clamp(-20rem,-12vw,-6rem); width: clamp(24rem,46vw,44rem); aspect-ratio: 1; color: rgba(244,241,233,0.06); pointer-events: none; }
+  .hero__in { position: relative; max-width: 1000px; }
+  .hero__eyebrow { font-family: var(--font-mono); font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.2em; color: var(--brass); display: inline-flex; align-items: center; gap: 0.5rem; margin-bottom: clamp(1.2rem,3vw,2rem); }
+  .hero h1 { font-family: var(--font-serif); font-weight: 340; font-optical-sizing: auto; font-size: var(--fs-hero); line-height: 0.9; letter-spacing: -0.035em; }
+  .hero h1 em { font-style: italic; color: var(--brass); }
+  .hero__lede { color: var(--bone-dim); font-size: var(--fs-lede); line-height: 1.55; max-width: 54ch; margin: clamp(1.5rem,3vw,2.2rem) 0; }
+  .hero__lede strong { color: var(--bone); font-weight: 460; }
+  .hero__cta { display: flex; flex-wrap: wrap; gap: 0.9rem; }
+  .hero__stats { display: flex; flex-wrap: wrap; gap: clamp(1.5rem,4vw,3.5rem); margin-top: clamp(2.5rem,5vw,4rem); padding-top: 1.6rem; border-top: 1px solid var(--line); }
+  .hstat b { display: block; font-family: var(--font-serif); font-weight: 400; font-size: clamp(1.6rem,1rem+1.6vw,2.4rem); letter-spacing: -0.02em; }
+  .hstat span { font-family: var(--font-mono); font-size: 0.62rem; text-transform: uppercase; letter-spacing: 0.14em; color: var(--bone-faint); }
+
+  /* audience split */
+  .split { display: grid; gap: 1px; background: var(--line); border-block: 1px solid var(--line); }
+  @media (min-width: 860px) { .split { grid-template-columns: 1fr 1fr; } }
+  .aud { background: var(--ink); padding: clamp(2rem,4vw,3.4rem) var(--gutter-app); display: flex; flex-direction: column; gap: 1.1rem; transition: background 0.4s var(--ease); }
+  .aud:hover { background: var(--ink-2); }
+  .aud--artist { background: linear-gradient(165deg, #17130c, var(--ink) 62%); }
+  .aud--artist:hover { background: linear-gradient(165deg, #1e190f, var(--ink-2) 70%); }
+  .aud__k { font-family: var(--font-mono); font-size: 0.66rem; text-transform: uppercase; letter-spacing: 0.18em; color: var(--brass); }
+  .aud__h { font-family: var(--font-serif); font-weight: 380; font-size: clamp(1.8rem,1rem+2.4vw,2.8rem); letter-spacing: -0.025em; line-height: 1; }
+  .aud__b { color: var(--bone-dim); line-height: 1.6; max-width: 44ch; }
+  .aud__list { list-style: none; display: flex; flex-direction: column; gap: 0.7rem; margin: 0.4rem 0 0.6rem; }
+  .aud__list li { display: flex; gap: 0.6rem; align-items: flex-start; color: var(--bone-dim); font-size: 0.94rem; }
+  .aud__list svg { color: var(--brass); flex: 0 0 auto; margin-top: 0.15rem; }
+  .aud__cta { margin-top: auto; display: flex; gap: 0.7rem; flex-wrap: wrap; padding-top: 0.6rem; }
+
+  /* how it works */
+  .band { padding: clamp(3rem,7vw,6rem) var(--gutter-app); }
+  .band__label { font-family: var(--font-mono); font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.2em; color: var(--bone-dim); display: flex; align-items: baseline; gap: 0.75rem; margin-bottom: 1.6rem; }
+  .band__label span { color: var(--brass); padding-right: 0.75rem; border-right: 1px solid var(--line-strong); }
+  .band__h { font-family: var(--font-serif); font-weight: 380; font-size: var(--fs-section); letter-spacing: -0.022em; line-height: 1.02; margin-bottom: clamp(2rem,4vw,3rem); max-width: 20ch; }
+  .steps { display: grid; gap: 1px; background: var(--line); border: 1px solid var(--line); border-radius: var(--radius-card); overflow: hidden; }
+  @media (min-width: 820px) { .steps { grid-template-columns: repeat(3, 1fr); } }
+  .step { background: var(--ink); padding: clamp(1.6rem,3vw,2.4rem); display: flex; flex-direction: column; gap: 0.6rem; min-height: 200px; }
+  .step__n { font-family: var(--font-mono); font-size: 0.72rem; letter-spacing: 0.14em; color: var(--brass); }
+  .step__seal { color: var(--bone-faint); margin-bottom: 0.4rem; }
+  .step__t { font-family: var(--font-serif); font-weight: 420; font-size: 1.5rem; letter-spacing: -0.015em; }
+  .step__b { color: var(--bone-dim); font-size: 0.92rem; line-height: 1.55; }
+
+  /* featured artists */
+  .artists { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 14px; }
+  .acard { border: 1px solid var(--line); border-radius: var(--radius-card); overflow: hidden; background: var(--ink-2); transition: border-color 0.25s var(--ease), transform 0.3s var(--ease); }
+  .acard:hover { border-color: var(--line-strong); transform: translateY(-3px); }
+  .acard__art { aspect-ratio: 3/2; overflow: hidden; }
+  .acard__art img { width: 100%; height: 100%; object-fit: cover; display: block; }
+  .acard__row { display: flex; align-items: center; gap: 0.6rem; padding: 0.85rem 0.9rem 1rem; }
+  .acard__main { min-width: 0; flex: 1 1 auto; }
+  .acard__name { font-family: var(--font-serif); font-weight: 440; font-size: 1.05rem; letter-spacing: -0.01em; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .acard__meta { font-family: var(--font-mono); font-size: 0.54rem; text-transform: uppercase; letter-spacing: 0.1em; color: var(--bone-faint); margin-top: 0.15rem; }
+
+  /* closing cta */
+  .close { text-align: center; padding: clamp(3.5rem,8vw,7rem) var(--gutter-app); border-top: 1px solid var(--line); }
+  .close__seal { color: var(--brass); margin: 0 auto 1.4rem; }
+  .close h2 { font-family: var(--font-serif); font-weight: 350; font-size: clamp(2.2rem,1rem+5vw,4.4rem); letter-spacing: -0.03em; line-height: 0.98; }
+  .close h2 em { font-style: italic; color: var(--brass); }
+  .close p { color: var(--bone-dim); max-width: 46ch; margin: 1.2rem auto 2rem; }
+  .close__cta { display: flex; gap: 0.9rem; justify-content: center; flex-wrap: wrap; }
+
+  .foot { border-top: 1px solid var(--line); padding: 2.5rem var(--gutter-app); display: flex; flex-wrap: wrap; justify-content: space-between; gap: 1.2rem; align-items: center; }
+  .foot__nav { display: flex; flex-wrap: wrap; gap: 1.4rem; }
+  .foot a { font-family: var(--font-mono); font-size: 0.74rem; text-transform: uppercase; letter-spacing: 0.12em; color: var(--bone-dim); transition: color 0.25s var(--ease); }
+  .foot a:hover { color: var(--bone); }
+  .foot .m { font-family: var(--font-mono); font-size: 0.68rem; letter-spacing: 0.14em; color: var(--bone-faint); }
+
+  .grain { position: fixed; inset: 0; z-index: 100; pointer-events: none; opacity: 0.045; mix-blend-mode: overlay; background-image: var(--grain-url); }
+</style>
+</head>
+<body>
+<div id="root"></div>
+<div class="grain" aria-hidden="true"></div>
+<script src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" crossorigin="anonymous"></script>
+<script src="../../assets/catalog.js"></script>
+<script src="../../assets/store.js"></script>
+<script src="../../assets/genart.js"></script>
+<script src="../../assets/transition.js"></script>
+<script src="../../../../js/api.js"></script>
+<script src="../../_ds_bundle.js"></script>
+<script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y" crossorigin="anonymous"></script>
+<script type="text/babel">
+const { Seal, Icon, Button, Avatar, ThemeToggle } = window.SecurityArtsDesignSystem_f7e889;
+const C = window.SACatalog;
+
+const FEATURED = ["ines-vela", "kofi-mensah", "theo-brandt", "yuki-sato", "lena-lindqvist", "amara-adeyemi"]
+  .map((id) => C.artistById[id]).filter(Boolean);
+const CAT_LABEL = { illustration: "Illustration", painting: "Painting", "3d": "3D & CGI", photography: "Photography", lettering: "Lettering", concept: "Concept art", mixed: "Mixed media" };
+
+function AppBar() {
+  const [stuck, setStuck] = React.useState(false);
+  React.useEffect(() => {
+    const onScroll = () => setStuck(window.scrollY > 20);
+    onScroll(); window.addEventListener("scroll", onScroll, { passive: true });
+    return () => window.removeEventListener("scroll", onScroll);
+  }, []);
+  return (
+    <header className={`appbar ${stuck ? "stuck" : ""}`}>
+      <a className="brand" href="welcome.html" aria-label="SecurityArts"><Seal size={30} /><span className="brand__word">SecurityArts</span></a>
+      <nav className="nav">
+        <a href="index.html" className="optional">Discover</a>
+        <a href="../market/index.html" className="optional">Market</a>
+        <a href="verify.html" className="optional">Verify</a>
+        <a href="dashboard.html" className="optional">For artists</a>
+        <a href="pricing.html" className="optional">Pricing</a>
+        <ThemeToggle size={38} />
+      </nav>
+    </header>
+  );
+}
+
+function App() {
+  return (
+    <React.Fragment>
+      <AppBar />
+      <main>
+        <section className="hero wrap">
+          <div className="hero__bleed"><Seal size="100%" spin spinDuration="110s" /></div>
+          <div className="hero__in">
+            <span className="hero__eyebrow"><Icon name="shieldCheck" size={14} /> The home of verified human art</span>
+            <h1>Real art, <em>proven.</em></h1>
+            <p className="hero__lede">SecurityArts is where artists <strong>seal</strong> their work — a cryptographic signature that proves a human made it — and where collectors buy, license, and follow the people behind it. <strong>No generated fakes. No guesswork.</strong> Just provenance you can check.</p>
+            <div className="hero__cta">
+              <Button variant="solid" href="index.html" arrow>Explore the wall</Button>
+              <Button variant="ghost" href="dashboard.html">Sell your work</Button>
+            </div>
+            <div className="hero__stats">
+              <div className="hstat"><b>{C.works.length * 128}+</b><span>Works sealed</span></div>
+              <div className="hstat"><b>{C.artists.length * 9}</b><span>Verified artists</span></div>
+              <div className="hstat"><b>100%</b><span>Human-made</span></div>
+              <div className="hstat"><b>90%</b><span>Goes to the artist</span></div>
+            </div>
+          </div>
+        </section>
+
+        <section className="split">
+          <div className="aud aud--collector">
+            <span className="aud__k">For collectors</span>
+            <h2 className="aud__h">Buy art a human<br />actually made.</h2>
+            <p className="aud__b">Every piece carries a seal you can verify in one click. Follow the artists you love, save what moves you, and build a collection with provenance built in.</p>
+            <ul className="aud__list">
+              <li><Icon name="check" size={17} /> One-click authenticity on every work</li>
+              <li><Icon name="check" size={17} /> A For You feed tuned to your taste</li>
+              <li><Icon name="check" size={17} /> License personal, commercial, or exclusive</li>
+            </ul>
+            <div className="aud__cta">
+              <Button variant="solid" href="onboarding.html" arrow>Start collecting</Button>
+              <Button variant="ghost" href="me.html">Your account</Button>
+            </div>
+          </div>
+          <div className="aud aud--artist">
+            <span className="aud__k">For artists</span>
+            <h2 className="aud__h">Get the credit —<br />and the sale.</h2>
+            <p className="aud__b">Seal your work in seconds and prove it's yours, forever. Set your own licenses, keep 90% of every sale, and talk to collectors directly through message requests.</p>
+            <ul className="aud__list">
+              <li><Icon name="check" size={17} /> Cryptographic proof of authorship</li>
+              <li><Icon name="check" size={17} /> Keep 90% — transparent payouts</li>
+              <li><Icon name="check" size={17} /> Direct message requests from buyers</li>
+            </ul>
+            <div className="aud__cta">
+              <Button variant="brass" href="dashboard.html" arrow>Open your studio</Button>
+              <Button variant="ghost" href="verify.html">See a seal</Button>
+            </div>
+          </div>
+        </section>
+
+        <section className="band wrap">
+          <p className="band__label"><span>01</span> How the seal works</p>
+          <h2 className="band__h">Three steps from studio to collector.</h2>
+          <div className="steps">
+            <div className="step"><Seal size={30} className="step__seal" /><span className="step__n">01 — Create</span><h3 className="step__t">A human makes it</h3><p className="step__b">An artist creates an original — by hand, in-camera, or in 3D. No prompts, no generators.</p></div>
+            <div className="step"><Seal size={30} className="step__seal" /><span className="step__n">02 — Seal</span><h3 className="step__t">We sign it</h3><p className="step__b">SecurityArts signs the work's fingerprint with its private key and posts the hash to a public registry.</p></div>
+            <div className="step"><Seal size={30} className="step__seal" /><span className="step__n">03 — Verify</span><h3 className="step__t">Anyone can check</h3><p className="step__b">Buyers, galleries, and platforms confirm provenance in one click — trust without a middleman.</p></div>
+          </div>
+        </section>
+
+        <section className="band wrap" style={{ paddingTop: 0 }}>
+          <p className="band__label"><span>02</span> Featured artists</p>
+          <h2 className="band__h">The people behind the work.</h2>
+          <div className="artists">
+            {FEATURED.map((a) => {
+              const w = (C.worksByArtist[a.id] || [])[0];
+              return (
+                <a className="acard" key={a.id} href={`profile.html?artist=${a.id}`}>
+                  <div className="acard__art"><img src={SAGenArt.dataUri(w ? w.seed : a.id, { cat: a.cat })} alt="" /></div>
+                  <div className="acard__row">
+                    <Avatar name={a.name} size={38} verified />
+                    <div className="acard__main">
+                      <div className="acard__name">{a.name}</div>
+                      <div className="acard__meta">{CAT_LABEL[a.cat]} · {a.city.split(",")[0]}</div>
+                    </div>
+                  </div>
+                </a>
+              );
+            })}
+          </div>
+        </section>
+
+        <section className="close wrap">
+          <Seal size={64} className="close__seal" spin spinDuration="100s" />
+          <h2>Own something <em>real.</em></h2>
+          <p>Join the collectors and artists building an economy where being human is the whole point.</p>
+          <div className="close__cta">
+            <Button variant="solid" href="onboarding.html" arrow>Get started</Button>
+            <Button variant="ghost" href="dashboard.html">Sell your work</Button>
+          </div>
+        </section>
+      </main>
+
+      <footer className="foot">
+        <a className="brand" href="welcome.html"><Seal size={30} /><span className="brand__word" style={{ fontSize: "1.2rem" }}>SecurityArts</span></a>
+        <nav className="foot__nav">
+          <a href="index.html">Discover</a><a href="../market/index.html">Market</a><a href="verify.html">Verify</a>
+          <a href="dashboard.html">For artists</a><a href="pricing.html">Pricing</a><a href="me.html">Account</a><a href="../studio/index.html">Security studio</a>
+        </nav>
+        <span className="m">Verified human · Sealed provenance</span>
+      </footer>
+    </React.Fragment>
+  );
+}
+
+ReactDOM.createRoot(document.getElementById("root")).render(<App />);
+</script>
+</body>
+</html>

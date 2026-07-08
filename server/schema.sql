@@ -1,0 +1,72 @@
+-- SecurityArts — Postgres / Supabase schema.
+-- Idempotent: safe to run repeatedly (used by DB_AUTO_MIGRATE=1 too).
+-- In Supabase: SQL Editor → paste → Run, or set DB_AUTO_MIGRATE=1 for first boot.
+
+CREATE TABLE IF NOT EXISTS users (
+  id         TEXT PRIMARY KEY,
+  email      TEXT UNIQUE NOT NULL,
+  name       TEXT NOT NULL DEFAULT 'Artist',
+  pass       TEXT NOT NULL,              -- scrypt hash (never plaintext)
+  created_at TEXT NOT NULL
+);
+
+CREATE TABLE IF NOT EXISTS works (
+  id         TEXT PRIMARY KEY,
+  own        BOOLEAN NOT NULL DEFAULT TRUE,
+  title      TEXT NOT NULL,
+  artist     TEXT NOT NULL,
+  cat        TEXT NOT NULL,
+  medium     TEXT NOT NULL,
+  price      JSONB NOT NULL,             -- { personal, commercial, exclusive }
+  cert       JSONB NOT NULL,             -- server-side seal { hash, sig, signer, algo, ts }
+  hash       TEXT UNIQUE,               -- = cert.hash, for public verification lookups
+  owner_id   TEXT,
+  created_at TEXT NOT NULL,
+  img_url    TEXT                       -- CDN URL when the image lives in Supabase Storage
+);
+CREATE INDEX IF NOT EXISTS works_cat_idx        ON works (cat);
+CREATE INDEX IF NOT EXISTS works_created_at_idx ON works (created_at DESC);
+CREATE INDEX IF NOT EXISTS works_owner_idx      ON works (owner_id);
+
+-- Image bytes live in a side table so the hot catalog queries never pull blobs.
+-- At very high scale, move these to Supabase Storage / S3 and keep a URL on works.
+CREATE TABLE IF NOT EXISTS work_blobs (
+  work_id TEXT PRIMARY KEY REFERENCES works(id) ON DELETE CASCADE,
+  data    TEXT NOT NULL
+);
+
+CREATE TABLE IF NOT EXISTS boards (
+  id         TEXT PRIMARY KEY,
+  user_id    TEXT NOT NULL,
+  name       TEXT NOT NULL,
+  pins       JSONB NOT NULL DEFAULT '[]'::jsonb,
+  created_at TIMESTAMPTZ NOT NULL DEFAULT now()
+);
+CREATE INDEX IF NOT EXISTS boards_user_idx ON boards (user_id);
+
+CREATE TABLE IF NOT EXISTS orders (
+  id         TEXT PRIMARY KEY,
+  lines      JSONB NOT NULL,
+  total      INTEGER NOT NULL,
+  email      TEXT NOT NULL,
+  name       TEXT,
+  user_id    TEXT,
+  status     TEXT NOT NULL DEFAULT 'paid',
+  created_at TEXT NOT NULL
+);
+CREATE INDEX IF NOT EXISTS orders_user_idx ON orders (user_id);
+
+CREATE TABLE IF NOT EXISTS newsletter (
+  email TEXT PRIMARY KEY,
+  ip    TEXT,
+  ts    TEXT NOT NULL
+);
+
+-- Shared, cross-instance rate limiting (used when RATELIMIT_DRIVER=postgres).
+-- Fixed-window counters; old windows are pruned opportunistically.
+CREATE TABLE IF NOT EXISTS rate_limits (
+  bucket       TEXT NOT NULL,
+  window_start BIGINT NOT NULL,
+  count        INTEGER NOT NULL DEFAULT 0,
+  PRIMARY KEY (bucket, window_start)
+);

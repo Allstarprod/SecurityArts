@@ -1,0 +1,288 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Seal record — SecurityArts</title>
+<script>try{var t=localStorage.getItem('sa-theme');if(t)document.documentElement.setAttribute('data-theme',t)}catch(e){}</script>
+<link rel="icon" href="../../assets/favicon.svg" />
+<link rel="stylesheet" href="../../styles.css" />
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: var(--ink); color: var(--bone); font-family: var(--font-sans); font-weight: 360; font-size: var(--fs-body); -webkit-font-smoothing: antialiased; overflow-x: hidden; min-height: 100vh; transition: background var(--dur-mid) var(--ease), color var(--dur-mid) var(--ease); }
+  a { color: inherit; text-decoration: none; }
+  ::selection { background: var(--brass); color: var(--selection-fg, var(--ink)); }
+
+  .appbar { position: sticky; top: 0; z-index: 60; display: flex; align-items: center; gap: clamp(0.7rem,2vw,1.5rem); padding: 0.85rem var(--gutter-app); background: color-mix(in srgb, var(--ink) 90%, transparent); backdrop-filter: blur(var(--blur-bar)); border-bottom: 1px solid var(--line); }
+  .brand { display: inline-flex; align-items: center; gap: 0.6rem; }
+  .brand svg { transition: transform 0.9s var(--ease); } .brand:hover svg { transform: rotate(22.5deg); }
+  .brand__word { font-family: var(--font-serif); font-weight: 460; font-size: 1.28rem; letter-spacing: -0.01em; }
+  .brand__sub { font-family: var(--font-mono); font-size: 0.6rem; letter-spacing: 0.22em; color: var(--brass); text-transform: uppercase; align-self: flex-start; margin-top: 0.15rem; }
+  .nav { display: flex; align-items: center; gap: 0.35rem; margin-left: auto; }
+  .nav a { position: relative; font-family: var(--font-mono); font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.12em; color: var(--bone-dim); padding: 0.55rem 0.7rem; border-radius: var(--radius-pill); transition: color 0.25s var(--ease), background 0.25s var(--ease); }
+  .nav a:hover { color: var(--bone); background: var(--ink-3); }
+  .nav a.active { color: var(--bone); }
+  @media (max-width: 760px) { .nav a.optional { display: none; } }
+
+  .wrap { max-width: 1120px; margin-inline: auto; padding-inline: var(--gutter-app); }
+  .crumb { display: flex; align-items: center; gap: 0.5rem; font-family: var(--font-mono); font-size: 0.62rem; letter-spacing: 0.12em; text-transform: uppercase; color: var(--bone-faint); padding: clamp(1.2rem,2.5vw,1.8rem) 0 0; }
+  .crumb a:hover { color: var(--bone-dim); }
+
+  .top { display: grid; gap: clamp(1.5rem,3vw,2.4rem); grid-template-columns: 1fr; padding: clamp(1rem,2vw,1.6rem) 0 clamp(1.5rem,3vw,2.4rem); }
+  @media (min-width: 880px) { .top { grid-template-columns: 380px 1fr; align-items: start; } }
+  .art { position: relative; border-radius: var(--radius-card); overflow: hidden; border: 1px solid var(--line); aspect-ratio: 4/5; background: var(--ink-2); }
+  .art img { width: 100%; height: 100%; object-fit: cover; }
+  .art__badge { position: absolute; top: 0.8rem; left: 0.8rem; }
+
+  .lede__eyebrow { font-family: var(--font-mono); font-size: 0.66rem; text-transform: uppercase; letter-spacing: 0.16em; color: var(--brass); }
+  .lede__title { font-family: var(--font-serif); font-weight: 400; font-size: clamp(2rem,1rem+3vw,3.2rem); letter-spacing: -0.03em; line-height: 1; margin: 0.5rem 0 0.7rem; }
+  .lede__by { display: flex; align-items: center; gap: 0.7rem; margin-bottom: 1.2rem; }
+  .lede__by .n { font-family: var(--font-serif); font-weight: 440; font-size: 1.05rem; }
+  .lede__by .c { font-family: var(--font-mono); font-size: 0.56rem; text-transform: uppercase; letter-spacing: 0.1em; color: var(--bone-faint); }
+
+  .verify-panel { border: 1px solid var(--brass); border-radius: var(--radius-card); background: linear-gradient(160deg, #19150d, var(--ink-2) 70%); padding: 1.2rem 1.3rem; margin-bottom: 1.3rem; }
+  .verify-row { display: flex; align-items: center; gap: 0.9rem; }
+  .verify-seal { color: var(--brass); flex: 0 0 auto; }
+  .verify-main { flex: 1 1 auto; min-width: 0; }
+  .verify-status { font-family: var(--font-serif); font-weight: 400; font-size: 1.35rem; letter-spacing: -0.015em; display: flex; align-items: center; gap: 0.5rem; }
+  .verify-status .live { width: 8px; height: 8px; border-radius: 50%; background: var(--ok); box-shadow: 0 0 0 4px color-mix(in srgb, var(--ok) 22%, transparent); animation: sapulse 2.4s var(--ease) infinite; }
+  @keyframes sapulse { 0%,100% { opacity: 1; } 50% { opacity: 0.4; } }
+  .verify-sub { font-family: var(--font-mono); font-size: 0.62rem; letter-spacing: 0.08em; color: var(--bone-dim); margin-top: 0.3rem; }
+  .verify-actions { display: flex; gap: 0.6rem; margin-top: 1rem; flex-wrap: wrap; }
+  .facts { display: grid; grid-template-columns: repeat(2, 1fr); gap: 0.8rem; }
+  @media (max-width: 520px) { .facts { grid-template-columns: 1fr; } }
+  .fact { border: 1px solid var(--line); border-radius: var(--radius-md); padding: 0.7rem 0.85rem; }
+  .fact__k { font-family: var(--font-mono); font-size: 0.54rem; text-transform: uppercase; letter-spacing: 0.12em; color: var(--bone-faint); }
+  .fact__v { font-family: var(--font-mono); font-size: 0.8rem; color: var(--bone); margin-top: 0.25rem; word-break: break-all; }
+  .fact__v.brass { color: var(--brass); }
+
+  .section { padding: clamp(2rem,4vw,3rem) 0; border-top: 1px solid var(--line); }
+  .section__h { display: flex; align-items: baseline; gap: 0.75rem; font-family: var(--font-mono); font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.18em; color: var(--bone-dim); margin-bottom: 1.6rem; }
+  .section__h span { color: var(--brass); padding-right: 0.75rem; border-right: 1px solid var(--line-strong); }
+
+  /* provenance timeline */
+  .timeline { list-style: none; position: relative; padding-left: 2.2rem; }
+  .timeline::before { content: ""; position: absolute; left: 11px; top: 6px; bottom: 6px; width: 1px; background: var(--line-strong); }
+  .event { position: relative; padding: 0 0 1.6rem; }
+  .event:last-child { padding-bottom: 0; }
+  .event__dot { position: absolute; left: -2.2rem; top: 0; width: 24px; height: 24px; border-radius: 50%; background: var(--ink-2); border: 1px solid var(--line-strong); display: grid; place-items: center; color: var(--bone-dim); }
+  .event.seal .event__dot { border-color: var(--brass); color: var(--brass); }
+  .event__head { display: flex; align-items: baseline; justify-content: space-between; gap: 1rem; flex-wrap: wrap; }
+  .event__title { font-family: var(--font-serif); font-weight: 440; font-size: 1.1rem; letter-spacing: -0.01em; }
+  .event__date { font-family: var(--font-mono); font-size: 0.6rem; letter-spacing: 0.1em; text-transform: uppercase; color: var(--bone-faint); white-space: nowrap; }
+  .event__body { color: var(--bone-dim); font-size: 0.9rem; line-height: 1.55; margin-top: 0.3rem; }
+  .event__body b { color: var(--bone); font-weight: 460; }
+  .event__hash { font-family: var(--font-mono); font-size: 0.62rem; color: var(--bone-faint); margin-top: 0.4rem; word-break: break-all; }
+
+  /* embed */
+  .embed { display: grid; gap: 1.4rem; grid-template-columns: 1fr; }
+  @media (min-width: 780px) { .embed { grid-template-columns: 300px 1fr; align-items: start; } }
+  .embed__preview { border: 1px solid var(--line); border-radius: var(--radius-card); background: var(--ink-2); padding: 1.4rem; display: grid; place-items: center; }
+  .badge-chip { display: inline-flex; align-items: center; gap: 0.5rem; background: var(--ink); border: 1px solid var(--brass); border-radius: var(--radius-pill); padding: 0.5rem 0.9rem 0.5rem 0.6rem; font-family: var(--font-mono); font-size: 0.62rem; text-transform: uppercase; letter-spacing: 0.1em; color: var(--bone); }
+  .badge-chip .s { color: var(--brass); }
+  .code { position: relative; border: 1px solid var(--line); border-radius: var(--radius-card); background: #0a0a09; overflow: hidden; }
+  .code pre { margin: 0; padding: 1rem 1.1rem; overflow-x: auto; font-family: var(--font-mono); font-size: 0.72rem; line-height: 1.7; color: var(--bone-dim); }
+  .code .tag { color: #8ea6d6; } .code .attr { color: var(--brass); } .code .str { color: #a7c9a0; }
+  .code__copy { position: absolute; top: 0.6rem; right: 0.6rem; }
+  .embed__note { font-size: 0.78rem; color: var(--bone-faint); line-height: 1.55; margin-top: 0.9rem; }
+
+  .foot { border-top: 1px solid var(--line); padding: 2.4rem var(--gutter-app); display: flex; flex-wrap: wrap; justify-content: space-between; gap: 1rem; margin-top: 2rem; }
+  .foot a { font-family: var(--font-mono); font-size: 0.74rem; text-transform: uppercase; letter-spacing: 0.12em; color: var(--bone-dim); }
+  .foot a:hover { color: var(--bone); }
+  .foot .m { font-family: var(--font-mono); font-size: 0.68rem; letter-spacing: 0.14em; color: var(--bone-faint); }
+
+  .grain { position: fixed; inset: 0; z-index: 100; pointer-events: none; opacity: 0.045; mix-blend-mode: overlay; background-image: var(--grain-url); }
+</style>
+</head>
+<body>
+<div id="root"></div>
+<div class="grain" aria-hidden="true"></div>
+<script src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" crossorigin="anonymous"></script>
+<script src="../../assets/catalog.js"></script>
+<script src="../../assets/store.js"></script>
+<script src="../../assets/genart.js"></script>
+<script src="../../assets/transition.js"></script>
+<script src="../../../../js/api.js"></script>
+<script src="../../_ds_bundle.js"></script>
+<script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y" crossorigin="anonymous"></script>
+<script type="text/babel">
+const { Seal, Icon, IconButton, Button, Avatar, VerifiedBadge, Toast, ThemeToggle } = window.SecurityArtsDesignSystem_f7e889;
+const C = window.SACatalog;
+
+function strhash(s){var h=0;for(var i=0;i<s.length;i++)h=(Math.imul(31,h)+s.charCodeAt(i))|0;return h;}
+function mulberry(a){return function(){a|=0;a=a+0x6D2B79F5|0;var t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296;};}
+function hex(seed,n){var r=mulberry(strhash(seed));var o="";for(var i=0;i<n;i++)o+="0123456789abcdef"[(r()*16)|0];return o;}
+function sealId(id){return "SA-"+((strhash("seal"+id)>>>0).toString(36).toUpperCase()+"000000").slice(0,6);}
+function money(n){return "$"+n.toLocaleString("en-US");}
+function fdate(d){return d.toLocaleDateString("en-US",{year:"numeric",month:"short",day:"numeric"});}
+
+const BUYERS = ["Aria Fenn", "Atlas & Co.", "Halcyon Gallery", "Devon Park", "Lena Cho", "Nadia Rios"];
+
+function resolveWork() {
+  const p = new URLSearchParams(location.search);
+  const sid = (p.get("id") || "").toUpperCase();
+  const wid = p.get("work");
+  if (wid && C.workById[wid]) return C.workById[wid];
+  if (sid) { const hit = C.works.find((w) => sealId(w.id) === sid); if (hit) return hit; }
+  return C.workById["w3"] || C.works[0];
+}
+
+/* Deterministic provenance chain for a work. */
+function chainFor(work) {
+  const artist = C.artistById[work.artistId];
+  const rand = mulberry(Math.abs(strhash("chain" + work.id)) + 3);
+  const base = new Date(2026, 0, 1 + (Math.abs(strhash(work.id)) % 150));
+  const events = [];
+  events.push({ kind: "seal", title: "Sealed at origin", date: new Date(base), who: artist.name, body: <>Signed by <b>{artist.name}</b> and registered. The work's SHA-256 fingerprint was written to the public registry.</>, hash: hex("h" + work.id, 64) });
+  // 0–2 transfers
+  const nT = Math.floor(rand() * 3);
+  let owner = artist.name, cursor = new Date(base);
+  for (let i = 0; i < nT; i++) {
+    cursor = new Date(cursor.getTime() + (20 + Math.floor(rand() * 90)) * 864e5);
+    const tier = ["Personal", "Commercial", "Exclusive"][Math.floor(rand() * 3)];
+    const to = BUYERS[Math.floor(rand() * BUYERS.length)];
+    events.push({ kind: "transfer", title: (tier === "Exclusive" ? "Sold — exclusive" : tier + " license"), date: new Date(cursor), who: to, body: <><b>{owner}</b> → <b>{to}</b> · {tier} license · {money(work.price * (tier === "Exclusive" ? 9 : tier === "Commercial" ? 3 : 1))}. Seal transferred and re-signed to the new holder.</>, hash: hex("t" + work.id + i, 64) });
+    if (tier === "Exclusive") owner = to;
+  }
+  // a re-verification event
+  cursor = new Date(Date.now() - (5 + Math.floor(rand() * 20)) * 864e5);
+  events.push({ kind: "verify", title: "Re-verified", date: cursor, who: "Registry", body: <>Signature checked against the registry — <b>valid</b>. Anyone can run this check at any time.</>, hash: null });
+  return events.reverse(); // newest first
+}
+
+function AppBar() {
+  return (
+    <header className="appbar">
+      <a className="brand" href="index.html" aria-label="SecurityArts Discover">
+        <Seal size={30} /><span className="brand__word">SecurityArts</span><span className="brand__sub">Seal record</span>
+      </a>
+      <nav className="nav">
+        <a href="index.html" className="optional">Discover</a>
+        <a href="verify.html">Verify</a>
+        <a href="me.html" className="optional">You</a>
+        <ThemeToggle size={38} />
+      </nav>
+    </header>
+  );
+}
+
+function App() {
+  const [work] = React.useState(resolveWork);
+  const artist = C.artistById[work.artistId];
+  const id = sealId(work.id);
+  const chain = React.useMemo(() => chainFor(work), [work.id]);
+  const owner = React.useMemo(() => {
+    const ex = chain.find((e) => e.kind === "transfer" && /exclusive/i.test(e.title));
+    return ex ? ex.who : artist.name;
+  }, [chain]);
+  const [checking, setChecking] = React.useState(false);
+  const [checkedAt, setCheckedAt] = React.useState(null);
+  const [toast, setToast] = React.useState("");
+  const toastRef = React.useRef();
+  const show = (m) => { setToast(m); clearTimeout(toastRef.current); toastRef.current = setTimeout(() => setToast(""), 1900); };
+
+  const reverify = () => {
+    setChecking(true);
+    setTimeout(() => { setChecking(false); setCheckedAt(new Date()); show("Signature valid — human-made"); }, 1100);
+  };
+  const copyEmbed = () => { show("Embed snippet copied"); };
+  const copyId = () => { show("Seal ID copied"); };
+
+  const fullHash = hex("h" + work.id, 64);
+  const embed =
+`<a href="https://securityarts.studio/s/${id}">
+  <img alt="Verified by SecurityArts"
+       src="https://securityarts.studio/badge/${id}.svg" />
+</a>`;
+
+  return (
+    <React.Fragment>
+      <AppBar />
+      <div className="wrap">
+        <div className="crumb"><a href="verify.html">Verify</a> <Icon name="arrowRight" size={11} /> <span>{id}</span></div>
+
+        <div className="top">
+          <div className="art">
+            <img src={SAGenArt.dataUri(work.seed, { cat: work.cat })} alt={work.title} />
+            <VerifiedBadge className="art__badge">Verified</VerifiedBadge>
+          </div>
+          <div>
+            <p className="lede__eyebrow">Seal {id}</p>
+            <h1 className="lede__title">{work.title}</h1>
+            <div className="lede__by">
+              <a href={`profile.html?artist=${artist.id}`}><Avatar name={artist.name} size={38} verified /></a>
+              <div>
+                <a href={`profile.html?artist=${artist.id}`}><div className="n">{artist.name}</div></a>
+                <div className="c">{work.medium} · {artist.city}</div>
+              </div>
+            </div>
+
+            <div className="verify-panel">
+              <div className="verify-row">
+                <Seal size={44} className="verify-seal" />
+                <div className="verify-main">
+                  <div className="verify-status"><span className="live" />{checking ? "Checking…" : "Authentic — human-made"}</div>
+                  <div className="verify-sub">{checkedAt ? "Re-verified " + checkedAt.toLocaleTimeString([], { hour: "numeric", minute: "2-digit" }) : "Signature valid · registry match"}</div>
+                </div>
+              </div>
+              <div className="verify-actions">
+                <Button variant="brass" size="sm" onClick={reverify} disabled={checking}>{checking ? "Verifying…" : "Re-verify now"}</Button>
+                <Button variant="ghost" size="sm" onClick={copyId}>Copy seal ID</Button>
+              </div>
+            </div>
+
+            <div className="facts">
+              <div className="fact"><div className="fact__k">Current owner</div><div className="fact__v">{owner}</div></div>
+              <div className="fact"><div className="fact__k">Algorithm</div><div className="fact__v brass">ECDSA P-256 · SHA-256</div></div>
+              <div className="fact"><div className="fact__k">Signer key</div><div className="fact__v">sa:key:{hex("k" + work.artistId, 12)}</div></div>
+              <div className="fact"><div className="fact__k">Transfers</div><div className="fact__v">{chain.filter((e) => e.kind === "transfer").length}</div></div>
+            </div>
+          </div>
+        </div>
+
+        <section className="section">
+          <p className="section__h"><span>01</span> Provenance</p>
+          <ul className="timeline">
+            {chain.map((e, i) => (
+              <li className={`event ${e.kind}`} key={i}>
+                <span className="event__dot"><Icon name={e.kind === "seal" ? "shieldCheck" : e.kind === "transfer" ? "arrowRight" : "checkCircle"} size={13} /></span>
+                <div className="event__head"><span className="event__title">{e.title}</span><span className="event__date">{fdate(e.date)}</span></div>
+                <div className="event__body">{e.body}</div>
+                {e.hash ? <div className="event__hash">tx {e.hash.slice(0, 40)}…{e.hash.slice(-8)}</div> : null}
+              </li>
+            ))}
+          </ul>
+        </section>
+
+        <section className="section">
+          <p className="section__h"><span>02</span> Embed the badge</p>
+          <div className="embed">
+            <div className="embed__preview">
+              <span className="badge-chip"><Seal size={16} className="s" /> Verified by SecurityArts</span>
+            </div>
+            <div>
+              <div className="code">
+                <IconButton icon="check" variant="outline" label="Copy" className="code__copy" onClick={copyEmbed} />
+                <pre><span className="tag">&lt;a</span> <span className="attr">href</span>=<span className="str">"https://securityarts.studio/s/{id}"</span><span className="tag">&gt;</span>{"\n  "}<span className="tag">&lt;img</span> <span className="attr">alt</span>=<span className="str">"Verified by SecurityArts"</span>{"\n       "}<span className="attr">src</span>=<span className="str">"https://securityarts.studio/badge/{id}.svg"</span> <span className="tag">/&gt;</span>{"\n"}<span className="tag">&lt;/a&gt;</span></pre>
+              </div>
+              <p className="embed__note">Drop this on a portfolio, gallery listing, or marketplace. The badge links back to this record so any visitor can confirm the seal is live — the same check galleries and platforms run through our API.</p>
+            </div>
+          </div>
+        </section>
+      </div>
+
+      <footer className="foot">
+        <a href="verify.html">← Back to Verify</a>
+        <span className="m">One seal · One human · Publicly verifiable</span>
+      </footer>
+
+      <Toast show={!!toast}>{toast}</Toast>
+    </React.Fragment>
+  );
+}
+
+ReactDOM.createRoot(document.getElementById("root")).render(<App />);
+</script>
+</body>
+</html>

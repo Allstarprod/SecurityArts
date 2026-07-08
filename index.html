@@ -1,0 +1,1110 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>SecurityArts — A security studio that signs its work</title>
+  <meta name="description" content="SecurityArts is a security studio. We break systems before adversaries do, harden what matters, and leave a verifiable mark behind — offensive security, application security, cloud, and detection & response." />
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300..600;1,9..144,300..500&family=Geist:wght@300..600&family=Geist+Mono:wght@400;500&display=swap" rel="stylesheet" />
+
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='18' fill='%230c0c0b'/%3E%3Cg fill='none' stroke='%23f4f1e9' stroke-width='4.2'%3E%3Cpath d='M 50 13 A 7.22 7.22 0 0 1 64.16 15.82 A 7.22 7.22 0 0 1 76.16 23.84 A 7.22 7.22 0 0 1 84.18 35.84 A 7.22 7.22 0 0 1 87 50 A 7.22 7.22 0 0 1 84.18 64.16 A 7.22 7.22 0 0 1 76.16 76.16 A 7.22 7.22 0 0 1 64.16 84.18 A 7.22 7.22 0 0 1 50 87 A 7.22 7.22 0 0 1 35.84 84.18 A 7.22 7.22 0 0 1 23.84 76.16 A 7.22 7.22 0 0 1 15.82 64.16 A 7.22 7.22 0 0 1 13 50 A 7.22 7.22 0 0 1 15.82 35.84 A 7.22 7.22 0 0 1 23.84 23.84 A 7.22 7.22 0 0 1 35.84 15.82 A 7.22 7.22 0 0 1 50 13 Z'/%3E%3Ccircle cx='50' cy='50' r='27'/%3E%3C/g%3E%3Cpath fill='%23f4f1e9' d='M 50 34.5 L 53.76 44.82 L 64.74 45.21 L 56.09 51.98 L 59.11 62.54 L 50 56.4 L 40.89 62.54 L 43.91 51.98 L 35.26 45.21 L 46.24 44.82 Z'/%3E%3C/svg%3E" />
+
+  <style>
+  /* ============================================================
+     SecurityArts — a security studio that signs its work
+     Type:  Fraunces (display serif) · Geist (body) · Geist Mono (data)
+     ============================================================ */
+
+  :root {
+    /* surfaces */
+    --ink:        #0c0c0b;   /* warm near-black base               */
+    --ink-2:      #131312;   /* raised panels                      */
+    --ink-3:      #1b1a18;   /* hover panels                       */
+    --cream:      #e8e4d8;   /* brand "light surface"              */
+    --jet:        #100f0e;   /* logo ink on cream                  */
+
+    /* ink */
+    --bone:       #f4f1e9;   /* brand "Pale White" — primary text  */
+    --bone-dim:   #a39e92;   /* secondary text                     */
+    --bone-faint: #6f6b62;   /* tertiary / captions                */
+
+    /* accent — the wax-seal note, used sparingly */
+    --brass:      #c2a14e;
+    --brass-deep: #9c7e34;
+
+    /* brand surface swatches (identity section) */
+    --sw-green:   #1f7a55;
+    --sw-red:     #b23a2c;
+    --sw-blue:    #3667cf;
+    --sw-gold:    #a8862a;
+    --sw-taupe:   #7c7468;
+
+    /* lines */
+    --line:        rgba(244, 241, 233, 0.12);
+    --line-strong: rgba(244, 241, 233, 0.22);
+
+    /* layout */
+    --gutter: clamp(1.25rem, 4vw, 5rem);
+    --maxw: 1320px;
+
+    /* type */
+    --serif: "Fraunces", "Times New Roman", serif;
+    --sans:  "Geist", -apple-system, system-ui, sans-serif;
+    --mono:  "Geist Mono", ui-monospace, "SFMono-Regular", monospace;
+
+    --ease: cubic-bezier(0.16, 1, 0.3, 1);
+  }
+
+  /* ───────────────── reset ───────────────── */
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  html { scroll-behavior: smooth; -webkit-text-size-adjust: 100%; }
+  @media (prefers-reduced-motion: reduce) {
+    html { scroll-behavior: auto; }
+    *, *::before, *::after { animation-duration: 0.001ms !important; animation-iteration-count: 1 !important; transition-duration: 0.001ms !important; }
+  }
+
+  body {
+    background: var(--ink);
+    color: var(--bone);
+    font-family: var(--sans);
+    font-weight: 360;
+    font-size: clamp(1rem, 0.95rem + 0.25vw, 1.125rem);
+    line-height: 1.62;
+    letter-spacing: 0.005em;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    overflow-x: hidden;
+  }
+
+  img, svg { display: block; max-width: 100%; }
+  a { color: inherit; text-decoration: none; }
+  em { font-style: italic; }
+
+  ::selection { background: var(--brass); color: var(--ink); }
+
+  .skip-link {
+    position: fixed; top: 0; left: 50%; transform: translate(-50%, -120%);
+    background: var(--bone); color: var(--ink); padding: 0.7rem 1.2rem;
+    z-index: 200; font: 500 0.85rem/1 var(--mono); border-radius: 0 0 6px 6px;
+  }
+  .skip-link:focus { transform: translate(-50%, 0); }
+
+  :focus-visible {
+    outline: 2px solid var(--brass);
+    outline-offset: 3px;
+    border-radius: 2px;
+  }
+
+  .svg-defs { position: absolute; }
+
+  /* grain texture overlay */
+  .grain {
+    position: fixed; inset: 0; z-index: 100; pointer-events: none;
+    opacity: 0.05; mix-blend-mode: overlay;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  }
+
+  /* ───────────────── seal mark ───────────────── */
+  .seal { width: 100%; height: 100%; color: inherit; overflow: visible; }
+  .seal-scallop { stroke: currentColor; stroke-width: 2.1; }
+  .seal-ring    { stroke: currentColor; stroke-width: 1.5; }
+  .seal-star    { fill: currentColor; }
+
+  /* ───────────────── shared typography ───────────────── */
+  .eyebrow, .section-label, .mono {
+    font-family: var(--mono);
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.2em;
+    font-size: 0.72rem;
+    color: var(--bone-dim);
+  }
+
+  .section-label { display: flex; align-items: baseline; gap: 0.75rem; margin-bottom: 1.6rem; }
+  .section-label span {
+    color: var(--brass);
+    font-size: 0.72rem;
+    padding-right: 0.75rem;
+    border-right: 1px solid var(--line-strong);
+  }
+
+  .h-section {
+    font-family: var(--serif);
+    font-optical-sizing: auto;
+    font-weight: 380;
+    font-size: clamp(2rem, 1rem + 4.4vw, 4.4rem);
+    line-height: 1.02;
+    letter-spacing: -0.022em;
+  }
+
+  .ul {
+    font-style: italic;
+    position: relative;
+    white-space: nowrap;
+  }
+  .ul::after {
+    content: ""; position: absolute; left: -0.02em; right: -0.02em; bottom: 0.06em;
+    height: 2px; background: var(--brass);
+    transform: scaleX(0); transform-origin: left; transition: transform 0.7s var(--ease) 0.2s;
+  }
+  .is-visible .ul::after { transform: scaleX(1); }
+
+  /* ───────────────── header ───────────────── */
+  .site-head {
+    position: sticky; top: 0; z-index: 80;
+    display: flex; align-items: center; gap: 2rem;
+    padding: 1.1rem var(--gutter);
+    background: color-mix(in srgb, var(--ink) 72%, transparent);
+    backdrop-filter: blur(14px);
+    border-bottom: 1px solid transparent;
+    transition: border-color 0.4s var(--ease), padding 0.4s var(--ease), background 0.4s var(--ease);
+  }
+  .site-head.is-stuck {
+    border-bottom-color: var(--line);
+    padding-top: 0.75rem; padding-bottom: 0.75rem;
+    background: color-mix(in srgb, var(--ink) 88%, transparent);
+  }
+
+  .brand { display: inline-flex; align-items: center; gap: 0.62rem; }
+  .brand__seal { width: 30px; height: 30px; flex: 0 0 auto; transition: transform 0.9s var(--ease); }
+  .brand:hover .brand__seal { transform: rotate(22.5deg); }
+  .brand__word {
+    font-family: var(--serif); font-weight: 460; font-size: 1.32rem;
+    letter-spacing: -0.01em; line-height: 1;
+  }
+  .brand__word-alt { color: var(--bone); }
+
+  .nav { display: flex; gap: 1.9rem; margin-left: auto; }
+  .nav a {
+    font-family: var(--mono); font-size: 0.76rem; letter-spacing: 0.12em;
+    text-transform: uppercase; color: var(--bone-dim);
+    display: inline-flex; align-items: baseline; gap: 0.4rem;
+    transition: color 0.25s var(--ease);
+  }
+  .nav a:hover { color: var(--bone); }
+  .nav__idx { color: var(--brass); font-size: 0.62rem; }
+
+  .head-cta {
+    font-family: var(--mono); font-size: 0.74rem; text-transform: uppercase;
+    letter-spacing: 0.12em; color: var(--ink); background: var(--bone);
+    padding: 0.62rem 0.95rem; border-radius: 100px;
+    display: inline-flex; align-items: center; gap: 0.45rem;
+    transition: background 0.3s var(--ease), color 0.3s var(--ease), gap 0.3s var(--ease);
+  }
+  .head-cta:hover { background: var(--brass); gap: 0.7rem; }
+  .head-cta__arrow { transition: transform 0.3s var(--ease); }
+  .head-cta:hover .head-cta__arrow { transform: translateX(2px); }
+
+  .menu-btn { display: none; }
+
+  /* ───────────────── mobile menu ───────────────── */
+  .mobile-menu {
+    position: fixed; inset: 0; z-index: 79;
+    background: var(--ink);
+    padding: 6rem var(--gutter) 3rem;
+    display: flex; flex-direction: column; justify-content: space-between;
+    transform: translateY(-100%); transition: transform 0.55s var(--ease);
+    visibility: hidden;
+  }
+  .mobile-menu.is-open { transform: translateY(0); visibility: visible; }
+  .mobile-menu__nav { display: flex; flex-direction: column; }
+  .mobile-menu__nav a {
+    font-family: var(--serif); font-size: clamp(2rem, 12vw, 3.2rem); font-weight: 380;
+    letter-spacing: -0.02em; padding: 0.5rem 0; border-bottom: 1px solid var(--line);
+    display: flex; align-items: baseline; gap: 1rem;
+  }
+  .mobile-menu__nav a span { font: 500 0.8rem var(--mono); color: var(--brass); }
+  .mobile-menu__cta {
+    font-family: var(--mono); text-transform: uppercase; letter-spacing: 0.12em;
+    font-size: 0.85rem; color: var(--brass);
+  }
+
+  /* ───────────────── hero ───────────────── */
+  .hero {
+    position: relative;
+    min-height: clamp(640px, 92vh, 1000px);
+    padding: clamp(3rem, 7vw, 7rem) var(--gutter) 2.5rem;
+    display: flex; flex-direction: column;
+    max-width: var(--maxw); margin-inline: auto;
+    overflow: hidden;
+  }
+  .hero__seal-bleed {
+    position: absolute; top: 50%; right: clamp(-22rem, -16vw, -7rem);
+    transform: translateY(-50%);
+    width: clamp(26rem, 52vw, 48rem); aspect-ratio: 1;
+    color: rgba(244, 241, 233, 0.07);
+    pointer-events: none;
+  }
+  .seal--bleed { animation: spin 90s linear infinite; }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  .hero__inner { position: relative; margin-top: auto; max-width: 1100px; }
+
+  .eyebrow { display: inline-flex; align-items: center; gap: 0.6rem; margin-bottom: clamp(1.4rem, 3vw, 2.4rem); }
+  .eyebrow__dot { width: 7px; height: 7px; border-radius: 50%; background: var(--brass); box-shadow: 0 0 0 4px rgba(194,161,78,0.16); }
+
+  .hero__title {
+    font-family: var(--serif); font-optical-sizing: auto;
+    font-weight: 340;
+    font-size: clamp(2.9rem, 0.5rem + 11vw, 9.2rem);
+    line-height: 0.92; letter-spacing: -0.035em;
+  }
+  .hero__title span { display: block; }
+  .hero__title em { color: var(--brass); font-weight: 360; }
+
+  .hero__aside {
+    display: grid; grid-template-columns: 1fr; gap: 1.8rem;
+    margin-top: clamp(2rem, 4vw, 3.2rem);
+    max-width: 640px; margin-left: auto;
+  }
+  .hero__lede { color: var(--bone-dim); font-size: clamp(1.02rem, 0.95rem + 0.4vw, 1.22rem); line-height: 1.55; }
+  .hero__actions { display: flex; flex-wrap: wrap; gap: 0.9rem; }
+
+  .btn {
+    font-family: var(--mono); font-size: 0.78rem; text-transform: uppercase; letter-spacing: 0.1em;
+    padding: 0.95rem 1.5rem; border-radius: 100px; border: 1px solid transparent;
+    transition: all 0.3s var(--ease); display: inline-flex; align-items: center;
+  }
+  .btn--solid { background: var(--bone); color: var(--ink); }
+  .btn--solid:hover { background: var(--brass); transform: translateY(-2px); }
+  .btn--ghost { border-color: var(--line-strong); color: var(--bone); }
+  .btn--ghost:hover { border-color: var(--bone); background: rgba(244,241,233,0.04); transform: translateY(-2px); }
+
+  .hero__foot {
+    display: flex; flex-wrap: wrap; gap: 2.5rem; margin-top: clamp(2.5rem, 5vw, 4rem);
+    padding-top: 1.5rem; border-top: 1px solid var(--line);
+  }
+  .hero__meta { display: flex; flex-direction: column; gap: 0.4rem; }
+  .hero__meta--end { margin-left: auto; text-align: right; }
+  .meta-k { font: 500 0.68rem var(--mono); text-transform: uppercase; letter-spacing: 0.18em; color: var(--bone-faint); }
+  .meta-v { font-size: 0.92rem; color: var(--bone-dim); }
+
+  /* ───────────────── marquee ───────────────── */
+  .marquee {
+    border-top: 1px solid var(--line); border-bottom: 1px solid var(--line);
+    overflow: hidden; padding: 1.15rem 0; background: var(--ink-2);
+  }
+  .marquee__track {
+    display: flex; align-items: center; gap: 2.5rem; width: max-content;
+    animation: marquee 48s linear infinite;
+  }
+  .marquee__track span {
+    font-family: var(--serif); font-size: clamp(1.3rem, 3vw, 2.1rem); font-weight: 360;
+    letter-spacing: -0.01em; color: var(--bone); white-space: nowrap;
+  }
+  .seal--tick { width: clamp(18px, 3vw, 26px); height: clamp(18px, 3vw, 26px); color: var(--brass); flex: 0 0 auto; }
+  @keyframes marquee { to { transform: translateX(-50%); } }
+  .marquee:hover .marquee__track { animation-play-state: paused; }
+
+  /* ───────────────── manifesto ───────────────── */
+  .manifesto {
+    max-width: var(--maxw); margin-inline: auto;
+    padding: clamp(5rem, 12vw, 11rem) var(--gutter);
+    display: grid; grid-template-columns: minmax(0, 0.9fr) minmax(0, 3.1fr); gap: clamp(1.5rem, 4vw, 4rem);
+  }
+  .manifesto__text {
+    font-family: var(--serif); font-weight: 360; font-optical-sizing: auto;
+    font-size: clamp(1.7rem, 0.8rem + 3.4vw, 3.5rem);
+    line-height: 1.16; letter-spacing: -0.018em; color: var(--bone);
+  }
+  .manifesto__text .ul { color: var(--brass); }
+
+  /* ───────────────── practice ───────────────── */
+  .practice { max-width: var(--maxw); margin-inline: auto; padding: clamp(2rem, 4vw, 4rem) var(--gutter) clamp(5rem, 10vw, 8rem); }
+  .practice__head { display: grid; grid-template-columns: 1fr; gap: 1.4rem; margin-bottom: clamp(2.5rem, 6vw, 4.5rem); max-width: 1000px; }
+  .practice__intro { color: var(--bone-dim); max-width: 52ch; }
+  @media (min-width: 900px) {
+    .practice__head { grid-template-columns: 1.4fr 1fr; grid-template-rows: auto auto; align-items: end; }
+    .practice__head .section-label { grid-column: 1 / -1; }
+    .practice__intro { padding-bottom: 0.4rem; }
+  }
+
+  .grid { list-style: none; display: grid; grid-template-columns: repeat(6, 1fr); gap: 1px; background: var(--line); border: 1px solid var(--line); border-radius: 14px; overflow: hidden; }
+  .card {
+    grid-column: span 3;
+    background: var(--ink); padding: clamp(1.6rem, 3vw, 2.6rem);
+    display: flex; flex-direction: column; gap: 1rem; min-height: 270px;
+    transition: background 0.4s var(--ease);
+    position: relative;
+  }
+  .card--wide { grid-column: span 6; }
+  .card:hover { background: var(--ink-3); }
+  .card__top { display: flex; align-items: flex-start; justify-content: space-between; }
+  .card__idx { font: 500 0.74rem var(--mono); letter-spacing: 0.1em; color: var(--brass); }
+  .card__seal { width: 30px; height: 30px; color: var(--bone-faint); transition: transform 0.8s var(--ease), color 0.4s var(--ease); }
+  .card:hover .card__seal { transform: rotate(45deg); color: var(--brass); }
+  .card__title { font-family: var(--serif); font-weight: 420; font-size: clamp(1.4rem, 1rem + 1vw, 1.95rem); letter-spacing: -0.015em; line-height: 1.05; }
+  .card--wide .card__title { font-size: clamp(1.7rem, 1rem + 1.6vw, 2.5rem); }
+  .card__body { color: var(--bone-dim); font-size: 0.97rem; line-height: 1.55; max-width: 46ch; }
+  .card--wide .card__body { max-width: 56ch; }
+  .card__tags { list-style: none; display: flex; flex-wrap: wrap; gap: 0.45rem; margin-top: auto; padding-top: 0.6rem; }
+  .card__tags li {
+    font: 500 0.68rem var(--mono); text-transform: uppercase; letter-spacing: 0.08em;
+    color: var(--bone-dim); border: 1px solid var(--line-strong);
+    padding: 0.32rem 0.6rem; border-radius: 100px;
+  }
+  .card--brass { background: linear-gradient(160deg, #1a1712, var(--ink) 60%); }
+  .card--brass .card__idx { color: var(--brass); }
+  .card--brass:hover { background: linear-gradient(160deg, #221d14, var(--ink-2) 70%); }
+
+  /* ───────────────── the seal section ───────────────── */
+  .seal-section {
+    max-width: var(--maxw); margin-inline: auto;
+    padding: clamp(4rem, 9vw, 8rem) var(--gutter);
+    border-top: 1px solid var(--line);
+    display: grid; grid-template-columns: 1fr; gap: clamp(2.5rem, 6vw, 5rem); align-items: center;
+  }
+  @media (min-width: 920px) { .seal-section { grid-template-columns: 0.85fr 1.15fr; } }
+  .seal-section__art { display: flex; justify-content: center; }
+  .seal--hero { width: clamp(15rem, 34vw, 26rem); aspect-ratio: 1; color: var(--bone); animation: spin 120s linear infinite; }
+  .seal-section__lede { color: var(--bone-dim); font-size: clamp(1.05rem, 0.95rem + 0.45vw, 1.28rem); line-height: 1.6; max-width: 56ch; margin-top: 0.4rem; }
+  .seal-section__lede em { color: var(--bone); font-style: italic; }
+  .seal-points { list-style: none; margin-top: 2.4rem; display: flex; flex-direction: column; }
+  .seal-points li { display: grid; grid-template-columns: 1fr; gap: 0.25rem; padding: 1.1rem 0; border-top: 1px solid var(--line); }
+  @media (min-width: 560px) { .seal-points li { grid-template-columns: 9rem 1fr; gap: 1.5rem; align-items: baseline; } }
+  .seal-points__k { font-family: var(--mono); text-transform: uppercase; letter-spacing: 0.14em; font-size: 0.74rem; color: var(--brass); }
+  .seal-points__v { color: var(--bone-dim); }
+
+  /* ───────────────── identity (light flip) ───────────────── */
+  .identity {
+    background: var(--cream); color: var(--jet);
+    padding: clamp(4.5rem, 10vw, 9rem) var(--gutter);
+  }
+  .identity > * { max-width: var(--maxw); margin-inline: auto; }
+  .identity .section-label { color: #6a6356; }
+  .identity .section-label span { color: var(--brass-deep); border-right-color: rgba(16,15,14,0.18); }
+  .identity__head { display: grid; gap: 1.4rem; margin-bottom: clamp(2.5rem, 5vw, 4rem); }
+  .identity__title {
+    font-family: var(--serif); font-weight: 380; font-optical-sizing: auto;
+    font-size: clamp(2.4rem, 1rem + 6vw, 5.6rem); line-height: 0.98; letter-spacing: -0.03em;
+  }
+  .identity__intro { color: #4a4439; max-width: 56ch; font-size: clamp(1.02rem, 0.95rem + 0.4vw, 1.18rem); }
+
+  .surfaces { display: grid; grid-template-columns: repeat(4, 1fr); gap: clamp(0.5rem, 1.2vw, 0.9rem); margin-bottom: clamp(2.5rem, 5vw, 4rem); }
+  .surface { aspect-ratio: 1; border-radius: 12px; display: grid; place-items: center; }
+  .surface svg { width: 46%; height: 46%; }
+  .surface[data-light] { color: var(--bone); }            /* white seal */
+  .surface:not([data-light]) { color: var(--jet); }       /* dark seal  */
+  .surface--green { background: var(--sw-green); }
+  .surface--red   { background: var(--sw-red); }
+  .surface--blue  { background: var(--sw-blue); }
+  .surface--gold  { background: var(--sw-gold); }
+  .surface--cream { background: #f3efe6; border: 1px solid rgba(16,15,14,0.1); }
+  .surface--taupe { background: var(--sw-taupe); }
+  .surface--ink   { background: var(--ink); }
+  .surface--bone  { background: var(--bone); }
+
+  .identity__pair { display: grid; grid-template-columns: 1fr; gap: clamp(0.5rem, 1.2vw, 0.9rem); }
+  @media (min-width: 640px) { .identity__pair { grid-template-columns: 1fr 1fr; } }
+  .lockup { border-radius: 12px; padding: clamp(1.6rem, 3vw, 2.4rem); display: flex; flex-direction: column; justify-content: space-between; gap: 2.5rem; min-height: 190px; }
+  .lockup--light { background: #f3efe6; border: 1px solid rgba(16,15,14,0.1); color: var(--jet); }
+  .lockup--dark { background: var(--ink); color: var(--bone); }
+  .lockup__mark { display: flex; align-items: center; gap: 0.7rem; }
+  .lockup__mark svg { width: 42px; height: 42px; flex: 0 0 auto; }
+  .lockup__word { font-family: var(--serif); font-weight: 470; font-size: clamp(1.5rem, 1rem + 1.6vw, 2.1rem); letter-spacing: -0.015em; }
+  .lockup figcaption { display: flex; justify-content: space-between; align-items: baseline; gap: 1rem; font-size: 0.92rem; border-top: 1px solid currentColor; padding-top: 0.8rem; }
+  .lockup figcaption > span:first-child { font-family: var(--serif); font-style: italic; font-size: 1.05rem; }
+  .lockup .mono { font-size: 0.68rem; letter-spacing: 0.12em; }
+  .lockup--light figcaption { border-top-color: rgba(16,15,14,0.18); }
+  .lockup--light .mono { color: #6a6356; }
+  .lockup--dark figcaption { border-top-color: var(--line-strong); }
+  .lockup--dark .mono { color: var(--bone-dim); }
+
+  /* ───────────────── standards ───────────────── */
+  .standards { max-width: var(--maxw); margin-inline: auto; padding: clamp(5rem, 11vw, 9rem) var(--gutter); }
+  .standards__head { margin-bottom: clamp(2.5rem, 5vw, 3.5rem); }
+  .standards__row {
+    list-style: none; display: grid; grid-template-columns: repeat(2, 1fr);
+    border-top: 1px solid var(--line);
+  }
+  @media (min-width: 700px) { .standards__row { grid-template-columns: repeat(3, 1fr); } }
+  @media (min-width: 1000px) { .standards__row { grid-template-columns: repeat(6, 1fr); } }
+  .standards__row li {
+    font-family: var(--serif); font-weight: 400; font-size: clamp(1.1rem, 0.9rem + 0.9vw, 1.7rem);
+    letter-spacing: -0.01em; color: var(--bone-dim);
+    padding: clamp(1.4rem, 3vw, 2.2rem) 0.5rem; text-align: center;
+    border-bottom: 1px solid var(--line); border-right: 1px solid var(--line);
+    display: flex; align-items: center; justify-content: center;
+    transition: color 0.3s var(--ease), background 0.3s var(--ease);
+  }
+  .standards__row li:hover { color: var(--bone); background: var(--ink-2); }
+
+  /* ───────────────── contact ───────────────── */
+  .contact {
+    max-width: var(--maxw); margin-inline: auto;
+    padding: clamp(4rem, 9vw, 8rem) var(--gutter) clamp(4rem, 8vw, 7rem);
+    border-top: 1px solid var(--line);
+  }
+  .contact__title {
+    font-family: var(--serif); font-weight: 350; font-optical-sizing: auto;
+    font-size: clamp(3rem, 1rem + 12vw, 9rem); line-height: 0.94; letter-spacing: -0.035em;
+    margin-bottom: clamp(2.5rem, 5vw, 4rem);
+  }
+  .contact__row { display: grid; grid-template-columns: 1fr; gap: 1.8rem; align-items: start; }
+  @media (min-width: 800px) { .contact__row { grid-template-columns: 1.3fr 1fr; align-items: end; } }
+  .contact__mail {
+    font-family: var(--serif); font-style: italic; font-weight: 400;
+    font-size: clamp(1.4rem, 1rem + 2.2vw, 2.6rem); letter-spacing: -0.01em;
+    position: relative; width: fit-content; line-height: 1.1;
+  }
+  .contact__mail::after { content: ""; position: absolute; left: 0; right: 0; bottom: 0.04em; height: 1.5px; background: currentColor; transform: scaleX(0); transform-origin: left; transition: transform 0.5s var(--ease); }
+  .contact__mail:hover { color: var(--brass); }
+  .contact__mail:hover::after { transform: scaleX(1); }
+  .contact__note { color: var(--bone-dim); max-width: 42ch; }
+
+  /* ───────────────── footer ───────────────── */
+  .site-foot { border-top: 1px solid var(--line); padding: clamp(2.5rem, 5vw, 4rem) var(--gutter); max-width: var(--maxw); margin-inline: auto; }
+  .site-foot__top { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 2rem; align-items: center; padding-bottom: clamp(2.5rem, 5vw, 4rem); border-bottom: 1px solid var(--line); }
+  .brand--foot .brand__seal { width: 34px; height: 34px; }
+  .brand--foot .brand__word { font-size: 1.5rem; }
+  .foot-nav { display: flex; flex-wrap: wrap; gap: 1.6rem; }
+  .foot-nav a { font-family: var(--mono); font-size: 0.74rem; text-transform: uppercase; letter-spacing: 0.12em; color: var(--bone-dim); transition: color 0.25s var(--ease); }
+  .foot-nav a:hover { color: var(--bone); }
+  .site-foot__base { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 1rem; padding-top: 1.6rem; }
+  .site-foot__base .mono { font-size: 0.7rem; letter-spacing: 0.14em; color: var(--bone-faint); }
+
+  /* ───────────────── discover entry band ───────────────── */
+  .discover-cta { max-width: var(--maxw); margin-inline: auto; padding: clamp(4rem, 9vw, 8rem) var(--gutter); border-top: 1px solid var(--line); display: grid; grid-template-columns: 1fr; gap: clamp(2.5rem, 5vw, 4rem); align-items: center; }
+  @media (min-width: 940px) { .discover-cta { grid-template-columns: 1.05fr 0.95fr; } }
+  .discover-cta__lede { color: var(--bone-dim); max-width: 48ch; margin: 1.6rem 0 2rem; font-size: clamp(1.02rem, 0.95rem + 0.4vw, 1.2rem); }
+  .discover-cta__actions { display: flex; flex-wrap: wrap; gap: 0.9rem; }
+  .discover-cta__tiles { display: grid; grid-template-columns: repeat(3, 1fr); grid-auto-rows: 1fr; gap: clamp(0.5rem, 1.2vw, 0.85rem); }
+  .discover-cta__tiles .dt { aspect-ratio: 3 / 4; border-radius: 12px; position: relative; overflow: hidden; display: grid; place-items: center; border: 1px solid var(--line); }
+  .discover-cta__tiles .dt svg { width: 38%; height: 38%; }
+  .discover-cta__tiles .dt:nth-child(1) { background: linear-gradient(150deg, #1f7a55, #15302a); color: var(--bone); grid-row: span 2; aspect-ratio: 3 / 5; }
+  .discover-cta__tiles .dt:nth-child(2) { background: linear-gradient(150deg, #b23a2c, #6e2018); color: var(--bone); }
+  .discover-cta__tiles .dt:nth-child(3) { background: var(--cream); color: var(--jet); }
+  .discover-cta__tiles .dt:nth-child(4) { background: linear-gradient(150deg, #3667cf, #1a2740); color: var(--bone); }
+  .discover-cta__tiles .dt:nth-child(5) { background: linear-gradient(150deg, #a8862a, #5e4b16); color: var(--jet); grid-column: span 2; aspect-ratio: auto; }
+  .discover-cta__tiles .dt:nth-child(5) svg { width: 16%; height: 60%; }
+  @media (max-width: 520px) { .discover-cta__tiles .dt:nth-child(1) { aspect-ratio: 3/4; grid-row: auto; } }
+
+  /* ───────────────── newsletter ───────────────── */
+  .sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0,0,0,0); white-space: nowrap; border: 0; }
+  .discover-cta__verify { display: inline-block; margin-top: 1.4rem; font-family: var(--mono); font-size: 0.74rem; text-transform: uppercase; letter-spacing: 0.1em; color: var(--bone-dim); border-bottom: 1px solid var(--line-strong); padding-bottom: 2px; transition: color 0.25s var(--ease), border-color 0.25s var(--ease); }
+  .discover-cta__verify:hover { color: var(--brass); border-color: var(--brass); }
+  .newsletter { max-width: var(--maxw); margin-inline: auto; padding: clamp(4rem,9vw,7rem) var(--gutter); border-top: 1px solid var(--line); }
+  .newsletter__inner { max-width: 760px; }
+  .newsletter__eyebrow { font-family: var(--mono); font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.2em; color: var(--brass); margin-bottom: 1.2rem; display: inline-flex; align-items: center; gap: 0.6rem; }
+  .newsletter__eyebrow::before { content: ""; width: 7px; height: 7px; border-radius: 50%; background: var(--brass); box-shadow: 0 0 0 4px rgba(194,161,78,0.16); }
+  .newsletter__title { font-family: var(--serif); font-weight: 360; font-optical-sizing: auto; font-size: clamp(2rem,1rem+4vw,3.6rem); line-height: 1.0; letter-spacing: -0.025em; margin-bottom: 1.2rem; }
+  .newsletter__lede { color: var(--bone-dim); max-width: 50ch; margin-bottom: 2rem; font-size: clamp(1rem,0.95rem+0.3vw,1.15rem); }
+  .newsletter__form { display: flex; flex-wrap: wrap; gap: 0.7rem; max-width: 520px; }
+  .newsletter__form input { flex: 1 1 240px; background: var(--ink-2); border: 1px solid var(--line); color: var(--bone); font-family: var(--sans); font-size: 1rem; padding: 0.95rem 1.1rem; border-radius: 100px; transition: border-color 0.25s var(--ease); }
+  .newsletter__form input::placeholder { color: var(--bone-faint); }
+  .newsletter__form input:focus { outline: none; border-color: var(--brass); }
+  .newsletter__form button { flex: 0 0 auto; background: var(--bone); color: var(--ink); border: 0; border-radius: 100px; padding: 0.95rem 1.6rem; font-family: var(--mono); font-size: 0.78rem; text-transform: uppercase; letter-spacing: 0.1em; cursor: pointer; transition: background 0.25s var(--ease), transform 0.25s var(--ease); }
+  .newsletter__form button:hover { background: var(--brass); transform: translateY(-2px); }
+  .newsletter__note { margin-top: 1rem; font-family: var(--mono); font-size: 0.74rem; letter-spacing: 0.05em; min-height: 1.2em; }
+  .newsletter__note.ok { color: var(--brass); }
+  .newsletter__note.err { color: #d98a72; }
+
+  /* ───────────────── reveal animation ───────────────── */
+  .reveal { opacity: 0; transform: translateY(26px); transition: opacity 0.8s var(--ease), transform 0.8s var(--ease); }
+  .reveal.is-visible { opacity: 1; transform: none; }
+  .hero .reveal[data-d] { transition-delay: calc(var(--d, 0) * 90ms); }
+  @media (prefers-reduced-motion: reduce) {
+    .reveal { opacity: 1; transform: none; }
+    .seal--bleed, .seal--hero, .marquee__track { animation: none; }
+  }
+
+  /* ───────────────── responsive ───────────────── */
+  @media (max-width: 880px) {
+    .nav, .head-cta { display: none; }
+    .menu-btn {
+      display: inline-flex; flex-direction: column; align-items: center; justify-content: center;
+      gap: 6px; margin-left: auto; min-width: 44px; min-height: 44px;
+      background: none; border: 0; cursor: pointer; padding: 8px; z-index: 81;
+    }
+    .menu-btn span { width: 26px; height: 1.5px; background: var(--bone); transition: transform 0.35s var(--ease), opacity 0.35s var(--ease); }
+    .menu-btn[aria-expanded="true"] span:first-child { transform: translateY(3.75px) rotate(45deg); }
+    .menu-btn[aria-expanded="true"] span:last-child { transform: translateY(-3.75px) rotate(-45deg); }
+  }
+
+  @media (max-width: 760px) {
+    .grid { grid-template-columns: 1fr; }
+    .card, .card--wide { grid-column: 1 / -1; min-height: 0; }
+    .hero__aside { margin-left: 0; }
+    .hero__meta--end { margin-left: 0; text-align: left; }
+    .manifesto { grid-template-columns: 1fr; }
+    .surfaces { grid-template-columns: repeat(2, 1fr); }
+  }
+
+  @media (max-width: 460px) {
+    .hero__foot { gap: 1.5rem 2rem; }
+    .surfaces { grid-template-columns: repeat(2, 1fr); }
+  }
+  </style>
+
+  <!-- Social / Open Graph -->
+  <meta property="og:type" content="website" />
+  <meta property="og:site_name" content="SecurityArts" />
+  <meta property="og:title" content="SecurityArts — proof a human made it" />
+  <meta property="og:description" content="A security studio and platform that seals human-made art with cryptographic proof — verify origin, sell verified work, and push back on AI fakes." />
+  <meta property="og:url" content="https://securityarts.studio/" />
+  <meta property="og:image" content="/og-image.png" />
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="SecurityArts — proof a human made it" />
+  <meta name="twitter:description" content="Cryptographically sealed human-made art. Verify origin, sell verified work, fight AI fakes." />
+  <meta name="twitter:image" content="/og-image.png" />
+
+  <script src="js/api.js"></script>
+</head>
+<body>
+  <a class="skip-link" href="#main">Skip to content</a>
+
+  <!-- ───────────────── Seal symbol (reused everywhere) ───────────────── -->
+  <svg width="0" height="0" class="svg-defs" aria-hidden="true" focusable="false">
+    <symbol id="saSeal" viewBox="0 0 100 100">
+      <path class="seal-scallop" fill="none" d="M 50.00 13.00 A 7.22 7.22 0 0 1 64.16 15.82 A 7.22 7.22 0 0 1 76.16 23.84 A 7.22 7.22 0 0 1 84.18 35.84 A 7.22 7.22 0 0 1 87.00 50.00 A 7.22 7.22 0 0 1 84.18 64.16 A 7.22 7.22 0 0 1 76.16 76.16 A 7.22 7.22 0 0 1 64.16 84.18 A 7.22 7.22 0 0 1 50.00 87.00 A 7.22 7.22 0 0 1 35.84 84.18 A 7.22 7.22 0 0 1 23.84 76.16 A 7.22 7.22 0 0 1 15.82 64.16 A 7.22 7.22 0 0 1 13.00 50.00 A 7.22 7.22 0 0 1 15.82 35.84 A 7.22 7.22 0 0 1 23.84 23.84 A 7.22 7.22 0 0 1 35.84 15.82 A 7.22 7.22 0 0 1 50.00 13.00 Z" />
+      <circle class="seal-ring" fill="none" cx="50" cy="50" r="27" />
+      <path class="seal-star" stroke="none" d="M 50.00 34.50 L 53.76 44.82 L 64.74 45.21 L 56.09 51.98 L 59.11 62.54 L 50.00 56.40 L 40.89 62.54 L 43.91 51.98 L 35.26 45.21 L 46.24 44.82 Z" />
+    </symbol>
+  </svg>
+
+  <div class="grain" aria-hidden="true"></div>
+
+  <!-- ───────────────── Header ───────────────── -->
+  <header class="site-head" id="siteHead">
+    <a class="brand" href="#top" aria-label="SecurityArts — home">
+      <svg class="brand__seal seal" aria-hidden="true"><use href="#saSeal" /></svg>
+      <span class="brand__word">Security<span class="brand__word-alt">Arts</span></span>
+    </a>
+
+    <nav class="nav" aria-label="Primary">
+      <a href="#practice"><span class="nav__idx">01</span> Practice</a>
+      <a href="#seal"><span class="nav__idx">02</span> The Seal</a>
+      <a href="#identity"><span class="nav__idx">03</span> Identity</a>
+      <a href="#standards"><span class="nav__idx">04</span> Standards</a>
+      <a href="discover.html"><span class="nav__idx">05</span> Discover</a>
+    </nav>
+
+    <a class="head-cta" href="#contact">
+      Request engagement
+      <span class="head-cta__arrow" aria-hidden="true">→</span>
+    </a>
+
+    <button class="menu-btn" id="menuBtn" aria-expanded="false" aria-controls="mobileMenu" aria-label="Open menu">
+      <span></span><span></span>
+    </button>
+  </header>
+
+  <!-- mobile menu -->
+  <div class="mobile-menu" id="mobileMenu" aria-hidden="true">
+    <nav class="mobile-menu__nav" aria-label="Mobile">
+      <a href="#practice"><span>01</span> Practice</a>
+      <a href="#seal"><span>02</span> The Seal</a>
+      <a href="#identity"><span>03</span> Identity</a>
+      <a href="#standards"><span>04</span> Standards</a>
+      <a href="#contact"><span>05</span> Contact</a>
+      <a href="discover.html"><span>06</span> Discover</a>
+      <a href="market.html"><span>07</span> Market</a>
+    </nav>
+    <a class="mobile-menu__cta" href="#contact">Request an engagement →</a>
+  </div>
+
+  <main id="main">
+    <span id="top"></span>
+
+    <!-- ───────────────── Hero ───────────────── -->
+    <section class="hero" aria-labelledby="hero-h">
+      <div class="hero__seal-bleed" aria-hidden="true">
+        <svg class="seal seal--bleed" id="heroSeal"><use href="#saSeal" /></svg>
+      </div>
+
+      <div class="hero__inner">
+        <p class="eyebrow reveal" data-d="1">
+          <span class="eyebrow__dot"></span>
+          Security studio — offensive &amp; defensive
+        </p>
+
+        <h1 class="hero__title" id="hero-h">
+          <span class="reveal" data-d="2">Security is</span>
+          <span class="reveal" data-d="3">a craft. We</span>
+          <span class="reveal" data-d="4">sign <em>our work.</em></span>
+        </h1>
+
+        <div class="hero__aside reveal" data-d="5">
+          <p class="hero__lede">
+            SecurityArts is a security studio. We break what you've built before
+            an adversary does, harden what actually matters, and leave behind a
+            mark you can verify — not a PDF you file away and forget.
+          </p>
+          <div class="hero__actions">
+            <a class="btn btn--solid" href="#contact">Request an engagement</a>
+            <a class="btn btn--ghost" href="#practice">See the practice</a>
+          </div>
+        </div>
+      </div>
+
+      <div class="hero__foot reveal" data-d="6">
+        <div class="hero__meta">
+          <span class="meta-k">Based</span>
+          <span class="meta-v">Remote-first · Worldwide</span>
+        </div>
+        <div class="hero__meta">
+          <span class="meta-k">Engagements</span>
+          <span class="meta-v">Q3 2026 — limited</span>
+        </div>
+        <div class="hero__meta hero__meta--end">
+          <span class="meta-k">Est.</span>
+          <span class="meta-v">MMXXVI</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- ───────────────── Marquee ───────────────── -->
+    <div class="marquee" aria-hidden="true">
+      <div class="marquee__track">
+        <span>Offensive Security</span><svg class="seal seal--tick"><use href="#saSeal"/></svg>
+        <span>Application Security</span><svg class="seal seal--tick"><use href="#saSeal"/></svg>
+        <span>Cloud &amp; Infrastructure</span><svg class="seal seal--tick"><use href="#saSeal"/></svg>
+        <span>Detection &amp; Response</span><svg class="seal seal--tick"><use href="#saSeal"/></svg>
+        <span>Security Architecture</span><svg class="seal seal--tick"><use href="#saSeal"/></svg>
+        <span>Advisory &amp; Training</span><svg class="seal seal--tick"><use href="#saSeal"/></svg>
+        <span>Offensive Security</span><svg class="seal seal--tick"><use href="#saSeal"/></svg>
+        <span>Application Security</span><svg class="seal seal--tick"><use href="#saSeal"/></svg>
+        <span>Cloud &amp; Infrastructure</span><svg class="seal seal--tick"><use href="#saSeal"/></svg>
+        <span>Detection &amp; Response</span><svg class="seal seal--tick"><use href="#saSeal"/></svg>
+        <span>Security Architecture</span><svg class="seal seal--tick"><use href="#saSeal"/></svg>
+        <span>Advisory &amp; Training</span><svg class="seal seal--tick"><use href="#saSeal"/></svg>
+      </div>
+    </div>
+
+    <!-- ───────────────── Manifesto ───────────────── -->
+    <section class="manifesto" aria-labelledby="man-h">
+      <p class="section-label reveal"><span>00</span> Position</p>
+      <h2 class="manifesto__text reveal" id="man-h">
+        Most security work disappears into a report nobody reads twice. Ours
+        ends in a <span class="ul">seal</span> — a verifiable record of what we
+        tested, what we fixed, and what still needs your attention.
+      </h2>
+    </section>
+
+    <!-- ───────────────── Practice grid ───────────────── -->
+    <section class="practice" id="practice" aria-labelledby="practice-h">
+      <div class="practice__head">
+        <p class="section-label reveal"><span>01</span> Practice</p>
+        <h2 class="h-section reveal" id="practice-h">Six disciplines,<br />one standard of proof.</h2>
+        <p class="practice__intro reveal">
+          We work across the full surface — the systems you ship, the cloud they
+          run on, and the team that defends them. Each engagement is scoped to a
+          named outcome, not a fixed bundle of hours.
+        </p>
+      </div>
+
+      <ol class="grid">
+        <li class="card card--wide reveal">
+          <div class="card__top">
+            <span class="card__idx">01</span>
+            <svg class="seal card__seal" aria-hidden="true"><use href="#saSeal"/></svg>
+          </div>
+          <h3 class="card__title">Offensive Security</h3>
+          <p class="card__body">
+            We attack the way real adversaries do — not a checklist sweep. Goal-
+            oriented red teaming, full-scope penetration testing, and adversary
+            simulation that ends at the crown jewels, with the path written down.
+          </p>
+          <ul class="card__tags">
+            <li>Red teaming</li><li>Penetration testing</li><li>Adversary simulation</li><li>Social engineering</li>
+          </ul>
+        </li>
+
+        <li class="card reveal">
+          <div class="card__top">
+            <span class="card__idx">02</span>
+            <svg class="seal card__seal" aria-hidden="true"><use href="#saSeal"/></svg>
+          </div>
+          <h3 class="card__title">Application Security</h3>
+          <p class="card__body">
+            Threat modeling, deep code review, and a secure SDLC your engineers
+            will actually keep using after we leave.
+          </p>
+          <ul class="card__tags">
+            <li>Code review</li><li>Threat modeling</li><li>Secure SDLC</li>
+          </ul>
+        </li>
+
+        <li class="card reveal">
+          <div class="card__top">
+            <span class="card__idx">03</span>
+            <svg class="seal card__seal" aria-hidden="true"><use href="#saSeal"/></svg>
+          </div>
+          <h3 class="card__title">Cloud &amp; Infrastructure</h3>
+          <p class="card__body">
+            AWS, GCP and Azure hardened against real attack paths. Identity,
+            network, and infrastructure-as-code reviewed line by line.
+          </p>
+          <ul class="card__tags">
+            <li>IAM &amp; identity</li><li>IaC review</li><li>Segmentation</li>
+          </ul>
+        </li>
+
+        <li class="card reveal">
+          <div class="card__top">
+            <span class="card__idx">04</span>
+            <svg class="seal card__seal" aria-hidden="true"><use href="#saSeal"/></svg>
+          </div>
+          <h3 class="card__title">Detection &amp; Response</h3>
+          <p class="card__body">
+            Detection engineering and threat hunting that close the gap between
+            breach and alert — plus the runbooks for the night it matters.
+          </p>
+          <ul class="card__tags">
+            <li>Detection engineering</li><li>Threat hunting</li><li>IR readiness</li>
+          </ul>
+        </li>
+
+        <li class="card reveal">
+          <div class="card__top">
+            <span class="card__idx">05</span>
+            <svg class="seal card__seal" aria-hidden="true"><use href="#saSeal"/></svg>
+          </div>
+          <h3 class="card__title">Security Architecture</h3>
+          <p class="card__body">
+            Design review before the build, not after the incident. Zero-trust,
+            segmentation, and defensible boundaries drawn deliberately.
+          </p>
+          <ul class="card__tags">
+            <li>Design review</li><li>Zero-trust</li><li>Boundary design</li>
+          </ul>
+        </li>
+
+        <li class="card card--brass reveal">
+          <div class="card__top">
+            <span class="card__idx">06</span>
+            <svg class="seal card__seal" aria-hidden="true"><use href="#saSeal"/></svg>
+          </div>
+          <h3 class="card__title">Advisory &amp; Training</h3>
+          <p class="card__body">
+            Fractional CISO guidance and secure-by-design coaching that raises
+            the floor for your whole team — so the next thing you build starts
+            already sealed.
+          </p>
+          <ul class="card__tags">
+            <li>vCISO</li><li>Workshops</li><li>Secure-by-design</li>
+          </ul>
+        </li>
+      </ol>
+    </section>
+
+    <!-- ───────────────── The Seal ───────────────── -->
+    <section class="seal-section" id="seal" aria-labelledby="seal-h">
+      <div class="seal-section__art" aria-hidden="true">
+        <svg class="seal seal--hero" id="philoSeal"><use href="#saSeal"/></svg>
+      </div>
+      <div class="seal-section__copy">
+        <p class="section-label reveal"><span>02</span> The Seal</p>
+        <h2 class="h-section reveal" id="seal-h">Every engagement<br />ends in a mark.</h2>
+        <p class="reveal seal-section__lede">
+          The seal is the whole idea. A notary's stamp says <em>a person stood
+          here and verified this.</em> Ours says the same about your systems.
+          When we close an engagement, you don't get a wall of findings — you get
+          a record of exactly what was tested, what was proven safe, and what is
+          still open, signed and dated.
+        </p>
+        <ul class="seal-points reveal">
+          <li>
+            <span class="seal-points__k">Verifiable</span>
+            <span class="seal-points__v">Every claim traces to a test you can re-run.</span>
+          </li>
+          <li>
+            <span class="seal-points__k">Honest</span>
+            <span class="seal-points__v">We mark what's still open as plainly as what's fixed.</span>
+          </li>
+          <li>
+            <span class="seal-points__k">Durable</span>
+            <span class="seal-points__v">A retest re-issues the seal — it isn't a one-day snapshot.</span>
+          </li>
+        </ul>
+      </div>
+    </section>
+
+    <!-- ───────────────── Identity / One logo. Any surface. ───────────────── -->
+    <section class="identity" id="identity" aria-labelledby="identity-h">
+      <div class="identity__head">
+        <p class="section-label reveal"><span>03</span> Identity</p>
+        <h2 class="identity__title reveal" id="identity-h">One logo. Any surface.</h2>
+        <p class="identity__intro reveal">
+          The mark is contrast-aware. A single-ink master drops onto anything —
+          from a billboard to a 16-pixel favicon — and takes black or white
+          depending on what the surface needs. No color version required to be
+          recognizable.
+        </p>
+      </div>
+
+      <div class="surfaces reveal" role="list">
+        <div class="surface surface--green"  role="listitem" data-light><svg class="seal"><use href="#saSeal"/></svg></div>
+        <div class="surface surface--red"    role="listitem" data-light><svg class="seal"><use href="#saSeal"/></svg></div>
+        <div class="surface surface--blue"   role="listitem" data-light><svg class="seal"><use href="#saSeal"/></svg></div>
+        <div class="surface surface--gold"   role="listitem" data-light><svg class="seal"><use href="#saSeal"/></svg></div>
+        <div class="surface surface--cream"  role="listitem"><svg class="seal"><use href="#saSeal"/></svg></div>
+        <div class="surface surface--taupe"  role="listitem" data-light><svg class="seal"><use href="#saSeal"/></svg></div>
+        <div class="surface surface--ink"    role="listitem" data-light><svg class="seal"><use href="#saSeal"/></svg></div>
+        <div class="surface surface--bone"   role="listitem"><svg class="seal"><use href="#saSeal"/></svg></div>
+      </div>
+
+      <div class="identity__pair reveal">
+        <figure class="lockup lockup--light">
+          <div class="lockup__mark">
+            <svg class="seal"><use href="#saSeal"/></svg>
+            <span class="lockup__word">SecurityArts</span>
+          </div>
+          <figcaption><span>Jet Black</span><span class="mono">#0C0C0B · LIGHT BG</span></figcaption>
+        </figure>
+        <figure class="lockup lockup--dark">
+          <div class="lockup__mark">
+            <svg class="seal"><use href="#saSeal"/></svg>
+            <span class="lockup__word">SecurityArts</span>
+          </div>
+          <figcaption><span>Pale White</span><span class="mono">#F4F1E9 · DARK BG</span></figcaption>
+        </figure>
+      </div>
+    </section>
+
+    <!-- ───────────────── Discover entry ───────────────── -->
+    <section class="discover-cta" id="discover" aria-labelledby="discover-h">
+      <div class="discover-cta__copy">
+        <p class="section-label reveal"><span>04</span> Discover</p>
+        <h2 class="h-section reveal" id="discover-h">The wall of verified<br />human work.</h2>
+        <p class="discover-cta__lede reveal">
+          A visual discovery engine where every piece carries the seal. Search it,
+          save it into boards, and — if you make it by hand — get your own work
+          cryptographically verified and listed for collectors who care.
+        </p>
+        <div class="discover-cta__actions reveal">
+          <a class="btn btn--solid" href="discover.html">Enter the wall →</a>
+          <a class="btn btn--ghost" href="market.html">Shop the marketplace →</a>
+        </div>
+        <a class="discover-cta__verify reveal" href="discover.html?submit=1">Make it by hand? Get your work verified →</a>
+      </div>
+      <div class="discover-cta__tiles reveal" aria-hidden="true">
+        <span class="dt"><svg class="seal"><use href="#saSeal"/></svg></span>
+        <span class="dt"><svg class="seal"><use href="#saSeal"/></svg></span>
+        <span class="dt"><svg class="seal"><use href="#saSeal"/></svg></span>
+        <span class="dt"><svg class="seal"><use href="#saSeal"/></svg></span>
+        <span class="dt"><svg class="seal"><use href="#saSeal"/></svg></span>
+      </div>
+    </section>
+
+    <!-- ───────────────── Standards ───────────────── -->
+    <section class="standards" id="standards" aria-labelledby="standards-h">
+      <div class="standards__head">
+        <p class="section-label reveal"><span>05</span> Standards</p>
+        <h2 class="h-section reveal" id="standards-h">
+          We work to the frameworks<br />your auditors already trust.
+        </h2>
+      </div>
+      <ul class="standards__row reveal">
+        <li>OWASP</li>
+        <li>MITRE ATT&amp;CK</li>
+        <li>NIST CSF</li>
+        <li>ISO 27001</li>
+        <li>SOC 2</li>
+        <li>CIS Benchmarks</li>
+      </ul>
+    </section>
+
+    <!-- ───────────────── Contact ───────────────── -->
+    <section class="contact" id="contact" aria-labelledby="contact-h">
+      <p class="section-label reveal"><span>06</span> Contact</p>
+      <h2 class="contact__title reveal" id="contact-h">
+        Let's put a mark<br />on it.
+      </h2>
+      <div class="contact__row reveal">
+        <a class="contact__mail" href="mailto:hello@securityarts.studio">hello@securityarts.studio</a>
+        <p class="contact__note">
+          Tell us what you're protecting and what keeps you up at night. We reply
+          to every serious enquiry within two business days.
+        </p>
+      </div>
+    </section>
+  </main>
+
+  <!-- ───────────────── Newsletter ───────────────── -->
+  <section class="newsletter" aria-labelledby="news-h">
+    <div class="newsletter__inner">
+      <p class="newsletter__eyebrow reveal">Newsletter</p>
+      <h2 class="newsletter__title reveal" id="news-h">Dispatches from the<br />authenticity economy.</h2>
+      <p class="newsletter__lede reveal">
+        Once a month: newly verified artists, how provenance is reshaping who
+        gets paid for original work, and the tools we ship. No noise, no filler.
+      </p>
+      <form class="newsletter__form reveal" id="newsForm" novalidate>
+        <label class="sr-only" for="newsEmail">Email address</label>
+        <input id="newsEmail" type="email" placeholder="you@studio.com" autocomplete="email" required />
+        <button type="submit">Subscribe <span aria-hidden="true">→</span></button>
+      </form>
+      <p class="newsletter__note" id="newsNote" role="status" aria-live="polite"></p>
+      <p style="margin-top:0.9rem;font-size:0.78rem;color:var(--bone-faint)">By subscribing you agree to our <a href="privacy.html" style="color:var(--bone-dim);text-decoration:underline">Privacy Policy</a>. Unsubscribe anytime.</p>
+    </div>
+  </section>
+
+  <!-- ───────────────── Footer ───────────────── -->
+  <footer class="site-foot">
+    <div class="site-foot__top">
+      <a class="brand brand--foot" href="#top" aria-label="SecurityArts — home">
+        <svg class="brand__seal seal" aria-hidden="true"><use href="#saSeal" /></svg>
+        <span class="brand__word">Security<span class="brand__word-alt">Arts</span></span>
+      </a>
+      <nav class="foot-nav" aria-label="Footer">
+        <a href="#practice">Practice</a>
+        <a href="#seal">The Seal</a>
+        <a href="#identity">Identity</a>
+        <a href="#standards">Standards</a>
+        <a href="#contact">Contact</a>
+        <a href="discover.html">Discover</a>
+        <a href="market.html">Market</a>
+      </nav>
+    </div>
+    <div class="site-foot__base">
+      <p class="mono">© 2026 SecurityArts — A security studio.</p>
+      <p class="mono"><a href="privacy.html" style="color:var(--bone-dim)">Privacy</a> · <a href="terms.html" style="color:var(--bone-dim)">Terms</a></p>
+      <p class="mono">Authentic · Verified · Sealed</p>
+    </div>
+  </footer>
+
+  <script>
+  /* SecurityArts — interactions
+     Kept deliberately small: reveal-on-scroll, sticky-header state, mobile menu. */
+  (function () {
+    "use strict";
+
+    const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+    /* ── Reveal on scroll ───────────────────────────────────── */
+    const revealEls = document.querySelectorAll(".reveal");
+
+    if (reduceMotion || !("IntersectionObserver" in window)) {
+      revealEls.forEach((el) => el.classList.add("is-visible"));
+    } else {
+      const io = new IntersectionObserver(
+        (entries, obs) => {
+          entries.forEach((entry) => {
+            if (entry.isIntersecting) {
+              entry.target.classList.add("is-visible");
+              obs.unobserve(entry.target);
+            }
+          });
+        },
+        { rootMargin: "0px 0px -12% 0px", threshold: 0.12 }
+      );
+      revealEls.forEach((el) => io.observe(el));
+    }
+
+    /* Mark sections that own a `.ul` underline so it animates in sync */
+    document.querySelectorAll(".manifesto__text, .h-section").forEach((h) => {
+      const io2 = new IntersectionObserver(
+        (entries, obs) => {
+          entries.forEach((e) => {
+            if (e.isIntersecting) {
+              e.target.classList.add("is-visible");
+              obs.unobserve(e.target);
+            }
+          });
+        },
+        { threshold: 0.3 }
+      );
+      io2.observe(h);
+    });
+
+    /* ── Sticky header state ────────────────────────────────── */
+    const head = document.getElementById("siteHead");
+    const onScroll = () => {
+      if (window.scrollY > 24) head.classList.add("is-stuck");
+      else head.classList.remove("is-stuck");
+    };
+    onScroll();
+    window.addEventListener("scroll", onScroll, { passive: true });
+
+    /* ── Mobile menu ────────────────────────────────────────── */
+    const btn = document.getElementById("menuBtn");
+    const menu = document.getElementById("mobileMenu");
+
+    const setMenu = (open) => {
+      btn.setAttribute("aria-expanded", String(open));
+      menu.classList.toggle("is-open", open);
+      menu.setAttribute("aria-hidden", String(!open));
+      btn.setAttribute("aria-label", open ? "Close menu" : "Open menu");
+      document.body.style.overflow = open ? "hidden" : "";
+    };
+
+    btn.addEventListener("click", () => {
+      setMenu(btn.getAttribute("aria-expanded") !== "true");
+    });
+
+    menu.querySelectorAll("a").forEach((a) =>
+      a.addEventListener("click", () => setMenu(false))
+    );
+
+    document.addEventListener("keydown", (e) => {
+      if (e.key === "Escape" && btn.getAttribute("aria-expanded") === "true") {
+        setMenu(false);
+        btn.focus();
+      }
+    });
+
+    /* ── Subtle parallax drift on the hero seal (pointer only) ─ */
+    if (!reduceMotion && window.matchMedia("(pointer: fine)").matches) {
+      const seal = document.getElementById("heroSeal");
+      const hero = document.querySelector(".hero");
+      if (seal && hero) {
+        hero.addEventListener("pointermove", (e) => {
+          const r = hero.getBoundingClientRect();
+          const dx = (e.clientX - r.left) / r.width - 0.5;
+          const dy = (e.clientY - r.top) / r.height - 0.5;
+          seal.style.translate = `${dx * -18}px ${dy * -18}px`;
+        });
+        hero.addEventListener("pointerleave", () => {
+          seal.style.translate = "0 0";
+        });
+      }
+    }
+  })();
+  </script>
+  <script>
+  /* Newsletter signup — client-side capture.
+     Backend hook: replace the localStorage block with a POST to your ESP
+     (e.g. /api/newsletter { email }). Everything else can stay. */
+  (function () {
+    var form = document.getElementById("newsForm");
+    if (!form) return;
+    var email = document.getElementById("newsEmail");
+    var note = document.getElementById("newsNote");
+    form.addEventListener("submit", async function (e) {
+      e.preventDefault();
+      var v = email.value.trim();
+      if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(v)) {
+        note.textContent = "Enter a valid email address.";
+        note.className = "newsletter__note err";
+        email.focus();
+        return;
+      }
+      var btn = form.querySelector("button");
+      btn.disabled = true;
+      note.textContent = "Sealing your subscription…";
+      note.className = "newsletter__note";
+      try {
+        if (window.SA_API) await window.SA_API.subscribe(v); // real backend capture
+        else throw new Error("offline");
+      } catch (_) {
+        // Backend unreachable (opened statically) — keep it locally so nothing is lost.
+        try {
+          var list = JSON.parse(localStorage.getItem("sa_news") || "[]");
+          if (list.indexOf(v) === -1) list.push(v);
+          localStorage.setItem("sa_news", JSON.stringify(list));
+        } catch (__) {}
+      }
+      btn.disabled = false;
+      form.reset();
+      note.textContent = "You're on the list — watch your inbox for the seal.";
+      note.className = "newsletter__note ok";
+    });
+  })();
+  </script>
+</body>
+</html>

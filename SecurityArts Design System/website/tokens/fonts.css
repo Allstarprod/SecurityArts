@@ -1,0 +1,15 @@
+/* ============================================================
+   SecurityArts — Webfonts
+   Fraunces (display serif) · Geist (body) · Geist Mono (data/labels)
+   All three are free on Google Fonts and are loaded from the CDN,
+   exactly as the source product does. Fraunces is a variable font
+   with optical sizing (opsz 9..144) + italics; the light-to-book
+   weight band (300..500) is what the brand uses.
+
+   NOTE: no local .woff2 files were provided with the source, so the
+   binaries are not vendored here. To self-host, download the three
+   families and replace this @import with @font-face rules — see
+   readme.md → "Fonts".
+   ============================================================ */
+
+@import url("https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300..600;1,9..144,300..500&family=Geist:wght@300..600&family=Geist+Mono:wght@400;500&display=swap");

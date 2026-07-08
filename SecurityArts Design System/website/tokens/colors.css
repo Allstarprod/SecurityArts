@@ -1,0 +1,68 @@
+/* ============================================================
+   SecurityArts — Color
+   A warm near-black studio palette. One ink base, a paper-white
+   ("bone"), and a single wax-seal accent ("brass"). Color is
+   earned, never decorative — the brass note appears sparingly.
+
+   Identity swatches (green/red/blue/gold/taupe) exist ONLY to prove
+   the one-ink seal drops onto any surface. They are not UI colors —
+   do not paint buttons or backgrounds with them.
+   ============================================================ */
+
+:root {
+  /* ── Surfaces (warm near-black) ───────────────────────── */
+  --ink:        #0c0c0b;   /* base canvas / page background        */
+  --ink-2:      #131312;   /* raised panels, cards, inputs         */
+  --ink-3:      #1b1a18;   /* hover panels, pressed surfaces       */
+  --cream:      #e8e4d8;   /* brand "light surface" (dark-on-light)*/
+  --jet:        #100f0e;   /* logo ink when placed on cream        */
+
+  /* ── Ink / text (paper white → faint) ─────────────────── */
+  --bone:       #f4f1e9;   /* "Pale White" — primary text/ink      */
+  --bone-dim:   #a39e92;   /* secondary text                       */
+  --bone-faint: #6f6b62;   /* tertiary text, captions, placeholders*/
+
+  /* ── Accent — the wax-seal note (use sparingly) ───────── */
+  --brass:      #c2a14e;
+  --brass-deep: #9c7e34;   /* pressed/darker brass, icon-on-bone   */
+  --brass-glow: rgba(194, 161, 78, 0.16); /* dot / focus halo      */
+
+  /* ── Identity swatches — "any surface" proof only ─────── */
+  --sw-green:   #1f7a55;
+  --sw-red:     #b23a2c;
+  --sw-blue:    #3667cf;
+  --sw-gold:    #a8862a;
+  --sw-taupe:   #7c7468;
+
+  /* ── Hairlines ────────────────────────────────────────── */
+  --line:        rgba(244, 241, 233, 0.12);   /* default divider   */
+  --line-strong: rgba(244, 241, 233, 0.22);   /* control borders   */
+
+  /* ── Status (derived from the palette; low-saturation) ── */
+  --ok:    var(--brass);   /* success reads as "sealed"            */
+  --error: #d98a72;        /* warm terracotta, matches the palette */
+
+  /* ============================================================
+     Semantic aliases — prefer these in components
+     ============================================================ */
+  --surface-base:    var(--ink);
+  --surface-raised:  var(--ink-2);
+  --surface-hover:   var(--ink-3);
+  --surface-light:   var(--cream);
+
+  --text-primary:    var(--bone);
+  --text-secondary:  var(--bone-dim);
+  --text-tertiary:   var(--bone-faint);
+  --text-on-light:   var(--jet);
+  --text-on-accent:  var(--ink);
+
+  --accent:          var(--brass);
+  --accent-pressed:  var(--brass-deep);
+
+  --border-subtle:   var(--line);
+  --border-strong:   var(--line-strong);
+
+  --focus-ring:      var(--brass);
+  --selection-bg:    var(--brass);
+  --selection-fg:    var(--ink);
+}

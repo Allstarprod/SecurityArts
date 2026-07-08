@@ -1,0 +1,519 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Marketplace — SecurityArts · buy verified human art</title>
+  <meta name="description" content="Buy and license originals straight from verified human artists. Every piece is cryptographically sealed — check provenance before you pay." />
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300..600;1,9..144,300..500&family=Geist:wght@300..600&family=Geist+Mono:wght@400;500&display=swap" rel="stylesheet" />
+
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='18' fill='%230c0c0b'/%3E%3Cg fill='none' stroke='%23f4f1e9' stroke-width='4.2'%3E%3Cpath d='M 50 13 A 7.22 7.22 0 0 1 64.16 15.82 A 7.22 7.22 0 0 1 76.16 23.84 A 7.22 7.22 0 0 1 84.18 35.84 A 7.22 7.22 0 0 1 87 50 A 7.22 7.22 0 0 1 84.18 64.16 A 7.22 7.22 0 0 1 76.16 76.16 A 7.22 7.22 0 0 1 64.16 84.18 A 7.22 7.22 0 0 1 50 87 A 7.22 7.22 0 0 1 35.84 84.18 A 7.22 7.22 0 0 1 23.84 76.16 A 7.22 7.22 0 0 1 15.82 64.16 A 7.22 7.22 0 0 1 13 50 A 7.22 7.22 0 0 1 15.82 35.84 A 7.22 7.22 0 0 1 23.84 23.84 A 7.22 7.22 0 0 1 35.84 15.82 A 7.22 7.22 0 0 1 50 13 Z'/%3E%3Ccircle cx='50' cy='50' r='27'/%3E%3C/g%3E%3Cpath fill='%23f4f1e9' d='M 50 34.5 L 53.76 44.82 L 64.74 45.21 L 56.09 51.98 L 59.11 62.54 L 50 56.4 L 40.89 62.54 L 43.91 51.98 L 35.26 45.21 L 46.24 44.82 Z'/%3E%3C/svg%3E" />
+
+  <style>
+  :root {
+    --ink: #0c0c0b; --ink-2: #131312; --ink-3: #1b1a18; --cream: #e8e4d8; --jet: #100f0e;
+    --bone: #f4f1e9; --bone-dim: #a39e92; --bone-faint: #6f6b62; --brass: #c2a14e; --brass-deep: #9c7e34;
+    --line: rgba(244,241,233,0.12); --line-strong: rgba(244,241,233,0.22);
+    --gutter: clamp(1rem, 3.5vw, 3.5rem);
+    --serif: "Fraunces", "Times New Roman", serif; --sans: "Geist", -apple-system, system-ui, sans-serif; --mono: "Geist Mono", ui-monospace, monospace;
+    --ease: cubic-bezier(0.16, 1, 0.3, 1);
+  }
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  html { -webkit-text-size-adjust: 100%; }
+  @media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation-duration: 0.001ms !important; transition-duration: 0.001ms !important; } }
+  body { background: var(--ink); color: var(--bone); font-family: var(--sans); font-weight: 360; font-size: clamp(1rem,0.95rem+0.25vw,1.0625rem); line-height: 1.55; letter-spacing: 0.005em; -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; overflow-x: hidden; min-height: 100vh; }
+  img, svg { display: block; max-width: 100%; }
+  a { color: inherit; text-decoration: none; }
+  button { font: inherit; }
+  ::selection { background: var(--brass); color: var(--ink); }
+  .svg-defs { position: absolute; width: 0; height: 0; }
+  .skip-link { position: fixed; top: 0; left: 50%; transform: translate(-50%,-120%); background: var(--bone); color: var(--ink); padding: 0.7rem 1.2rem; z-index: 200; font: 500 0.85rem/1 var(--mono); border-radius: 0 0 6px 6px; }
+  .skip-link:focus { transform: translate(-50%,0); }
+  :focus-visible { outline: 2px solid var(--brass); outline-offset: 3px; border-radius: 2px; }
+  .grain { position: fixed; inset: 0; z-index: 100; pointer-events: none; opacity: 0.045; mix-blend-mode: overlay; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E"); }
+  .seal { width: 100%; height: 100%; color: inherit; overflow: visible; }
+  .seal-scallop { stroke: currentColor; stroke-width: 2.1; fill: none; }
+  .seal-ring { stroke: currentColor; stroke-width: 1.5; fill: none; }
+  .seal-star { fill: currentColor; }
+  .mono { font-family: var(--mono); text-transform: uppercase; letter-spacing: 0.2em; font-size: 0.72rem; color: var(--bone-dim); }
+
+  /* app bar */
+  .appbar { position: sticky; top: 0; z-index: 60; display: flex; align-items: center; gap: clamp(0.7rem,2vw,1.5rem); padding: 0.85rem var(--gutter); background: color-mix(in srgb, var(--ink) 90%, transparent); backdrop-filter: blur(14px); border-bottom: 1px solid var(--line); }
+  .brand { display: inline-flex; align-items: center; gap: 0.6rem; flex: 0 0 auto; }
+  .brand__seal { width: 30px; height: 30px; transition: transform 0.9s var(--ease); }
+  .brand:hover .brand__seal { transform: rotate(22.5deg); }
+  .brand__word { font-family: var(--serif); font-weight: 460; font-size: 1.28rem; letter-spacing: -0.01em; }
+  .brand__sub { font-family: var(--mono); font-size: 0.6rem; letter-spacing: 0.22em; color: var(--brass); text-transform: uppercase; align-self: flex-start; margin-top: 0.15rem; }
+  .search { position: relative; flex: 1 1 auto; max-width: 480px; margin-inline: auto; }
+  .search > svg { position: absolute; left: 0.95rem; top: 50%; transform: translateY(-50%); width: 16px; height: 16px; color: var(--bone-faint); pointer-events: none; }
+  .search input { width: 100%; background: var(--ink-2); border: 1px solid var(--line); color: var(--bone); font-family: var(--sans); font-size: 0.95rem; padding: 0.75rem 1rem 0.75rem 2.6rem; border-radius: 100px; transition: border-color 0.25s var(--ease), background 0.25s var(--ease); }
+  .search input::placeholder { color: var(--bone-faint); }
+  .search input:focus { outline: none; border-color: var(--brass); background: var(--ink-3); }
+  .appbar__actions { display: flex; align-items: center; gap: 0.55rem; flex: 0 0 auto; }
+  .appbar__link { font-family: var(--mono); font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.12em; color: var(--bone-dim); transition: color 0.25s var(--ease); padding: 0.5rem 0.3rem; }
+  .appbar__link:hover { color: var(--bone); }
+  .cart-btn { display: inline-flex; align-items: center; gap: 0.5rem; cursor: pointer; font-family: var(--mono); font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.12em; color: var(--ink); background: var(--bone); border: 1px solid var(--bone); padding: 0.62rem 0.95rem; border-radius: 100px; transition: background 0.25s var(--ease); }
+  .cart-btn:hover { background: var(--brass); border-color: var(--brass); }
+  .cart-btn svg { width: 16px; height: 16px; }
+  .cart-btn__count { font-variant-numeric: tabular-nums; }
+
+  /* intro */
+  .intro { padding: clamp(2.5rem,6vw,5rem) var(--gutter) clamp(1.5rem,3vw,2.5rem); max-width: 1100px; }
+  .intro .eyebrow { font-family: var(--mono); font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.2em; color: var(--brass); display: inline-flex; align-items: center; gap: 0.6rem; margin-bottom: 1.4rem; }
+  .intro .eyebrow::before { content: ""; width: 7px; height: 7px; border-radius: 50%; background: var(--brass); box-shadow: 0 0 0 4px rgba(194,161,78,0.16); }
+  .intro h1 { font-family: var(--serif); font-weight: 340; font-optical-sizing: auto; font-size: clamp(2.4rem,1rem+6vw,5rem); line-height: 0.96; letter-spacing: -0.03em; margin-bottom: 1.4rem; }
+  .intro h1 em { font-style: italic; color: var(--brass); }
+  .intro p { color: var(--bone-dim); max-width: 56ch; font-size: clamp(1rem,0.95rem+0.3vw,1.15rem); }
+  .intro p strong { color: var(--bone); font-weight: 460; }
+
+  /* toolbar */
+  .toolbar { position: sticky; top: 61px; z-index: 50; display: flex; align-items: center; gap: 1rem; padding: 0.85rem var(--gutter); background: color-mix(in srgb, var(--ink) 92%, transparent); backdrop-filter: blur(12px); border-bottom: 1px solid var(--line); }
+  .chips { display: flex; gap: 0.5rem; overflow-x: auto; scrollbar-width: none; flex: 1 1 auto; }
+  .chips::-webkit-scrollbar { display: none; }
+  .chip { flex: 0 0 auto; cursor: pointer; font-family: var(--mono); font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.1em; color: var(--bone-dim); background: none; border: 1px solid var(--line-strong); padding: 0.55rem 0.9rem; border-radius: 100px; white-space: nowrap; transition: all 0.2s var(--ease); }
+  .chip:hover { color: var(--bone); border-color: var(--bone); }
+  .chip.is-active { background: var(--bone); color: var(--ink); border-color: var(--bone); }
+  .sort { flex: 0 0 auto; display: flex; align-items: center; gap: 0.5rem; }
+  .sort label { font-family: var(--mono); font-size: 0.62rem; letter-spacing: 0.12em; text-transform: uppercase; color: var(--bone-faint); }
+  .sort select { background: var(--ink-2); border: 1px solid var(--line); color: var(--bone); font-family: var(--mono); font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.08em; padding: 0.5rem 0.7rem; border-radius: 100px; cursor: pointer; appearance: none; }
+  .sort select:focus { outline: none; border-color: var(--brass); }
+  @media (max-width: 680px) { .sort label { display: none; } }
+
+  /* product grid */
+  .grid { padding: clamp(1.5rem,3vw,2.5rem) var(--gutter) 4rem; display: grid; grid-template-columns: repeat(auto-fill, minmax(230px, 1fr)); gap: clamp(1rem, 2vw, 1.5rem); }
+  @media (max-width: 480px) { .grid { grid-template-columns: repeat(2, 1fr); gap: 0.8rem; } }
+  .prod { border: 1px solid var(--line); border-radius: 14px; overflow: hidden; background: var(--ink-2); display: flex; flex-direction: column; transition: transform 0.4s var(--ease), border-color 0.3s var(--ease), box-shadow 0.4s var(--ease); }
+  .prod:hover { transform: translateY(-3px); border-color: var(--line-strong); box-shadow: 0 18px 40px -24px rgba(0,0,0,0.8); }
+  .prod__art { position: relative; aspect-ratio: 4 / 5; overflow: hidden; cursor: pointer; }
+  .prod__art img, .prod__art .pin__svg { width: 100%; height: 100%; display: block; object-fit: cover; }
+  .prod__badge { position: absolute; top: 0.6rem; left: 0.6rem; display: inline-flex; align-items: center; gap: 0.35rem; background: color-mix(in srgb, var(--ink) 78%, transparent); backdrop-filter: blur(6px); border: 1px solid rgba(244,241,233,0.18); border-radius: 100px; padding: 0.28rem 0.55rem 0.28rem 0.4rem; font-family: var(--mono); font-size: 0.54rem; letter-spacing: 0.14em; text-transform: uppercase; color: var(--bone); }
+  .prod__badge svg { width: 14px; height: 14px; color: var(--brass); }
+  .prod__own { position: absolute; top: 0.6rem; right: 0.6rem; font-family: var(--mono); font-size: 0.5rem; letter-spacing: 0.14em; text-transform: uppercase; color: var(--ink); background: var(--brass); padding: 0.24rem 0.45rem; border-radius: 100px; }
+  .prod__view { position: absolute; inset: 0; display: grid; place-items: center; opacity: 0; transition: opacity 0.3s var(--ease); background: linear-gradient(to top, rgba(7,7,6,0.55), transparent 60%); }
+  .prod__art:hover .prod__view { opacity: 1; }
+  .prod__view span { font-family: var(--mono); font-size: 0.64rem; text-transform: uppercase; letter-spacing: 0.14em; color: var(--bone); border: 1px solid var(--bone); border-radius: 100px; padding: 0.5rem 0.9rem; background: rgba(7,7,6,0.4); }
+  .prod__info { padding: 0.9rem 0.95rem 1rem; display: flex; flex-direction: column; gap: 0.55rem; flex: 1 1 auto; }
+  .prod__row { display: flex; justify-content: space-between; align-items: baseline; gap: 0.6rem; }
+  .prod__title { font-family: var(--serif); font-weight: 460; font-size: 1.05rem; letter-spacing: -0.01em; line-height: 1.1; }
+  .prod__price { font-family: var(--mono); font-size: 0.85rem; color: var(--brass); font-variant-numeric: tabular-nums; white-space: nowrap; }
+  .prod__artist { font-size: 0.78rem; color: var(--bone-dim); }
+  .prod__add { margin-top: auto; font-family: var(--mono); font-size: 0.68rem; text-transform: uppercase; letter-spacing: 0.1em; color: var(--bone); background: none; border: 1px solid var(--line-strong); border-radius: 100px; padding: 0.6rem; cursor: pointer; transition: all 0.25s var(--ease); }
+  .prod__add:hover { background: var(--bone); color: var(--ink); border-color: var(--bone); }
+
+  .empty { display: none; padding: 4rem var(--gutter) 6rem; text-align: center; }
+  .empty.show { display: block; }
+  .empty h2 { font-family: var(--serif); font-weight: 360; font-size: clamp(1.6rem,1rem+2vw,2.4rem); letter-spacing: -0.02em; margin-bottom: 0.6rem; }
+  .empty p { color: var(--bone-dim); }
+
+  /* footer */
+  .foot { border-top: 1px solid var(--line); padding: 2.5rem var(--gutter); display: flex; flex-wrap: wrap; justify-content: space-between; gap: 1.2rem; align-items: center; }
+  .foot a.backhome { font-family: var(--mono); font-size: 0.74rem; text-transform: uppercase; letter-spacing: 0.12em; color: var(--bone-dim); display: inline-flex; align-items: center; gap: 0.5rem; transition: color 0.25s var(--ease); }
+  .foot a.backhome:hover { color: var(--bone); }
+  .foot .mono { font-size: 0.68rem; letter-spacing: 0.14em; color: var(--bone-faint); }
+
+  /* scrim + drawers + modal */
+  .scrim { position: fixed; inset: 0; z-index: 90; background: rgba(6,6,5,0.62); backdrop-filter: blur(3px); opacity: 0; visibility: hidden; transition: opacity 0.35s var(--ease), visibility 0.35s var(--ease); }
+  .scrim.show { opacity: 1; visibility: visible; }
+  .drawer { position: fixed; top: 0; right: 0; bottom: 0; z-index: 95; width: min(440px, 94vw); background: var(--ink-2); border-left: 1px solid var(--line-strong); transform: translateX(100%); transition: transform 0.45s var(--ease); display: flex; flex-direction: column; }
+  .drawer.show { transform: translateX(0); }
+  .drawer__head { display: flex; align-items: center; justify-content: space-between; padding: 1.4rem var(--gutter); border-bottom: 1px solid var(--line); }
+  .drawer__head h2 { font-family: var(--serif); font-weight: 400; font-size: 1.5rem; }
+  .iconbtn { background: none; border: 1px solid var(--line-strong); color: var(--bone); width: 36px; height: 36px; border-radius: 50%; display: grid; place-items: center; cursor: pointer; transition: all 0.25s var(--ease); }
+  .iconbtn:hover { border-color: var(--bone); background: var(--ink-3); }
+  .iconbtn svg { width: 16px; height: 16px; }
+  .drawer__body { overflow-y: auto; padding: 1.2rem var(--gutter); flex: 1 1 auto; }
+  .drawer__foot { border-top: 1px solid var(--line); padding: 1.2rem var(--gutter) 1.6rem; }
+  .cart-empty { color: var(--bone-dim); text-align: center; padding: 3rem 0; }
+  .cart-empty svg { width: 46px; height: 46px; color: var(--bone-faint); margin: 0 auto 1rem; }
+  .citem { display: flex; gap: 0.85rem; padding: 0.9rem 0; border-bottom: 1px solid var(--line); }
+  .citem__thumb { width: 56px; height: 70px; border-radius: 8px; overflow: hidden; flex: 0 0 auto; background: var(--ink); }
+  .citem__thumb img, .citem__thumb .pin__svg { width: 100%; height: 100%; object-fit: cover; }
+  .citem__main { flex: 1 1 auto; min-width: 0; }
+  .citem__title { font-family: var(--serif); font-size: 1rem; font-weight: 440; }
+  .citem__lic { font-family: var(--mono); font-size: 0.58rem; text-transform: uppercase; letter-spacing: 0.1em; color: var(--bone-faint); margin-top: 0.2rem; }
+  .citem__price { font-family: var(--mono); font-size: 0.8rem; color: var(--brass); margin-top: 0.35rem; }
+  .citem__del { background: none; border: 0; color: var(--bone-faint); cursor: pointer; align-self: flex-start; padding: 0.2rem; transition: color 0.2s var(--ease); }
+  .citem__del:hover { color: var(--bone); }
+  .citem__del svg { width: 15px; height: 15px; }
+  .cart-sub { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 1rem; }
+  .cart-sub span:first-child { font-family: var(--mono); font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.12em; color: var(--bone-dim); }
+  .cart-sub span:last-child { font-family: var(--serif); font-size: 1.7rem; color: var(--bone); }
+  .btn-primary { display: flex; align-items: center; justify-content: center; gap: 0.5rem; width: 100%; background: var(--bone); color: var(--ink); border: 0; border-radius: 100px; padding: 0.95rem; font-family: var(--mono); font-size: 0.76rem; text-transform: uppercase; letter-spacing: 0.1em; cursor: pointer; transition: background 0.25s var(--ease); }
+  .btn-primary:hover:not(:disabled) { background: var(--brass); }
+  .btn-primary:disabled { opacity: 0.4; cursor: not-allowed; }
+  .drawer__hint { font-size: 0.72rem; color: var(--bone-faint); margin-top: 0.8rem; text-align: center; line-height: 1.5; }
+
+  /* quick view + checkout modal */
+  .modal { position: fixed; z-index: 96; left: 50%; top: 50%; transform: translate(-50%, calc(-50% + 16px)); width: min(880px, 95vw); max-height: 92vh; overflow-y: auto; background: var(--ink-2); border: 1px solid var(--line-strong); border-radius: 18px; opacity: 0; visibility: hidden; transition: opacity 0.35s var(--ease), transform 0.35s var(--ease), visibility 0.35s var(--ease); }
+  .modal.show { opacity: 1; visibility: visible; transform: translate(-50%, -50%); }
+  .modal__close { position: absolute; top: 1rem; right: 1rem; z-index: 3; }
+  .qv { display: grid; grid-template-columns: 1fr; }
+  @media (min-width: 720px) { .qv { grid-template-columns: 1fr 1fr; } }
+  .qv__art { position: relative; min-height: 280px; background: var(--ink); }
+  .qv__art img, .qv__art .pin__svg { width: 100%; height: 100%; object-fit: cover; position: absolute; inset: 0; }
+  .qv__art .prod__badge { z-index: 2; }
+  .qv__body { padding: clamp(1.4rem,3vw,2.2rem); }
+  .qv__eyebrow { font-family: var(--mono); font-size: 0.62rem; text-transform: uppercase; letter-spacing: 0.16em; color: var(--brass); }
+  .qv__title { font-family: var(--serif); font-weight: 400; font-size: clamp(1.7rem,1rem+2vw,2.4rem); line-height: 1.02; letter-spacing: -0.02em; margin: 0.5rem 0 0.3rem; }
+  .qv__artist { color: var(--bone-dim); margin-bottom: 1rem; }
+  .qv__artist b { color: var(--brass); font-weight: 500; }
+  .qv__desc { color: var(--bone-dim); font-size: 0.92rem; margin-bottom: 1.3rem; }
+  .qv__seal { display: flex; align-items: center; gap: 0.55rem; font-family: var(--mono); font-size: 0.62rem; text-transform: uppercase; letter-spacing: 0.1em; color: var(--bone-dim); border: 1px solid var(--line); border-radius: 10px; padding: 0.6rem 0.8rem; margin-bottom: 1.4rem; }
+  .qv__seal svg { width: 20px; height: 20px; color: var(--brass); flex: 0 0 auto; }
+  .lic { display: flex; flex-direction: column; gap: 0.5rem; margin-bottom: 1.4rem; }
+  .lic__opt { display: flex; align-items: center; gap: 0.8rem; border: 1px solid var(--line); border-radius: 12px; padding: 0.8rem 1rem; cursor: pointer; transition: all 0.2s var(--ease); }
+  .lic__opt:hover { border-color: var(--line-strong); }
+  .lic__opt.sel { border-color: var(--brass); background: linear-gradient(160deg, #19150d, var(--ink-2) 70%); }
+  .lic__radio { width: 16px; height: 16px; border-radius: 50%; border: 1.5px solid var(--bone-faint); flex: 0 0 auto; position: relative; }
+  .lic__opt.sel .lic__radio { border-color: var(--brass); }
+  .lic__opt.sel .lic__radio::after { content: ""; position: absolute; inset: 3px; border-radius: 50%; background: var(--brass); }
+  .lic__main { flex: 1 1 auto; }
+  .lic__name { font-weight: 460; }
+  .lic__desc { font-size: 0.74rem; color: var(--bone-faint); }
+  .lic__price { font-family: var(--mono); font-size: 0.85rem; color: var(--brass); }
+  .qv__actions { display: flex; gap: 0.7rem; flex-wrap: wrap; }
+  .qv__actions .btn-primary { width: auto; flex: 1 1 160px; }
+  .btn-ghost { display: flex; align-items: center; justify-content: center; gap: 0.5rem; flex: 1 1 140px; border: 1px solid var(--line-strong); color: var(--bone); background: none; border-radius: 100px; padding: 0.95rem; font-family: var(--mono); font-size: 0.74rem; text-transform: uppercase; letter-spacing: 0.1em; cursor: pointer; transition: all 0.25s var(--ease); }
+  .btn-ghost:hover { border-color: var(--bone); background: var(--ink-3); }
+
+  /* checkout */
+  .checkout { padding: clamp(1.5rem,3vw,2.4rem); }
+  .checkout__eyebrow { font-family: var(--mono); font-size: 0.62rem; text-transform: uppercase; letter-spacing: 0.16em; color: var(--brass); }
+  .checkout__title { font-family: var(--serif); font-weight: 360; font-size: clamp(1.7rem,1rem+2vw,2.4rem); letter-spacing: -0.02em; margin: 0.4rem 0 1.3rem; }
+  .checkout__sum { border: 1px solid var(--line); border-radius: 12px; padding: 1rem 1.1rem; margin-bottom: 1.4rem; }
+  .checkout__line { display: flex; justify-content: space-between; gap: 1rem; padding: 0.45rem 0; font-size: 0.9rem; color: var(--bone-dim); }
+  .checkout__line b { color: var(--bone); font-weight: 460; }
+  .checkout__total { display: flex; justify-content: space-between; align-items: baseline; border-top: 1px solid var(--line); margin-top: 0.5rem; padding-top: 0.8rem; }
+  .checkout__total span:first-child { font-family: var(--mono); font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.12em; color: var(--bone-dim); }
+  .checkout__total span:last-child { font-family: var(--serif); font-size: 1.8rem; }
+  .ck-fields { display: grid; grid-template-columns: 1fr 1fr; gap: 0.9rem; margin-bottom: 1.4rem; }
+  .field { display: flex; flex-direction: column; gap: 0.4rem; }
+  .field.full { grid-column: 1 / -1; }
+  .field label { font-family: var(--mono); font-size: 0.6rem; text-transform: uppercase; letter-spacing: 0.14em; color: var(--bone-dim); }
+  .field input { background: var(--ink); border: 1px solid var(--line); color: var(--bone); font-family: var(--sans); font-size: 0.95rem; padding: 0.7rem 0.85rem; border-radius: 10px; }
+  .field input:focus { outline: none; border-color: var(--brass); }
+  .ck-note { font-size: 0.72rem; color: var(--bone-faint); margin-top: 1rem; line-height: 1.5; }
+  .ck-done { text-align: center; padding: 1rem 0 0.5rem; }
+  .ck-done__seal { width: 64px; height: 64px; color: var(--brass); margin: 0 auto 1.2rem; }
+  .ck-done h3 { font-family: var(--serif); font-weight: 400; font-size: clamp(1.6rem,1rem+2vw,2.2rem); letter-spacing: -0.02em; margin-bottom: 0.6rem; }
+  .ck-done p { color: var(--bone-dim); margin-bottom: 0.4rem; }
+  .ck-done .order-id { font-family: var(--mono); font-size: 0.8rem; color: var(--brass); letter-spacing: 0.1em; }
+
+  /* toast */
+  .toast { position: fixed; left: 50%; bottom: 1.6rem; transform: translate(-50%, 160%); z-index: 120; display: inline-flex; align-items: center; gap: 0.6rem; background: var(--bone); color: var(--ink); font-family: var(--mono); font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.1em; padding: 0.7rem 1.1rem; border-radius: 100px; box-shadow: 0 20px 50px -20px rgba(0,0,0,0.7); transition: transform 0.4s var(--ease); pointer-events: none; }
+  .toast.show { transform: translate(-50%, 0); }
+  .toast svg { width: 17px; height: 17px; color: var(--brass-deep); }
+
+  @media (max-width: 860px) { .brand__word, .brand__sub { display: none; } .cart-btn span.label { display: none; } }
+  @media (max-width: 600px) { .search { order: 3; flex-basis: 100%; max-width: none; margin: 0; } .appbar { flex-wrap: wrap; } .ck-fields { grid-template-columns: 1fr; } }
+  </style>
+
+  <!-- Social / Open Graph -->
+  <meta property="og:type" content="website" />
+  <meta property="og:site_name" content="SecurityArts" />
+  <meta property="og:title" content="Marketplace — buy verified human art" />
+  <meta property="og:description" content="Buy and license originals straight from verified human artists. Every piece is cryptographically sealed — check provenance before you pay." />
+  <meta property="og:url" content="https://securityarts.studio/market.html" />
+  <meta property="og:image" content="/og-image.png" />
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="Marketplace — buy verified human art" />
+  <meta name="twitter:image" content="/og-image.png" />
+
+  <script src="js/api.js"></script>
+</head>
+<body>
+  <a class="skip-link" href="#grid">Skip to the marketplace</a>
+
+  <svg class="svg-defs" aria-hidden="true" focusable="false">
+    <symbol id="saSeal" viewBox="0 0 100 100">
+      <path class="seal-scallop" d="M 50.00 13.00 A 7.22 7.22 0 0 1 64.16 15.82 A 7.22 7.22 0 0 1 76.16 23.84 A 7.22 7.22 0 0 1 84.18 35.84 A 7.22 7.22 0 0 1 87.00 50.00 A 7.22 7.22 0 0 1 84.18 64.16 A 7.22 7.22 0 0 1 76.16 76.16 A 7.22 7.22 0 0 1 64.16 84.18 A 7.22 7.22 0 0 1 50.00 87.00 A 7.22 7.22 0 0 1 35.84 84.18 A 7.22 7.22 0 0 1 23.84 76.16 A 7.22 7.22 0 0 1 15.82 64.16 A 7.22 7.22 0 0 1 13.00 50.00 A 7.22 7.22 0 0 1 15.82 35.84 A 7.22 7.22 0 0 1 23.84 23.84 A 7.22 7.22 0 0 1 35.84 15.82 A 7.22 7.22 0 0 1 50.00 13.00 Z" />
+      <circle class="seal-ring" cx="50" cy="50" r="27" />
+      <path class="seal-star" d="M 50.00 34.50 L 53.76 44.82 L 64.74 45.21 L 56.09 51.98 L 59.11 62.54 L 50.00 56.40 L 40.89 62.54 L 43.91 51.98 L 35.26 45.21 L 46.24 44.82 Z" />
+    </symbol>
+  </svg>
+
+  <div class="grain" aria-hidden="true"></div>
+
+  <header class="appbar">
+    <a class="brand" href="index.html" aria-label="SecurityArts — home">
+      <svg class="brand__seal seal" aria-hidden="true"><use href="#saSeal" /></svg>
+      <span class="brand__word">Security<span>Arts</span></span>
+      <span class="brand__sub">Market</span>
+    </a>
+    <form class="search" role="search" onsubmit="return false;">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg>
+      <input id="search" type="search" placeholder="Search the marketplace — artist, title, medium…" aria-label="Search the marketplace" autocomplete="off" />
+    </form>
+    <div class="appbar__actions">
+      <a class="appbar__link" href="discover.html">Discover</a>
+      <button class="cart-btn" id="cartBtn">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M6 6h15l-1.5 9h-12z"/><circle cx="9" cy="20" r="1"/><circle cx="18" cy="20" r="1"/><path d="M6 6 5 3H2"/></svg>
+        <span class="label">Cart</span> <span class="cart-btn__count" id="cartCount">0</span>
+      </button>
+    </div>
+  </header>
+
+  <main id="main">
+    <section class="intro">
+      <p class="eyebrow">Marketplace — verified human work</p>
+      <h1>Buy art a human<br /><em>actually made.</em></h1>
+      <p>
+        Originals and licenses, straight from verified artists — no middle layer,
+        no AI passing as handmade. Every piece is <strong>cryptographically sealed</strong>,
+        so you can check provenance before you pay.
+      </p>
+    </section>
+
+    <div class="toolbar">
+      <div class="chips" id="chips" role="tablist" aria-label="Filter by medium"></div>
+      <div class="sort">
+        <label for="sortSel">Sort</label>
+        <select id="sortSel">
+          <option value="featured">Featured</option>
+          <option value="price-asc">Price ↑</option>
+          <option value="price-desc">Price ↓</option>
+          <option value="title">A–Z</option>
+        </select>
+      </div>
+    </div>
+
+    <section class="grid" id="grid" aria-label="Verified human artwork for sale"></section>
+    <div class="empty" id="empty"><h2>No pieces match.</h2><p>Try another medium or clear your search.</p></div>
+  </main>
+
+  <footer class="foot">
+    <a class="backhome" href="index.html"><span aria-hidden="true">←</span> Back to SecurityArts</a>
+    <p class="mono">Direct from the artist · Every sale sealed · Verified human</p>
+  </footer>
+
+  <div class="scrim" id="scrim"></div>
+
+  <!-- cart drawer -->
+  <aside class="drawer" id="cartDrawer" role="dialog" aria-label="Your cart" aria-modal="true">
+    <div class="drawer__head"><h2>Your cart</h2><button class="iconbtn" id="cartClose" aria-label="Close cart"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6 6 18M6 6l12 12"/></svg></button></div>
+    <div class="drawer__body" id="cartBody"></div>
+    <div class="drawer__foot" id="cartFoot"></div>
+  </aside>
+
+  <!-- quick view / checkout modal -->
+  <div class="modal" id="modal" role="dialog" aria-label="Artwork" aria-modal="true">
+    <button class="iconbtn modal__close" id="modalClose" aria-label="Close"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6 6 18M6 6l12 12"/></svg></button>
+    <div id="modalContent"></div>
+  </div>
+
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+  <script>
+  (function () {
+    "use strict";
+
+    /* generative art (shared visual language with Discover) */
+    function mulberry32(a){return function(){a|=0;a=(a+0x6D2B79F5)|0;var t=Math.imul(a^(a>>>15),1|a);t=(t+Math.imul(t^(t>>>7),61|t))^t;return((t^(t>>>14))>>>0)/4294967296;};}
+    function shade(hex,amt){var c=hex.replace('#','');if(c.length===3)c=c.split('').map(function(x){return x+x;}).join('');var n=parseInt(c,16),r=(n>>16)&255,g=(n>>8)&255,b=n&255;var f=amt<0?0:255,t=Math.abs(amt)/100;r=Math.round((f-r)*t)+r;g=Math.round((f-g)*t)+g;b=Math.round((f-b)*t)+b;return'#'+((1<<24)+(r<<16)+(g<<8)+b).toString(16).slice(1);}
+    var PAL=[{bg:'#1f7a55',fg:'#e8e4d8',accent:'#c2a14e'},{bg:'#b23a2c',fg:'#f4f1e9',accent:'#100f0e'},{bg:'#3667cf',fg:'#e8e4d8',accent:'#c2a14e'},{bg:'#a8862a',fg:'#100f0e',accent:'#f4f1e9'},{bg:'#0c0c0b',fg:'#c2a14e',accent:'#b23a2c'},{bg:'#e8e4d8',fg:'#100f0e',accent:'#b23a2c'},{bg:'#7c7468',fg:'#f4f1e9',accent:'#100f0e'},{bg:'#15302a',fg:'#c2a14e',accent:'#1f7a55'},{bg:'#2a1d16',fg:'#c2a14e',accent:'#b23a2c'},{bg:'#1a2740',fg:'#e8e4d8',accent:'#c2a14e'}];
+    function aField(p,r){var cx=80+r()*240,cy=120+r()*360,rad=170+r()*200,cx2=r()*400,cy2=220+r()*360,rad2=120+r()*170;return "<rect width='400' height='600' fill='"+shade(p.bg,-22)+"'/><circle cx='"+cx2+"' cy='"+cy2+"' r='"+rad2+"' fill='"+p.fg+"' opacity='0.16'/><circle cx='"+cx+"' cy='"+cy+"' r='"+rad+"' fill='"+p.accent+"' opacity='0.6'/><circle cx='"+cx+"' cy='"+cy+"' r='"+(rad*0.46)+"' fill='"+p.fg+"' opacity='0.92'/>";}
+    function aArcs(p,r){var cx=140+r()*120,cy=200+r()*200,n=5+(r()*4|0),s="<rect width='400' height='600' fill='"+p.bg+"'/>";for(var i=0;i<n;i++)s+="<circle cx='"+cx+"' cy='"+cy+"' r='"+(50+i*(46+r()*22))+"' fill='none' stroke='"+(i%2?p.accent:p.fg)+"' stroke-width='"+(4+r()*7).toFixed(1)+"' opacity='"+(0.45+0.4*r()).toFixed(2)+"'/>";return s+"<circle cx='"+cx+"' cy='"+cy+"' r='30' fill='"+p.accent+"'/>";}
+    function aBau(p,r){var s="<rect width='400' height='600' fill='"+p.bg+"'/>";s+="<circle cx='"+(90+r()*200)+"' cy='"+(140+r()*130)+"' r='"+(85+r()*70)+"' fill='"+p.accent+"'/>";s+="<path d='M0 "+(380+r()*120)+" a 200 200 0 0 1 400 0 Z' fill='"+p.fg+"' opacity='0.92'/>";s+="<polygon points='"+(r()*180)+",90 "+(300+r()*80)+",300 70,360' fill='"+p.accent+"' opacity='0.75'/>";s+="<rect x='"+(r()*260)+"' y='"+(60+r()*80)+"' width='"+(34+r()*36)+"' height='540' fill='"+p.fg+"' opacity='0.55'/>";return s;}
+    function aPoster(p,r){var G='AKMRSVZBQGW&',g=G[r()*G.length|0];return "<rect width='400' height='600' fill='"+p.bg+"'/><text x='200' y='405' text-anchor='middle' font-family='Fraunces, serif' font-size='440' font-weight='500' fill='"+p.fg+"'>"+g+"</text><rect x='40' y='520' width='"+(110+r()*170|0)+"' height='6' fill='"+p.accent+"'/>";}
+    function aWaves(p,r){var cols=[shade(p.bg,14),p.accent,p.fg,shade(p.bg,-16),p.accent],s="<rect width='400' height='600' fill='"+p.bg+"'/>",base=110+r()*60;for(var i=0;i<6;i++){var yy=base+i*78,amp=18+r()*42;s+="<path d='M0 "+yy.toFixed(0)+" C 130 "+(yy-amp).toFixed(0)+", 270 "+(yy+amp).toFixed(0)+", 400 "+yy.toFixed(0)+" L400 600 L0 600 Z' fill='"+cols[i%cols.length]+"' opacity='0.9'/>";}return s;}
+    function aHalf(p,r){var s="<rect width='400' height='600' fill='"+p.bg+"'/>",gap=38,ph=r()*6.28;for(var y=0;y<600;y+=gap)for(var x=0;x<400;x+=gap){var t=(x/400+y/600)/2,rad=2+t*14*(0.55+0.7*Math.abs(Math.sin(x*0.05+y*0.04+ph)));s+="<circle cx='"+(x+gap/2)+"' cy='"+(y+gap/2)+"' r='"+rad.toFixed(1)+"' fill='"+p.fg+"'/>";}return s+"<circle cx='"+(110+r()*180|0)+"' cy='"+(150+r()*260|0)+"' r='42' fill='"+p.accent+"'/>";}
+    var GENS={field:aField,arcs:aArcs,bau:aBau,poster:aPoster,waves:aWaves,half:aHalf};
+
+    var CATS=[{key:'all',label:'All work'},{key:'illustration',label:'Illustration'},{key:'painting',label:'Painting'},{key:'3d',label:'3D / CGI'},{key:'photography',label:'Photography'},{key:'lettering',label:'Lettering'},{key:'concept',label:'Concept Art'},{key:'mixed',label:'Mixed Media'}];
+    var MEDIUM={illustration:'Digital illustration',painting:'Oil on linen','3d':'3D render',photography:'35mm photograph',lettering:'Hand lettering',concept:'Concept art',mixed:'Mixed media'};
+    var GEN_BY_CAT={illustration:['bau','half','field'],painting:['field','waves'],'3d':['arcs','bau'],photography:['field','half'],lettering:['poster'],concept:['waves','arcs','field'],mixed:['half','bau','waves']};
+    var FIRST=['Mara','Theo','Ines','Kofi','Lena','Diego','Yuki','Sol','Noa','Amara','Rune','Priya','Cael','Wren','Otto','Nadia','Emil','Suki','Iris','Bo','Lior','Tova','Ravi','June','Ash','Marisol','Hugo','Esme'];
+    var LAST=['Okafor','Brandt','Vela','Mensah','Sato','Reyes','Lindqvist','Haddad','Moreau','Petrova','Nakamura','Adeyemi','Cole','Bauer','Ferro','Wynn','Asante','Kapoor','Olsen','Marsh','Delacroix','Quist','Romano','Ito','Vance','Castille','Berg','Faro'];
+    var TITLES=['Static Bloom','Low Tide, No.4','Carrier Signal','The Long Field','Afterimage','Salt & Iron','Nocturne for a City','Paper Sun','Margin Notes','Quiet Engine','Ribbon of Smoke','Index of Birds','Held Breath','Slow Tangerine','Foundry','Cartographer','Warm Static','Folded Light','Eighth Avenue','Reliquary','Threshold','Drift Study','Copper Hours','Understory','Hand & Glass','North by Memory','Ash Garden','Tideline'];
+    var DESCS=['An original, sealed at the moment of completion. The signature travels with the file.','Made by hand over several weeks; provenance verified and registered to the artist.','A one-of-a-kind piece — the seal confirms a person, not a model, made every mark.','Part of a small series. Each carries its own cryptographic certificate of origin.'];
+
+    function priceFor(seed){ var base = 60 + (Math.abs(seed) % 11) * 40; return { personal: Math.round(base/5)*5, commercial: Math.round(base*3/10)*10, exclusive: Math.round(base*9/25)*25 }; }
+    function hashStr(s){ var h=0; for(var i=0;i<s.length;i++){ h=(Math.imul(31,h)+s.charCodeAt(i))|0; } return h; }
+
+    var products=[];
+    for(var i=0;i<28;i++){
+      var r0=mulberry32(i*2654435761+12345);
+      var cat=CATS[1+(i%(CATS.length-1))].key;
+      var pal=PAL[(i*3+(r0()*PAL.length|0))%PAL.length];
+      var pool=GEN_BY_CAT[cat],gk=pool[(r0()*pool.length)|0];
+      products.push({ id:'p'+i, cat:cat, ts:i, art:"<svg class='pin__svg' viewBox='0 0 400 600' preserveAspectRatio='xMidYMid slice' xmlns='http://www.w3.org/2000/svg' aria-hidden='true'>"+GENS[gk](pal,mulberry32(i*99+7))+"</svg>", title:TITLES[i%TITLES.length], artist:FIRST[i%FIRST.length]+' '+LAST[(i*5+3)%LAST.length], medium:MEDIUM[cat], price:priceFor(i*7+3), desc:DESCS[i%DESCS.length] });
+    }
+    /* merge in works published from Discover (verified uploads) */
+    try {
+      var uploads = JSON.parse(localStorage.getItem('sa_uploads')) || [];
+      uploads.forEach(function(u, idx){ products.unshift({ id:u.id, cat:u.cat, ts:1000+idx, img:u.img, title:u.title, artist:u.artist, medium:u.medium, price:priceFor(hashStr(u.id)), desc:'Published & verified by the artist through SecurityArts. Seal recorded on upload.', own:true, cert:u.cert }); });
+    } catch(e) {}
+
+    function esc(s){return String(s).replace(/[&<>"]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c];});}
+    function money(n){ return '$'+n.toLocaleString('en-US'); }
+    var SEALSVG="<svg viewBox='0 0 100 100' aria-hidden='true' style='width:100%;height:100%'><use href='#saSeal'/></svg>";
+    function artHTML(p){ return p.img ? "<img src='"+p.img+"' alt='"+esc(p.title)+" by "+esc(p.artist)+"' loading='lazy'>" : p.art; }
+
+    /* cart (persistent) */
+    var cart;
+    try { cart = JSON.parse(localStorage.getItem('sa_cart')) || []; } catch(e){ cart = []; }
+    function saveCart(){ try { localStorage.setItem('sa_cart', JSON.stringify(cart)); } catch(e){} }
+    var LIC = { personal:'Personal license', commercial:'Commercial license', exclusive:'Exclusive — original' };
+    function findProduct(id){ return products.filter(function(p){return p.id===id;})[0]; }
+    function linePrice(item){ var p=findProduct(item.id); return p?p.price[item.license]:0; }
+    function cartTotal(){ return cart.reduce(function(s,it){return s+linePrice(it);},0); }
+
+    /* render grid */
+    var grid=document.getElementById('grid'), emptyEl=document.getElementById('empty');
+    var state={ q:'', cat:'all', sort:'featured' };
+    function visibleProducts(){
+      var list=products.filter(function(p){
+        return (state.cat==='all'||p.cat===state.cat) && (!state.q || (p.title+' '+p.artist+' '+p.medium).toLowerCase().indexOf(state.q)!==-1);
+      });
+      if(state.sort==='price-asc') list.sort(function(a,b){return a.price.personal-b.price.personal;});
+      else if(state.sort==='price-desc') list.sort(function(a,b){return b.price.personal-a.price.personal;});
+      else if(state.sort==='title') list.sort(function(a,b){return a.title.localeCompare(b.title);});
+      else list.sort(function(a,b){return a.ts-b.ts;});
+      return list;
+    }
+    function renderGrid(){
+      var list=visibleProducts();
+      grid.innerHTML='';
+      list.forEach(function(p){
+        var el=document.createElement('article');
+        el.className='prod'; el.dataset.id=p.id;
+        el.innerHTML =
+          "<div class='prod__art' data-view='"+p.id+"'>"+artHTML(p)
+          +"<span class='prod__badge'><span style='width:14px;height:14px;display:block'>"+SEALSVG+"</span>Verified</span>"
+          +(p.own?"<span class='prod__own'>Artist</span>":"")
+          +"<span class='prod__view'><span>Quick view</span></span></div>"
+          +"<div class='prod__info'><div class='prod__row'><span class='prod__title'>"+esc(p.title)+"</span><span class='prod__price'>"+money(p.price.personal)+"</span></div>"
+          +"<span class='prod__artist'>"+esc(p.artist)+" · "+esc(p.medium)+"</span>"
+          +"<button class='prod__add' data-add='"+p.id+"'>Add — "+money(p.price.personal)+"</button></div>";
+        grid.appendChild(el);
+      });
+      emptyEl.classList.toggle('show', list.length===0);
+      grid.style.display = list.length===0?'none':'';
+    }
+
+    /* chips + search + sort */
+    var chipsWrap=document.getElementById('chips');
+    CATS.forEach(function(c,idx){
+      var b=document.createElement('button'); b.className='chip'+(idx===0?' is-active':''); b.type='button'; b.textContent=c.label; b.setAttribute('aria-pressed',idx===0?'true':'false');
+      b.addEventListener('click',function(){ state.cat=c.key; chipsWrap.querySelectorAll('.chip').forEach(function(x){x.classList.remove('is-active');x.setAttribute('aria-pressed','false');}); b.classList.add('is-active'); b.setAttribute('aria-pressed','true'); renderGrid(); });
+      chipsWrap.appendChild(b);
+    });
+    document.getElementById('search').addEventListener('input',function(e){ state.q=e.target.value.trim().toLowerCase(); renderGrid(); });
+    document.getElementById('sortSel').addEventListener('change',function(e){ state.sort=e.target.value; renderGrid(); });
+
+    /* toast */
+    var toast=document.getElementById('toast'), tT;
+    function showToast(msg){ toast.innerHTML="<span style='width:17px;height:17px;display:block'>"+SEALSVG+"</span>"+msg; toast.classList.add('show'); clearTimeout(tT); tT=setTimeout(function(){toast.classList.remove('show');},1900); }
+
+    /* scrim / drawer / modal */
+    var scrim=document.getElementById('scrim'), drawer=document.getElementById('cartDrawer'), modal=document.getElementById('modal');
+    function openCart(){ renderCart(); scrim.classList.add('show'); drawer.classList.add('show'); }
+    function closeAll(){ scrim.classList.remove('show'); drawer.classList.remove('show'); modal.classList.remove('show'); }
+    document.getElementById('cartBtn').addEventListener('click',openCart);
+    document.getElementById('cartClose').addEventListener('click',closeAll);
+    document.getElementById('modalClose').addEventListener('click',closeAll);
+    scrim.addEventListener('click',closeAll);
+    document.addEventListener('keydown',function(e){ if(e.key==='Escape') closeAll(); });
+
+    /* add to cart */
+    function addToCart(id, license){
+      if(cart.some(function(it){return it.id===id && it.license===license;})){ showToast('Already in your cart'); return; }
+      cart.push({ id:id, license:license }); saveCart(); updateCount(); showToast('Added to cart');
+    }
+    function updateCount(){ document.getElementById('cartCount').textContent=cart.length; }
+    grid.addEventListener('click',function(e){
+      var add=e.target.closest('[data-add]'); var view=e.target.closest('[data-view]');
+      if(add){ addToCart(add.dataset.add,'personal'); return; }
+      if(view){ openQuickView(view.dataset.view); }
+    });
+
+    /* quick view */
+    var selLicense='personal';
+    function openQuickView(id){
+      var p=findProduct(id); if(!p) return; selLicense='personal';
+      var certLine = p.cert ? ('Sealed · '+(p.cert.algo||'SHA-256')) : 'Sealed · SHA-256 · verified human';
+      document.getElementById('modalContent').innerHTML =
+        "<div class='qv'><div class='qv__art'>"+artHTML(p)+"<span class='prod__badge'><span style='width:14px;height:14px;display:block'>"+SEALSVG+"</span>Verified</span></div>"
+        +"<div class='qv__body'><p class='qv__eyebrow'>"+esc(p.medium)+"</p><h2 class='qv__title'>"+esc(p.title)+"</h2>"
+        +"<p class='qv__artist'>by <b>"+esc(p.artist)+"</b></p>"
+        +"<p class='qv__desc'>"+esc(p.desc)+"</p>"
+        +"<div class='qv__seal'><span style='width:20px;height:20px;display:block'>"+SEALSVG+"</span>"+esc(certLine)+"</div>"
+        +"<div class='lic' id='lic'>"
+          +licOpt('personal','Personal license','Personal, non-commercial display',p.price.personal,true)
+          +licOpt('commercial','Commercial license','Use in products, marketing, or client work',p.price.commercial,false)
+          +licOpt('exclusive','Exclusive — original','Buy it outright; removed from the market',p.price.exclusive,false)
+        +"</div>"
+        +"<div class='qv__actions'><button class='btn-primary' id='qvAdd'>Add to cart</button><button class='btn-ghost' id='qvBuy'>Buy now</button></div></div></div>";
+      scrim.classList.add('show'); modal.classList.add('show');
+      var lic=document.getElementById('lic');
+      lic.addEventListener('click',function(e){ var o=e.target.closest('.lic__opt'); if(!o)return; selLicense=o.dataset.lic; lic.querySelectorAll('.lic__opt').forEach(function(x){x.classList.remove('sel');}); o.classList.add('sel'); });
+      document.getElementById('qvAdd').addEventListener('click',function(){ addToCart(p.id, selLicense); closeAll(); });
+      document.getElementById('qvBuy').addEventListener('click',function(){ if(!cart.some(function(it){return it.id===p.id&&it.license===selLicense;})){ cart.push({id:p.id,license:selLicense}); saveCart(); updateCount(); } openCheckout(); });
+    }
+    function licOpt(key,name,desc,price,sel){ return "<div class='lic__opt"+(sel?' sel':'')+"' data-lic='"+key+"'><span class='lic__radio'></span><span class='lic__main'><span class='lic__name'>"+name+"</span><br><span class='lic__desc'>"+desc+"</span></span><span class='lic__price'>"+money(price)+"</span></div>"; }
+
+    /* cart drawer render */
+    function renderCart(){
+      var body=document.getElementById('cartBody'), foot=document.getElementById('cartFoot');
+      if(!cart.length){ body.innerHTML="<div class='cart-empty'><div style='width:46px;height:46px;margin:0 auto 1rem'>"+SEALSVG+"</div><p>Your cart is empty.</p></div>"; foot.innerHTML=''; return; }
+      body.innerHTML=cart.map(function(it,idx){ var p=findProduct(it.id); if(!p) return ''; return "<div class='citem'><div class='citem__thumb'>"+artHTML(p)+"</div><div class='citem__main'><div class='citem__title'>"+esc(p.title)+"</div><div class='citem__lic'>"+LIC[it.license]+"</div><div class='citem__price'>"+money(p.price[it.license])+"</div></div><button class='citem__del' data-del='"+idx+"' aria-label='Remove'><svg viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2'><path d='M18 6 6 18M6 6l12 12'/></svg></button></div>"; }).join('');
+      foot.innerHTML="<div class='cart-sub'><span>Subtotal</span><span>"+money(cartTotal())+"</span></div><button class='btn-primary' id='checkoutBtn'>Checkout</button><p class='drawer__hint'>Secure demo checkout — no real payment is taken.</p>";
+      document.getElementById('checkoutBtn').addEventListener('click',openCheckout);
+    }
+    document.getElementById('cartBody').addEventListener('click',function(e){ var d=e.target.closest('[data-del]'); if(!d)return; cart.splice(+d.dataset.del,1); saveCart(); updateCount(); renderCart(); });
+
+    /* checkout */
+    function openCheckout(){
+      if(!cart.length){ showToast('Your cart is empty'); return; }
+      drawer.classList.remove('show');
+      var lines=cart.map(function(it){ var p=findProduct(it.id); return "<div class='checkout__line'><span><b>"+esc(p.title)+"</b> — "+LIC[it.license]+"</span><span>"+money(p.price[it.license])+"</span></div>"; }).join('');
+      document.getElementById('modalContent').innerHTML =
+        "<div class='checkout'><p class='checkout__eyebrow'>Checkout</p><h2 class='checkout__title'>Confirm your order.</h2>"
+        +"<div class='checkout__sum'>"+lines+"<div class='checkout__total'><span>Total</span><span>"+money(cartTotal())+"</span></div></div>"
+        +"<div class='ck-fields'>"
+          +"<div class='field full'><label for='ckEmail'>Email for receipt &amp; license</label><input id='ckEmail' type='email' placeholder='you@studio.com'></div>"
+          +"<div class='field full'><label for='ckName'>Name on license</label><input id='ckName' type='text' placeholder='Full name'></div>"
+          +"<div class='field full'><label for='ckCard'>Card number</label><input id='ckCard' type='text' inputmode='numeric' placeholder='4242 4242 4242 4242'></div>"
+          +"<div class='field'><label for='ckExp'>Expiry</label><input id='ckExp' type='text' placeholder='MM/YY'></div>"
+          +"<div class='field'><label for='ckCvc'>CVC</label><input id='ckCvc' type='text' inputmode='numeric' placeholder='123'></div>"
+        +"</div>"
+        +"<button class='btn-primary' id='placeOrder'>Place order · "+money(cartTotal())+"</button>"
+        +"<p class='ck-note'>Demo only — no card is charged and nothing is sent. In production this issues a signed license certificate tied to each work's seal and emails the buyer a receipt.</p></div>";
+      scrim.classList.add('show'); modal.classList.add('show');
+      document.getElementById('placeOrder').addEventListener('click',placeOrder);
+    }
+    async function placeOrder(){
+      var email=document.getElementById('ckEmail').value.trim();
+      if(!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)){ showToast('Enter a valid email'); document.getElementById('ckEmail').focus(); return; }
+      var po=document.getElementById('placeOrder'); if(po){ po.disabled=true; po.textContent='Sealing your order…'; }
+      var oid;
+      try {
+        if(window.SA_API){
+          var nm=document.getElementById('ckName');
+          var r=await window.SA_API.checkout({ items: cart.map(function(it){return {id:it.id, license:it.license};}), email: email, name: nm?nm.value:'' });
+          oid=r.orderId; // server verifies prices + creates the order
+        } else { throw new Error('offline'); }
+      } catch(_){
+        oid='SA-'+Date.now().toString(36).toUpperCase().slice(-6)+'-'+Math.floor(Math.random()*9000+1000);
+      }
+      document.getElementById('modalContent').innerHTML =
+        "<div class='checkout'><div class='ck-done'><div class='ck-done__seal'>"+SEALSVG+"</div>"
+        +"<h3>Sealed &amp; sold.</h3><p>Your license is on its way to <b style='color:var(--bone)'>"+esc(email)+"</b>.</p>"
+        +"<p>Each piece keeps its cryptographic seal — proof a human made what you just bought.</p>"
+        +"<p class='order-id'>Order "+oid+"</p>"
+        +"<div style='margin-top:1.6rem'><button class='btn-primary' id='doneBtn'>Keep browsing</button></div></div></div>";
+      cart=[]; saveCart(); updateCount();
+      document.getElementById('doneBtn').addEventListener('click',closeAll);
+    }
+
+    /* boot */
+    updateCount(); renderGrid();
+    if(/[?&]cart=1/.test(location.search)) setTimeout(openCart,250);
+    window.MKT={ products:products, cart:function(){return cart;}, addToCart:addToCart, openCheckout:openCheckout };
+  })();
+  </script>
+</body>
+</html>

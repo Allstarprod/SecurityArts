@@ -1,0 +1,25 @@
+# Dependencies
+node_modules/
+
+# Runtime data & secrets (NEVER commit)
+server/data/
+*.pem
+*.secret
+*.log
+.env
+.env.local
+
+# Build output
+dist/
+build/
+
+# Packaging artifact
+SecurityArts-site.zip
+
+# OS / editor cruft
+.DS_Store
+Thumbs.db
+*.tmp
+.vscode/
+.idea/
+SecurityArts Design System.zip
