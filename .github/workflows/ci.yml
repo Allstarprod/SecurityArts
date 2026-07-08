@@ -1,0 +1,34 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Syntax check all server modules
+        working-directory: server
+        run: |
+          for f in server.mjs routes.mjs lib/*.mjs lib/drivers/*.mjs test/e2e.mjs; do
+            node --check "$f"
+          done
+
+      - name: Boot server (file driver) and run e2e suite
+        working-directory: server
+        run: |
+          PORT=8137 node server.mjs &
+          SRV=$!
+          for i in $(seq 1 20); do
+            curl -sf http://localhost:8137/api/health > /dev/null && break
+            sleep 0.5
+          done
+          node test/e2e.mjs file
+          kill $SRV
