@@ -27,3 +27,6 @@ SecurityArts Design System.zip
 # Supabase CLI
 supabase/.temp/
 supabase/.branches/
+
+# all env files (any suffix)
+.env*
