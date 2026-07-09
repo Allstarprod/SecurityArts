@@ -11,6 +11,19 @@ const KEY_FILE = path.join(DATA_DIR, "seal-key.pem");
 const PUB_FILE = path.join(DATA_DIR, "seal-pub.pem");
 
 function loadKeys() {
+  // 1) Env-provided key (production / multi-instance / ephemeral hosts): ONE signing
+  //    identity shared by every instance and preserved across redeploys, so seals stay
+  //    verifiable and don't silently reset when a container is replaced. Stored base64
+  //    (of the PEM) so it's a single token — safe in .env, Render, Fly, etc.
+  const b64priv = process.env.SEAL_PRIVATE_KEY_B64;
+  const b64pub = process.env.SEAL_PUBLIC_KEY_B64;
+  if (b64priv && b64pub) {
+    return {
+      privateKey: Buffer.from(b64priv, "base64").toString("utf8"),
+      publicKey: Buffer.from(b64pub, "base64").toString("utf8"),
+    };
+  }
+  // 2) On-disk key (dev): persisted so local restarts keep the same identity.
   try {
     return {
       privateKey: fs.readFileSync(KEY_FILE, "utf8"),

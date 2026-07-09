@@ -23,3 +23,7 @@ Thumbs.db
 .vscode/
 .idea/
 SecurityArts Design System.zip
+
+# Supabase CLI
+supabase/.temp/
+supabase/.branches/

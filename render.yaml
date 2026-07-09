@@ -1,0 +1,43 @@
+# Render blueprint — native auto-deploy on every push to main.
+# One-time setup: Render dashboard → New → Blueprint → pick Allstarprod/SecurityArts.
+# Render reads this file, creates the service, and prompts for the `sync: false`
+# secrets. After that, every `git push` to main redeploys automatically.
+services:
+  - type: web
+    name: securityarts
+    runtime: node
+    plan: free            # ← change to "starter" ($7/mo) to stay always-on (no cold starts)
+    region: oregon        # ← pick the region nearest your users
+    rootDir: server
+    buildCommand: npm ci --omit=dev
+    startCommand: node server.mjs
+    healthCheckPath: /api/health
+    autoDeploy: true
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: DB_DRIVER
+        value: postgres
+      - key: RATELIMIT_DRIVER
+        value: postgres
+      - key: TRUST_PROXY          # Render terminates TLS + sets X-Forwarded-For
+        value: "1"
+      - key: TRUST_PROXY_HTTPS
+        value: "1"
+      - key: DB_AUTO_MIGRATE
+        value: "0"                # schema already applied to Supabase
+      - key: SUPABASE_URL
+        value: https://ixdkfakibuctwhgwngsw.supabase.co
+      - key: SUPABASE_BUCKET
+        value: work-images
+      # ── secrets: paste in the Render dashboard when prompted (never committed) ──
+      - key: DATABASE_URL
+        sync: false
+      - key: SESSION_SECRET
+        sync: false
+      - key: SUPABASE_SERVICE_KEY
+        sync: false
+      - key: SEAL_PRIVATE_KEY_B64
+        sync: false
+      - key: SEAL_PUBLIC_KEY_B64
+        sync: false

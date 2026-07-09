@@ -1,0 +1,3 @@
+# Minimal Supabase CLI config. The migration CI links to the remote project by
+# ref explicitly (supabase link --project-ref ...), so this only names the project.
+project_id = "securityarts"

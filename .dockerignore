@@ -1,0 +1,14 @@
+**/node_modules
+server/data
+**/.env
+**/.env.local
+*.log
+.git
+.github
+*.zip
+*.png
+*.jpg
+screencapture-*
+Screenshot*
+.remember
+.claude
