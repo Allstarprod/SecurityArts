@@ -34,7 +34,8 @@ The API was already state-externalized, so it maps cleanly to serverless:
    `DATABASE_URL` (serverless opens many short connections; the pooler on port 6543 is required):
    ```
    DB_DRIVER            = postgres
-   DATABASE_URL         = postgresql://postgres.ixdkfakibuctwhgwngsw:<PWD>@aws-0-ca-central-1.pooler.supabase.com:6543/postgres
+   DATABASE_URL         = postgresql://postgres.ixdkfakibuctwhgwngsw:<PWD>@aws-1-ca-central-1.pooler.supabase.com:6543/postgres
+   #                        ^ verified working for this project (aws-1, transaction pooler, port 6543)
    RATELIMIT_DRIVER     = postgres
    PG_POOL_MAX          = 1
    SESSION_SECRET       = <64 hex>            (from server/.env)
