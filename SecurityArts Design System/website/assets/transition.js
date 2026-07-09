@@ -64,6 +64,8 @@
     setTimeout(function () { ov.classList.remove("on", "is-reveal"); ov.removeAttribute("data-mode"); }, 1280);
   }
 
+  function clear() { ov.classList.remove("on", "is-reveal"); ov.removeAttribute("data-mode"); }
+
   function exit(href) {
     if (reduce) { window.location.href = href; return; }
     ov.classList.remove("is-reveal");
@@ -71,6 +73,9 @@
     ov.classList.add("on");
     var go = function () { window.location.href = href; };
     setTimeout(go, 560);
+    // Failsafe: if navigation is blocked/refused and never unloads this page,
+    // don't leave the screen stuck black — clear the cover after a grace period.
+    setTimeout(function () { if (document.visibilityState !== "hidden") clear(); }, 4000);
   }
 
   document.addEventListener("click", function (e) {

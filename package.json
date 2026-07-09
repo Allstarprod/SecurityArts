@@ -1,0 +1,15 @@
+{
+  "name": "securityarts-site",
+  "version": "0.2.0",
+  "private": true,
+  "type": "module",
+  "description": "SecurityArts monorepo root — page build tooling (JSX precompile, vendored React). The runtime server lives in server/.",
+  "engines": { "node": ">=18" },
+  "scripts": {
+    "build": "node scripts/build-pages.mjs",
+    "build:check": "node scripts/build-pages.mjs --check"
+  },
+  "devDependencies": {
+    "esbuild": "^0.24.0"
+  }
+}
