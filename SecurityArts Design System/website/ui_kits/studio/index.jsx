@@ -22,7 +22,10 @@ const SURFACES = [
   ["#f3efe6", "var(--jet)"], ["var(--sw-taupe)", "var(--bone)"], ["var(--ink)", "var(--bone)"], ["var(--bone)", "var(--jet)"],
 ];
 
-const STANDARDS = ["OWASP", "MITRE ATT&CK", "NIST CSF", "ISO 27001", "SOC 2", "CIS Benchmarks"];
+// Frameworks our engagements build to. OWASP / MITRE ATT&CK / NIST CSF / CIS Controls
+// are how we assess and remediate; ISO 27001 & SOC 2 are shown as "readiness" because we
+// help clients GET there — SecurityArts does not claim to hold those certifications itself.
+const STANDARDS = ["OWASP", "MITRE ATT&CK", "NIST CSF", "CIS Controls", "ISO 27001 readiness", "SOC 2 readiness"];
 
 function Header({ onMenu, menuOpen, stuck }) {
   return (
@@ -155,6 +158,7 @@ function App() {
           <SectionLabel index="04" className="lbl">Standards</SectionLabel>
           <h2 className="h-section" style={{ marginBottom: "clamp(2.5rem,5vw,3.5rem)" }}>We work to the frameworks<br />your auditors already trust.</h2>
           <ul className="std">{STANDARDS.map((s) => <li key={s}>{s}</li>)}</ul>
+          <p style={{ marginTop: "1.6rem", fontFamily: "var(--font-mono)", fontSize: "0.66rem", letterSpacing: "0.1em", textTransform: "uppercase", color: "var(--bone-faint)", maxWidth: "60ch" }}>How we assess, remediate &amp; get you audit-ready — control alignment across our engagements, not a certification held by SecurityArts.</p>
         </section>
 
         <section className="wrap band pad contact" id="contact">
