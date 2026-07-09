@@ -15,10 +15,10 @@ Legend: ✅ implemented in code · 🟡 partial / config-dependent · ⬜ deploy
 |---|------|--------|-------------|
 | A01 | Broken Access Control | ✅ | Board/order ownership checks; path-traversal guard in static server; auth-gated routes (`routes.mjs`, `server.mjs`). |
 | A02 | Cryptographic Failures | ✅ | scrypt password hashing; HMAC-signed sessions; ECDSA P-256 artwork signing (`auth.mjs`, `seal.mjs`). |
-| A03 | Injection | ✅ | No SQL (JSON store); strict input validation at the boundary; JSON-only bodies; output escaped client-side. |
+| A03 | Injection | ✅ | Parameterized queries only — the Postgres driver uses `$1`/`$2` placeholders, never string-built SQL (`drivers/postgres.mjs`); strict input validation at the boundary; JSON-only bodies; output escaped client-side. |
 | A04 | Insecure Design | ✅ | Server-authoritative pricing (client can't set price); rate limiting; least-data responses (`/works` omits base64). |
 | A05 | Security Misconfiguration | ✅ | CSP + full security-header set; errors never leak internals; secrets off-repo (`security.mjs`, `.gitignore`). |
-| A06 | Vulnerable Components | ✅ | **Zero runtime dependencies** — nothing to inherit CVEs from. `npm audit` surface is empty. |
+| A06 | Vulnerable Components | ✅ | Minimal surface, `npm audit` **clean** (root + server). Server core is dependency-free; the only runtime dep is `pg` (Postgres driver, optional — for the Supabase backend, audit clean). Build-only tool `esbuild` compiles page JSX and is **not shipped** to the browser. Vendored React is pinned + committed. Backlog: wire Dependabot + `npm audit` into CI. |
 | A07 | Auth / Identification Failures | ✅ | Rate-limited login/register; uniform error (no user enumeration); scrypt + `timingSafeEqual`. |
 | A08 | Software & Data Integrity | ✅ | Server re-hashes + signs uploads; public `/api/verify/:hash`; atomic writes to the store. |
 | A09 | Logging & Monitoring Failures | ✅ | JSON-line audit log for auth, publish, orders, CSRF blocks, server errors (`audit()`). |
@@ -70,11 +70,27 @@ Legend: ✅ implemented in code · 🟡 partial / config-dependent · ⬜ deploy
 
 ## Known hardening backlog (be honest with auditors)
 
-1. **CSP is pragmatic, not strict.** Pages inline `<style>`/`<script>`, so `script-src` allows
-   `'unsafe-inline'`. **Fix:** externalize page JS → nonce-based CSP (drop `unsafe-inline`).
+1. **CSP is pragmatic, not strict.** Page app JS is now external (precompiled `*.app.js` +
+   vendored React), but a small inline no-flash theme `<script>` and inline `<style>` blocks
+   remain, so `script-src`/`style-src` still allow `'unsafe-inline'`. **Fix:** move the theme
+   script to a nonce and externalize the remaining inline styles → nonce-based CSP.
 2. **TLS/HSTS** are terminated by the proxy/host, not this process — enable in prod (`TRUST_PROXY_HTTPS=1`).
-3. **JSON file store** → move to a managed database (Postgres) with encryption at rest + backups.
-4. **Signing key on disk** → move the SecurityArts key to an HSM/KMS; add rotation + a key registry.
+3. **JSON file store → DONE.** Pluggable repository with a Postgres/Supabase driver
+   (`DB_DRIVER=postgres`), connection pooling, shared rate limiting, and Supabase Storage for
+   images. The file driver remains the zero-setup dev default. Managed encryption-at-rest +
+   PITR backups come with Supabase.
+4. **Signing key on disk → PARTIAL.** The seal key can now be supplied via env
+   (`SEAL_*_B64`) so it's stable across instances/redeploys. Still move it to an HSM/KMS and
+   add rotation + a key registry for production.
 5. **Payments** are simulated → integrate a PCI-compliant processor (never handle raw PAN).
 6. **Newsletter** stores raw emails → add double opt-in + ESP hand-off + suppression list.
-7. **Dependency-free today**, but if deps are added later, wire `npm audit` + Dependabot into CI.
+7. **Dependencies added** since the "dependency-free" era: `pg` (runtime, Postgres) and
+   `esbuild` (build-only). `npm audit` is **clean** today — wire `npm audit` + Dependabot into
+   CI to keep it that way.
+8. **ISO 27001 / SOC 2 are certifications, not code.** This doc maps *controls that align with*
+   their criteria; it is **not** a certificate (ISO 27001, issued by an accredited body after
+   an ISMS audit) or an auditor's attestation report (SOC 2, issued by a CPA firm over an
+   observation period). Implementing aligned controls does **not** make the org certified.
+   The marketing "Standards" section should read "aligned with / built to the controls behind"
+   — never imply the org holds a SOC 2 report or ISO 27001 certificate until an accredited
+   audit is actually complete.

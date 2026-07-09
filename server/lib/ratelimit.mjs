@@ -1,3 +1,5 @@
+// Rate limiting — maps to: OWASP A07 / MITRE ATT&CK T1110 (brute force),
+// T1499 (endpoint DoS) / NIST PR.AC / CIS 8.
 // Pluggable rate limiter. Async interface so it works for both backends:
 //   • memory   (default) — per-process sliding window. Correct for ONE instance
 //     (or one clustered box). Fast, zero deps.
