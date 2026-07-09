@@ -35,9 +35,17 @@ function loadKeys() {
       privateKeyEncoding: { type: "pkcs8", format: "pem" },
       publicKeyEncoding: { type: "spki", format: "pem" },
     });
-    ensureDataDir();
-    fs.writeFileSync(KEY_FILE, privateKey, { mode: 0o600 });
-    fs.writeFileSync(PUB_FILE, publicKey);
+    try {
+      ensureDataDir();
+      fs.writeFileSync(KEY_FILE, privateKey, { mode: 0o600 });
+      fs.writeFileSync(PUB_FILE, publicKey);
+    } catch {
+      // Read-only filesystem (e.g. Vercel serverless) with no SEAL_*_B64 env set:
+      // fall back to an EPHEMERAL in-memory key so the function doesn't crash. Seals
+      // won't verify across instances/redeploys until SEAL_PRIVATE_KEY_B64 /
+      // SEAL_PUBLIC_KEY_B64 are set — loudly warn so this isn't shipped by accident.
+      console.warn("seal: no SEAL_*_B64 env and disk is not writable — using an EPHEMERAL key. Set SEAL_PRIVATE_KEY_B64 / SEAL_PUBLIC_KEY_B64 in production.");
+    }
     return { privateKey, publicKey };
   }
 }

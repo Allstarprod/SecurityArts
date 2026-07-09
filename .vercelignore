@@ -1,0 +1,15 @@
+# Never deploy local state / secrets / scratch to Vercel.
+node_modules
+.git
+.github
+server/data
+server/test
+**/.env
+**/.env.local
+*.log
+*.zip
+.remember
+.claude
+# large unused screenshots (not referenced by the site)
+screencapture-*.png
+Screenshot*.png

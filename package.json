@@ -9,6 +9,9 @@
     "build": "node scripts/build-pages.mjs",
     "build:check": "node scripts/build-pages.mjs --check"
   },
+  "dependencies": {
+    "pg": "^8.13.0"
+  },
   "devDependencies": {
     "esbuild": "^0.25.0"
   }

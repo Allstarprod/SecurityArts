@@ -16,8 +16,14 @@ function loadSecret() {
     return fs.readFileSync(SECRET_FILE);
   } catch {
     const s = crypto.randomBytes(48);
-    ensureDataDir();
-    fs.writeFileSync(SECRET_FILE, s, { mode: 0o600 });
+    try {
+      ensureDataDir();
+      fs.writeFileSync(SECRET_FILE, s, { mode: 0o600 });
+    } catch {
+      // Read-only FS (serverless) and no SESSION_SECRET env: ephemeral key for this
+      // instance — sessions won't survive redeploys/instances. Set SESSION_SECRET in prod.
+      console.warn("auth: no SESSION_SECRET env and disk not writable — using an EPHEMERAL session key. Set SESSION_SECRET in production.");
+    }
     return s;
   }
 }
