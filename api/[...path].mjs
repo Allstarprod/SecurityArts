@@ -58,7 +58,12 @@ export default async function handler(req, res) {
     return await route.handler({ req, res, params: route.params, body, url, user, ip, https: true });
   } catch (err) {
     const status = err.status || 500;
-    if (status >= 500) audit("server.error", { ip, pathname, msg: err.message });
+    if (status >= 500) {
+      audit("server.error", { ip, pathname, msg: err.message });
+      // Server-side only (client still gets the generic message) — surfaces the real
+      // cause (e.g. ENOTFOUND on a bad DATABASE_URL, MODULE_NOT_FOUND for pg) in Vercel logs.
+      console.error(`[api] ${status} ${pathname} — ${err && (err.stack || err.message)}${err && err.code ? " (code " + err.code + ")" : ""}`);
+    }
     return fail(res, status, status >= 500 ? "Something went wrong." : err.message);
   }
 }
