@@ -1,5 +1,6 @@
 const { Seal, Icon, IconButton, Button, Tag, Avatar, Pin, Modal, Toast, ThemeToggle } = window.SecurityArtsDesignSystem_f7e889;
-const C = window.SACatalog, S = window.SAStore;
+const C = window.SACatalog, S = window.SAStore, Session = window.SASession;
+function strhash(s){var h=0;for(var i=0;i<s.length;i++)h=(Math.imul(31,h)+s.charCodeAt(i))|0;return (h>>>0);}
 
 function useStoreTick() {
   const [, set] = React.useState(0);
@@ -32,9 +33,8 @@ function AppBar() {
   );
 }
 
-function App() {
+function ArtistProfile({ artistId }) {
   useStoreTick();
-  const [artistId, setArtistId] = React.useState(qsArtist);
   const artist = C.artistById[artistId];
   const works = C.worksByArtist[artistId] || [];
   const [tab, setTab] = React.useState("works");
@@ -152,6 +152,123 @@ function App() {
       <Toast show={!!toast}>{toast}</Toast>
     </React.Fragment>
   );
+}
+
+function SelfSignedOut() {
+  return (
+    <React.Fragment>
+      <AppBar />
+      <div className="wrap">
+        <div className="about" style={{ textAlign: "center", padding: "clamp(3rem,10vw,7rem) 0" }}>
+          <Seal size={54} style={{ margin: "0 auto 1.2rem", color: "var(--bone-faint)" }} />
+          <h2 style={{ fontFamily: "var(--font-serif)", fontWeight: 360, fontSize: "1.9rem", letterSpacing: "-0.02em", marginBottom: "0.6rem" }}>Your profile awaits.</h2>
+          <p style={{ color: "var(--bone-dim)", maxWidth: "42ch", margin: "0 auto 1.4rem" }}>Sign in to see and share your public profile — your sealed works, all in one place.</p>
+          <a href="login.html?next=profile.html%3Fme%3D1"><Button variant="solid" arrow>Sign in</Button></a>
+        </div>
+      </div>
+    </React.Fragment>
+  );
+}
+
+function SelfProfile({ user }) {
+  useStoreTick();
+  const [ownWorks, setOwnWorks] = React.useState([]);
+  const [tab, setTab] = React.useState("works");
+  const [toast, setToast] = React.useState("");
+  const toastRef = React.useRef();
+  const show = (m) => { setToast(m); clearTimeout(toastRef.current); toastRef.current = setTimeout(() => setToast(""), 2000); };
+  React.useEffect(() => {
+    let alive = true;
+    if (window.SA_API) window.SA_API.listWorks().then((list) => { if (alive) setOwnWorks((list || []).filter((w) => w.ownerId === user.id)); }).catch(() => {});
+    return () => { alive = false; };
+  }, [user.id]);
+
+  const handle = user.handle || Session.handleFromEmail(user.email);
+  const likes = S.likes().length, follows = S.follows().length;
+  const logout = async () => { await Session.logout(); location.href = "login.html"; };
+
+  return (
+    <React.Fragment>
+      <AppBar />
+      <div className="cover"><img src={SAGenArt.dataUri(user.id + "-cover", { cat: "concept" })} alt="" /></div>
+      <div className="wrap">
+        <div className="phead">
+          <Avatar name={user.name} size={112} className="phead__avatar" />
+          <div className="phead__id">
+            <h1 className="phead__name">{user.name}<span style={{ fontFamily: "var(--font-mono)", fontSize: "0.58rem", letterSpacing: "0.14em", textTransform: "uppercase", color: "var(--brass)", border: "1px solid var(--line-strong)", borderRadius: "100px", padding: "0.2rem 0.6rem", marginLeft: "0.5rem", verticalAlign: "middle" }}>You</span></h1>
+            <div className="phead__handle">
+              <span>@{handle}</span>
+              <span className="loc">{user.email}</span>
+              <span className="loc"><Icon name="shieldCheck" size={13} /> Member</span>
+            </div>
+          </div>
+          <div className="phead__actions">
+            <a href="index.html"><Button variant="solid" size="sm" arrow>Seal a work</Button></a>
+            <IconButton icon="share" label="Share profile" onClick={() => show("Profile link copied")} />
+            <Button variant="ghost" size="sm" onClick={logout}>Log out</Button>
+          </div>
+        </div>
+
+        <div className="pbody">
+          <aside className="aside">
+            <p className="bio">This is your public SecurityArts profile. Seal a piece and it appears here — proof a human made it, for any buyer or gallery to verify.</p>
+            <div className="stats">
+              <div className="stat"><b>{ownWorks.length}</b><span>Sealed works</span></div>
+              <div className="stat"><b>{likes}</b><span>Likes given</span></div>
+              <div className="stat"><b>{follows}</b><span>Following</span></div>
+            </div>
+            <a href="me.html" style={{ fontFamily: "var(--font-mono)", fontSize: "0.68rem", letterSpacing: "0.12em", textTransform: "uppercase", color: "var(--brass)", display: "inline-flex", gap: "0.4rem", alignItems: "center" }}>
+              <Icon name="user" size={14} /> Back to your account
+            </a>
+          </aside>
+
+          <div>
+            <div className="tabs">
+              <button className={`tab ${tab === "works" ? "active" : ""}`} onClick={() => setTab("works")}>Works · {ownWorks.length}</button>
+              <button className={`tab ${tab === "about" ? "active" : ""}`} onClick={() => setTab("about")}>About</button>
+            </div>
+            {tab === "works" ? (
+              ownWorks.length ? (
+                <div className="masonry">
+                  {ownWorks.map((w) => (
+                    <Pin key={w.id} art={<img src={SAGenArt.dataUri(strhash(w.id), { cat: w.cat })} alt={w.title} />}
+                      title={w.title} artist={user.name} badge="Sealed" />
+                  ))}
+                </div>
+              ) : (
+                <div className="about" style={{ textAlign: "center" }}>
+                  <Seal size={44} style={{ margin: "0 auto 1rem", color: "var(--bone-faint)" }} />
+                  <p style={{ marginBottom: "1.2rem" }}>You haven't sealed any work yet. Seal your first piece — it lands here with its certificate.</p>
+                  <a href="index.html"><Button variant="solid" size="sm" arrow>Seal a work</Button></a>
+                </div>
+              )
+            ) : (
+              <div className="about">
+                <p>This is your public profile on SecurityArts. When you seal a work, it's signed with the SecurityArts key and registered so anyone can verify a human made it.</p>
+                <p>Signed in as <b style={{ color: "var(--bone)" }}>{user.email}</b>.</p>
+              </div>
+            )}
+          </div>
+        </div>
+      </div>
+
+      <footer className="foot">
+        <a href="me.html">← Back to your account</a>
+        <span className="m">Your public profile · Sealed provenance</span>
+      </footer>
+      <Toast show={!!toast}>{toast}</Toast>
+    </React.Fragment>
+  );
+}
+
+function App() {
+  const params = new URLSearchParams(location.search);
+  const isMe = params.get("me") === "1" || params.get("artist") === "me";
+  if (isMe) {
+    const user = Session.current();
+    return user ? <SelfProfile user={user} /> : <SelfSignedOut />;
+  }
+  return <ArtistProfile artistId={qsArtist()} />;
 }
 
 ReactDOM.createRoot(document.getElementById("root")).render(<App />);

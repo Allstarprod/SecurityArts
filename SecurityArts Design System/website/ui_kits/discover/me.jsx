@@ -1,5 +1,5 @@
 const { Seal, Icon, IconButton, Button, Avatar, Pin, VerifiedBadge, Toast, ThemeToggle } = window.SecurityArtsDesignSystem_f7e889;
-const C = window.SACatalog, S = window.SAStore;
+const C = window.SACatalog, S = window.SAStore, Session = window.SASession;
 
 function useStoreTick() { const [, set] = React.useState(0); React.useEffect(() => S.subscribe(() => set((n) => n + 1)), []); }
 function money(n) { return "$" + n.toLocaleString("en-US"); }
@@ -39,12 +39,34 @@ function AppBar() {
   );
 }
 
+function SignedOut() {
+  return (
+    <React.Fragment>
+      <AppBar />
+      <div className="wrap">
+        <div className="empty" style={{ paddingTop: "clamp(3rem,10vw,7rem)" }}>
+          <Seal size={54} style={{ margin: "0 auto 1.2rem", color: "var(--bone-faint)" }} />
+          <h2>Your account, sealed.</h2>
+          <p>Sign in to see your likes, the artists you follow, and your sealed collection — all in one place.</p>
+          <a href="login.html?next=me.html"><Button variant="solid" arrow>Sign in</Button></a>
+        </div>
+      </div>
+    </React.Fragment>
+  );
+}
+
 function App() {
   useStoreTick();
+  const [user, setUser] = React.useState(() => Session.current());
   const [tab, setTab] = React.useState("likes");
   const [toast, setToast] = React.useState("");
   const toastRef = React.useRef();
   const show = (m) => { setToast(m); clearTimeout(toastRef.current); toastRef.current = setTimeout(() => setToast(""), 1900); };
+  React.useEffect(() => { Session.sync().then((u) => setUser(u || null)).catch(() => {}); }, []);
+  const logout = async () => { await Session.logout(); location.href = "login.html"; };
+
+  if (!user) return <SignedOut />;
+  const handle = user.handle || Session.handleFromEmail(user.email);
 
   const likedIds = S.likes();
   const liked = likedIds.map((id) => C.workById[id]).filter(Boolean);
@@ -57,19 +79,20 @@ function App() {
       <AppBar />
       <div className="wrap">
         <div className="mehead">
-          <Avatar name="You" size={108} className="mehead__avatar" />
+          <a href="profile.html?me=1" aria-label="View your profile"><Avatar name={user.name} size={108} className="mehead__avatar" /></a>
           <div className="mehead__id">
             <p className="mehead__eyebrow">Your account</p>
-            <h1 className="mehead__name">You</h1>
+            <h1 className="mehead__name">{user.name}</h1>
             <div className="mehead__handle">
-              <span className="m">@you</span>
+              <span className="m">@{handle}</span>
               <span className="m"><Icon name="heart" size={13} /> Collector</span>
-              <span className="m"><Icon name="shieldCheck" size={13} /> Member since 2026</span>
+              <span className="m"><Icon name="shieldCheck" size={13} /> {user.email}</span>
             </div>
           </div>
           <div className="mehead__actions">
-            <a href="dashboard.html"><Button variant="ghost" size="sm">Switch to artist studio</Button></a>
-            <IconButton icon="share" label="Share" onClick={() => show("Profile link copied")} />
+            <a href="profile.html?me=1"><Button variant="solid" size="sm" arrow>View your profile</Button></a>
+            <a href="dashboard.html"><Button variant="ghost" size="sm">Artist studio</Button></a>
+            <Button variant="ghost" size="sm" onClick={logout}>Log out</Button>
           </div>
         </div>
 

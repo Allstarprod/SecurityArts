@@ -21,6 +21,7 @@ function AppBar() {
         <a href="verify.html" className="optional">Verify</a>
         <a href="dashboard.html" className="optional">For artists</a>
         <a href="pricing.html" className="optional">Pricing</a>
+        <a href="login.html"><Button variant="solid" size="sm">Sign in</Button></a>
         <ThemeToggle size={38} />
       </nav>
     </header>

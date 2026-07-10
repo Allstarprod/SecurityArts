@@ -15,10 +15,27 @@ const LAST = ["Okafor", "Brandt", "Vela", "Mensah", "Sato", "Reyes", "Lindqvist"
 const TITLES = ["Static Bloom", "Low Tide, No.4", "Carrier Signal", "The Long Field", "Afterimage", "Salt & Iron", "Nocturne", "Paper Sun", "Margin Notes", "Quiet Engine", "Ribbon of Smoke", "Index of Birds", "Held Breath", "Slow Tangerine", "Foundry", "Cartographer"];
 const CATKEYS = ["illustration", "painting", "3d", "photography", "lettering", "concept"];
 const DESC = "An original, hand-made work. Purchase includes a SecurityArts seal \u2014 a cryptographic certificate of authenticity registered to this piece.";
+const CAT = window.SACatalog;
+function artistFor(cat, i) {
+  const artists = CAT && CAT.artists || [];
+  const pool = artists.filter((a) => a.cat === cat);
+  const list = pool.length ? pool : artists;
+  return list.length ? list[i % list.length] : null;
+}
 const PRODUCTS = TITLES.map((t, i) => {
   const cat = CATKEYS[i % CATKEYS.length];
   const base = 120 + i * 47 % 9 * 60;
-  return { id: "m" + i, seed: i * 11 + 5, cat, title: t, artist: FIRST[i % FIRST.length] + " " + LAST[(i * 3 + 2) % LAST.length], medium: MEDIUM[cat], price: base };
+  const a = artistFor(cat, i);
+  return {
+    id: "m" + i,
+    seed: i * 11 + 5,
+    cat,
+    title: t,
+    artist: a ? a.name : FIRST[i % FIRST.length] + " " + LAST[(i * 3 + 2) % LAST.length],
+    artistId: a ? a.id : null,
+    medium: MEDIUM[cat],
+    price: base
+  };
 });
 const TIERS = (base) => [
   { key: "personal", name: "Personal license", description: "Personal, non-commercial display", price: base },
@@ -101,7 +118,7 @@ function App() {
       onAdd: () => addToCart(p, "commercial"),
       addLabel: "License \u2014 " + money(p.price * 3)
     }
-  ))) : /* @__PURE__ */ React.createElement("div", { className: "empty" }, /* @__PURE__ */ React.createElement("h2", null, "No works match."), /* @__PURE__ */ React.createElement("p", null, "Try a different medium or clear your search."))), /* @__PURE__ */ React.createElement("footer", { className: "foot" }, /* @__PURE__ */ React.createElement("a", { href: "../studio/index.html" }, "\u2190 Back to SecurityArts"), /* @__PURE__ */ React.createElement("span", { className: "m" }, "Every original sealed \xB7 Licensed from the artist \xB7 Verified human")), /* @__PURE__ */ React.createElement(Modal, { open: !!active, onClose: () => setActive(null), width: "min(860px, 96vw)", label: "Work detail" }, active ? /* @__PURE__ */ React.createElement("div", { className: "qv" }, /* @__PURE__ */ React.createElement("div", { className: "qv__art" }, /* @__PURE__ */ React.createElement("img", { src: SAGenArt.dataUri(active.seed, { cat: active.cat }), alt: active.title }), /* @__PURE__ */ React.createElement(VerifiedBadge, { style: { position: "absolute", top: "0.8rem", left: "0.8rem" } }, "Verified")), /* @__PURE__ */ React.createElement("div", { className: "qv__body" }, /* @__PURE__ */ React.createElement("p", { className: "qv__eyebrow" }, active.medium), /* @__PURE__ */ React.createElement("h2", { className: "qv__title" }, active.title), /* @__PURE__ */ React.createElement("p", { className: "qv__artist" }, "by ", /* @__PURE__ */ React.createElement("b", null, active.artist)), /* @__PURE__ */ React.createElement("p", { className: "qv__desc" }, DESC), /* @__PURE__ */ React.createElement("div", { className: "lic" }, TIERS(active.price).map((t) => /* @__PURE__ */ React.createElement(LicenseOption, { key: t.key, name: t.name, description: t.description, price: money(t.price), selected: tier === t.key, onClick: () => setTier(t.key) }))), /* @__PURE__ */ React.createElement("div", { className: "qv__actions" }, /* @__PURE__ */ React.createElement(Button, { variant: "solid", onClick: () => {
+  ))) : /* @__PURE__ */ React.createElement("div", { className: "empty" }, /* @__PURE__ */ React.createElement("h2", null, "No works match."), /* @__PURE__ */ React.createElement("p", null, "Try a different medium or clear your search."))), /* @__PURE__ */ React.createElement("footer", { className: "foot" }, /* @__PURE__ */ React.createElement("a", { href: "../studio/index.html" }, "\u2190 Back to SecurityArts"), /* @__PURE__ */ React.createElement("span", { className: "m" }, "Every original sealed \xB7 Licensed from the artist \xB7 Verified human")), /* @__PURE__ */ React.createElement(Modal, { open: !!active, onClose: () => setActive(null), width: "min(860px, 96vw)", label: "Work detail" }, active ? /* @__PURE__ */ React.createElement("div", { className: "qv" }, /* @__PURE__ */ React.createElement("div", { className: "qv__art" }, /* @__PURE__ */ React.createElement("img", { src: SAGenArt.dataUri(active.seed, { cat: active.cat }), alt: active.title }), /* @__PURE__ */ React.createElement(VerifiedBadge, { style: { position: "absolute", top: "0.8rem", left: "0.8rem" } }, "Verified")), /* @__PURE__ */ React.createElement("div", { className: "qv__body" }, /* @__PURE__ */ React.createElement("p", { className: "qv__eyebrow" }, active.medium), /* @__PURE__ */ React.createElement("h2", { className: "qv__title" }, active.title), /* @__PURE__ */ React.createElement("p", { className: "qv__artist" }, "by ", active.artistId ? /* @__PURE__ */ React.createElement("a", { href: `../discover/profile.html?artist=${active.artistId}`, title: `View ${active.artist}'s profile` }, /* @__PURE__ */ React.createElement("b", null, active.artist)) : /* @__PURE__ */ React.createElement("b", null, active.artist)), /* @__PURE__ */ React.createElement("p", { className: "qv__desc" }, DESC), /* @__PURE__ */ React.createElement("div", { className: "lic" }, TIERS(active.price).map((t) => /* @__PURE__ */ React.createElement(LicenseOption, { key: t.key, name: t.name, description: t.description, price: money(t.price), selected: tier === t.key, onClick: () => setTier(t.key) }))), /* @__PURE__ */ React.createElement("div", { className: "qv__actions" }, /* @__PURE__ */ React.createElement(Button, { variant: "solid", onClick: () => {
     addToCart(active, tier);
     setActive(null);
   }, arrow: true }, "Add to cart"), /* @__PURE__ */ React.createElement(Button, { variant: "ghost", onClick: () => setActive(null) }, "Keep browsing")))) : null), /* @__PURE__ */ React.createElement(

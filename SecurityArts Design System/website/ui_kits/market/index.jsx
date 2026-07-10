@@ -16,10 +16,25 @@ const TITLES = ["Static Bloom", "Low Tide, No.4", "Carrier Signal", "The Long Fi
 const CATKEYS = ["illustration", "painting", "3d", "photography", "lettering", "concept"];
 const DESC = "An original, hand-made work. Purchase includes a SecurityArts seal — a cryptographic certificate of authenticity registered to this piece.";
 
+// Attribute each product to a real catalog artist (matched by medium where possible),
+// so "who made it" links through to that artist's profile — the same profile shown in Discover.
+const CAT = window.SACatalog;
+function artistFor(cat, i) {
+  const artists = (CAT && CAT.artists) || [];
+  const pool = artists.filter((a) => a.cat === cat);
+  const list = pool.length ? pool : artists;
+  return list.length ? list[i % list.length] : null;
+}
+
 const PRODUCTS = TITLES.map((t, i) => {
   const cat = CATKEYS[i % CATKEYS.length];
   const base = 120 + ((i * 47) % 9) * 60; // 120–600
-  return { id: "m" + i, seed: i * 11 + 5, cat, title: t, artist: FIRST[i % FIRST.length] + " " + LAST[(i * 3 + 2) % LAST.length], medium: MEDIUM[cat], price: base };
+  const a = artistFor(cat, i);
+  return {
+    id: "m" + i, seed: i * 11 + 5, cat, title: t,
+    artist: a ? a.name : FIRST[i % FIRST.length] + " " + LAST[(i * 3 + 2) % LAST.length],
+    artistId: a ? a.id : null, medium: MEDIUM[cat], price: base,
+  };
 });
 
 const TIERS = (base) => [
@@ -139,7 +154,9 @@ function App() {
             <div className="qv__body">
               <p className="qv__eyebrow">{active.medium}</p>
               <h2 className="qv__title">{active.title}</h2>
-              <p className="qv__artist">by <b>{active.artist}</b></p>
+              <p className="qv__artist">by {active.artistId
+                ? <a href={`../discover/profile.html?artist=${active.artistId}`} title={`View ${active.artist}'s profile`}><b>{active.artist}</b></a>
+                : <b>{active.artist}</b>}</p>
               <p className="qv__desc">{DESC}</p>
               <div className="lic">
                 {TIERS(active.price).map((t) => (

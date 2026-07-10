@@ -58,6 +58,9 @@
   .qv__title { font-family: var(--font-serif); font-weight: 400; font-size: clamp(1.7rem,1rem+2vw,2.4rem); line-height: 1.02; letter-spacing: -0.02em; margin: 0.5rem 0 0.3rem; }
   .qv__artist { color: var(--bone-dim); margin-bottom: 1rem; }
   .qv__artist b { color: var(--brass); font-weight: 500; }
+  .qv__artist a { text-decoration: underline; text-decoration-color: var(--line-strong); text-underline-offset: 3px; transition: text-decoration-color 0.2s var(--ease); }
+  .qv__artist a:hover { text-decoration-color: var(--brass); }
+  .qv__artist a:focus-visible { outline: 2px solid var(--brass); outline-offset: 3px; border-radius: 2px; }
   .qv__desc { color: var(--bone-dim); font-size: 0.92rem; margin-bottom: 1.3rem; }
   .lic { display: flex; flex-direction: column; gap: 0.5rem; margin-bottom: 1.4rem; }
   .qv__actions { display: flex; gap: 0.7rem; flex-wrap: wrap; }
@@ -99,6 +102,7 @@
 <div class="grain" aria-hidden="true"></div>
 <script src="../../assets/vendor/react.production.min.js"></script>
 <script src="../../assets/vendor/react-dom.production.min.js"></script>
+<script src="../../assets/catalog.js"></script>
 <script src="../../assets/genart.js"></script>
 <script src="../../assets/transition.js"></script>
 <script src="../../../../js/api.js"></script>
