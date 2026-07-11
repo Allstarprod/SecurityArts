@@ -104,6 +104,14 @@ export async function createRepo() {
       },
       async findById(id) { return rowToWork((await q("SELECT * FROM works WHERE id=$1", [id])).rows[0]); },
       async findByHash(hash) { return rowToWork((await q("SELECT * FROM works WHERE hash=$1", [hash])).rows[0]); },
+      async listByOwner(ownerId) {
+        const rows = (await q(
+          `SELECT w.id,w.own,w.title,w.artist,w.cat,w.medium,w.price,w.cert,w.owner_id,w.created_at,w.img_url,
+                  (w.img_url IS NOT NULL OR EXISTS(SELECT 1 FROM work_blobs b WHERE b.work_id=w.id)) AS has_image
+             FROM works w WHERE w.owner_id=$1 ORDER BY w.created_at DESC`, [ownerId]
+        )).rows;
+        return rows.map((r) => ({ ...rowToWork(r), hasImage: r.has_image }));
+      },
       async create(meta, image) {
         return tx(async (c) => {
           await c.query(
@@ -143,6 +151,11 @@ export async function createRepo() {
 
     comments: {
       async listByWork(workId) { return (await q("SELECT * FROM comments WHERE work_id=$1 ORDER BY created_at", [workId])).rows.map(rowToComment); },
+      async countByWorks(workIds) {
+        if (!workIds.length) return {};
+        const rows = (await q("SELECT work_id, count(*)::int AS c FROM comments WHERE work_id = ANY($1) GROUP BY work_id", [workIds])).rows;
+        const out = {}; for (const r of rows) out[r.work_id] = r.c; return out;
+      },
       async findById(id) { return rowToComment((await q("SELECT * FROM comments WHERE id=$1", [id])).rows[0]); },
       async create(c) {
         await q(
@@ -181,6 +194,20 @@ export async function createRepo() {
         return o;
       },
       async findById(id) { return rowToOrder((await q("SELECT * FROM orders WHERE id=$1", [id])).rows[0]); },
+    },
+
+    stats: {
+      async incrementView(workId) {
+        return (await q(
+          "INSERT INTO work_stats (work_id,views) VALUES ($1,1) ON CONFLICT (work_id) DO UPDATE SET views=work_stats.views+1 RETURNING views",
+          [workId]
+        )).rows[0].views;
+      },
+      async viewsFor(workIds) {
+        if (!workIds.length) return {};
+        const rows = (await q("SELECT work_id, views FROM work_stats WHERE work_id = ANY($1)", [workIds])).rows;
+        const out = {}; for (const r of rows) out[r.work_id] = Number(r.views); return out;
+      },
     },
 
     passwordResets: {

@@ -174,6 +174,49 @@ function SelfSignedOut() {
   );
 }
 
+// Creator Hub — analytics for the signed-in creator: real views + comment counts on
+// their sealed works, ranked by engagement. Numbers grow as work gets seen and discussed.
+function hubFmt(n) { return n >= 1000 ? (n / 1000).toFixed(1).replace(/\.0$/, "") + "k" : String(n); }
+function CreatorHub() {
+  const empty = { totals: { works: 0, views: 0, comments: 0 }, top: [] };
+  const [data, setData] = React.useState(null);
+  React.useEffect(() => {
+    let alive = true;
+    if (window.SA_API) window.SA_API.myStats().then((d) => { if (alive) setData(d || empty); }).catch(() => { if (alive) setData(empty); });
+    else setData(empty);
+    return () => { alive = false; };
+  }, []);
+
+  if (!data) return <p className="hub__loading">Loading your analytics…</p>;
+  const t = data.totals;
+  return (
+    <div className="hub">
+      <div className="hub__cards">
+        <div className="hubcard"><b>{hubFmt(t.works)}</b><span>Sealed works</span></div>
+        <div className="hubcard"><b>{hubFmt(t.views)}</b><span>Total views</span></div>
+        <div className="hubcard"><b>{hubFmt(t.comments)}</b><span>Comments</span></div>
+      </div>
+      {data.top.length ? (
+        <div className="hubtable">
+          <div className="hubrow hubrow--head"><span>Top posts</span><span>Views</span><span>Comments</span></div>
+          {data.top.map((w) => (
+            <div className="hubrow" key={w.id}>
+              <span className="hubwork"><img src={SAGenArt.dataUri(strhash(w.id), { cat: w.cat })} alt="" /><span className="hubwork__t">{w.title}</span></span>
+              <span className="hubnum">{hubFmt(w.views)}</span>
+              <span className="hubnum">{hubFmt(w.comments)}</span>
+            </div>
+          ))}
+        </div>
+      ) : (
+        <div className="about" style={{ textAlign: "center", padding: "2rem 0" }}>
+          <Seal size={40} style={{ margin: "0 auto 1rem", color: "var(--bone-faint)" }} />
+          <p>No analytics yet. Seal a work — then views and comments land here as people discover it.</p>
+        </div>
+      )}
+    </div>
+  );
+}
+
 function SelfProfile({ user }) {
   useStoreTick();
   const [profile, setProfile] = React.useState(() => user.profile || {});
@@ -314,9 +357,10 @@ function SelfProfile({ user }) {
           <div>
             <div className="tabs">
               <button className={`tab ${tab === "works" ? "active" : ""}`} onClick={() => setTab("works")}>Works · {ownWorks.length}</button>
+              <button className={`tab ${tab === "analytics" ? "active" : ""}`} onClick={() => setTab("analytics")}>Analytics</button>
               <button className={`tab ${tab === "about" ? "active" : ""}`} onClick={() => setTab("about")}>About</button>
             </div>
-            {tab === "works" ? (
+            {tab === "analytics" ? <CreatorHub /> : tab === "works" ? (
               ownWorks.length ? (
                 <div className="masonry">
                   {ownWorks.map((w) => (

@@ -84,6 +84,13 @@ CREATE TABLE IF NOT EXISTS newsletter (
   ts    TEXT NOT NULL
 );
 
+-- Per-work engagement counters (Creator Hub analytics). Views accrue as work detail
+-- pages are opened; comments/saves are aggregated live from their own tables.
+CREATE TABLE IF NOT EXISTS work_stats (
+  work_id TEXT PRIMARY KEY,
+  views   BIGINT NOT NULL DEFAULT 0
+);
+
 -- Password-reset tokens. We store only the SHA-256 hash of the token, so a DB leak
 -- never yields usable reset links. Rows are single-use and time-boxed.
 CREATE TABLE IF NOT EXISTS password_resets (

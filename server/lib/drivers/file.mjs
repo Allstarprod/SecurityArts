@@ -23,7 +23,7 @@ export async function createRepo() {
   ensureDataDir();
   ensureBlobDir();
 
-  const db = { users: [], works: [], boards: [], orders: [], newsletter: [], comments: [], passwordResets: [] };
+  const db = { users: [], works: [], boards: [], orders: [], newsletter: [], comments: [], passwordResets: [], workStats: {} };
   const idx = {
     userById: new Map(), userByEmail: new Map(),
     workById: new Map(), workByHash: new Map(),
@@ -38,6 +38,7 @@ export async function createRepo() {
   try {
     const raw = JSON.parse(await fsp.readFile(DB_FILE, "utf8"));
     for (const k of Object.keys(db)) if (Array.isArray(raw[k])) db[k] = raw[k];
+    if (raw.workStats && typeof raw.workStats === "object") db.workStats = raw.workStats;
     // legacy: registry was an object map hash->{workId}; folded into works.cert.hash now.
     for (const w of db.works) {
       if (typeof w.img === "string") {
@@ -117,6 +118,9 @@ export async function createRepo() {
       },
       async findById(id) { return clone(idx.workById.get(id) || null); },
       async findByHash(hash) { return clone(idx.workByHash.get(hash) || null); },
+      async listByOwner(ownerId) {
+        return db.works.filter((w) => w.ownerId === ownerId).map((w) => ({ ...clone(w), hasImage: !!w.imgUrl || fs.existsSync(blobPath(w.id)) }));
+      },
       async create(meta, image) {
         if (typeof image === "string") { ensureBlobDir(); await fsp.writeFile(blobPath(meta.id), image); }
         db.works.unshift(meta);
@@ -147,6 +151,11 @@ export async function createRepo() {
 
     comments: {
       async listByWork(workId) { return db.comments.filter((c) => c.workId === workId).map(clone); },
+      async countByWorks(workIds) {
+        const set = new Set(workIds); const out = {};
+        for (const c of db.comments) if (set.has(c.workId)) out[c.workId] = (out[c.workId] || 0) + 1;
+        return out;
+      },
       async findById(id) { return clone(idx.commentById.get(id) || null); },
       async create(c) { db.comments.push(c); idx.commentById.set(c.id, c); schedule(); return clone(c); },
       async toggleLike(id, userId) {
@@ -171,6 +180,11 @@ export async function createRepo() {
     orders: {
       async create(order) { db.orders.push(order); idx.orderById.set(order.id, order); schedule(); return clone(order); },
       async findById(id) { return clone(idx.orderById.get(id) || null); },
+    },
+
+    stats: {
+      async incrementView(workId) { db.workStats[workId] = (db.workStats[workId] || 0) + 1; schedule(); return db.workStats[workId]; },
+      async viewsFor(workIds) { const out = {}; for (const id of workIds) out[id] = db.workStats[id] || 0; return out; },
     },
 
     passwordResets: {

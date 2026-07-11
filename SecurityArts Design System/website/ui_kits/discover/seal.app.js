@@ -165,6 +165,17 @@ function App() {
     clearTimeout(toastRef.current);
     toastRef.current = setTimeout(() => setToast(""), 1900);
   };
+  React.useEffect(() => {
+    if (!window.SA_API || !work) return;
+    const key = "sa-viewed-" + work.id;
+    try {
+      if (sessionStorage.getItem(key)) return;
+      sessionStorage.setItem(key, "1");
+    } catch (e) {
+    }
+    window.SA_API.viewWork(work.id).catch(() => {
+    });
+  }, [work.id]);
   const reverify = () => {
     setChecking(true);
     setTimeout(() => {

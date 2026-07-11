@@ -11,7 +11,8 @@
 // Interface (all async):
 //   init(): connect / load                     close(): flush / disconnect
 //   users.findByEmail(email) findById(id) findByHandle(handle) create(user) update(id, patch)
-//   works.list({cat,q,limit,offset}) findById(id) findByHash(hash) create(meta,image) getImage(id)
+//   works.list({cat,q,limit,offset}) listByOwner(ownerId) findById(id) findByHash(hash) create(meta,image) getImage(id)
+//   stats.incrementView(workId) viewsFor(workIds) -> { workId: views }
 //   boards.listByUser(uid) findByUserAndId(uid,id) create(board) remove(uid,id) togglePin(uid,id,workId)
 //   orders.create(order) findById(id)
 //   comments.listByWork(workId) findById(id) create(c) toggleLike(id,userId) remove(id,userId)
@@ -56,10 +57,15 @@ export const repo = {
   },
   works: {
     list: (opts) => must().works.list(opts || {}),
+    listByOwner: (ownerId) => must().works.listByOwner(ownerId),
     findById: (id) => must().works.findById(id),
     findByHash: (h) => must().works.findByHash(h),
     create: (meta, image) => must().works.create(meta, image),
     getImage: (id) => must().works.getImage(id),
+  },
+  stats: {
+    incrementView: (workId) => must().stats.incrementView(workId),
+    viewsFor: (workIds) => must().stats.viewsFor(workIds),
   },
   boards: {
     listByUser: (uid) => must().boards.listByUser(uid),
@@ -74,6 +80,7 @@ export const repo = {
   },
   comments: {
     listByWork: (workId) => must().comments.listByWork(workId),
+    countByWorks: (workIds) => must().comments.countByWorks(workIds),
     findById: (id) => must().comments.findById(id),
     create: (c) => must().comments.create(c),
     toggleLike: (id, userId) => must().comments.toggleLike(id, userId),

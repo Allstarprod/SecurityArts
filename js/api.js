@@ -35,6 +35,8 @@
     publishWork: function (w) { return req("/works", { method: "POST", body: w }); },
     listWorks: function (qs) { return req("/works" + (qs ? "?" + qs : "")); },
     getWork: function (id) { return req("/works/" + encodeURIComponent(id)); },
+    viewWork: function (id) { return req("/works/" + encodeURIComponent(id) + "/view", { method: "POST" }); },
+    myStats: function () { return req("/me/stats"); },
     verify: function (hash) { return req("/verify/" + encodeURIComponent(hash)); },
     checkout: function (payload) { return req("/checkout", { method: "POST", body: payload }); },
     order: function (id) { return req("/orders/" + encodeURIComponent(id)); },

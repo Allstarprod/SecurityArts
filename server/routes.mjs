@@ -418,6 +418,31 @@ router.del("/api/comments/:id", async ({ res, params, user }) => {
   return ok(res, { deleted: true, removed });
 });
 
+/* ---- creator hub / analytics --------------------------------------- */
+// Count a view when a work's detail is opened. Anonymous-friendly; excess is dropped
+// (a beacon should never error the page). The client de-dupes per session.
+router.post("/api/works/:id/view", async ({ res, params, ip }) => {
+  if (!(await rateLimit(`view:${ip}`, 120, 60000))) return ok(res, { views: null });
+  const views = await repo.stats.incrementView(params.id);
+  return ok(res, { views });
+});
+
+// Analytics for the signed-in creator: their works with real views + comment counts,
+// ranked by engagement, plus totals.
+router.get("/api/me/stats", async ({ res, user }) => {
+  if (!user) return fail(res, 401, "Sign in to see your analytics.");
+  const works = await repo.works.listByOwner(user.id);
+  const ids = works.map((w) => w.id);
+  const [views, comments] = await Promise.all([repo.stats.viewsFor(ids), repo.comments.countByWorks(ids)]);
+  const items = works.map((w) => ({
+    id: w.id, title: w.title, cat: w.cat, createdAt: w.createdAt,
+    views: views[w.id] || 0, comments: comments[w.id] || 0,
+  }));
+  items.sort((a, b) => (b.views + b.comments * 3) - (a.views + a.comments * 3)); // comments weigh more
+  const totals = items.reduce((t, i) => ({ works: t.works + 1, views: t.views + i.views, comments: t.comments + i.comments }), { works: 0, views: 0, comments: 0 });
+  return ok(res, { totals, top: items.slice(0, 12) });
+});
+
 /* ---- checkout / orders --------------------------------------------- */
 router.post("/api/checkout", async ({ res, body, user, ip }) => {
   if (!(await rateLimit(`ck:${ip}`, 20, 60000))) return fail(res, 429, "Slow down a moment.");

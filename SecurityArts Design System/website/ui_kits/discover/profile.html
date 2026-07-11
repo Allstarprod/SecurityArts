@@ -114,6 +114,23 @@
   .handle-in input { border: 0 !important; background: transparent !important; padding-left: 0.15rem !important; }
   .handle-in:focus-within { border-color: var(--brass); }
 
+  /* creator hub */
+  .hub__loading { color: var(--bone-faint); font-size: 0.9rem; padding: 1rem 0; }
+  .hub__cards { display: grid; grid-template-columns: repeat(3, 1fr); gap: 0.8rem; margin-bottom: 1.6rem; }
+  .hubcard { border: 1px solid var(--line); border-radius: var(--radius-card); background: var(--ink-2); padding: 1.1rem 1.2rem; }
+  .hubcard b { display: block; font-family: var(--font-serif); font-weight: 440; font-size: clamp(1.6rem, 1rem+2vw, 2.2rem); letter-spacing: -0.02em; color: var(--brass); font-variant-numeric: tabular-nums; }
+  .hubcard span { font-family: var(--font-mono); font-size: 0.56rem; text-transform: uppercase; letter-spacing: 0.14em; color: var(--bone-faint); }
+  .hubtable { border: 1px solid var(--line); border-radius: var(--radius-card); overflow: hidden; }
+  .hubrow { display: grid; grid-template-columns: 1fr 4.5rem 5.5rem; align-items: center; gap: 0.5rem; padding: 0.7rem 1rem; border-top: 1px solid var(--line); }
+  .hubrow:first-child { border-top: 0; }
+  .hubrow--head { background: var(--ink-2); }
+  .hubrow--head span { font-family: var(--font-mono); font-size: 0.56rem; text-transform: uppercase; letter-spacing: 0.12em; color: var(--bone-faint); }
+  .hubrow--head span:not(:first-child), .hubnum { text-align: right; }
+  .hubwork { display: flex; align-items: center; gap: 0.7rem; min-width: 0; }
+  .hubwork img { width: 34px; height: 42px; object-fit: cover; border-radius: var(--radius-sm); flex: 0 0 auto; background: var(--ink); }
+  .hubwork__t { font-family: var(--font-serif); font-weight: 440; font-size: 0.98rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .hubnum { font-family: var(--font-mono); font-size: 0.9rem; color: var(--bone); font-variant-numeric: tabular-nums; }
+
   .foot { border-top: 1px solid var(--line); padding: 2.4rem var(--gutter-app); display: flex; flex-wrap: wrap; justify-content: space-between; gap: 1rem; margin-top: 3rem; }
   .foot a { font-family: var(--font-mono); font-size: 0.74rem; text-transform: uppercase; letter-spacing: 0.12em; color: var(--bone-dim); }
   .foot a:hover { color: var(--bone); }
