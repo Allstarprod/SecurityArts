@@ -23,12 +23,13 @@ export async function createRepo() {
   ensureDataDir();
   ensureBlobDir();
 
-  const db = { users: [], works: [], boards: [], orders: [], newsletter: [] };
+  const db = { users: [], works: [], boards: [], orders: [], newsletter: [], comments: [] };
   const idx = {
     userById: new Map(), userByEmail: new Map(),
     workById: new Map(), workByHash: new Map(),
     boardById: new Map(),
     orderById: new Map(),
+    commentById: new Map(),
     newsletter: new Set(),
   };
 
@@ -49,6 +50,7 @@ export async function createRepo() {
   for (const w of db.works) { idx.workById.set(w.id, w); if (w.cert?.hash) idx.workByHash.set(w.cert.hash, w); }
   for (const b of db.boards) idx.boardById.set(b.id, b);
   for (const o of db.orders) idx.orderById.set(o.id, o);
+  for (const c of db.comments) idx.commentById.set(c.id, c);
   for (const s of db.newsletter) idx.newsletter.add(s.email);
 
   // ---- debounced atomic persistence (coalesces bursts; never blocks the loop) ----
@@ -134,6 +136,29 @@ export async function createRepo() {
         const i = b.pins.indexOf(workId);
         if (i > -1) b.pins.splice(i, 1); else b.pins.push(workId);
         schedule(); return { pins: b.pins.slice(), saved: i === -1 };
+      },
+    },
+
+    comments: {
+      async listByWork(workId) { return db.comments.filter((c) => c.workId === workId).map(clone); },
+      async findById(id) { return clone(idx.commentById.get(id) || null); },
+      async create(c) { db.comments.push(c); idx.commentById.set(c.id, c); schedule(); return clone(c); },
+      async toggleLike(id, userId) {
+        const c = idx.commentById.get(id);
+        if (!c) return null;
+        c.likedBy = c.likedBy || [];
+        const i = c.likedBy.indexOf(userId);
+        if (i > -1) c.likedBy.splice(i, 1); else c.likedBy.push(userId);
+        c.likes = c.likedBy.length; // derive so the count can never drift
+        schedule(); return { likes: c.likes, liked: i === -1 };
+      },
+      // Author-only delete; cascades to that comment's replies. Returns rows removed.
+      async remove(id, userId) {
+        const c = idx.commentById.get(id);
+        if (!c || c.userId !== userId) return 0;
+        const gone = db.comments.filter((x) => x.id === id || x.parentId === id);
+        for (const x of gone) { idx.commentById.delete(x.id); db.comments.splice(db.comments.indexOf(x), 1); }
+        schedule(); return gone.length;
       },
     },
 

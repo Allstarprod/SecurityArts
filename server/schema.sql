@@ -47,6 +47,22 @@ CREATE TABLE IF NOT EXISTS boards (
 );
 CREATE INDEX IF NOT EXISTS boards_user_idx ON boards (user_id);
 
+-- Threaded comments on works. work_id is any work identifier (catalog, market, or
+-- user-sealed) — comments don't require the work to exist in the works table.
+CREATE TABLE IF NOT EXISTS comments (
+  id          TEXT PRIMARY KEY,
+  work_id     TEXT NOT NULL,
+  user_id     TEXT NOT NULL,
+  author_name TEXT NOT NULL,
+  text        TEXT NOT NULL,
+  parent_id   TEXT,                       -- one-level replies; NULL for top-level
+  likes       INTEGER NOT NULL DEFAULT 0,
+  liked_by    JSONB NOT NULL DEFAULT '[]'::jsonb,
+  created_at  TEXT NOT NULL
+);
+CREATE INDEX IF NOT EXISTS comments_work_idx   ON comments (work_id, created_at);
+CREATE INDEX IF NOT EXISTS comments_parent_idx ON comments (parent_id);
+
 CREATE TABLE IF NOT EXISTS orders (
   id         TEXT PRIMARY KEY,
   lines      JSONB NOT NULL,

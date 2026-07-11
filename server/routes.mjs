@@ -223,6 +223,59 @@ router.post("/api/boards/:id/pins", async (ctx) => {
   return ok(ctx.res, result);
 });
 
+/* ---- comments ------------------------------------------------------- */
+// Public shape — never leaks the full liker list, just whether the viewer liked it.
+function publicComment(c, viewerId) {
+  return {
+    id: c.id, workId: c.workId, userId: c.userId, authorName: c.authorName,
+    text: c.text, parentId: c.parentId || null, likes: c.likes || 0, createdAt: c.createdAt,
+    likedByMe: !!(viewerId && (c.likedBy || []).includes(viewerId)),
+  };
+}
+
+router.get("/api/works/:id/comments", async ({ res, params, user }) => {
+  const list = await repo.comments.listByWork(params.id);
+  const viewerId = user ? user.id : null;
+  return ok(res, list.map((c) => publicComment(c, viewerId)));
+});
+
+router.post("/api/works/:id/comments", async ({ res, params, body, user, ip }) => {
+  if (!user) return fail(res, 401, "Sign in to comment.");
+  if (!(await rateLimit(`cmt:${ip}`, 20, 60000))) return fail(res, 429, "Slow down a moment.");
+  const text = str(body.text, { min: 1, max: 500 });
+  if (!text) return fail(res, 400, "Say something first (1–500 characters).");
+  let parentId = null;
+  if (body.parentId) {
+    // A reply must target an existing top-level comment on the same work (no reply chains).
+    const parent = await repo.comments.findById(str(body.parentId, { max: 60 }) || "");
+    if (!parent || parent.workId !== params.id || parent.parentId) return fail(res, 400, "Can't reply to that comment.");
+    parentId = parent.id;
+  }
+  const comment = {
+    id: "cmt_" + crypto.randomUUID().slice(0, 12),
+    workId: params.id, userId: user.id, authorName: user.name || "Member",
+    text, parentId, likes: 0, likedBy: [], createdAt: new Date().toISOString(),
+  };
+  await repo.comments.create(comment);
+  audit("comment.create", { commentId: comment.id, workId: params.id, userId: user.id, ip });
+  return created(res, publicComment(comment, user.id));
+});
+
+router.post("/api/comments/:id/like", async ({ res, params, user, ip }) => {
+  if (!user) return fail(res, 401, "Sign in to like comments.");
+  if (!(await rateLimit(`clike:${ip}`, 60, 60000))) return fail(res, 429, "Slow down a moment.");
+  const result = await repo.comments.toggleLike(params.id, user.id);
+  if (!result) return fail(res, 404, "Comment not found.");
+  return ok(res, { likes: result.likes, likedByMe: result.liked });
+});
+
+router.del("/api/comments/:id", async ({ res, params, user }) => {
+  if (!user) return fail(res, 401, "Sign in first.");
+  const removed = await repo.comments.remove(params.id, user.id);
+  if (!removed) return fail(res, 404, "Comment not found or not yours.");
+  return ok(res, { deleted: true, removed });
+});
+
 /* ---- checkout / orders --------------------------------------------- */
 router.post("/api/checkout", async ({ res, body, user, ip }) => {
   if (!(await rateLimit(`ck:${ip}`, 20, 60000))) return fail(res, 429, "Slow down a moment.");

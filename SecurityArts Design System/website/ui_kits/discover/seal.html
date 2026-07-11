@@ -91,6 +91,29 @@
   .foot a:hover { color: var(--bone); }
   .foot .m { font-family: var(--font-mono); font-size: 0.68rem; letter-spacing: 0.14em; color: var(--bone-faint); }
 
+  /* discussion */
+  .cbox { display: flex; gap: 0.8rem; margin-bottom: 1.6rem; }
+  .cbox__main { flex: 1 1 auto; min-width: 0; }
+  .cinput { width: 100%; font-family: var(--font-sans); font-size: 0.95rem; color: var(--bone); background: var(--ink-2); border: 1px solid var(--line); border-radius: var(--radius-md); padding: 0.7rem 0.85rem; line-height: 1.5; resize: vertical; }
+  .cinput:focus { outline: none; border-color: var(--brass); }
+  .cbox__act { display: flex; gap: 0.6rem; margin-top: 0.6rem; }
+  .csignin { color: var(--bone-dim); font-size: 0.92rem; display: flex; align-items: center; gap: 0.5rem; margin-bottom: 1.6rem; }
+  .csignin a { color: var(--brass); text-decoration: underline; text-underline-offset: 3px; }
+  .cempty { color: var(--bone-faint); font-size: 0.9rem; padding: 0.4rem 0 0.6rem; }
+  .clist { list-style: none; display: flex; flex-direction: column; gap: 1.5rem; }
+  .citem { display: flex; gap: 0.8rem; }
+  .citem__body { flex: 1 1 auto; min-width: 0; }
+  .citem__head { display: flex; align-items: baseline; gap: 0.6rem; }
+  .citem__head b { font-family: var(--font-serif); font-weight: 460; font-size: 0.98rem; color: var(--bone); }
+  .citem__head span { font-family: var(--font-mono); font-size: 0.56rem; text-transform: uppercase; letter-spacing: 0.08em; color: var(--bone-faint); }
+  .citem__text { color: var(--bone-dim); font-size: 0.92rem; line-height: 1.55; margin: 0.25rem 0 0.45rem; white-space: pre-wrap; overflow-wrap: anywhere; }
+  .citem__act { display: flex; align-items: center; gap: 1.1rem; }
+  .citem__act button { background: none; border: 0; cursor: pointer; font-family: var(--font-mono); font-size: 0.62rem; text-transform: uppercase; letter-spacing: 0.08em; color: var(--bone-faint); display: inline-flex; align-items: center; gap: 0.3rem; padding: 0; transition: color 0.2s var(--ease); }
+  .citem__act button:hover { color: var(--bone-dim); }
+  .citem__act .clike.on { color: var(--brass); }
+  .creplybox { margin-top: 0.8rem; }
+  .creplyitem { display: flex; gap: 0.7rem; margin-top: 1.1rem; }
+
   .grain { position: fixed; inset: 0; z-index: 100; pointer-events: none; opacity: 0.045; mix-blend-mode: overlay; background-image: var(--grain-url); }
 </style>
 </head>
@@ -104,6 +127,8 @@
 <script src="../../assets/genart.js"></script>
 <script src="../../assets/transition.js"></script>
 <script src="../../../../js/api.js"></script>
+<script src="../../assets/session.js"></script>
+<script src="../../assets/comments.js"></script>
 <script src="../../_ds_bundle.js"></script>
 <script src="../../assets/failsafe.js"></script>
 <script src="seal.app.js" defer></script>

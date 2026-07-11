@@ -58,6 +58,139 @@ function AppBar() {
   );
 }
 
+function timeAgo(iso) {
+  const s = (Date.now() - new Date(iso).getTime()) / 1000;
+  if (s < 60) return "just now";
+  if (s < 3600) return Math.floor(s / 60) + "m";
+  if (s < 86400) return Math.floor(s / 3600) + "h";
+  if (s < 604800) return Math.floor(s / 86400) + "d";
+  return new Date(iso).toLocaleDateString("en-US", { month: "short", day: "numeric" });
+}
+
+/* Discussion on a work — threaded one level, with likes. Talks to window.SAComments
+   (real backend when live, localStorage when static). Text is rendered as {text}, so
+   React escapes it — no dangerouslySetInnerHTML anywhere. */
+function Comments({ workId }) {
+  const [items, setItems] = React.useState(null); // null = loading
+  const [text, setText] = React.useState("");
+  const [replyTo, setReplyTo] = React.useState(null);
+  const [replyText, setReplyText] = React.useState("");
+  const [busy, setBusy] = React.useState(false);
+  const [user, setUser] = React.useState(() => (window.SASession ? window.SASession.current() : null));
+  const [toast, setToast] = React.useState("");
+  const toastRef = React.useRef();
+  const show = (m) => { setToast(m); clearTimeout(toastRef.current); toastRef.current = setTimeout(() => setToast(""), 1900); };
+
+  React.useEffect(() => {
+    let alive = true;
+    window.SAComments.list(workId).then((l) => { if (alive) setItems(l || []); }).catch(() => { if (alive) setItems([]); });
+    if (window.SASession) window.SASession.sync().then((u) => { if (alive) setUser(u || null); }).catch(() => {});
+    return () => { alive = false; };
+  }, [workId]);
+
+  const tops = (items || []).filter((c) => !c.parentId).sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+  const repliesOf = (id) => (items || []).filter((c) => c.parentId === id).sort((a, b) => new Date(a.createdAt) - new Date(b.createdAt));
+
+  const post = async (value, parentId) => {
+    const t = (value || "").trim();
+    if (!t || busy) return;
+    setBusy(true);
+    try {
+      const c = await window.SAComments.add(workId, t, parentId || null);
+      setItems((prev) => [...(prev || []), c]);
+      if (parentId) { setReplyText(""); setReplyTo(null); } else setText("");
+    } catch (e) { show((e && e.message) || "Couldn't post — try again"); }
+    finally { setBusy(false); }
+  };
+
+  const toggleLike = async (c) => {
+    setItems((prev) => prev.map((x) => x.id === c.id ? { ...x, likedByMe: !x.likedByMe, likes: Math.max(0, x.likes + (x.likedByMe ? -1 : 1)) } : x));
+    try {
+      const r = await window.SAComments.like(c.id, workId);
+      if (r) setItems((prev) => prev.map((x) => x.id === c.id ? { ...x, likes: r.likes, likedByMe: r.likedByMe } : x));
+    } catch (e) {
+      setItems((prev) => prev.map((x) => x.id === c.id ? { ...x, likedByMe: c.likedByMe, likes: c.likes } : x));
+      show("Sign in to like comments.");
+    }
+  };
+
+  const del = async (c) => {
+    const prev = items;
+    setItems((p) => p.filter((x) => x.id !== c.id && x.parentId !== c.id));
+    try { if (!(await window.SAComments.remove(c.id, workId))) throw new Error(); }
+    catch (e) { setItems(prev); show("Couldn't delete — try again"); }
+  };
+
+  const signInHref = "login.html?next=" + encodeURIComponent("seal.html" + location.search);
+
+  const actions = (c, small) => (
+    <div className="citem__act">
+      <button className={`clike ${c.likedByMe ? "on" : ""}`} onClick={() => toggleLike(c)} aria-pressed={c.likedByMe}>
+        <Icon name="heart" size={small ? 12 : 13} /> {c.likes > 0 ? c.likes : ""}
+      </button>
+      {!c.parentId ? <button className="creply" onClick={() => { setReplyTo(replyTo === c.id ? null : c.id); setReplyText(""); }}>Reply</button> : null}
+      {user && user.id === c.userId ? <button className="cdel" onClick={() => del(c)}>Delete</button> : null}
+    </div>
+  );
+
+  return (
+    <section className="section">
+      <p className="section__h"><span>03</span> Discussion{items ? " · " + items.length : ""}</p>
+
+      {user ? (
+        <div className="cbox">
+          <Avatar name={user.name} size={38} />
+          <div className="cbox__main">
+            <textarea className="cinput" value={text} onChange={(e) => setText(e.target.value)} placeholder="Add a comment…" maxLength={500} rows={2} />
+            <div className="cbox__act"><Button variant="solid" size="sm" onClick={() => post(text, null)} disabled={busy || !text.trim()}>{busy ? "Posting…" : "Post"}</Button></div>
+          </div>
+        </div>
+      ) : (
+        <p className="csignin"><Icon name="message" size={16} /> <a href={signInHref}>Sign in</a> to join the discussion.</p>
+      )}
+
+      {items === null ? (
+        <p className="cempty">Loading comments…</p>
+      ) : tops.length === 0 ? (
+        <p className="cempty">No comments yet — be the first to weigh in.</p>
+      ) : (
+        <ul className="clist">
+          {tops.map((c) => (
+            <li key={c.id} className="citem">
+              <Avatar name={c.authorName} size={36} />
+              <div className="citem__body">
+                <div className="citem__head"><b>{c.authorName}</b><span>{timeAgo(c.createdAt)}</span></div>
+                <p className="citem__text">{c.text}</p>
+                {actions(c, false)}
+                {replyTo === c.id ? (
+                  <div className="creplybox">
+                    <textarea className="cinput" value={replyText} onChange={(e) => setReplyText(e.target.value)} placeholder={"Reply to " + c.authorName + "…"} maxLength={500} rows={2} autoFocus />
+                    <div className="cbox__act">
+                      <Button variant="solid" size="sm" onClick={() => post(replyText, c.id)} disabled={busy || !replyText.trim()}>Reply</Button>
+                      <Button variant="ghost" size="sm" onClick={() => setReplyTo(null)}>Cancel</Button>
+                    </div>
+                  </div>
+                ) : null}
+                {repliesOf(c.id).map((r) => (
+                  <div key={r.id} className="creplyitem">
+                    <Avatar name={r.authorName} size={28} />
+                    <div className="citem__body">
+                      <div className="citem__head"><b>{r.authorName}</b><span>{timeAgo(r.createdAt)}</span></div>
+                      <p className="citem__text">{r.text}</p>
+                      {actions(r, true)}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </li>
+          ))}
+        </ul>
+      )}
+      <Toast show={!!toast}>{toast}</Toast>
+    </section>
+  );
+}
+
 function App() {
   const [work] = React.useState(resolveWork);
   const artist = C.artistById[work.artistId];
@@ -161,6 +294,8 @@ function App() {
             </div>
           </div>
         </section>
+
+        <Comments workId={work.id} />
       </div>
 
       <footer className="foot">

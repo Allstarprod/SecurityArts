@@ -52,6 +52,13 @@
     profile: {
       update: function (fields) { return req("/profile", { method: "POST", body: fields }); },
     },
+    // Threaded comments on a work.
+    comments: {
+      list: function (workId) { return req("/works/" + encodeURIComponent(workId) + "/comments"); },
+      add: function (workId, text, parentId) { return req("/works/" + encodeURIComponent(workId) + "/comments", { method: "POST", body: { text: text, parentId: parentId || null } }); },
+      like: function (id) { return req("/comments/" + encodeURIComponent(id) + "/like", { method: "POST" }); },
+      remove: function (id) { return req("/comments/" + encodeURIComponent(id), { method: "DELETE" }); },
+    },
     boards: {
       list: function () { return req("/boards"); },
       create: function (name) { return req("/boards", { method: "POST", body: { name: name } }); },

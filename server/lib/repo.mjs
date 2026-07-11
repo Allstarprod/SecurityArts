@@ -14,6 +14,7 @@
 //   works.list({cat,q,limit,offset}) findById(id) findByHash(hash) create(meta,image) getImage(id)
 //   boards.listByUser(uid) findByUserAndId(uid,id) create(board) remove(uid,id) togglePin(uid,id,workId)
 //   orders.create(order) findById(id)
+//   comments.listByWork(workId) findById(id) create(c) toggleLike(id,userId) remove(id,userId)
 //   newsletter.add(email, ip) -> true if newly added
 
 let impl = null;
@@ -68,6 +69,13 @@ export const repo = {
   orders: {
     create: (o) => must().orders.create(o),
     findById: (id) => must().orders.findById(id),
+  },
+  comments: {
+    listByWork: (workId) => must().comments.listByWork(workId),
+    findById: (id) => must().comments.findById(id),
+    create: (c) => must().comments.create(c),
+    toggleLike: (id, userId) => must().comments.toggleLike(id, userId),
+    remove: (id, userId) => must().comments.remove(id, userId),
   },
   newsletter: {
     add: (email, ip) => must().newsletter.add(email, ip),

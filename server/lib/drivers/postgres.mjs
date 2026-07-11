@@ -24,6 +24,10 @@ const rowToOrder = (r) => (r ? {
   id: r.id, lines: r.lines, total: r.total, email: r.email, name: r.name,
   userId: r.user_id, status: r.status, createdAt: r.created_at,
 } : null);
+const rowToComment = (r) => (r ? {
+  id: r.id, workId: r.work_id, userId: r.user_id, authorName: r.author_name, text: r.text,
+  parentId: r.parent_id || null, likes: r.likes || 0, likedBy: r.liked_by || [], createdAt: r.created_at,
+} : null);
 
 export async function createRepo() {
   const { default: pg } = await import("pg"); // dynamic so the file driver needs no deps
@@ -130,6 +134,37 @@ export async function createRepo() {
           if (i > -1) b.pins.splice(i, 1); else b.pins.push(workId);
           await c.query("UPDATE boards SET pins=$1::jsonb WHERE id=$2", [JSON.stringify(b.pins), id]);
           return { pins: b.pins, saved: i === -1 };
+        });
+      },
+    },
+
+    comments: {
+      async listByWork(workId) { return (await q("SELECT * FROM comments WHERE work_id=$1 ORDER BY created_at", [workId])).rows.map(rowToComment); },
+      async findById(id) { return rowToComment((await q("SELECT * FROM comments WHERE id=$1", [id])).rows[0]); },
+      async create(c) {
+        await q(
+          "INSERT INTO comments (id,work_id,user_id,author_name,text,parent_id,likes,liked_by,created_at) VALUES ($1,$2,$3,$4,$5,$6,$7,$8::jsonb,$9)",
+          [c.id, c.workId, c.userId, c.authorName, c.text, c.parentId, c.likes || 0, JSON.stringify(c.likedBy || []), c.createdAt]
+        );
+        return c;
+      },
+      async toggleLike(id, userId) {
+        return tx(async (cl) => {
+          const c = rowToComment((await cl.query("SELECT * FROM comments WHERE id=$1 FOR UPDATE", [id])).rows[0]);
+          if (!c) return null;
+          const i = c.likedBy.indexOf(userId);
+          if (i > -1) c.likedBy.splice(i, 1); else c.likedBy.push(userId);
+          const likes = c.likedBy.length;
+          await cl.query("UPDATE comments SET liked_by=$1::jsonb, likes=$2 WHERE id=$3", [JSON.stringify(c.likedBy), likes, id]);
+          return { likes, liked: i === -1 };
+        });
+      },
+      // Author-only; cascades to replies inside one transaction. Returns rows removed.
+      async remove(id, userId) {
+        return tx(async (cl) => {
+          const owner = (await cl.query("SELECT user_id FROM comments WHERE id=$1", [id])).rows[0];
+          if (!owner || owner.user_id !== userId) return 0;
+          return (await cl.query("DELETE FROM comments WHERE id=$1 OR parent_id=$1", [id])).rowCount;
         });
       },
     },
