@@ -7,9 +7,13 @@ import { putImage, blobStoreActive } from "./lib/blobstore.mjs";
 import { seal, verifySeal, publicKeyPem, SIGNER_ID } from "./lib/seal.mjs";
 import { Router, ok, created, fail, str, isEmail, CATS } from "./lib/http.mjs";
 import {
-  hashPassword, verifyPassword, createSession, sessionCookie, clearCookie,
+  hashPassword, verifyPassword, createSession, sessionCookie, clearCookie, parseCookies,
 } from "./lib/auth.mjs";
 import { rateLimit, audit } from "./lib/security.mjs";
+import { sendMail } from "./lib/mailer.mjs";
+import { googleConfigured, redirectUri, authUrl, exchangeCode } from "./lib/oauth.mjs";
+
+const LOGIN_PATH = "/SecurityArts Design System/website/ui_kits/discover/";
 
 const MEDIUM = {
   illustration: "Digital illustration", painting: "Oil on linen", "3d": "3D render",
@@ -133,6 +137,91 @@ router.post("/api/auth/login", async ({ res, body, ip, https }) => {
 
 router.post("/api/auth/logout", ({ res }) => { res.setHeader("Set-Cookie", clearCookie()); return ok(res, { loggedOut: true }); });
 router.get("/api/auth/me", ({ res, user }) => ok(res, publicUser(user)));
+
+// What optional sign-in methods are wired (so the login page shows the right buttons).
+router.get("/api/auth/config", ({ res }) => ok(res, { google: googleConfigured }));
+
+/* ---- password reset ------------------------------------------------- */
+// Request a reset link. Always returns the same response — never reveals whether an
+// account exists (no user enumeration). Delivery is via the mailer (or, unconfigured,
+// the link is logged server-side so the flow is usable in dev).
+router.post("/api/auth/forgot", async ({ res, req, body, ip, https }) => {
+  if (!(await rateLimit(`forgot:${ip}`, 5, 60000))) return fail(res, 429, "Too many attempts. Try again shortly.");
+  const email = isEmail(body.email) ? body.email.trim().toLowerCase() : null;
+  if (email) {
+    const user = await repo.users.findByEmail(email);
+    if (user) {
+      await repo.passwordResets.removeByUser(user.id); // one active token at a time
+      const token = crypto.randomBytes(32).toString("hex");
+      const tokenHash = crypto.createHash("sha256").update(token).digest("hex");
+      await repo.passwordResets.create({ tokenHash, userId: user.id, expiresAt: Date.now() + 3600_000, createdAt: new Date().toISOString() });
+      const link = `${https ? "https" : "http"}://${req.headers.host}` + encodeURI(LOGIN_PATH + "login.html") + "?token=" + token;
+      await sendMail({ to: email, subject: "Reset your SecurityArts password", text: `Reset your SecurityArts password:\n\n${link}\n\nThis link expires in 1 hour. If you didn't request it, you can ignore this email.` });
+      audit("auth.forgot", { userId: user.id, ip });
+    } else {
+      audit("auth.forgot.unknown", { email, ip });
+    }
+  }
+  return ok(res, { sent: true });
+});
+
+// Complete a reset: swap the password for a valid, unexpired token and sign in.
+router.post("/api/auth/reset", async ({ res, body, ip, https }) => {
+  if (!(await rateLimit(`reset:${ip}`, 10, 60000))) return fail(res, 429, "Too many attempts. Try again shortly.");
+  const token = str(body.token, { min: 32, max: 200 });
+  const password = str(body.password, { min: 8, max: 200 });
+  if (!token || !password) return fail(res, 400, "A valid reset link and an 8+ character password are required.");
+  const tokenHash = crypto.createHash("sha256").update(token).digest("hex");
+  const rec = await repo.passwordResets.findByHash(tokenHash);
+  if (!rec || rec.expiresAt < Date.now()) {
+    if (rec) await repo.passwordResets.consume(tokenHash); // clear an expired one
+    return fail(res, 400, "This reset link is invalid or has expired.");
+  }
+  await repo.users.update(rec.userId, { pass: hashPassword(password) });
+  await repo.passwordResets.removeByUser(rec.userId); // single-use: kill all their tokens
+  audit("auth.reset", { userId: rec.userId, ip });
+  res.setHeader("Set-Cookie", sessionCookie(createSession(rec.userId), { https })); // sign in
+  return ok(res, publicUser(await repo.users.findById(rec.userId)));
+});
+
+/* ---- Google OAuth --------------------------------------------------- */
+// Kick off the flow: set a signed-state cookie (CSRF) and bounce to Google.
+router.get("/api/auth/google", ({ res, req, https }) => {
+  if (!googleConfigured) return fail(res, 503, "Google sign-in isn't configured.");
+  const state = crypto.randomBytes(16).toString("hex");
+  const cookie = [`sa_oauth=${state}`, "Path=/", "HttpOnly", "SameSite=Lax", "Max-Age=600"];
+  if (https) cookie.push("Secure");
+  res.setHeader("Set-Cookie", cookie.join("; "));
+  res.writeHead(302, { Location: authUrl({ state, redirect: redirectUri(req, https) }) });
+  res.end();
+});
+
+// Google redirects back here with ?code&state. Verify state, exchange the code, then
+// find-or-create the user (matched by email) and drop them into the app signed in.
+router.get("/api/auth/google/callback", async ({ res, req, url, ip, https }) => {
+  if (!googleConfigured) return fail(res, 503, "Google sign-in isn't configured.");
+  const code = url.searchParams.get("code");
+  const state = url.searchParams.get("state");
+  if (!code || !state || state !== parseCookies(req).sa_oauth) { audit("auth.google.badstate", { ip }); return fail(res, 400, "Sign-in couldn't be verified. Please try again."); }
+  let profile;
+  try { profile = await exchangeCode({ code, redirect: redirectUri(req, https) }); }
+  catch (e) { audit("auth.google.exchangefail", { ip, msg: e.message }); return fail(res, 502, "Google sign-in failed. Please try again."); }
+  let user = await repo.users.findByEmail(profile.email);
+  const isNew = !user;
+  if (isNew) {
+    // Passwordless account (unusable random hash); they'll keep using Google.
+    user = { id: "usr_" + crypto.randomUUID(), email: profile.email, name: profile.name || "Artist", pass: hashPassword(crypto.randomBytes(24).toString("hex")), createdAt: new Date().toISOString() };
+    await repo.users.create(user);
+    audit("auth.google.register", { userId: user.id, ip });
+  } else {
+    audit("auth.google.login", { userId: user.id, ip });
+  }
+  const clearState = "sa_oauth=; Path=/; HttpOnly; SameSite=Lax; Max-Age=0" + (https ? "; Secure" : "");
+  res.setHeader("Set-Cookie", [sessionCookie(createSession(user.id), { https }), clearState]);
+  const dest = LOGIN_PATH + (isNew ? "onboarding.html" : "me.html");
+  res.writeHead(302, { Location: encodeURI(dest) });
+  res.end();
+});
 
 /* ---- profile -------------------------------------------------------- */
 // Update your own profile (pronouns, gender, bio, likes, accent, visibility).

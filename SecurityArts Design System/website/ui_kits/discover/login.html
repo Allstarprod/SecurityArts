@@ -41,6 +41,15 @@
   .authnote.ok { color: var(--brass); }
   .submit { margin-top: 1.2rem; }
 
+  .oauth { display: flex; align-items: center; justify-content: center; gap: 0.6rem; width: 100%; padding: 0.7rem 1rem; border: 1px solid var(--line-strong); border-radius: var(--radius-md); background: var(--bone); color: #1f1f1f; font-family: var(--font-sans); font-weight: 500; font-size: 0.92rem; transition: filter 0.2s var(--ease), transform 0.2s var(--ease); }
+  .oauth:hover { filter: brightness(0.96); }
+  .oauth:active { transform: translateY(1px); }
+  .oauth:focus-visible { outline: 2px solid var(--brass); outline-offset: 3px; }
+  .oauth svg { flex: 0 0 auto; }
+  .or { display: flex; align-items: center; gap: 0.8rem; margin: 1.1rem 0 0.2rem; }
+  .or::before, .or::after { content: ""; flex: 1 1 auto; height: 1px; background: var(--line); }
+  .or span { font-family: var(--font-mono); font-size: 0.6rem; text-transform: uppercase; letter-spacing: 0.14em; color: var(--bone-faint); }
+
   .switch { margin-top: 1.4rem; font-size: 0.9rem; color: var(--bone-dim); text-align: center; }
   .switch button { background: none; border: 0; cursor: pointer; color: var(--brass); font: inherit; padding: 0; text-decoration: underline; text-underline-offset: 2px; }
   .switch button:focus-visible { outline: 2px solid var(--brass); outline-offset: 3px; border-radius: 2px; }

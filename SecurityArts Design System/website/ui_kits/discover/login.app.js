@@ -8,25 +8,73 @@ function nextUrl() {
 function Header() {
   return /* @__PURE__ */ React.createElement("div", { className: "top" }, /* @__PURE__ */ React.createElement("a", { className: "brand", href: "welcome.html", "aria-label": "SecurityArts" }, /* @__PURE__ */ React.createElement(Seal, { size: 30 }), /* @__PURE__ */ React.createElement("span", { className: "brand__word" }, "SecurityArts")), /* @__PURE__ */ React.createElement("span", { className: "top__spacer" }), /* @__PURE__ */ React.createElement(ThemeToggle, { size: 38 }));
 }
+const GOOGLE_G = /* @__PURE__ */ React.createElement("svg", { width: "18", height: "18", viewBox: "0 0 18 18", "aria-hidden": "true" }, /* @__PURE__ */ React.createElement("path", { fill: "#4285F4", d: "M17.64 9.2c0-.64-.06-1.25-.16-1.84H9v3.48h4.84a4.14 4.14 0 0 1-1.8 2.72v2.26h2.92c1.71-1.57 2.68-3.88 2.68-6.62z" }), /* @__PURE__ */ React.createElement("path", { fill: "#34A853", d: "M9 18c2.43 0 4.47-.8 5.96-2.18l-2.92-2.26c-.8.54-1.83.86-3.04.86-2.34 0-4.32-1.58-5.03-3.7H.96v2.33A9 9 0 0 0 9 18z" }), /* @__PURE__ */ React.createElement("path", { fill: "#FBBC05", d: "M3.97 10.72a5.4 5.4 0 0 1 0-3.44V4.95H.96a9 9 0 0 0 0 8.1l3.01-2.33z" }), /* @__PURE__ */ React.createElement("path", { fill: "#EA4335", d: "M9 3.58c1.32 0 2.5.45 3.44 1.35l2.58-2.58C13.46.9 11.43 0 9 0A9 9 0 0 0 .96 4.95l3.01 2.33C4.68 5.16 6.66 3.58 9 3.58z" }));
+const COPY = {
+  signin: { eyebrow: "Welcome back", title: /* @__PURE__ */ React.createElement(React.Fragment, null, "Sign ", /* @__PURE__ */ React.createElement("em", null, "in.")), sub: "Sign in to reach your account, your artists, and your sealed collection." },
+  signup: { eyebrow: "Join SecurityArts", title: /* @__PURE__ */ React.createElement(React.Fragment, null, "Prove it's ", /* @__PURE__ */ React.createElement("em", null, "you.")), sub: "Create an account to collect sealed art, follow artists, and seal your own work." },
+  forgot: { eyebrow: "Reset access", title: /* @__PURE__ */ React.createElement(React.Fragment, null, "Forgot ", /* @__PURE__ */ React.createElement("em", null, "it?")), sub: "Enter your email and we'll send a link to set a new password." },
+  reset: { eyebrow: "New password", title: /* @__PURE__ */ React.createElement(React.Fragment, null, "Set a ", /* @__PURE__ */ React.createElement("em", null, "new one.")), sub: "Choose a new password for your account, then you're back in." }
+};
 function App() {
+  const resetToken = new URLSearchParams(location.search).get("token");
   const [user, setUser] = React.useState(() => Session.current());
-  const [mode, setMode] = React.useState("signin");
+  const [mode, setMode] = React.useState(resetToken ? "reset" : "signin");
+  const [googleOn, setGoogleOn] = React.useState(false);
   const [name, setName] = React.useState("");
   const [email, setEmail] = React.useState("");
   const [password, setPassword] = React.useState("");
   const [busy, setBusy] = React.useState(false);
   const [note, setNote] = React.useState({ t: "", kind: "" });
   React.useEffect(() => {
-    Session.sync().then((u) => {
+    if (!resetToken) Session.sync().then((u) => {
       if (u) setUser(u);
     }).catch(() => {
     });
+    if (window.SA_API) window.SA_API.auth.config().then((c2) => setGoogleOn(!!(c2 && c2.google))).catch(() => {
+    });
   }, []);
-  const isSignup = mode === "signup";
+  const go = (m) => {
+    setMode(m);
+    setNote({ t: "", kind: "" });
+  };
+  const emailValid = (v) => /^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(v);
   const submit = async (e) => {
     e.preventDefault();
     const em = email.trim().toLowerCase();
-    if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(em)) {
+    if (mode === "forgot") {
+      if (!emailValid(em)) {
+        setNote({ t: "Enter a valid email address.", kind: "err" });
+        return;
+      }
+      setBusy(true);
+      setNote({ t: "Sending\u2026", kind: "" });
+      try {
+        await window.SA_API.auth.forgot(em);
+        setNote({ t: "If that email is registered, a reset link is on its way.", kind: "ok" });
+      } catch (err) {
+        setNote({ t: "Couldn't reach the server \u2014 try again.", kind: "err" });
+      }
+      setBusy(false);
+      return;
+    }
+    if (mode === "reset") {
+      if (password.length < 8) {
+        setNote({ t: "Password must be at least 8 characters.", kind: "err" });
+        return;
+      }
+      setBusy(true);
+      setNote({ t: "Updating your password\u2026", kind: "" });
+      try {
+        await window.SA_API.auth.reset(resetToken, password);
+        setNote({ t: "Password updated \u2014 signing you in\u2026", kind: "ok" });
+        location.href = "me.html";
+      } catch (err) {
+        setNote({ t: err && err.message || "This reset link is invalid or has expired.", kind: "err" });
+        setBusy(false);
+      }
+      return;
+    }
+    if (!emailValid(em)) {
       setNote({ t: "Enter a valid email address.", kind: "err" });
       return;
     }
@@ -35,9 +83,9 @@ function App() {
       return;
     }
     setBusy(true);
-    setNote({ t: isSignup ? "Creating your account\u2026" : "Signing you in\u2026", kind: "" });
+    setNote({ t: mode === "signup" ? "Creating your account\u2026" : "Signing you in\u2026", kind: "" });
     try {
-      if (isSignup) {
+      if (mode === "signup") {
         await Session.register(em, password, name.trim());
         setNote({ t: "Sealed \u2014 let's set you up\u2026", kind: "ok" });
         location.href = "onboarding.html";
@@ -56,12 +104,13 @@ function App() {
     setUser(null);
     setNote({ t: "", kind: "" });
   };
-  return /* @__PURE__ */ React.createElement(React.Fragment, null, /* @__PURE__ */ React.createElement(Header, null), /* @__PURE__ */ React.createElement("main", null, /* @__PURE__ */ React.createElement("div", { className: "auth" }, /* @__PURE__ */ React.createElement("div", { className: "auth__bleed", "aria-hidden": "true" }, /* @__PURE__ */ React.createElement(Seal, { size: 352, className: "spin" })), /* @__PURE__ */ React.createElement("div", { className: "auth__in" }, user ? /* @__PURE__ */ React.createElement(React.Fragment, null, /* @__PURE__ */ React.createElement("span", { className: "auth__eyebrow" }, /* @__PURE__ */ React.createElement("span", { className: "dot" }), " Welcome back"), /* @__PURE__ */ React.createElement("h1", { className: "auth__title" }, "You're ", /* @__PURE__ */ React.createElement("em", null, "in.")), /* @__PURE__ */ React.createElement("p", { className: "auth__sub" }, "Signed in as ", /* @__PURE__ */ React.createElement("b", { style: { color: "var(--bone)" } }, user.name), " \xB7 ", user.email), /* @__PURE__ */ React.createElement("div", { className: "card" }, /* @__PURE__ */ React.createElement("a", { href: "me.html" }, /* @__PURE__ */ React.createElement(Button, { variant: "solid", arrow: true, style: { width: "100%" } }, "Continue to your account")), /* @__PURE__ */ React.createElement("div", { className: "switch" }, /* @__PURE__ */ React.createElement("button", { type: "button", onClick: signOut }, "Not you? Sign in as someone else")))) : /* @__PURE__ */ React.createElement(React.Fragment, null, /* @__PURE__ */ React.createElement("span", { className: "auth__eyebrow" }, /* @__PURE__ */ React.createElement("span", { className: "dot" }), " ", isSignup ? "Join SecurityArts" : "Welcome back"), /* @__PURE__ */ React.createElement("h1", { className: "auth__title" }, isSignup ? /* @__PURE__ */ React.createElement(React.Fragment, null, "Prove it's ", /* @__PURE__ */ React.createElement("em", null, "you.")) : /* @__PURE__ */ React.createElement(React.Fragment, null, "Sign ", /* @__PURE__ */ React.createElement("em", null, "in."))), /* @__PURE__ */ React.createElement("p", { className: "auth__sub" }, isSignup ? "Create an account to collect sealed art, follow artists, and seal your own work." : "Sign in to reach your account, your artists, and your sealed collection."), /* @__PURE__ */ React.createElement("form", { className: "card", onSubmit: submit, noValidate: true }, isSignup ? /* @__PURE__ */ React.createElement("div", { className: "field" }, /* @__PURE__ */ React.createElement(Field, { label: "Name", htmlFor: "au-name", full: true }, /* @__PURE__ */ React.createElement(Input, { id: "au-name", type: "text", autoComplete: "name", placeholder: "Your name", value: name, onChange: (e) => setName(e.target.value) }))) : null, /* @__PURE__ */ React.createElement("div", { className: "field" }, /* @__PURE__ */ React.createElement(Field, { label: "Email", htmlFor: "au-email", full: true }, /* @__PURE__ */ React.createElement(Input, { id: "au-email", type: "email", inputMode: "email", autoComplete: "email", spellCheck: false, required: true, placeholder: "you@studio.com", value: email, onChange: (e) => setEmail(e.target.value) }))), /* @__PURE__ */ React.createElement("div", { className: "field" }, /* @__PURE__ */ React.createElement(Field, { label: "Password", htmlFor: "au-pass", full: true }, /* @__PURE__ */ React.createElement(Input, { id: "au-pass", type: "password", autoComplete: isSignup ? "new-password" : "current-password", required: true, placeholder: "8+ characters", value: password, onChange: (e) => setPassword(e.target.value) }))), /* @__PURE__ */ React.createElement("div", { className: `authnote ${note.kind}`, "aria-live": "polite" }, note.t), /* @__PURE__ */ React.createElement("div", { className: "submit" }, /* @__PURE__ */ React.createElement(Button, { variant: "solid", type: "submit", arrow: true, disabled: busy, style: { width: "100%" } }, busy ? isSignup ? "Creating\u2026" : "Signing in\u2026" : isSignup ? "Create account" : "Sign in")), /* @__PURE__ */ React.createElement("div", { className: "switch" }, isSignup ? /* @__PURE__ */ React.createElement(React.Fragment, null, "Already have an account? ", /* @__PURE__ */ React.createElement("button", { type: "button", onClick: () => {
-    setMode("signin");
-    setNote({ t: "", kind: "" });
-  } }, "Sign in")) : /* @__PURE__ */ React.createElement(React.Fragment, null, "New here? ", /* @__PURE__ */ React.createElement("button", { type: "button", onClick: () => {
-    setMode("signup");
-    setNote({ t: "", kind: "" });
-  } }, "Create an account")))), /* @__PURE__ */ React.createElement("p", { className: "fineprint" }, "By continuing you agree to the ", /* @__PURE__ */ React.createElement("a", { href: "../../../../terms.html" }, "Terms"), " & ", /* @__PURE__ */ React.createElement("a", { href: "../../../../privacy.html" }, "Privacy"), ".", /* @__PURE__ */ React.createElement("br", null), "We sign our work \u2014 and protect yours."))))));
+  const showSignedIn = user && mode === "signin";
+  const c = COPY[mode];
+  const submitLabel = busy ? { signin: "Signing in\u2026", signup: "Creating\u2026", forgot: "Sending\u2026", reset: "Updating\u2026" }[mode] : { signin: "Sign in", signup: "Create account", forgot: "Send reset link", reset: "Set new password" }[mode];
+  const showOAuth = googleOn && (mode === "signin" || mode === "signup");
+  return /* @__PURE__ */ React.createElement(React.Fragment, null, /* @__PURE__ */ React.createElement(Header, null), /* @__PURE__ */ React.createElement("main", null, /* @__PURE__ */ React.createElement("div", { className: "auth" }, /* @__PURE__ */ React.createElement("div", { className: "auth__bleed", "aria-hidden": "true" }, /* @__PURE__ */ React.createElement(Seal, { size: 352, className: "spin" })), /* @__PURE__ */ React.createElement("div", { className: "auth__in" }, showSignedIn ? /* @__PURE__ */ React.createElement(React.Fragment, null, /* @__PURE__ */ React.createElement("span", { className: "auth__eyebrow" }, /* @__PURE__ */ React.createElement("span", { className: "dot" }), " Welcome back"), /* @__PURE__ */ React.createElement("h1", { className: "auth__title" }, "You're ", /* @__PURE__ */ React.createElement("em", null, "in.")), /* @__PURE__ */ React.createElement("p", { className: "auth__sub" }, "Signed in as ", /* @__PURE__ */ React.createElement("b", { style: { color: "var(--bone)" } }, user.name), " \xB7 ", user.email), /* @__PURE__ */ React.createElement("div", { className: "card" }, /* @__PURE__ */ React.createElement("a", { href: "me.html" }, /* @__PURE__ */ React.createElement(Button, { variant: "solid", arrow: true, style: { width: "100%" } }, "Continue to your account")), /* @__PURE__ */ React.createElement("div", { className: "switch" }, /* @__PURE__ */ React.createElement("button", { type: "button", onClick: signOut }, "Not you? Sign in as someone else")))) : /* @__PURE__ */ React.createElement(React.Fragment, null, /* @__PURE__ */ React.createElement("span", { className: "auth__eyebrow" }, /* @__PURE__ */ React.createElement("span", { className: "dot" }), " ", c.eyebrow), /* @__PURE__ */ React.createElement("h1", { className: "auth__title" }, c.title), /* @__PURE__ */ React.createElement("p", { className: "auth__sub" }, c.sub), /* @__PURE__ */ React.createElement("form", { className: "card", onSubmit: submit, noValidate: true }, showOAuth ? /* @__PURE__ */ React.createElement(React.Fragment, null, /* @__PURE__ */ React.createElement("a", { className: "oauth", href: "/api/auth/google" }, GOOGLE_G, /* @__PURE__ */ React.createElement("span", null, "Continue with Google")), /* @__PURE__ */ React.createElement("div", { className: "or" }, /* @__PURE__ */ React.createElement("span", null, "or"))) : null, mode === "signup" ? /* @__PURE__ */ React.createElement("div", { className: "field" }, /* @__PURE__ */ React.createElement(Field, { label: "Name", htmlFor: "au-name", full: true }, /* @__PURE__ */ React.createElement(Input, { id: "au-name", type: "text", autoComplete: "name", placeholder: "Your name", value: name, onChange: (e) => setName(e.target.value) }))) : null, mode !== "reset" ? /* @__PURE__ */ React.createElement("div", { className: "field" }, /* @__PURE__ */ React.createElement(Field, { label: "Email", htmlFor: "au-email", full: true }, /* @__PURE__ */ React.createElement(Input, { id: "au-email", type: "email", inputMode: "email", autoComplete: "email", spellCheck: false, required: true, placeholder: "you@studio.com", value: email, onChange: (e) => setEmail(e.target.value) }))) : null, mode !== "forgot" ? /* @__PURE__ */ React.createElement("div", { className: "field" }, /* @__PURE__ */ React.createElement(Field, { label: mode === "reset" ? "New password" : "Password", htmlFor: "au-pass", full: true }, /* @__PURE__ */ React.createElement(Input, { id: "au-pass", type: "password", autoComplete: mode === "signin" ? "current-password" : "new-password", required: true, placeholder: "8+ characters", value: password, onChange: (e) => setPassword(e.target.value) }))) : null, /* @__PURE__ */ React.createElement("div", { className: `authnote ${note.kind}`, "aria-live": "polite" }, note.t), /* @__PURE__ */ React.createElement("div", { className: "submit" }, /* @__PURE__ */ React.createElement(Button, { variant: "solid", type: "submit", arrow: true, disabled: busy, style: { width: "100%" } }, submitLabel)), /* @__PURE__ */ React.createElement("div", { className: "switch" }, mode === "signin" ? /* @__PURE__ */ React.createElement(React.Fragment, null, /* @__PURE__ */ React.createElement("button", { type: "button", onClick: () => go("forgot") }, "Forgot your password?"), /* @__PURE__ */ React.createElement("br", null), /* @__PURE__ */ React.createElement("span", { style: { opacity: 0.85 } }, "New here? "), /* @__PURE__ */ React.createElement("button", { type: "button", onClick: () => go("signup") }, "Create an account")) : null, mode === "signup" ? /* @__PURE__ */ React.createElement(React.Fragment, null, "Already have an account? ", /* @__PURE__ */ React.createElement("button", { type: "button", onClick: () => go("signin") }, "Sign in")) : null, mode === "forgot" ? /* @__PURE__ */ React.createElement("button", { type: "button", onClick: () => go("signin") }, "\u2190 Back to sign in") : null, mode === "reset" ? /* @__PURE__ */ React.createElement("button", { type: "button", onClick: () => {
+    go("signin");
+    history.replaceState(null, "", location.pathname);
+  } }, "\u2190 Back to sign in") : null)), /* @__PURE__ */ React.createElement("p", { className: "fineprint" }, "By continuing you agree to the ", /* @__PURE__ */ React.createElement("a", { href: "../../../../terms.html" }, "Terms"), " & ", /* @__PURE__ */ React.createElement("a", { href: "../../../../privacy.html" }, "Privacy"), ".", /* @__PURE__ */ React.createElement("br", null), "We sign our work \u2014 and protect yours."))))));
 }
 ReactDOM.createRoot(document.getElementById("root")).render(/* @__PURE__ */ React.createElement(App, null));

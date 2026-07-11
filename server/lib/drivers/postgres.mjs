@@ -79,6 +79,7 @@ export async function createRepo() {
         const sets = [], vals = [];
         if (patch.name !== undefined) { vals.push(patch.name); sets.push(`name=$${vals.length}`); }
         if (patch.handle !== undefined) { vals.push(patch.handle); sets.push(`handle=$${vals.length}`); }
+        if (patch.pass !== undefined) { vals.push(patch.pass); sets.push(`pass=$${vals.length}`); }
         if (patch.profile !== undefined) { vals.push(JSON.stringify(patch.profile)); sets.push(`profile=$${vals.length}::jsonb`); }
         if (!sets.length) return rowToUser((await q("SELECT * FROM users WHERE id=$1", [id])).rows[0]);
         vals.push(id);
@@ -180,6 +181,19 @@ export async function createRepo() {
         return o;
       },
       async findById(id) { return rowToOrder((await q("SELECT * FROM orders WHERE id=$1", [id])).rows[0]); },
+    },
+
+    passwordResets: {
+      async create(r) {
+        await q("INSERT INTO password_resets (token_hash,user_id,expires_at,created_at) VALUES ($1,$2,$3,$4)", [r.tokenHash, r.userId, r.expiresAt, r.createdAt]);
+        return r;
+      },
+      async findByHash(hash) {
+        const row = (await q("SELECT * FROM password_resets WHERE token_hash=$1", [hash])).rows[0];
+        return row ? { tokenHash: row.token_hash, userId: row.user_id, expiresAt: Number(row.expires_at), createdAt: row.created_at } : null;
+      },
+      async consume(hash) { return (await q("DELETE FROM password_resets WHERE token_hash=$1", [hash])).rowCount > 0; },
+      async removeByUser(userId) { return (await q("DELETE FROM password_resets WHERE user_id=$1", [userId])).rowCount; },
     },
 
     newsletter: {

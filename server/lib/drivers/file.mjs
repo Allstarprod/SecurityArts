@@ -23,13 +23,14 @@ export async function createRepo() {
   ensureDataDir();
   ensureBlobDir();
 
-  const db = { users: [], works: [], boards: [], orders: [], newsletter: [], comments: [] };
+  const db = { users: [], works: [], boards: [], orders: [], newsletter: [], comments: [], passwordResets: [] };
   const idx = {
     userById: new Map(), userByEmail: new Map(),
     workById: new Map(), workByHash: new Map(),
     boardById: new Map(),
     orderById: new Map(),
     commentById: new Map(),
+    resetByHash: new Map(),
     newsletter: new Set(),
   };
 
@@ -51,6 +52,7 @@ export async function createRepo() {
   for (const b of db.boards) idx.boardById.set(b.id, b);
   for (const o of db.orders) idx.orderById.set(o.id, o);
   for (const c of db.comments) idx.commentById.set(c.id, c);
+  for (const r of db.passwordResets) idx.resetByHash.set(r.tokenHash, r);
   for (const s of db.newsletter) idx.newsletter.add(s.email);
 
   // ---- debounced atomic persistence (coalesces bursts; never blocks the loop) ----
@@ -169,6 +171,23 @@ export async function createRepo() {
     orders: {
       async create(order) { db.orders.push(order); idx.orderById.set(order.id, order); schedule(); return clone(order); },
       async findById(id) { return clone(idx.orderById.get(id) || null); },
+    },
+
+    passwordResets: {
+      async create(r) { db.passwordResets.push(r); idx.resetByHash.set(r.tokenHash, r); schedule(); return clone(r); },
+      async findByHash(hash) { return clone(idx.resetByHash.get(hash) || null); },
+      async consume(hash) {
+        const r = idx.resetByHash.get(hash);
+        if (!r) return false;
+        idx.resetByHash.delete(hash); db.passwordResets.splice(db.passwordResets.indexOf(r), 1);
+        schedule(); return true;
+      },
+      async removeByUser(userId) {
+        const gone = db.passwordResets.filter((r) => r.userId === userId);
+        for (const r of gone) { idx.resetByHash.delete(r.tokenHash); db.passwordResets.splice(db.passwordResets.indexOf(r), 1); }
+        if (gone.length) schedule();
+        return gone.length;
+      },
     },
 
     newsletter: {

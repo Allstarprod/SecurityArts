@@ -43,6 +43,9 @@
       login: function (p) { return req("/auth/login", { method: "POST", body: p }); },
       logout: function () { return req("/auth/logout", { method: "POST" }); },
       me: function () { return req("/auth/me"); },
+      config: function () { return req("/auth/config"); },
+      forgot: function (email) { return req("/auth/forgot", { method: "POST", body: { email: email } }); },
+      reset: function (token, password) { return req("/auth/reset", { method: "POST", body: { token: token, password: password } }); },
     },
     // Public profile by user id or @handle (honors the owner's public/private choice server-side).
     users: {

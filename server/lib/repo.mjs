@@ -15,6 +15,7 @@
 //   boards.listByUser(uid) findByUserAndId(uid,id) create(board) remove(uid,id) togglePin(uid,id,workId)
 //   orders.create(order) findById(id)
 //   comments.listByWork(workId) findById(id) create(c) toggleLike(id,userId) remove(id,userId)
+//   passwordResets.create(r) findByHash(hash) consume(hash) removeByUser(userId)
 //   newsletter.add(email, ip) -> true if newly added
 
 let impl = null;
@@ -77,6 +78,12 @@ export const repo = {
     create: (c) => must().comments.create(c),
     toggleLike: (id, userId) => must().comments.toggleLike(id, userId),
     remove: (id, userId) => must().comments.remove(id, userId),
+  },
+  passwordResets: {
+    create: (r) => must().passwordResets.create(r),
+    findByHash: (h) => must().passwordResets.findByHash(h),
+    consume: (h) => must().passwordResets.consume(h),
+    removeByUser: (uid) => must().passwordResets.removeByUser(uid),
   },
   newsletter: {
     add: (email, ip) => must().newsletter.add(email, ip),

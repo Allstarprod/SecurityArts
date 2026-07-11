@@ -84,6 +84,16 @@ CREATE TABLE IF NOT EXISTS newsletter (
   ts    TEXT NOT NULL
 );
 
+-- Password-reset tokens. We store only the SHA-256 hash of the token, so a DB leak
+-- never yields usable reset links. Rows are single-use and time-boxed.
+CREATE TABLE IF NOT EXISTS password_resets (
+  token_hash TEXT PRIMARY KEY,
+  user_id    TEXT NOT NULL,
+  expires_at BIGINT NOT NULL,        -- epoch ms
+  created_at TEXT NOT NULL
+);
+CREATE INDEX IF NOT EXISTS password_resets_user_idx ON password_resets (user_id);
+
 -- Shared, cross-instance rate limiting (used when RATELIMIT_DRIVER=postgres).
 -- Fixed-window counters; old windows are pruned opportunistically.
 CREATE TABLE IF NOT EXISTS rate_limits (
