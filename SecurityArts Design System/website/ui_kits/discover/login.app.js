@@ -37,10 +37,15 @@ function App() {
     setBusy(true);
     setNote({ t: isSignup ? "Creating your account\u2026" : "Signing you in\u2026", kind: "" });
     try {
-      if (isSignup) await Session.register(em, password, name.trim());
-      else await Session.login(em, password);
-      setNote({ t: "Sealed \u2014 taking you in\u2026", kind: "ok" });
-      location.href = nextUrl();
+      if (isSignup) {
+        await Session.register(em, password, name.trim());
+        setNote({ t: "Sealed \u2014 let's set you up\u2026", kind: "ok" });
+        location.href = "onboarding.html";
+      } else {
+        await Session.login(em, password);
+        setNote({ t: "Sealed \u2014 taking you in\u2026", kind: "ok" });
+        location.href = nextUrl();
+      }
     } catch (err) {
       setNote({ t: err && err.message || "Couldn't sign you in. Try again.", kind: "err" });
       setBusy(false);

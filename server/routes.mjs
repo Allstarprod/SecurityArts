@@ -53,6 +53,7 @@ function handleFrom(email) { return String(email || "").split("@")[0].replace(/[
 // Profile customization — server owns the whitelist so the client can't inject arbitrary values.
 const ACCENTS = ["brass", "rose", "violet", "teal", "amber", "sky"];
 const VISIBILITY = ["public", "private"];
+const ROLES = ["collector", "artist"];
 
 // Validate + merge a profile patch onto the previous profile. Only known fields
 // are accepted (no prototype pollution / arbitrary keys), each length-capped.
@@ -67,6 +68,13 @@ function cleanProfile(body, prev) {
     const arr = Array.isArray(body.likes) ? body.likes : [];
     p.likes = arr.map((x) => str(x, { max: 60 })).filter(Boolean).slice(0, 12);
   }
+  // Onboarding answers (the post-signup quiz): role + interested mediums + a completion flag.
+  if (body.role !== undefined) p.role = ROLES.includes(body.role) ? body.role : (p.role || "");
+  if (body.interests !== undefined) {
+    const arr = Array.isArray(body.interests) ? body.interests : [];
+    p.interests = arr.map((x) => str(x, { max: 24 })).filter((x) => CATS.includes(x)).slice(0, 12);
+  }
+  if (body.onboarded !== undefined) p.onboarded = !!body.onboarded;
   return p;
 }
 

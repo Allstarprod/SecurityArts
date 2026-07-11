@@ -39,10 +39,15 @@ function App() {
     setBusy(true);
     setNote({ t: isSignup ? "Creating your account…" : "Signing you in…", kind: "" });
     try {
-      if (isSignup) await Session.register(em, password, name.trim());
-      else await Session.login(em, password);
-      setNote({ t: "Sealed — taking you in…", kind: "ok" });
-      location.href = nextUrl();
+      if (isSignup) {
+        await Session.register(em, password, name.trim());
+        setNote({ t: "Sealed — let's set you up…", kind: "ok" });
+        location.href = "onboarding.html"; // new accounts run the quiz first
+      } else {
+        await Session.login(em, password);
+        setNote({ t: "Sealed — taking you in…", kind: "ok" });
+        location.href = nextUrl();
+      }
     } catch (err) {
       setNote({ t: (err && err.message) || "Couldn't sign you in. Try again.", kind: "err" });
       setBusy(false);

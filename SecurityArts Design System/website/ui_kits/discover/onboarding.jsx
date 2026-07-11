@@ -1,5 +1,5 @@
 const { Seal, Icon, Button, Avatar, ThemeToggle } = window.SecurityArtsDesignSystem_f7e889;
-const C = window.SACatalog, S = window.SAStore;
+const C = window.SACatalog, S = window.SAStore, Session = window.SASession;
 
 const MEDIUMS = [
   ["painting", "Painting"], ["illustration", "Illustration"], ["3d", "3D & CGI"], ["photography", "Photography"],
@@ -8,9 +8,12 @@ const MEDIUMS = [
 const CAT_LABEL = Object.fromEntries(MEDIUMS);
 
 function App() {
+  // Prefill from an existing profile so a returning user sees their prior answers.
+  const existingProfile = ((Session && Session.current && Session.current()) || {}).profile || {};
   const [step, setStep] = React.useState(0);
-  const [role, setRole] = React.useState(null);
-  const [cats, setCats] = React.useState(() => new Set());
+  const [role, setRole] = React.useState(existingProfile.role || null);
+  const [cats, setCats] = React.useState(() => new Set(existingProfile.interests || []));
+  const [saving, setSaving] = React.useState(false);
   const [, tick] = React.useState(0);
 
   const toggleCat = (k) => setCats((prev) => { const n = new Set(prev); n.has(k) ? n.delete(k) : n.add(k); return n; });
@@ -29,6 +32,19 @@ function App() {
 
   const canNext = step === 0 ? !!role : step === 1 ? cats.size > 0 : true;
   const finishHref = role === "artist" ? "dashboard.html" : "foryou.html";
+
+  // Persist the quiz answers to the signed-in user's profile, then enter the app.
+  // Saving is best-effort — a backend hiccup should never trap someone in onboarding.
+  const finish = async () => {
+    if (saving) return;
+    setSaving(true);
+    try {
+      if (Session && Session.updateProfile) {
+        await Session.updateProfile({ role: role || "collector", interests: Array.from(cats), onboarded: true });
+      }
+    } catch (e) { /* non-blocking */ }
+    location.href = finishHref;
+  };
 
   return (
     <div className="shell">
@@ -114,7 +130,7 @@ function App() {
                 <div className="ds"><b>{cats.size}</b><span>Mediums</span></div>
                 <div className="ds"><b>{followCount}</b><span>Following</span></div>
               </div>
-              <Button variant="solid" href={finishHref} arrow>{role === "artist" ? "Open your studio" : "Enter your feed"}</Button>
+              <Button variant="solid" arrow disabled={saving} onClick={finish}>{saving ? "Saving…" : (role === "artist" ? "Open your studio" : "Enter your feed")}</Button>
             </div>
           ) : null}
         </div>
