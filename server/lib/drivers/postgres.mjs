@@ -198,10 +198,10 @@ export async function createRepo() {
 
     stats: {
       async incrementView(workId) {
-        return (await q(
+        return Number((await q(
           "INSERT INTO work_stats (work_id,views) VALUES ($1,1) ON CONFLICT (work_id) DO UPDATE SET views=work_stats.views+1 RETURNING views",
           [workId]
-        )).rows[0].views;
+        )).rows[0].views); // BIGINT arrives as a string from pg — coerce so both drivers return a number
       },
       async viewsFor(workIds) {
         if (!workIds.length) return {};
