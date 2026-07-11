@@ -91,6 +91,14 @@ CREATE TABLE IF NOT EXISTS work_stats (
   views   BIGINT NOT NULL DEFAULT 0
 );
 
+-- Work-level likes (one row per user per work → count = likes; existence = likedByMe).
+CREATE TABLE IF NOT EXISTS work_likes (
+  work_id TEXT NOT NULL,
+  user_id TEXT NOT NULL,
+  PRIMARY KEY (work_id, user_id)
+);
+CREATE INDEX IF NOT EXISTS work_likes_work_idx ON work_likes (work_id);
+
 -- Password-reset tokens. We store only the SHA-256 hash of the token, so a DB leak
 -- never yields usable reset links. Rows are single-use and time-boxed.
 CREATE TABLE IF NOT EXISTS password_resets (

@@ -134,7 +134,7 @@ function Comments({ workId }) {
   );
 
   return (
-    <section className="section">
+    <section className="section" id="discussion">
       <p className="section__h"><span>03</span> Discussion{items ? " · " + items.length : ""}</p>
 
       {user ? (
@@ -214,6 +214,26 @@ function App() {
     window.SA_API.viewWork(work.id).catch(() => {});
   }, [work.id]);
 
+  // Work-level likes (the public "❤" signal). Read on load; toggle optimistically.
+  const [likes, setLikes] = React.useState(null);
+  const [likedByMe, setLikedByMe] = React.useState(false);
+  React.useEffect(() => {
+    if (!window.SA_API) return;
+    let alive = true;
+    window.SA_API.workLikes(work.id).then((r) => { if (alive && r) { setLikes(r.likes); setLikedByMe(!!r.likedByMe); } }).catch(() => {});
+    return () => { alive = false; };
+  }, [work.id]);
+  const toggleLike = () => {
+    if (!window.SA_API) { show("Sign in to like a work"); return; }
+    const nextLiked = !likedByMe;
+    setLikedByMe(nextLiked); setLikes((n) => Math.max(0, (n || 0) + (nextLiked ? 1 : -1)));
+    window.SA_API.likeWork(work.id).then((r) => { if (r) { setLikes(r.likes); setLikedByMe(!!r.likedByMe); } })
+      .catch(() => { setLikedByMe(!nextLiked); setLikes((n) => Math.max(0, (n || 0) + (nextLiked ? -1 : 1))); show("Sign in to like a work"); });
+  };
+
+  // Related works — same medium, from the catalog.
+  const related = React.useMemo(() => C.works.filter((w) => w.cat === work.cat && w.id !== work.id).slice(0, 6), [work.id]);
+
   const reverify = () => {
     setChecking(true);
     setTimeout(() => { setChecking(false); setCheckedAt(new Date()); show("Signature valid — human-made"); }, 1100);
@@ -248,6 +268,13 @@ function App() {
                 <a href={`profile.html?artist=${artist.id}`}><div className="n">{artist.name}</div></a>
                 <div className="c">{work.medium} · {artist.city}</div>
               </div>
+            </div>
+
+            <div className="engage">
+              <button className={`likebtn ${likedByMe ? "on" : ""}`} onClick={toggleLike} aria-pressed={likedByMe} title="Like this work">
+                <Icon name="heart" size={16} /> <span>{likes != null ? likes : "—"}</span>
+              </button>
+              <a className="engage__jump" href="#discussion"><Icon name="message" size={15} /> Join the discussion</a>
             </div>
 
             <div className="verify-panel">
@@ -304,6 +331,24 @@ function App() {
         </section>
 
         <Comments workId={work.id} />
+
+        {related.length ? (
+          <section className="section">
+            <p className="section__h"><span>04</span> More like this</p>
+            <div className="rail">
+              {related.map((w) => {
+                const a = C.artistById[w.artistId];
+                return (
+                  <a className="railcard" key={w.id} href={`seal.html?work=${w.id}`}>
+                    <div className="railcard__art"><img src={SAGenArt.dataUri(w.seed, { cat: w.cat })} alt={w.title} /></div>
+                    <div className="railcard__t">{w.title}</div>
+                    <div className="railcard__a">{a ? a.name : ""}</div>
+                  </a>
+                );
+              })}
+            </div>
+          </section>
+        ) : null}
       </div>
 
       <footer className="foot">

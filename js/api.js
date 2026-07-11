@@ -36,6 +36,8 @@
     listWorks: function (qs) { return req("/works" + (qs ? "?" + qs : "")); },
     getWork: function (id) { return req("/works/" + encodeURIComponent(id)); },
     viewWork: function (id) { return req("/works/" + encodeURIComponent(id) + "/view", { method: "POST" }); },
+    workLikes: function (id) { return req("/works/" + encodeURIComponent(id) + "/likes"); },
+    likeWork: function (id) { return req("/works/" + encodeURIComponent(id) + "/like", { method: "POST" }); },
     myStats: function () { return req("/me/stats"); },
     verify: function (hash) { return req("/verify/" + encodeURIComponent(hash)); },
     checkout: function (payload) { return req("/checkout", { method: "POST", body: payload }); },

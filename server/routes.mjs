@@ -427,19 +427,37 @@ router.post("/api/works/:id/view", async ({ res, params, ip }) => {
   return ok(res, { views });
 });
 
+// Work-level likes (the public "❤ 998" signal). Read is public + session-aware.
+router.get("/api/works/:id/likes", async ({ res, params, user }) => {
+  const [counts, likedByMe] = await Promise.all([
+    repo.likes.countByWorks([params.id]),
+    user ? repo.likes.likedBy(params.id, user.id) : Promise.resolve(false),
+  ]);
+  return ok(res, { likes: counts[params.id] || 0, likedByMe });
+});
+router.post("/api/works/:id/like", async ({ res, params, user, ip }) => {
+  if (!user) return fail(res, 401, "Sign in to like a work.");
+  if (!(await rateLimit(`wlike:${ip}`, 60, 60000))) return fail(res, 429, "Slow down a moment.");
+  const r = await repo.likes.toggle(params.id, user.id);
+  return ok(res, { likes: r.likes, likedByMe: r.liked });
+});
+
 // Analytics for the signed-in creator: their works with real views + comment counts,
 // ranked by engagement, plus totals.
 router.get("/api/me/stats", async ({ res, user }) => {
   if (!user) return fail(res, 401, "Sign in to see your analytics.");
   const works = await repo.works.listByOwner(user.id);
   const ids = works.map((w) => w.id);
-  const [views, comments] = await Promise.all([repo.stats.viewsFor(ids), repo.comments.countByWorks(ids)]);
+  const [views, comments, likes] = await Promise.all([
+    repo.stats.viewsFor(ids), repo.comments.countByWorks(ids), repo.likes.countByWorks(ids),
+  ]);
   const items = works.map((w) => ({
     id: w.id, title: w.title, cat: w.cat, createdAt: w.createdAt,
-    views: views[w.id] || 0, comments: comments[w.id] || 0,
+    views: views[w.id] || 0, comments: comments[w.id] || 0, likes: likes[w.id] || 0,
   }));
-  items.sort((a, b) => (b.views + b.comments * 3) - (a.views + a.comments * 3)); // comments weigh more
-  const totals = items.reduce((t, i) => ({ works: t.works + 1, views: t.views + i.views, comments: t.comments + i.comments }), { works: 0, views: 0, comments: 0 });
+  // rank by engagement — likes and comments weigh more than a raw view
+  items.sort((a, b) => (b.views + b.likes * 2 + b.comments * 3) - (a.views + a.likes * 2 + a.comments * 3));
+  const totals = items.reduce((t, i) => ({ works: t.works + 1, views: t.views + i.views, comments: t.comments + i.comments, likes: t.likes + i.likes }), { works: 0, views: 0, comments: 0, likes: 0 });
   return ok(res, { totals, top: items.slice(0, 12) });
 });
 

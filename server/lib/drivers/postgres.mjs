@@ -210,6 +210,23 @@ export async function createRepo() {
       },
     },
 
+    likes: {
+      async toggle(workId, userId) {
+        return tx(async (c) => {
+          const existed = (await c.query("DELETE FROM work_likes WHERE work_id=$1 AND user_id=$2", [workId, userId])).rowCount > 0;
+          if (!existed) await c.query("INSERT INTO work_likes (work_id,user_id) VALUES ($1,$2) ON CONFLICT DO NOTHING", [workId, userId]);
+          const likes = (await c.query("SELECT count(*)::int AS n FROM work_likes WHERE work_id=$1", [workId])).rows[0].n;
+          return { likes, liked: !existed };
+        });
+      },
+      async likedBy(workId, userId) { return (await q("SELECT 1 FROM work_likes WHERE work_id=$1 AND user_id=$2", [workId, userId])).rowCount > 0; },
+      async countByWorks(workIds) {
+        if (!workIds.length) return {};
+        const rows = (await q("SELECT work_id, count(*)::int AS n FROM work_likes WHERE work_id = ANY($1) GROUP BY work_id", [workIds])).rows;
+        const out = {}; for (const r of rows) out[r.work_id] = r.n; return out;
+      },
+    },
+
     passwordResets: {
       async create(r) {
         await q("INSERT INTO password_resets (token_hash,user_id,expires_at,created_at) VALUES ($1,$2,$3,$4)", [r.tokenHash, r.userId, r.expiresAt, r.createdAt]);

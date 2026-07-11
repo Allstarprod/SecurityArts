@@ -116,12 +116,13 @@
 
   /* creator hub */
   .hub__loading { color: var(--bone-faint); font-size: 0.9rem; padding: 1rem 0; }
-  .hub__cards { display: grid; grid-template-columns: repeat(3, 1fr); gap: 0.8rem; margin-bottom: 1.6rem; }
+  .hub__cards { display: grid; grid-template-columns: repeat(4, 1fr); gap: 0.7rem; margin-bottom: 1.6rem; }
+  @media (max-width: 560px) { .hub__cards { grid-template-columns: repeat(2, 1fr); } }
   .hubcard { border: 1px solid var(--line); border-radius: var(--radius-card); background: var(--ink-2); padding: 1.1rem 1.2rem; }
   .hubcard b { display: block; font-family: var(--font-serif); font-weight: 440; font-size: clamp(1.6rem, 1rem+2vw, 2.2rem); letter-spacing: -0.02em; color: var(--brass); font-variant-numeric: tabular-nums; }
   .hubcard span { font-family: var(--font-mono); font-size: 0.56rem; text-transform: uppercase; letter-spacing: 0.14em; color: var(--bone-faint); }
   .hubtable { border: 1px solid var(--line); border-radius: var(--radius-card); overflow: hidden; }
-  .hubrow { display: grid; grid-template-columns: 1fr 4.5rem 5.5rem; align-items: center; gap: 0.5rem; padding: 0.7rem 1rem; border-top: 1px solid var(--line); }
+  .hubrow { display: grid; grid-template-columns: 1fr 3.4rem 3.4rem 4.6rem; align-items: center; gap: 0.5rem; padding: 0.7rem 1rem; border-top: 1px solid var(--line); }
   .hubrow:first-child { border-top: 0; }
   .hubrow--head { background: var(--ink-2); }
   .hubrow--head span { font-family: var(--font-mono); font-size: 0.56rem; text-transform: uppercase; letter-spacing: 0.12em; color: var(--bone-faint); }

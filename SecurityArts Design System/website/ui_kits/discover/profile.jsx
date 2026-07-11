@@ -178,7 +178,7 @@ function SelfSignedOut() {
 // their sealed works, ranked by engagement. Numbers grow as work gets seen and discussed.
 function hubFmt(n) { return n >= 1000 ? (n / 1000).toFixed(1).replace(/\.0$/, "") + "k" : String(n); }
 function CreatorHub() {
-  const empty = { totals: { works: 0, views: 0, comments: 0 }, top: [] };
+  const empty = { totals: { works: 0, views: 0, comments: 0, likes: 0 }, top: [] };
   const [data, setData] = React.useState(null);
   React.useEffect(() => {
     let alive = true;
@@ -194,15 +194,17 @@ function CreatorHub() {
       <div className="hub__cards">
         <div className="hubcard"><b>{hubFmt(t.works)}</b><span>Sealed works</span></div>
         <div className="hubcard"><b>{hubFmt(t.views)}</b><span>Total views</span></div>
+        <div className="hubcard"><b>{hubFmt(t.likes)}</b><span>Likes</span></div>
         <div className="hubcard"><b>{hubFmt(t.comments)}</b><span>Comments</span></div>
       </div>
       {data.top.length ? (
         <div className="hubtable">
-          <div className="hubrow hubrow--head"><span>Top posts</span><span>Views</span><span>Comments</span></div>
+          <div className="hubrow hubrow--head"><span>Top posts</span><span>Views</span><span>Likes</span><span>Comments</span></div>
           {data.top.map((w) => (
             <div className="hubrow" key={w.id}>
               <span className="hubwork"><img src={SAGenArt.dataUri(strhash(w.id), { cat: w.cat })} alt="" /><span className="hubwork__t">{w.title}</span></span>
               <span className="hubnum">{hubFmt(w.views)}</span>
+              <span className="hubnum">{hubFmt(w.likes)}</span>
               <span className="hubnum">{hubFmt(w.comments)}</span>
             </div>
           ))}

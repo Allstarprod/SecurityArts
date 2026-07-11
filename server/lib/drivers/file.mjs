@@ -23,7 +23,7 @@ export async function createRepo() {
   ensureDataDir();
   ensureBlobDir();
 
-  const db = { users: [], works: [], boards: [], orders: [], newsletter: [], comments: [], passwordResets: [], workStats: {} };
+  const db = { users: [], works: [], boards: [], orders: [], newsletter: [], comments: [], passwordResets: [], workStats: {}, workLikes: {} };
   const idx = {
     userById: new Map(), userByEmail: new Map(),
     workById: new Map(), workByHash: new Map(),
@@ -39,6 +39,7 @@ export async function createRepo() {
     const raw = JSON.parse(await fsp.readFile(DB_FILE, "utf8"));
     for (const k of Object.keys(db)) if (Array.isArray(raw[k])) db[k] = raw[k];
     if (raw.workStats && typeof raw.workStats === "object") db.workStats = raw.workStats;
+    if (raw.workLikes && typeof raw.workLikes === "object") db.workLikes = raw.workLikes;
     // legacy: registry was an object map hash->{workId}; folded into works.cert.hash now.
     for (const w of db.works) {
       if (typeof w.img === "string") {
@@ -185,6 +186,17 @@ export async function createRepo() {
     stats: {
       async incrementView(workId) { db.workStats[workId] = (db.workStats[workId] || 0) + 1; schedule(); return db.workStats[workId]; },
       async viewsFor(workIds) { const out = {}; for (const id of workIds) out[id] = db.workStats[id] || 0; return out; },
+    },
+
+    likes: {
+      async toggle(workId, userId) {
+        const arr = db.workLikes[workId] || (db.workLikes[workId] = []);
+        const i = arr.indexOf(userId);
+        if (i > -1) arr.splice(i, 1); else arr.push(userId);
+        schedule(); return { likes: arr.length, liked: i === -1 };
+      },
+      async likedBy(workId, userId) { return (db.workLikes[workId] || []).includes(userId); },
+      async countByWorks(workIds) { const out = {}; for (const id of workIds) out[id] = (db.workLikes[id] || []).length; return out; },
     },
 
     passwordResets: {

@@ -13,6 +13,7 @@
 //   users.findByEmail(email) findById(id) findByHandle(handle) create(user) update(id, patch)
 //   works.list({cat,q,limit,offset}) listByOwner(ownerId) findById(id) findByHash(hash) create(meta,image) getImage(id)
 //   stats.incrementView(workId) viewsFor(workIds) -> { workId: views }
+//   likes.toggle(workId,userId) likedBy(workId,userId) countByWorks(workIds) -> { workId: count }
 //   boards.listByUser(uid) findByUserAndId(uid,id) create(board) remove(uid,id) togglePin(uid,id,workId)
 //   orders.create(order) findById(id)
 //   comments.listByWork(workId) findById(id) create(c) toggleLike(id,userId) remove(id,userId)
@@ -66,6 +67,11 @@ export const repo = {
   stats: {
     incrementView: (workId) => must().stats.incrementView(workId),
     viewsFor: (workIds) => must().stats.viewsFor(workIds),
+  },
+  likes: {
+    toggle: (workId, userId) => must().likes.toggle(workId, userId),
+    likedBy: (workId, userId) => must().likes.likedBy(workId, userId),
+    countByWorks: (workIds) => must().likes.countByWorks(workIds),
   },
   boards: {
     listByUser: (uid) => must().boards.listByUser(uid),
