@@ -2,6 +2,10 @@ const { Seal, Icon, IconButton, Button, Tag, Avatar, Pin, Modal, Toast, ThemeTog
 const C = window.SACatalog, S = window.SAStore, Session = window.SASession;
 function strhash(s){var h=0;for(var i=0;i<s.length;i++)h=(Math.imul(31,h)+s.charCodeAt(i))|0;return (h>>>0);}
 
+// Profile accent palette. Keys mirror the server whitelist; `brass` = the site default
+// (no override). The chosen hex is applied as a scoped `--brass` override on the profile.
+const ACCENTS = { brass: null, rose: "#d98a8a", violet: "#b39ddb", teal: "#5cbfae", amber: "#e0b050", sky: "#86b3e0" };
+
 function useStoreTick() {
   const [, set] = React.useState(0);
   React.useEffect(() => S.subscribe(() => set((n) => n + 1)), []);
@@ -172,11 +176,21 @@ function SelfSignedOut() {
 
 function SelfProfile({ user }) {
   useStoreTick();
+  const [profile, setProfile] = React.useState(() => user.profile || {});
   const [ownWorks, setOwnWorks] = React.useState([]);
   const [tab, setTab] = React.useState("works");
+  const [editing, setEditing] = React.useState(false);
+  const [saving, setSaving] = React.useState(false);
+  const [pronouns, setPronouns] = React.useState("");
+  const [gender, setGender] = React.useState("");
+  const [bio, setBio] = React.useState("");
+  const [likesText, setLikesText] = React.useState("");
+  const [accent, setAccent] = React.useState("brass");
+  const [visibility, setVisibility] = React.useState("public");
   const [toast, setToast] = React.useState("");
   const toastRef = React.useRef();
   const show = (m) => { setToast(m); clearTimeout(toastRef.current); toastRef.current = setTimeout(() => setToast(""), 2000); };
+
   React.useEffect(() => {
     let alive = true;
     if (window.SA_API) window.SA_API.listWorks().then((list) => { if (alive) setOwnWorks((list || []).filter((w) => w.ownerId === user.id)); }).catch(() => {});
@@ -186,40 +200,79 @@ function SelfProfile({ user }) {
   const handle = user.handle || Session.handleFromEmail(user.email);
   const likes = S.likes().length, follows = S.follows().length;
   const logout = async () => { await Session.logout(); location.href = "login.html"; };
+  const isPrivate = profile.visibility === "private";
+  const likeTags = profile.likes || [];
+  const accentStyle = ACCENTS[profile.accent] ? { "--brass": ACCENTS[profile.accent] } : undefined;
+
+  const openEdit = () => {
+    setPronouns(profile.pronouns || ""); setGender(profile.gender || "");
+    setBio(profile.bio || ""); setLikesText((profile.likes || []).join("\n"));
+    setAccent(profile.accent in ACCENTS ? profile.accent : "brass");
+    setVisibility(profile.visibility === "private" ? "private" : "public");
+    setEditing(true);
+  };
+  const save = () => {
+    if (saving) return;
+    setSaving(true);
+    const fields = {
+      pronouns: pronouns.trim().slice(0, 40),
+      gender: gender.trim().slice(0, 40),
+      bio: bio.trim().slice(0, 600),
+      likes: likesText.split("\n").map((s) => s.trim()).filter(Boolean).slice(0, 12),
+      accent: accent, visibility: visibility,
+    };
+    Promise.resolve(Session.updateProfile(fields)).then((u) => {
+      setProfile((u && u.profile) ? u.profile : Object.assign({}, profile, fields));
+      setEditing(false); setSaving(false); show("Profile saved");
+    }).catch(() => { setSaving(false); show("Couldn't save — try again"); });
+  };
+  const shareProfile = () => {
+    const link = location.origin + location.pathname + "?u=" + encodeURIComponent(user.id);
+    if (navigator.clipboard) { try { navigator.clipboard.writeText(link); } catch (e) {} }
+    show(isPrivate ? "Link copied — your profile is private" : "Profile link copied");
+  };
 
   return (
-    <React.Fragment>
+    <div className="self" style={accentStyle}>
       <AppBar />
       <div className="cover"><img src={SAGenArt.dataUri(user.id + "-cover", { cat: "concept" })} alt="" /></div>
       <div className="wrap">
         <div className="phead">
           <Avatar name={user.name} size={112} className="phead__avatar" />
           <div className="phead__id">
-            <h1 className="phead__name">{user.name}<span style={{ fontFamily: "var(--font-mono)", fontSize: "0.58rem", letterSpacing: "0.14em", textTransform: "uppercase", color: "var(--brass)", border: "1px solid var(--line-strong)", borderRadius: "100px", padding: "0.2rem 0.6rem", marginLeft: "0.5rem", verticalAlign: "middle" }}>You</span></h1>
+            <h1 className="phead__name">{user.name}<span className="youchip">You</span></h1>
             <div className="phead__handle">
               <span>@{handle}</span>
+              {profile.pronouns ? <span className="loc">{profile.pronouns}</span> : null}
+              {profile.gender ? <span className="loc">{profile.gender}</span> : null}
               <span className="loc">{user.email}</span>
-              <span className="loc"><Icon name="shieldCheck" size={13} /> Member</span>
+              {isPrivate
+                ? <span className="vis vis--private">Private</span>
+                : <span className="vis"><Icon name="shieldCheck" size={12} /> Public</span>}
             </div>
           </div>
           <div className="phead__actions">
-            <a href="index.html"><Button variant="solid" size="sm" arrow>Seal a work</Button></a>
-            <IconButton icon="share" label="Share profile" onClick={() => show("Profile link copied")} />
+            <Button variant="solid" size="sm" onClick={openEdit}>Edit profile</Button>
+            <IconButton icon="share" label="Copy profile link" onClick={shareProfile} />
             <Button variant="ghost" size="sm" onClick={logout}>Log out</Button>
           </div>
         </div>
 
         <div className="pbody">
           <aside className="aside">
-            <p className="bio">This is your public SecurityArts profile. Seal a piece and it appears here — proof a human made it, for any buyer or gallery to verify.</p>
+            <p className="bio">{profile.bio || "This is your public SecurityArts profile. Add a bio, your pronouns, and what you love — then seal a piece and it appears here, proof a human made it."}</p>
+            {likeTags.length ? (
+              <div className="likes-blk">
+                <p className="asidek">What I like</p>
+                <div className="tags">{likeTags.map((t, i) => <Tag key={i}>{t}</Tag>)}</div>
+              </div>
+            ) : null}
             <div className="stats">
               <div className="stat"><b>{ownWorks.length}</b><span>Sealed works</span></div>
               <div className="stat"><b>{likes}</b><span>Likes given</span></div>
               <div className="stat"><b>{follows}</b><span>Following</span></div>
             </div>
-            <a href="me.html" style={{ fontFamily: "var(--font-mono)", fontSize: "0.68rem", letterSpacing: "0.12em", textTransform: "uppercase", color: "var(--brass)", display: "inline-flex", gap: "0.4rem", alignItems: "center" }}>
-              <Icon name="user" size={14} /> Back to your account
-            </a>
+            <a href="me.html" className="asidelink"><Icon name="user" size={14} /> Back to your account</a>
           </aside>
 
           <div>
@@ -252,22 +305,152 @@ function SelfProfile({ user }) {
         </div>
       </div>
 
+      <Modal open={editing} onClose={() => setEditing(false)} width="min(560px, 94vw)" label="Edit your profile">
+        <div className="pset">
+          <p className="dm__eyebrow">Your profile</p>
+          <h2 className="dm__title">Make it yours.</h2>
+          <div className="pset__grid">
+            <label className="fld"><span>Pronouns</span><input value={pronouns} onChange={(e) => setPronouns(e.target.value)} placeholder="she/her · he/him · they/them" maxLength={40} /></label>
+            <label className="fld"><span>Gender</span><input value={gender} onChange={(e) => setGender(e.target.value)} placeholder="Woman · Man · Non-binary · …" maxLength={40} /></label>
+          </div>
+          <label className="fld"><span>Bio</span><textarea value={bio} onChange={(e) => setBio(e.target.value)} placeholder="A line about you and your work…" maxLength={600} rows={3} /></label>
+          <label className="fld"><span>What I like <em>(one per line)</em></span><textarea value={likesText} onChange={(e) => setLikesText(e.target.value)} placeholder={"Analog photography\nBrutalist type\nRisograph"} rows={4} /></label>
+          <div className="fld"><span>Accent</span>
+            <div className="swatches">
+              {Object.keys(ACCENTS).map((k) => (
+                <button key={k} type="button" className={`sw ${accent === k ? "on" : ""}`} onClick={() => setAccent(k)} aria-label={k} title={k} style={{ background: ACCENTS[k] || "var(--brass)" }} />
+              ))}
+            </div>
+          </div>
+          <div className="fld"><span>Board visibility</span>
+            <div className="seg">
+              <button type="button" className={visibility === "public" ? "on" : ""} onClick={() => setVisibility("public")}>Public</button>
+              <button type="button" className={visibility === "private" ? "on" : ""} onClick={() => setVisibility("private")}>Private</button>
+            </div>
+            <p className="pset__note">{visibility === "private" ? "Only you can see your profile and sealed works." : "Anyone with your link can see your profile and sealed works."}</p>
+          </div>
+          <div className="dm__actions">
+            <Button variant="solid" size="sm" onClick={save}>{saving ? "Saving…" : "Save profile"}</Button>
+            <Button variant="ghost" size="sm" onClick={() => setEditing(false)}>Cancel</Button>
+          </div>
+        </div>
+      </Modal>
+
       <footer className="foot">
         <a href="me.html">← Back to your account</a>
         <span className="m">Your public profile · Sealed provenance</span>
       </footer>
       <Toast show={!!toast}>{toast}</Toast>
+    </div>
+  );
+}
+
+// Centered full-page message (loading / private / missing states).
+function Notice({ title, body }) {
+  return (
+    <React.Fragment>
+      <AppBar />
+      <div className="wrap">
+        <div className="about" style={{ textAlign: "center", padding: "clamp(3rem,10vw,7rem) 0" }}>
+          <Seal size={54} style={{ margin: "0 auto 1.2rem", color: "var(--bone-faint)" }} />
+          <h2 style={{ fontFamily: "var(--font-serif)", fontWeight: 360, fontSize: "1.9rem", letterSpacing: "-0.02em", marginBottom: "0.6rem" }}>{title}</h2>
+          <p style={{ color: "var(--bone-dim)", maxWidth: "44ch", margin: "0 auto 1.4rem" }}>{body}</p>
+          <a href="index.html"><Button variant="ghost" arrow>Back to Discover</Button></a>
+        </div>
+      </div>
     </React.Fragment>
+  );
+}
+
+// Another member's public profile (profile.html?u=<userId>). The server decides what
+// to return — a private profile arrives with only { name, visibility:"private" }, so
+// the privacy choice is enforced server-side, not just hidden here.
+function PublicUserProfile({ userId }) {
+  const [status, setStatus] = React.useState("loading"); // loading | ok | private | missing
+  const [prof, setProf] = React.useState(null);
+  const [works, setWorks] = React.useState([]);
+
+  React.useEffect(() => {
+    let alive = true;
+    Promise.resolve(Session.getUser(userId)).then((p) => {
+      if (!alive) return;
+      if (!p) { setStatus("missing"); return; }
+      if (p.visibility === "private") { setProf(p); setStatus("private"); return; }
+      setProf(p); setStatus("ok");
+      if (window.SA_API) window.SA_API.listWorks().then((list) => { if (alive) setWorks((list || []).filter((w) => w.ownerId === userId)); }).catch(() => {});
+    }).catch(() => { if (alive) setStatus("missing"); });
+    return () => { alive = false; };
+  }, [userId]);
+
+  if (status === "loading") return <Notice title="Loading profile…" body="Fetching this creator's public profile." />;
+  if (status === "missing") return <Notice title="Profile unavailable." body="This profile can't be loaded — it may be offline, or the link is broken." />;
+  if (status === "private") return <Notice title={(prof && prof.name ? prof.name + "’s" : "This") + " profile is private."} body="The owner has chosen to keep their board private." />;
+
+  const accentStyle = ACCENTS[prof.accent] ? { "--brass": ACCENTS[prof.accent] } : undefined;
+  const likeTags = prof.likes || [];
+  return (
+    <div className="self" style={accentStyle}>
+      <AppBar />
+      <div className="cover"><img src={SAGenArt.dataUri(prof.id + "-cover", { cat: "concept" })} alt="" /></div>
+      <div className="wrap">
+        <div className="phead">
+          <Avatar name={prof.name} size={112} className="phead__avatar" />
+          <div className="phead__id">
+            <h1 className="phead__name">{prof.name}</h1>
+            <div className="phead__handle">
+              <span>@{prof.handle}</span>
+              {prof.pronouns ? <span className="loc">{prof.pronouns}</span> : null}
+              {prof.gender ? <span className="loc">{prof.gender}</span> : null}
+              <span className="vis"><Icon name="shieldCheck" size={12} /> Public</span>
+            </div>
+          </div>
+        </div>
+        <div className="pbody">
+          <aside className="aside">
+            <p className="bio">{prof.bio || "A SecurityArts member."}</p>
+            {likeTags.length ? (
+              <div className="likes-blk">
+                <p className="asidek">What they like</p>
+                <div className="tags">{likeTags.map((t, i) => <Tag key={i}>{t}</Tag>)}</div>
+              </div>
+            ) : null}
+            <div className="stats"><div className="stat"><b>{works.length}</b><span>Sealed works</span></div></div>
+          </aside>
+          <div>
+            <div className="tabs"><button className="tab active">Works · {works.length}</button></div>
+            {works.length ? (
+              <div className="masonry">
+                {works.map((w) => (
+                  <Pin key={w.id} art={<img src={SAGenArt.dataUri(strhash(w.id), { cat: w.cat })} alt={w.title} />}
+                    title={w.title} artist={prof.name} badge="Sealed" />
+                ))}
+              </div>
+            ) : (
+              <div className="about" style={{ textAlign: "center" }}>
+                <Seal size={44} style={{ margin: "0 auto 1rem", color: "var(--bone-faint)" }} />
+                <p>No sealed works yet.</p>
+              </div>
+            )}
+          </div>
+        </div>
+      </div>
+      <footer className="foot">
+        <a href="index.html">← Back to Discover</a>
+        <span className="m">Verified human · Sealed provenance</span>
+      </footer>
+    </div>
   );
 }
 
 function App() {
   const params = new URLSearchParams(location.search);
+  const uid = params.get("u");
   const isMe = params.get("me") === "1" || params.get("artist") === "me";
   if (isMe) {
     const user = Session.current();
     return user ? <SelfProfile user={user} /> : <SelfSignedOut />;
   }
+  if (uid) return <PublicUserProfile userId={uid} />;
   return <ArtistProfile artistId={qsArtist()} />;
 }
 

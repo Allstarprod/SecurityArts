@@ -88,6 +88,14 @@ export async function createRepo() {
         idx.userById.set(user.id, user); idx.userByEmail.set(user.email, user);
         schedule(); return clone(user);
       },
+      // Patch a user in place (v1: profile). idx and db.users share the object
+      // reference, so mutating here updates both and the next snapshot persists it.
+      async update(id, patch) {
+        const u = idx.userById.get(id);
+        if (!u) return null;
+        Object.assign(u, patch);
+        schedule(); return clone(u);
+      },
     },
 
     works: {

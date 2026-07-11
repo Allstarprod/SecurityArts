@@ -13,7 +13,7 @@ import fs from "node:fs/promises";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 
-const rowToUser = (r) => (r ? { id: r.id, email: r.email, name: r.name, pass: r.pass, createdAt: r.created_at } : null);
+const rowToUser = (r) => (r ? { id: r.id, email: r.email, name: r.name, pass: r.pass, createdAt: r.created_at, profile: r.profile || {} } : null);
 const rowToWork = (r) => (r ? {
   id: r.id, own: r.own, title: r.title, artist: r.artist, cat: r.cat, medium: r.medium,
   price: r.price, cert: r.cert, ownerId: r.owner_id, createdAt: r.created_at,
@@ -68,6 +68,16 @@ export async function createRepo() {
           [u.id, u.email, u.name, u.pass, u.createdAt]
         );
         return u;
+      },
+      // Patch a user (v1: name / profile). Builds the SET clause from provided keys only.
+      async update(id, patch) {
+        const sets = [], vals = [];
+        if (patch.name !== undefined) { vals.push(patch.name); sets.push(`name=$${vals.length}`); }
+        if (patch.profile !== undefined) { vals.push(JSON.stringify(patch.profile)); sets.push(`profile=$${vals.length}::jsonb`); }
+        if (!sets.length) return rowToUser((await q("SELECT * FROM users WHERE id=$1", [id])).rows[0]);
+        vals.push(id);
+        const r = await q(`UPDATE users SET ${sets.join(",")} WHERE id=$${vals.length} RETURNING *`, vals);
+        return rowToUser(r.rows[0]);
       },
     },
 

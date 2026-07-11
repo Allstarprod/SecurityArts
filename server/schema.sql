@@ -7,8 +7,11 @@ CREATE TABLE IF NOT EXISTS users (
   email      TEXT UNIQUE NOT NULL,
   name       TEXT NOT NULL DEFAULT 'Artist',
   pass       TEXT NOT NULL,              -- scrypt hash (never plaintext)
-  created_at TEXT NOT NULL
+  created_at TEXT NOT NULL,
+  profile    JSONB NOT NULL DEFAULT '{}'::jsonb  -- pronouns, gender, bio, likes, accent, visibility
 );
+-- Existing installs: add the profile column if the table predates it.
+ALTER TABLE users ADD COLUMN IF NOT EXISTS profile JSONB NOT NULL DEFAULT '{}'::jsonb;
 
 CREATE TABLE IF NOT EXISTS works (
   id         TEXT PRIMARY KEY,

@@ -85,6 +85,7 @@ function App() {
             <h1 className="mehead__name">{user.name}</h1>
             <div className="mehead__handle">
               <span className="m">@{handle}</span>
+              {user.profile && user.profile.pronouns ? <span className="m">{user.profile.pronouns}</span> : null}
               <span className="m"><Icon name="heart" size={13} /> Collector</span>
               <span className="m"><Icon name="shieldCheck" size={13} /> {user.email}</span>
             </div>

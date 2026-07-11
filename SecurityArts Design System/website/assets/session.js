@@ -56,6 +56,26 @@
   // Synchronous — the localStorage mirror. Pages gate on this so they render instantly.
   function current() { return read(); }
 
+  // Update the signed-in user's profile fields (pronouns/gender/bio/likes/accent/visibility).
+  // Live: server validates + persists, returns the merged public user. Static demo: merge locally.
+  async function updateProfile(fields) {
+    var cur = read() || {};
+    if (window.SA_API) {
+      try {
+        var u = await window.SA_API.profile.update(fields);
+        return write(Object.assign({ handle: handleFromEmail(u.email) }, u));
+      } catch (e) { /* backend unreachable — fall through to local merge */ }
+    }
+    var merged = Object.assign({}, cur, { profile: Object.assign({}, cur.profile || {}, fields) });
+    return write(merged);
+  }
+
+  // Fetch another user's public profile (null when opened statically / offline).
+  async function getUser(id) {
+    if (window.SA_API) { try { return await window.SA_API.users.get(id); } catch (e) {} }
+    return null;
+  }
+
   // Background reconcile with the server's real session (keeps the mirror honest when live).
   async function sync() {
     if (!window.SA_API) return read();
@@ -70,6 +90,7 @@
 
   window.SASession = {
     current: current, login: login, register: register, logout: logout, sync: sync,
+    updateProfile: updateProfile, getUser: getUser,
     nameFromEmail: nameFromEmail, handleFromEmail: handleFromEmail,
   };
 })();

@@ -42,7 +42,43 @@ async function priceOf(id) {
   return priceFor(m ? Number(m[1]) * 7 + 3 : hashStr(id));
 }
 
-function publicUser(u) { return u ? { id: u.id, email: u.email, name: u.name } : null; }
+// Self view — returned only to the authenticated owner (register / login / me).
+// Includes email (their own) and their editable profile.
+function publicUser(u) { return u ? { id: u.id, email: u.email, name: u.name, profile: u.profile || {} } : null; }
+
+// Public username derived from email — meant to be shown publicly, so exposing it
+// (not the email address itself) on a public profile is fine.
+function handleFrom(email) { return String(email || "").split("@")[0].replace(/[^a-z0-9]+/gi, "").toLowerCase() || "member"; }
+
+// Profile customization — server owns the whitelist so the client can't inject arbitrary values.
+const ACCENTS = ["brass", "rose", "violet", "teal", "amber", "sky"];
+const VISIBILITY = ["public", "private"];
+
+// Validate + merge a profile patch onto the previous profile. Only known fields
+// are accepted (no prototype pollution / arbitrary keys), each length-capped.
+function cleanProfile(body, prev) {
+  const p = { ...(prev || {}) };
+  if (body.pronouns !== undefined) p.pronouns = str(body.pronouns, { max: 40 }) || "";
+  if (body.gender !== undefined) p.gender = str(body.gender, { max: 40 }) || "";
+  if (body.bio !== undefined) p.bio = str(body.bio, { max: 600 }) || "";
+  if (body.accent !== undefined) p.accent = ACCENTS.includes(body.accent) ? body.accent : "brass";
+  if (body.visibility !== undefined) p.visibility = VISIBILITY.includes(body.visibility) ? body.visibility : "public";
+  if (body.likes !== undefined) {
+    const arr = Array.isArray(body.likes) ? body.likes : [];
+    p.likes = arr.map((x) => str(x, { max: 60 })).filter(Boolean).slice(0, 12);
+  }
+  return p;
+}
+
+// Public view — returned to ANYONE. Never leaks email. A private profile discloses
+// only identity + the private flag so the UI can say "this profile is private".
+function publicProfile(u) {
+  if (!u) return null;
+  const p = u.profile || {};
+  const base = { id: u.id, name: u.name, handle: handleFrom(u.email), visibility: VISIBILITY.includes(p.visibility) ? p.visibility : "public" };
+  if (base.visibility === "private") return base;
+  return { ...base, pronouns: p.pronouns || "", gender: p.gender || "", bio: p.bio || "", likes: Array.isArray(p.likes) ? p.likes : [], accent: ACCENTS.includes(p.accent) ? p.accent : "brass" };
+}
 
 // A throwaway scrypt hash used to spend equivalent CPU on failed logins for
 // unknown emails, so timing can't distinguish "no such user" from "wrong password".
@@ -88,6 +124,25 @@ router.post("/api/auth/login", async ({ res, body, ip, https }) => {
 
 router.post("/api/auth/logout", ({ res }) => { res.setHeader("Set-Cookie", clearCookie()); return ok(res, { loggedOut: true }); });
 router.get("/api/auth/me", ({ res, user }) => ok(res, publicUser(user)));
+
+/* ---- profile -------------------------------------------------------- */
+// Update your own profile (pronouns, gender, bio, likes, accent, visibility).
+router.post("/api/profile", async ({ res, body, user, ip }) => {
+  if (!user) return fail(res, 401, "Sign in to edit your profile.");
+  if (!(await rateLimit(`prof:${ip}`, 30, 60000))) return fail(res, 429, "Slow down a moment.");
+  const profile = cleanProfile(body, user.profile);
+  const updated = await repo.users.update(user.id, { profile });
+  if (!updated) return fail(res, 404, "Account not found.");
+  audit("profile.update", { userId: user.id, ip });
+  return ok(res, publicUser(updated));
+});
+
+// Public profile by user id — honors the owner's public/private choice server-side.
+router.get("/api/users/:id", async ({ res, params }) => {
+  const u = await repo.users.findById(params.id);
+  if (!u) return fail(res, 404, "No such profile.");
+  return ok(res, publicProfile(u));
+});
 
 /* ---- works + verification ------------------------------------------ */
 router.get("/api/works", async ({ res, url }) => {

@@ -44,6 +44,14 @@
       logout: function () { return req("/auth/logout", { method: "POST" }); },
       me: function () { return req("/auth/me"); },
     },
+    // Public profile by user id (honors the owner's public/private choice server-side).
+    users: {
+      get: function (id) { return req("/users/" + encodeURIComponent(id)); },
+    },
+    // Update your own profile (auth required).
+    profile: {
+      update: function (fields) { return req("/profile", { method: "POST", body: fields }); },
+    },
     boards: {
       list: function () { return req("/boards"); },
       create: function (name) { return req("/boards", { method: "POST", body: { name: name } }); },
