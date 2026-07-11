@@ -43,8 +43,9 @@ async function priceOf(id) {
 }
 
 // Self view — returned only to the authenticated owner (register / login / me).
-// Includes email (their own) and their editable profile.
-function publicUser(u) { return u ? { id: u.id, email: u.email, name: u.name, profile: u.profile || {} } : null; }
+// Includes email (their own), their editable profile, and their @handle (stored or,
+// until claimed, one derived from their email so the UI always has something to show).
+function publicUser(u) { return u ? { id: u.id, email: u.email, name: u.name, handle: u.handle || handleFrom(u.email), handleClaimed: !!u.handle, profile: u.profile || {} } : null; }
 
 // Public username derived from email — meant to be shown publicly, so exposing it
 // (not the email address itself) on a public profile is fine.
@@ -83,9 +84,9 @@ function cleanProfile(body, prev) {
 function publicProfile(u) {
   if (!u) return null;
   const p = u.profile || {};
-  const base = { id: u.id, name: u.name, handle: handleFrom(u.email), visibility: VISIBILITY.includes(p.visibility) ? p.visibility : "public" };
+  const base = { id: u.id, name: u.name, handle: u.handle || handleFrom(u.email), visibility: VISIBILITY.includes(p.visibility) ? p.visibility : "public" };
   if (base.visibility === "private") return base;
-  return { ...base, pronouns: p.pronouns || "", gender: p.gender || "", bio: p.bio || "", likes: Array.isArray(p.likes) ? p.likes : [], accent: ACCENTS.includes(p.accent) ? p.accent : "brass" };
+  return { ...base, pronouns: p.pronouns || "", gender: p.gender || "", bio: p.bio || "", likes: Array.isArray(p.likes) ? p.likes : [], accent: ACCENTS.includes(p.accent) ? p.accent : "brass", bannerUrl: p.bannerUrl || "" };
 }
 
 // A throwaway scrypt hash used to spend equivalent CPU on failed logins for
@@ -135,14 +136,58 @@ router.get("/api/auth/me", ({ res, user }) => ok(res, publicUser(user)));
 
 /* ---- profile -------------------------------------------------------- */
 // Update your own profile (pronouns, gender, bio, likes, accent, visibility).
+const HANDLE_RE = /^[a-z0-9_]{3,30}$/;
+
 router.post("/api/profile", async ({ res, body, user, ip }) => {
   if (!user) return fail(res, 401, "Sign in to edit your profile.");
   if (!(await rateLimit(`prof:${ip}`, 30, 60000))) return fail(res, 429, "Slow down a moment.");
-  const profile = cleanProfile(body, user.profile);
-  const updated = await repo.users.update(user.id, { profile });
+  const patch = { profile: cleanProfile(body, user.profile) };
+  if (body.name !== undefined) {
+    const name = str(body.name, { min: 1, max: 80 });
+    if (!name) return fail(res, 400, "Your name needs to be 1–80 characters.");
+    patch.name = name;
+  }
+  if (body.handle !== undefined) {
+    const handle = String(body.handle || "").trim().toLowerCase();
+    if (!HANDLE_RE.test(handle)) return fail(res, 400, "Handles are 3–30 characters: lowercase letters, numbers, and underscores.");
+    if (handle !== (user.handle || "").toLowerCase()) {
+      const taken = await repo.users.findByHandle(handle);
+      if (taken && taken.id !== user.id) return fail(res, 409, "That handle is already taken.");
+      patch.handle = handle;
+    }
+  }
+  const updated = await repo.users.update(user.id, patch);
   if (!updated) return fail(res, 404, "Account not found.");
   audit("profile.update", { userId: user.id, ip });
   return ok(res, publicUser(updated));
+});
+
+// Banner image — upload (data-URI) or remove. Uploads to Supabase Storage when
+// configured (CDN URL), else stores inline (dev). Kept off the main profile save so
+// the heavy image payload only travels when the banner actually changes.
+router.post("/api/profile/banner", async ({ res, body, user, ip }) => {
+  if (!user) return fail(res, 401, "Sign in to edit your profile.");
+  if (!(await rateLimit(`banner:${ip}`, 12, 60000))) return fail(res, 429, "Slow down a moment.");
+  const profile = { ...(user.profile || {}) };
+  if (body.remove === true) {
+    profile.bannerUrl = "";
+  } else {
+    const image = typeof body.image === "string" && /^data:image\//.test(body.image) && body.image.length < 3_000_000 ? body.image : null;
+    if (!image) return fail(res, 400, "Upload a JPG or PNG under ~2MB.");
+    const url = blobStoreActive ? await putImage("banner_" + user.id, image) : image;
+    if (!url) return fail(res, 502, "Couldn't store the image. Try again.");
+    profile.bannerUrl = url;
+  }
+  const updated = await repo.users.update(user.id, { profile });
+  audit("profile.banner", { userId: user.id, storage: blobStoreActive ? "supabase" : "inline", removed: body.remove === true, ip });
+  return ok(res, publicUser(updated));
+});
+
+// Public profile lookup by @handle (for vanity links / the /@handle redirect).
+router.get("/api/handle/:handle", async ({ res, params }) => {
+  const u = await repo.users.findByHandle(String(params.handle || "").toLowerCase());
+  if (!u) return fail(res, 404, "No such profile.");
+  return ok(res, publicProfile(u));
 });
 
 // Public profile by user id — honors the owner's public/private choice server-side.

@@ -85,6 +85,10 @@ export async function createRepo() {
     users: {
       async findByEmail(email) { return clone(idx.userByEmail.get(email) || null); },
       async findById(id) { return clone(idx.userById.get(id) || null); },
+      async findByHandle(handle) {
+        const h = String(handle || "").toLowerCase();
+        return clone(db.users.find((u) => u.handle && u.handle.toLowerCase() === h) || null);
+      },
       async create(user) {
         db.users.push(user);
         idx.userById.set(user.id, user); idx.userByEmail.set(user.email, user);

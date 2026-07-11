@@ -10,7 +10,7 @@
 //
 // Interface (all async):
 //   init(): connect / load                     close(): flush / disconnect
-//   users.findByEmail(email) findById(id) create(user) update(id, patch)
+//   users.findByEmail(email) findById(id) findByHandle(handle) create(user) update(id, patch)
 //   works.list({cat,q,limit,offset}) findById(id) findByHash(hash) create(meta,image) getImage(id)
 //   boards.listByUser(uid) findByUserAndId(uid,id) create(board) remove(uid,id) togglePin(uid,id,workId)
 //   orders.create(order) findById(id)
@@ -49,6 +49,7 @@ export const repo = {
   users: {
     findByEmail: (e) => must().users.findByEmail(e),
     findById: (id) => must().users.findById(id),
+    findByHandle: (h) => must().users.findByHandle(h),
     create: (u) => must().users.create(u),
     update: (id, patch) => must().users.update(id, patch),
   },

@@ -56,23 +56,48 @@
   // Synchronous — the localStorage mirror. Pages gate on this so they render instantly.
   function current() { return read(); }
 
-  // Update the signed-in user's profile fields (pronouns/gender/bio/likes/accent/visibility).
-  // Live: server validates + persists, returns the merged public user. Static demo: merge locally.
-  async function updateProfile(fields) {
-    var cur = read() || {};
-    if (window.SA_API) {
-      try {
-        var u = await window.SA_API.profile.update(fields);
-        return write(Object.assign({ handle: handleFromEmail(u.email) }, u));
-      } catch (e) { /* backend unreachable — fall through to local merge */ }
-    }
-    var merged = Object.assign({}, cur, { profile: Object.assign({}, cur.profile || {}, fields) });
-    return write(merged);
+  var PROFILE_KEYS = ["pronouns", "gender", "bio", "likes", "accent", "visibility", "role", "interests", "onboarded", "bannerUrl"];
+
+  // Merge a partial update into the local mirror (static-demo path): name/handle are
+  // top-level, everything else lands in profile.
+  function localMerge(cur, fields) {
+    var merged = Object.assign({}, cur);
+    if (fields.name != null) merged.name = fields.name;
+    if (fields.handle != null) merged.handle = String(fields.handle).toLowerCase();
+    var pf = {};
+    PROFILE_KEYS.forEach(function (k) { if (fields[k] !== undefined) pf[k] = fields[k]; });
+    merged.profile = Object.assign({}, cur.profile || {}, pf);
+    return merged;
   }
 
-  // Fetch another user's public profile (null when opened statically / offline).
+  // Update the signed-in user (name, handle, and profile fields in one call).
+  // Live backend: real errors (e.g. "handle taken") PROPAGATE so the UI can show them —
+  // we only local-merge when there's genuinely no backend (a statically-opened page).
+  async function updateProfile(fields) {
+    if (window.SA_API && (await window.SA_API.available)) {
+      var u = await window.SA_API.profile.update(fields);
+      return write(Object.assign({ handle: handleFromEmail(u.email) }, u));
+    }
+    return write(localMerge(read() || {}, fields));
+  }
+
+  // Upload or remove the profile banner. payload = { image: dataURI } | { remove: true }.
+  async function uploadBanner(payload) {
+    if (window.SA_API && (await window.SA_API.available)) {
+      var u = await window.SA_API.profile.banner(payload);
+      return write(Object.assign({ handle: handleFromEmail(u.email) }, u));
+    }
+    var bannerUrl = payload && payload.remove ? "" : (payload && payload.image) || "";
+    return write(localMerge(read() || {}, { bannerUrl: bannerUrl }));
+  }
+
+  // Fetch another user's public profile by id or @handle (null when static / offline).
   async function getUser(id) {
     if (window.SA_API) { try { return await window.SA_API.users.get(id); } catch (e) {} }
+    return null;
+  }
+  async function getUserByHandle(handle) {
+    if (window.SA_API) { try { return await window.SA_API.users.getByHandle(handle); } catch (e) {} }
     return null;
   }
 
@@ -90,7 +115,7 @@
 
   window.SASession = {
     current: current, login: login, register: register, logout: logout, sync: sync,
-    updateProfile: updateProfile, getUser: getUser,
+    updateProfile: updateProfile, uploadBanner: uploadBanner, getUser: getUser, getUserByHandle: getUserByHandle,
     nameFromEmail: nameFromEmail, handleFromEmail: handleFromEmail,
   };
 })();

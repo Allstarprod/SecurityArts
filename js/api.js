@@ -44,13 +44,15 @@
       logout: function () { return req("/auth/logout", { method: "POST" }); },
       me: function () { return req("/auth/me"); },
     },
-    // Public profile by user id (honors the owner's public/private choice server-side).
+    // Public profile by user id or @handle (honors the owner's public/private choice server-side).
     users: {
       get: function (id) { return req("/users/" + encodeURIComponent(id)); },
+      getByHandle: function (h) { return req("/handle/" + encodeURIComponent(h)); },
     },
-    // Update your own profile (auth required).
+    // Update your own profile (auth required). `update` also accepts name + handle.
     profile: {
       update: function (fields) { return req("/profile", { method: "POST", body: fields }); },
+      banner: function (payload) { return req("/profile/banner", { method: "POST", body: payload }); },
     },
     // Threaded comments on a work.
     comments: {

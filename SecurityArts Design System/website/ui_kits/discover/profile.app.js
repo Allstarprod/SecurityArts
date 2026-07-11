@@ -81,10 +81,14 @@ function SelfSignedOut() {
 function SelfProfile({ user }) {
   useStoreTick();
   const [profile, setProfile] = React.useState(() => user.profile || {});
+  const [acct, setAcct] = React.useState(() => ({ name: user.name, handle: user.handle || Session.handleFromEmail(user.email), handleClaimed: !!user.handleClaimed }));
   const [ownWorks, setOwnWorks] = React.useState([]);
   const [tab, setTab] = React.useState("works");
   const [editing, setEditing] = React.useState(false);
   const [saving, setSaving] = React.useState(false);
+  const [bannerBusy, setBannerBusy] = React.useState(false);
+  const [name, setName] = React.useState("");
+  const [handle, setHandle] = React.useState("");
   const [pronouns, setPronouns] = React.useState("");
   const [gender, setGender] = React.useState("");
   const [bio, setBio] = React.useState("");
@@ -92,11 +96,12 @@ function SelfProfile({ user }) {
   const [accent, setAccent] = React.useState("brass");
   const [visibility, setVisibility] = React.useState("public");
   const [toast, setToast] = React.useState("");
+  const fileRef = React.useRef();
   const toastRef = React.useRef();
   const show = (m) => {
     setToast(m);
     clearTimeout(toastRef.current);
-    toastRef.current = setTimeout(() => setToast(""), 2e3);
+    toastRef.current = setTimeout(() => setToast(""), 2200);
   };
   React.useEffect(() => {
     let alive = true;
@@ -108,7 +113,6 @@ function SelfProfile({ user }) {
       alive = false;
     };
   }, [user.id]);
-  const handle = user.handle || Session.handleFromEmail(user.email);
   const likes = S.likes().length, follows = S.follows().length;
   const logout = async () => {
     await Session.logout();
@@ -117,7 +121,10 @@ function SelfProfile({ user }) {
   const isPrivate = profile.visibility === "private";
   const likeTags = profile.likes || [];
   const accentStyle = ACCENTS[profile.accent] ? { "--brass": ACCENTS[profile.accent] } : void 0;
+  const coverSrc = profile.bannerUrl || SAGenArt.dataUri(user.id + "-cover", { cat: "concept" });
   const openEdit = () => {
+    setName(acct.name || "");
+    setHandle(acct.handle || "");
     setPronouns(profile.pronouns || "");
     setGender(profile.gender || "");
     setBio(profile.bio || "");
@@ -128,8 +135,19 @@ function SelfProfile({ user }) {
   };
   const save = () => {
     if (saving) return;
+    const h = handle.trim().toLowerCase();
+    if (!name.trim()) {
+      show("Your name can't be empty.");
+      return;
+    }
+    if (!/^[a-z0-9_]{3,30}$/.test(h)) {
+      show("Handle: 3\u201330 letters, numbers, or _");
+      return;
+    }
     setSaving(true);
     const fields = {
+      name: name.trim().slice(0, 80),
+      handle: h,
       pronouns: pronouns.trim().slice(0, 40),
       gender: gender.trim().slice(0, 40),
       bio: bio.trim().slice(0, 600),
@@ -138,17 +156,65 @@ function SelfProfile({ user }) {
       visibility
     };
     Promise.resolve(Session.updateProfile(fields)).then((u) => {
-      setProfile(u && u.profile ? u.profile : Object.assign({}, profile, fields));
+      if (u) {
+        setProfile(u.profile || {});
+        setAcct({ name: u.name, handle: u.handle, handleClaimed: !!u.handleClaimed });
+      } else {
+        setProfile(Object.assign({}, profile, fields));
+        setAcct((a) => ({ ...a, name: fields.name, handle: fields.handle }));
+      }
       setEditing(false);
       setSaving(false);
       show("Profile saved");
-    }).catch(() => {
+    }).catch((e) => {
       setSaving(false);
-      show("Couldn't save \u2014 try again");
+      show(e && e.message || "Couldn't save \u2014 try again");
+    });
+  };
+  const pickBanner = () => {
+    if (fileRef.current) fileRef.current.click();
+  };
+  const onBannerFile = (e) => {
+    const file = e.target.files && e.target.files[0];
+    e.target.value = "";
+    if (!file) return;
+    if (!/^image\//.test(file.type)) {
+      show("Pick an image file.");
+      return;
+    }
+    if (file.size > 22e5) {
+      show("Banner must be under ~2MB.");
+      return;
+    }
+    const reader = new FileReader();
+    reader.onload = () => {
+      setBannerBusy(true);
+      Promise.resolve(Session.uploadBanner({ image: String(reader.result) })).then((u) => {
+        if (u) setProfile(u.profile || {});
+        else setProfile((p) => ({ ...p, bannerUrl: String(reader.result) }));
+        setBannerBusy(false);
+        show("Banner updated");
+      }).catch((err) => {
+        setBannerBusy(false);
+        show(err && err.message || "Couldn't upload banner");
+      });
+    };
+    reader.readAsDataURL(file);
+  };
+  const removeBanner = () => {
+    setBannerBusy(true);
+    Promise.resolve(Session.uploadBanner({ remove: true })).then((u) => {
+      if (u) setProfile(u.profile || {});
+      else setProfile((p) => ({ ...p, bannerUrl: "" }));
+      setBannerBusy(false);
+      show("Banner removed");
+    }).catch(() => {
+      setBannerBusy(false);
+      show("Couldn't remove banner");
     });
   };
   const shareProfile = () => {
-    const link = location.origin + location.pathname + "?u=" + encodeURIComponent(user.id);
+    const link = acct.handleClaimed ? location.origin + "/@" + acct.handle : location.origin + location.pathname + "?u=" + encodeURIComponent(user.id);
     if (navigator.clipboard) {
       try {
         navigator.clipboard.writeText(link);
@@ -157,7 +223,7 @@ function SelfProfile({ user }) {
     }
     show(isPrivate ? "Link copied \u2014 your profile is private" : "Profile link copied");
   };
-  return /* @__PURE__ */ React.createElement("div", { className: "self", style: accentStyle }, /* @__PURE__ */ React.createElement(AppBar, null), /* @__PURE__ */ React.createElement("div", { className: "cover" }, /* @__PURE__ */ React.createElement("img", { src: SAGenArt.dataUri(user.id + "-cover", { cat: "concept" }), alt: "" })), /* @__PURE__ */ React.createElement("div", { className: "wrap" }, /* @__PURE__ */ React.createElement("div", { className: "phead" }, /* @__PURE__ */ React.createElement(Avatar, { name: user.name, size: 112, className: "phead__avatar" }), /* @__PURE__ */ React.createElement("div", { className: "phead__id" }, /* @__PURE__ */ React.createElement("h1", { className: "phead__name" }, user.name, /* @__PURE__ */ React.createElement("span", { className: "youchip" }, "You")), /* @__PURE__ */ React.createElement("div", { className: "phead__handle" }, /* @__PURE__ */ React.createElement("span", null, "@", handle), profile.pronouns ? /* @__PURE__ */ React.createElement("span", { className: "loc" }, profile.pronouns) : null, profile.gender ? /* @__PURE__ */ React.createElement("span", { className: "loc" }, profile.gender) : null, /* @__PURE__ */ React.createElement("span", { className: "loc" }, user.email), isPrivate ? /* @__PURE__ */ React.createElement("span", { className: "vis vis--private" }, "Private") : /* @__PURE__ */ React.createElement("span", { className: "vis" }, /* @__PURE__ */ React.createElement(Icon, { name: "shieldCheck", size: 12 }), " Public"))), /* @__PURE__ */ React.createElement("div", { className: "phead__actions" }, /* @__PURE__ */ React.createElement(Button, { variant: "solid", size: "sm", onClick: openEdit }, "Edit profile"), /* @__PURE__ */ React.createElement(IconButton, { icon: "share", label: "Copy profile link", onClick: shareProfile }), /* @__PURE__ */ React.createElement(Button, { variant: "ghost", size: "sm", onClick: logout }, "Log out"))), /* @__PURE__ */ React.createElement("div", { className: "pbody" }, /* @__PURE__ */ React.createElement("aside", { className: "aside" }, /* @__PURE__ */ React.createElement("p", { className: "bio" }, profile.bio || "This is your public SecurityArts profile. Add a bio, your pronouns, and what you love \u2014 then seal a piece and it appears here, proof a human made it."), likeTags.length ? /* @__PURE__ */ React.createElement("div", { className: "likes-blk" }, /* @__PURE__ */ React.createElement("p", { className: "asidek" }, "What I like"), /* @__PURE__ */ React.createElement("div", { className: "tags" }, likeTags.map((t, i) => /* @__PURE__ */ React.createElement(Tag, { key: i }, t)))) : null, /* @__PURE__ */ React.createElement("div", { className: "stats" }, /* @__PURE__ */ React.createElement("div", { className: "stat" }, /* @__PURE__ */ React.createElement("b", null, ownWorks.length), /* @__PURE__ */ React.createElement("span", null, "Sealed works")), /* @__PURE__ */ React.createElement("div", { className: "stat" }, /* @__PURE__ */ React.createElement("b", null, likes), /* @__PURE__ */ React.createElement("span", null, "Likes given")), /* @__PURE__ */ React.createElement("div", { className: "stat" }, /* @__PURE__ */ React.createElement("b", null, follows), /* @__PURE__ */ React.createElement("span", null, "Following"))), /* @__PURE__ */ React.createElement("a", { href: "me.html", className: "asidelink" }, /* @__PURE__ */ React.createElement(Icon, { name: "user", size: 14 }), " Back to your account")), /* @__PURE__ */ React.createElement("div", null, /* @__PURE__ */ React.createElement("div", { className: "tabs" }, /* @__PURE__ */ React.createElement("button", { className: `tab ${tab === "works" ? "active" : ""}`, onClick: () => setTab("works") }, "Works \xB7 ", ownWorks.length), /* @__PURE__ */ React.createElement("button", { className: `tab ${tab === "about" ? "active" : ""}`, onClick: () => setTab("about") }, "About")), tab === "works" ? ownWorks.length ? /* @__PURE__ */ React.createElement("div", { className: "masonry" }, ownWorks.map((w) => /* @__PURE__ */ React.createElement(
+  return /* @__PURE__ */ React.createElement("div", { className: "self", style: accentStyle }, /* @__PURE__ */ React.createElement(AppBar, null), /* @__PURE__ */ React.createElement("div", { className: "cover" }, /* @__PURE__ */ React.createElement("img", { src: coverSrc, alt: "" })), /* @__PURE__ */ React.createElement("div", { className: "wrap" }, /* @__PURE__ */ React.createElement("div", { className: "phead" }, /* @__PURE__ */ React.createElement(Avatar, { name: acct.name, size: 112, className: "phead__avatar" }), /* @__PURE__ */ React.createElement("div", { className: "phead__id" }, /* @__PURE__ */ React.createElement("h1", { className: "phead__name" }, acct.name, /* @__PURE__ */ React.createElement("span", { className: "youchip" }, "You")), /* @__PURE__ */ React.createElement("div", { className: "phead__handle" }, /* @__PURE__ */ React.createElement("span", null, "@", acct.handle), profile.pronouns ? /* @__PURE__ */ React.createElement("span", { className: "loc" }, profile.pronouns) : null, profile.gender ? /* @__PURE__ */ React.createElement("span", { className: "loc" }, profile.gender) : null, /* @__PURE__ */ React.createElement("span", { className: "loc" }, user.email), isPrivate ? /* @__PURE__ */ React.createElement("span", { className: "vis vis--private" }, "Private") : /* @__PURE__ */ React.createElement("span", { className: "vis" }, /* @__PURE__ */ React.createElement(Icon, { name: "shieldCheck", size: 12 }), " Public"))), /* @__PURE__ */ React.createElement("div", { className: "phead__actions" }, /* @__PURE__ */ React.createElement(Button, { variant: "solid", size: "sm", onClick: openEdit }, "Edit profile"), /* @__PURE__ */ React.createElement(IconButton, { icon: "share", label: "Copy profile link", onClick: shareProfile }), /* @__PURE__ */ React.createElement(Button, { variant: "ghost", size: "sm", onClick: logout }, "Log out"))), /* @__PURE__ */ React.createElement("div", { className: "pbody" }, /* @__PURE__ */ React.createElement("aside", { className: "aside" }, /* @__PURE__ */ React.createElement("p", { className: "bio" }, profile.bio || "This is your public SecurityArts profile. Add a bio, your pronouns, and what you love \u2014 then seal a piece and it appears here, proof a human made it."), likeTags.length ? /* @__PURE__ */ React.createElement("div", { className: "likes-blk" }, /* @__PURE__ */ React.createElement("p", { className: "asidek" }, "What I like"), /* @__PURE__ */ React.createElement("div", { className: "tags" }, likeTags.map((t, i) => /* @__PURE__ */ React.createElement(Tag, { key: i }, t)))) : null, /* @__PURE__ */ React.createElement("div", { className: "stats" }, /* @__PURE__ */ React.createElement("div", { className: "stat" }, /* @__PURE__ */ React.createElement("b", null, ownWorks.length), /* @__PURE__ */ React.createElement("span", null, "Sealed works")), /* @__PURE__ */ React.createElement("div", { className: "stat" }, /* @__PURE__ */ React.createElement("b", null, likes), /* @__PURE__ */ React.createElement("span", null, "Likes given")), /* @__PURE__ */ React.createElement("div", { className: "stat" }, /* @__PURE__ */ React.createElement("b", null, follows), /* @__PURE__ */ React.createElement("span", null, "Following"))), /* @__PURE__ */ React.createElement("a", { href: "me.html", className: "asidelink" }, /* @__PURE__ */ React.createElement(Icon, { name: "user", size: 14 }), " Back to your account")), /* @__PURE__ */ React.createElement("div", null, /* @__PURE__ */ React.createElement("div", { className: "tabs" }, /* @__PURE__ */ React.createElement("button", { className: `tab ${tab === "works" ? "active" : ""}`, onClick: () => setTab("works") }, "Works \xB7 ", ownWorks.length), /* @__PURE__ */ React.createElement("button", { className: `tab ${tab === "about" ? "active" : ""}`, onClick: () => setTab("about") }, "About")), tab === "works" ? ownWorks.length ? /* @__PURE__ */ React.createElement("div", { className: "masonry" }, ownWorks.map((w) => /* @__PURE__ */ React.createElement(
     Pin,
     {
       key: w.id,
@@ -166,18 +232,19 @@ function SelfProfile({ user }) {
       artist: user.name,
       badge: "Sealed"
     }
-  ))) : /* @__PURE__ */ React.createElement("div", { className: "about", style: { textAlign: "center" } }, /* @__PURE__ */ React.createElement(Seal, { size: 44, style: { margin: "0 auto 1rem", color: "var(--bone-faint)" } }), /* @__PURE__ */ React.createElement("p", { style: { marginBottom: "1.2rem" } }, "You haven't sealed any work yet. Seal your first piece \u2014 it lands here with its certificate."), /* @__PURE__ */ React.createElement("a", { href: "index.html" }, /* @__PURE__ */ React.createElement(Button, { variant: "solid", size: "sm", arrow: true }, "Seal a work"))) : /* @__PURE__ */ React.createElement("div", { className: "about" }, /* @__PURE__ */ React.createElement("p", null, "This is your public profile on SecurityArts. When you seal a work, it's signed with the SecurityArts key and registered so anyone can verify a human made it."), /* @__PURE__ */ React.createElement("p", null, "Signed in as ", /* @__PURE__ */ React.createElement("b", { style: { color: "var(--bone)" } }, user.email), "."))))), /* @__PURE__ */ React.createElement(Modal, { open: editing, onClose: () => setEditing(false), width: "min(560px, 94vw)", label: "Edit your profile" }, /* @__PURE__ */ React.createElement("div", { className: "pset" }, /* @__PURE__ */ React.createElement("p", { className: "dm__eyebrow" }, "Your profile"), /* @__PURE__ */ React.createElement("h2", { className: "dm__title" }, "Make it yours."), /* @__PURE__ */ React.createElement("div", { className: "pset__grid" }, /* @__PURE__ */ React.createElement("label", { className: "fld" }, /* @__PURE__ */ React.createElement("span", null, "Pronouns"), /* @__PURE__ */ React.createElement("input", { value: pronouns, onChange: (e) => setPronouns(e.target.value), placeholder: "she/her \xB7 he/him \xB7 they/them", maxLength: 40 })), /* @__PURE__ */ React.createElement("label", { className: "fld" }, /* @__PURE__ */ React.createElement("span", null, "Gender"), /* @__PURE__ */ React.createElement("input", { value: gender, onChange: (e) => setGender(e.target.value), placeholder: "Woman \xB7 Man \xB7 Non-binary \xB7 \u2026", maxLength: 40 }))), /* @__PURE__ */ React.createElement("label", { className: "fld" }, /* @__PURE__ */ React.createElement("span", null, "Bio"), /* @__PURE__ */ React.createElement("textarea", { value: bio, onChange: (e) => setBio(e.target.value), placeholder: "A line about you and your work\u2026", maxLength: 600, rows: 3 })), /* @__PURE__ */ React.createElement("label", { className: "fld" }, /* @__PURE__ */ React.createElement("span", null, "What I like ", /* @__PURE__ */ React.createElement("em", null, "(one per line)")), /* @__PURE__ */ React.createElement("textarea", { value: likesText, onChange: (e) => setLikesText(e.target.value), placeholder: "Analog photography\nBrutalist type\nRisograph", rows: 4 })), /* @__PURE__ */ React.createElement("div", { className: "fld" }, /* @__PURE__ */ React.createElement("span", null, "Accent"), /* @__PURE__ */ React.createElement("div", { className: "swatches" }, Object.keys(ACCENTS).map((k) => /* @__PURE__ */ React.createElement("button", { key: k, type: "button", className: `sw ${accent === k ? "on" : ""}`, onClick: () => setAccent(k), "aria-label": k, title: k, style: { background: ACCENTS[k] || "var(--brass)" } })))), /* @__PURE__ */ React.createElement("div", { className: "fld" }, /* @__PURE__ */ React.createElement("span", null, "Board visibility"), /* @__PURE__ */ React.createElement("div", { className: "seg" }, /* @__PURE__ */ React.createElement("button", { type: "button", className: visibility === "public" ? "on" : "", onClick: () => setVisibility("public") }, "Public"), /* @__PURE__ */ React.createElement("button", { type: "button", className: visibility === "private" ? "on" : "", onClick: () => setVisibility("private") }, "Private")), /* @__PURE__ */ React.createElement("p", { className: "pset__note" }, visibility === "private" ? "Only you can see your profile and sealed works." : "Anyone with your link can see your profile and sealed works.")), /* @__PURE__ */ React.createElement("div", { className: "dm__actions" }, /* @__PURE__ */ React.createElement(Button, { variant: "solid", size: "sm", onClick: save }, saving ? "Saving\u2026" : "Save profile"), /* @__PURE__ */ React.createElement(Button, { variant: "ghost", size: "sm", onClick: () => setEditing(false) }, "Cancel")))), /* @__PURE__ */ React.createElement("footer", { className: "foot" }, /* @__PURE__ */ React.createElement("a", { href: "me.html" }, "\u2190 Back to your account"), /* @__PURE__ */ React.createElement("span", { className: "m" }, "Your public profile \xB7 Sealed provenance")), /* @__PURE__ */ React.createElement(Toast, { show: !!toast }, toast));
+  ))) : /* @__PURE__ */ React.createElement("div", { className: "about", style: { textAlign: "center" } }, /* @__PURE__ */ React.createElement(Seal, { size: 44, style: { margin: "0 auto 1rem", color: "var(--bone-faint)" } }), /* @__PURE__ */ React.createElement("p", { style: { marginBottom: "1.2rem" } }, "You haven't sealed any work yet. Seal your first piece \u2014 it lands here with its certificate."), /* @__PURE__ */ React.createElement("a", { href: "index.html" }, /* @__PURE__ */ React.createElement(Button, { variant: "solid", size: "sm", arrow: true }, "Seal a work"))) : /* @__PURE__ */ React.createElement("div", { className: "about" }, /* @__PURE__ */ React.createElement("p", null, "This is your public profile on SecurityArts. When you seal a work, it's signed with the SecurityArts key and registered so anyone can verify a human made it."), /* @__PURE__ */ React.createElement("p", null, "Signed in as ", /* @__PURE__ */ React.createElement("b", { style: { color: "var(--bone)" } }, user.email), "."))))), /* @__PURE__ */ React.createElement(Modal, { open: editing, onClose: () => setEditing(false), width: "min(560px, 94vw)", label: "Edit your profile" }, /* @__PURE__ */ React.createElement("div", { className: "pset" }, /* @__PURE__ */ React.createElement("p", { className: "dm__eyebrow" }, "Your profile"), /* @__PURE__ */ React.createElement("h2", { className: "dm__title" }, "Make it yours."), /* @__PURE__ */ React.createElement("div", { className: "fld" }, /* @__PURE__ */ React.createElement("span", null, "Banner"), /* @__PURE__ */ React.createElement("div", { className: "banner-up" }, /* @__PURE__ */ React.createElement("div", { className: "banner-up__prev" }, profile.bannerUrl ? /* @__PURE__ */ React.createElement("img", { src: profile.bannerUrl, alt: "" }) : /* @__PURE__ */ React.createElement("span", { className: "banner-up__empty" }, "No banner yet")), /* @__PURE__ */ React.createElement("div", { className: "banner-up__act" }, /* @__PURE__ */ React.createElement("input", { ref: fileRef, type: "file", accept: "image/*", onChange: onBannerFile, style: { display: "none" } }), /* @__PURE__ */ React.createElement(Button, { variant: "ghost", size: "sm", onClick: pickBanner, disabled: bannerBusy }, bannerBusy ? "Uploading\u2026" : profile.bannerUrl ? "Replace" : "Upload"), profile.bannerUrl ? /* @__PURE__ */ React.createElement(Button, { variant: "ghost", size: "sm", onClick: removeBanner, disabled: bannerBusy }, "Remove") : null)), /* @__PURE__ */ React.createElement("p", { className: "pset__note" }, "2048\xD71152 looks best \xB7 JPG or PNG under ~2MB.")), /* @__PURE__ */ React.createElement("div", { className: "pset__grid" }, /* @__PURE__ */ React.createElement("label", { className: "fld" }, /* @__PURE__ */ React.createElement("span", null, "Name"), /* @__PURE__ */ React.createElement("input", { value: name, onChange: (e) => setName(e.target.value), placeholder: "Your name", maxLength: 80 })), /* @__PURE__ */ React.createElement("label", { className: "fld" }, /* @__PURE__ */ React.createElement("span", null, "Handle"), /* @__PURE__ */ React.createElement("div", { className: "handle-in" }, /* @__PURE__ */ React.createElement("span", null, "@"), /* @__PURE__ */ React.createElement("input", { value: handle, onChange: (e) => setHandle(e.target.value.toLowerCase().replace(/[^a-z0-9_]/g, "")), placeholder: "yourname", maxLength: 30 })))), /* @__PURE__ */ React.createElement("div", { className: "pset__grid" }, /* @__PURE__ */ React.createElement("label", { className: "fld" }, /* @__PURE__ */ React.createElement("span", null, "Pronouns"), /* @__PURE__ */ React.createElement("input", { value: pronouns, onChange: (e) => setPronouns(e.target.value), placeholder: "she/her \xB7 he/him \xB7 they/them", maxLength: 40 })), /* @__PURE__ */ React.createElement("label", { className: "fld" }, /* @__PURE__ */ React.createElement("span", null, "Gender"), /* @__PURE__ */ React.createElement("input", { value: gender, onChange: (e) => setGender(e.target.value), placeholder: "Woman \xB7 Man \xB7 Non-binary \xB7 \u2026", maxLength: 40 }))), /* @__PURE__ */ React.createElement("label", { className: "fld" }, /* @__PURE__ */ React.createElement("span", null, "Bio"), /* @__PURE__ */ React.createElement("textarea", { value: bio, onChange: (e) => setBio(e.target.value), placeholder: "A line about you and your work\u2026", maxLength: 600, rows: 3 })), /* @__PURE__ */ React.createElement("label", { className: "fld" }, /* @__PURE__ */ React.createElement("span", null, "What I like ", /* @__PURE__ */ React.createElement("em", null, "(one per line)")), /* @__PURE__ */ React.createElement("textarea", { value: likesText, onChange: (e) => setLikesText(e.target.value), placeholder: "Analog photography\nBrutalist type\nRisograph", rows: 4 })), /* @__PURE__ */ React.createElement("div", { className: "fld" }, /* @__PURE__ */ React.createElement("span", null, "Accent"), /* @__PURE__ */ React.createElement("div", { className: "swatches" }, Object.keys(ACCENTS).map((k) => /* @__PURE__ */ React.createElement("button", { key: k, type: "button", className: `sw ${accent === k ? "on" : ""}`, onClick: () => setAccent(k), "aria-label": k, title: k, style: { background: ACCENTS[k] || "var(--brass)" } })))), /* @__PURE__ */ React.createElement("div", { className: "fld" }, /* @__PURE__ */ React.createElement("span", null, "Board visibility"), /* @__PURE__ */ React.createElement("div", { className: "seg" }, /* @__PURE__ */ React.createElement("button", { type: "button", className: visibility === "public" ? "on" : "", onClick: () => setVisibility("public") }, "Public"), /* @__PURE__ */ React.createElement("button", { type: "button", className: visibility === "private" ? "on" : "", onClick: () => setVisibility("private") }, "Private")), /* @__PURE__ */ React.createElement("p", { className: "pset__note" }, visibility === "private" ? "Only you can see your profile and sealed works." : "Anyone with your link can see your profile and sealed works.")), /* @__PURE__ */ React.createElement("div", { className: "dm__actions" }, /* @__PURE__ */ React.createElement(Button, { variant: "solid", size: "sm", onClick: save }, saving ? "Saving\u2026" : "Save profile"), /* @__PURE__ */ React.createElement(Button, { variant: "ghost", size: "sm", onClick: () => setEditing(false) }, "Cancel")))), /* @__PURE__ */ React.createElement("footer", { className: "foot" }, /* @__PURE__ */ React.createElement("a", { href: "me.html" }, "\u2190 Back to your account"), /* @__PURE__ */ React.createElement("span", { className: "m" }, "Your public profile \xB7 Sealed provenance")), /* @__PURE__ */ React.createElement(Toast, { show: !!toast }, toast));
 }
 function Notice({ title, body }) {
   return /* @__PURE__ */ React.createElement(React.Fragment, null, /* @__PURE__ */ React.createElement(AppBar, null), /* @__PURE__ */ React.createElement("div", { className: "wrap" }, /* @__PURE__ */ React.createElement("div", { className: "about", style: { textAlign: "center", padding: "clamp(3rem,10vw,7rem) 0" } }, /* @__PURE__ */ React.createElement(Seal, { size: 54, style: { margin: "0 auto 1.2rem", color: "var(--bone-faint)" } }), /* @__PURE__ */ React.createElement("h2", { style: { fontFamily: "var(--font-serif)", fontWeight: 360, fontSize: "1.9rem", letterSpacing: "-0.02em", marginBottom: "0.6rem" } }, title), /* @__PURE__ */ React.createElement("p", { style: { color: "var(--bone-dim)", maxWidth: "44ch", margin: "0 auto 1.4rem" } }, body), /* @__PURE__ */ React.createElement("a", { href: "index.html" }, /* @__PURE__ */ React.createElement(Button, { variant: "ghost", arrow: true }, "Back to Discover")))));
 }
-function PublicUserProfile({ userId }) {
+function PublicUserProfile({ userId, handle }) {
   const [status, setStatus] = React.useState("loading");
   const [prof, setProf] = React.useState(null);
   const [works, setWorks] = React.useState([]);
   React.useEffect(() => {
     let alive = true;
-    Promise.resolve(Session.getUser(userId)).then((p) => {
+    const load = handle ? Session.getUserByHandle(handle) : Session.getUser(userId);
+    Promise.resolve(load).then((p) => {
       if (!alive) return;
       if (!p) {
         setStatus("missing");
@@ -191,7 +258,7 @@ function PublicUserProfile({ userId }) {
       setProf(p);
       setStatus("ok");
       if (window.SA_API) window.SA_API.listWorks().then((list) => {
-        if (alive) setWorks((list || []).filter((w) => w.ownerId === userId));
+        if (alive) setWorks((list || []).filter((w) => w.ownerId === p.id));
       }).catch(() => {
       });
     }).catch(() => {
@@ -200,13 +267,14 @@ function PublicUserProfile({ userId }) {
     return () => {
       alive = false;
     };
-  }, [userId]);
+  }, [userId, handle]);
   if (status === "loading") return /* @__PURE__ */ React.createElement(Notice, { title: "Loading profile\u2026", body: "Fetching this creator's public profile." });
   if (status === "missing") return /* @__PURE__ */ React.createElement(Notice, { title: "Profile unavailable.", body: "This profile can't be loaded \u2014 it may be offline, or the link is broken." });
   if (status === "private") return /* @__PURE__ */ React.createElement(Notice, { title: (prof && prof.name ? prof.name + "\u2019s" : "This") + " profile is private.", body: "The owner has chosen to keep their board private." });
   const accentStyle = ACCENTS[prof.accent] ? { "--brass": ACCENTS[prof.accent] } : void 0;
   const likeTags = prof.likes || [];
-  return /* @__PURE__ */ React.createElement("div", { className: "self", style: accentStyle }, /* @__PURE__ */ React.createElement(AppBar, null), /* @__PURE__ */ React.createElement("div", { className: "cover" }, /* @__PURE__ */ React.createElement("img", { src: SAGenArt.dataUri(prof.id + "-cover", { cat: "concept" }), alt: "" })), /* @__PURE__ */ React.createElement("div", { className: "wrap" }, /* @__PURE__ */ React.createElement("div", { className: "phead" }, /* @__PURE__ */ React.createElement(Avatar, { name: prof.name, size: 112, className: "phead__avatar" }), /* @__PURE__ */ React.createElement("div", { className: "phead__id" }, /* @__PURE__ */ React.createElement("h1", { className: "phead__name" }, prof.name), /* @__PURE__ */ React.createElement("div", { className: "phead__handle" }, /* @__PURE__ */ React.createElement("span", null, "@", prof.handle), prof.pronouns ? /* @__PURE__ */ React.createElement("span", { className: "loc" }, prof.pronouns) : null, prof.gender ? /* @__PURE__ */ React.createElement("span", { className: "loc" }, prof.gender) : null, /* @__PURE__ */ React.createElement("span", { className: "vis" }, /* @__PURE__ */ React.createElement(Icon, { name: "shieldCheck", size: 12 }), " Public")))), /* @__PURE__ */ React.createElement("div", { className: "pbody" }, /* @__PURE__ */ React.createElement("aside", { className: "aside" }, /* @__PURE__ */ React.createElement("p", { className: "bio" }, prof.bio || "A SecurityArts member."), likeTags.length ? /* @__PURE__ */ React.createElement("div", { className: "likes-blk" }, /* @__PURE__ */ React.createElement("p", { className: "asidek" }, "What they like"), /* @__PURE__ */ React.createElement("div", { className: "tags" }, likeTags.map((t, i) => /* @__PURE__ */ React.createElement(Tag, { key: i }, t)))) : null, /* @__PURE__ */ React.createElement("div", { className: "stats" }, /* @__PURE__ */ React.createElement("div", { className: "stat" }, /* @__PURE__ */ React.createElement("b", null, works.length), /* @__PURE__ */ React.createElement("span", null, "Sealed works")))), /* @__PURE__ */ React.createElement("div", null, /* @__PURE__ */ React.createElement("div", { className: "tabs" }, /* @__PURE__ */ React.createElement("button", { className: "tab active" }, "Works \xB7 ", works.length)), works.length ? /* @__PURE__ */ React.createElement("div", { className: "masonry" }, works.map((w) => /* @__PURE__ */ React.createElement(
+  const coverSrc = prof.bannerUrl || SAGenArt.dataUri(prof.id + "-cover", { cat: "concept" });
+  return /* @__PURE__ */ React.createElement("div", { className: "self", style: accentStyle }, /* @__PURE__ */ React.createElement(AppBar, null), /* @__PURE__ */ React.createElement("div", { className: "cover" }, /* @__PURE__ */ React.createElement("img", { src: coverSrc, alt: "" })), /* @__PURE__ */ React.createElement("div", { className: "wrap" }, /* @__PURE__ */ React.createElement("div", { className: "phead" }, /* @__PURE__ */ React.createElement(Avatar, { name: prof.name, size: 112, className: "phead__avatar" }), /* @__PURE__ */ React.createElement("div", { className: "phead__id" }, /* @__PURE__ */ React.createElement("h1", { className: "phead__name" }, prof.name), /* @__PURE__ */ React.createElement("div", { className: "phead__handle" }, /* @__PURE__ */ React.createElement("span", null, "@", prof.handle), prof.pronouns ? /* @__PURE__ */ React.createElement("span", { className: "loc" }, prof.pronouns) : null, prof.gender ? /* @__PURE__ */ React.createElement("span", { className: "loc" }, prof.gender) : null, /* @__PURE__ */ React.createElement("span", { className: "vis" }, /* @__PURE__ */ React.createElement(Icon, { name: "shieldCheck", size: 12 }), " Public")))), /* @__PURE__ */ React.createElement("div", { className: "pbody" }, /* @__PURE__ */ React.createElement("aside", { className: "aside" }, /* @__PURE__ */ React.createElement("p", { className: "bio" }, prof.bio || "A SecurityArts member."), likeTags.length ? /* @__PURE__ */ React.createElement("div", { className: "likes-blk" }, /* @__PURE__ */ React.createElement("p", { className: "asidek" }, "What they like"), /* @__PURE__ */ React.createElement("div", { className: "tags" }, likeTags.map((t, i) => /* @__PURE__ */ React.createElement(Tag, { key: i }, t)))) : null, /* @__PURE__ */ React.createElement("div", { className: "stats" }, /* @__PURE__ */ React.createElement("div", { className: "stat" }, /* @__PURE__ */ React.createElement("b", null, works.length), /* @__PURE__ */ React.createElement("span", null, "Sealed works")))), /* @__PURE__ */ React.createElement("div", null, /* @__PURE__ */ React.createElement("div", { className: "tabs" }, /* @__PURE__ */ React.createElement("button", { className: "tab active" }, "Works \xB7 ", works.length)), works.length ? /* @__PURE__ */ React.createElement("div", { className: "masonry" }, works.map((w) => /* @__PURE__ */ React.createElement(
     Pin,
     {
       key: w.id,
@@ -220,11 +288,13 @@ function PublicUserProfile({ userId }) {
 function App() {
   const params = new URLSearchParams(location.search);
   const uid = params.get("u");
+  const h = params.get("h");
   const isMe = params.get("me") === "1" || params.get("artist") === "me";
   if (isMe) {
     const user = Session.current();
     return user ? /* @__PURE__ */ React.createElement(SelfProfile, { user }) : /* @__PURE__ */ React.createElement(SelfSignedOut, null);
   }
+  if (h) return /* @__PURE__ */ React.createElement(PublicUserProfile, { handle: h });
   if (uid) return /* @__PURE__ */ React.createElement(PublicUserProfile, { userId: uid });
   return /* @__PURE__ */ React.createElement(ArtistProfile, { artistId: qsArtist() });
 }

@@ -83,6 +83,14 @@ async function handler(req, res) {
       const user = await currentUser(req);
       return await route.handler({ req, res, params: route.params, body, url, user, ip, https: HTTPS });
     }
+    // Vanity handle URLs: /@name → the public profile page for that handle.
+    const vanity = /^\/@([a-zA-Z0-9_]{1,30})$/.exec(pathname);
+    if (vanity && req.method === "GET") {
+      const dest = "/SecurityArts Design System/website/ui_kits/discover/profile.html?h=" + vanity[1].toLowerCase();
+      res.writeHead(302, { Location: encodeURI(dest) });
+      res.end();
+      return;
+    }
     serveStatic(req, res, pathname);
   } catch (err) {
     const status = err.status || 500;

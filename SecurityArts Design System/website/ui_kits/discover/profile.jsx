@@ -177,10 +177,14 @@ function SelfSignedOut() {
 function SelfProfile({ user }) {
   useStoreTick();
   const [profile, setProfile] = React.useState(() => user.profile || {});
+  const [acct, setAcct] = React.useState(() => ({ name: user.name, handle: user.handle || Session.handleFromEmail(user.email), handleClaimed: !!user.handleClaimed }));
   const [ownWorks, setOwnWorks] = React.useState([]);
   const [tab, setTab] = React.useState("works");
   const [editing, setEditing] = React.useState(false);
   const [saving, setSaving] = React.useState(false);
+  const [bannerBusy, setBannerBusy] = React.useState(false);
+  const [name, setName] = React.useState("");
+  const [handle, setHandle] = React.useState("");
   const [pronouns, setPronouns] = React.useState("");
   const [gender, setGender] = React.useState("");
   const [bio, setBio] = React.useState("");
@@ -188,8 +192,9 @@ function SelfProfile({ user }) {
   const [accent, setAccent] = React.useState("brass");
   const [visibility, setVisibility] = React.useState("public");
   const [toast, setToast] = React.useState("");
+  const fileRef = React.useRef();
   const toastRef = React.useRef();
-  const show = (m) => { setToast(m); clearTimeout(toastRef.current); toastRef.current = setTimeout(() => setToast(""), 2000); };
+  const show = (m) => { setToast(m); clearTimeout(toastRef.current); toastRef.current = setTimeout(() => setToast(""), 2200); };
 
   React.useEffect(() => {
     let alive = true;
@@ -197,14 +202,15 @@ function SelfProfile({ user }) {
     return () => { alive = false; };
   }, [user.id]);
 
-  const handle = user.handle || Session.handleFromEmail(user.email);
   const likes = S.likes().length, follows = S.follows().length;
   const logout = async () => { await Session.logout(); location.href = "login.html"; };
   const isPrivate = profile.visibility === "private";
   const likeTags = profile.likes || [];
   const accentStyle = ACCENTS[profile.accent] ? { "--brass": ACCENTS[profile.accent] } : undefined;
+  const coverSrc = profile.bannerUrl || SAGenArt.dataUri(user.id + "-cover", { cat: "concept" });
 
   const openEdit = () => {
+    setName(acct.name || ""); setHandle(acct.handle || "");
     setPronouns(profile.pronouns || ""); setGender(profile.gender || "");
     setBio(profile.bio || ""); setLikesText((profile.likes || []).join("\n"));
     setAccent(profile.accent in ACCENTS ? profile.accent : "brass");
@@ -213,8 +219,13 @@ function SelfProfile({ user }) {
   };
   const save = () => {
     if (saving) return;
+    const h = handle.trim().toLowerCase();
+    if (!name.trim()) { show("Your name can't be empty."); return; }
+    if (!/^[a-z0-9_]{3,30}$/.test(h)) { show("Handle: 3–30 letters, numbers, or _"); return; }
     setSaving(true);
     const fields = {
+      name: name.trim().slice(0, 80),
+      handle: h,
       pronouns: pronouns.trim().slice(0, 40),
       gender: gender.trim().slice(0, 40),
       bio: bio.trim().slice(0, 600),
@@ -222,12 +233,37 @@ function SelfProfile({ user }) {
       accent: accent, visibility: visibility,
     };
     Promise.resolve(Session.updateProfile(fields)).then((u) => {
-      setProfile((u && u.profile) ? u.profile : Object.assign({}, profile, fields));
+      if (u) { setProfile(u.profile || {}); setAcct({ name: u.name, handle: u.handle, handleClaimed: !!u.handleClaimed }); }
+      else { setProfile(Object.assign({}, profile, fields)); setAcct((a) => ({ ...a, name: fields.name, handle: fields.handle })); }
       setEditing(false); setSaving(false); show("Profile saved");
-    }).catch(() => { setSaving(false); show("Couldn't save — try again"); });
+    }).catch((e) => { setSaving(false); show((e && e.message) || "Couldn't save — try again"); });
+  };
+  const pickBanner = () => { if (fileRef.current) fileRef.current.click(); };
+  const onBannerFile = (e) => {
+    const file = e.target.files && e.target.files[0];
+    e.target.value = ""; // allow re-picking the same file
+    if (!file) return;
+    if (!/^image\//.test(file.type)) { show("Pick an image file."); return; }
+    if (file.size > 2_200_000) { show("Banner must be under ~2MB."); return; }
+    const reader = new FileReader();
+    reader.onload = () => {
+      setBannerBusy(true);
+      Promise.resolve(Session.uploadBanner({ image: String(reader.result) })).then((u) => {
+        if (u) setProfile(u.profile || {}); else setProfile((p) => ({ ...p, bannerUrl: String(reader.result) }));
+        setBannerBusy(false); show("Banner updated");
+      }).catch((err) => { setBannerBusy(false); show((err && err.message) || "Couldn't upload banner"); });
+    };
+    reader.readAsDataURL(file);
+  };
+  const removeBanner = () => {
+    setBannerBusy(true);
+    Promise.resolve(Session.uploadBanner({ remove: true })).then((u) => {
+      if (u) setProfile(u.profile || {}); else setProfile((p) => ({ ...p, bannerUrl: "" }));
+      setBannerBusy(false); show("Banner removed");
+    }).catch(() => { setBannerBusy(false); show("Couldn't remove banner"); });
   };
   const shareProfile = () => {
-    const link = location.origin + location.pathname + "?u=" + encodeURIComponent(user.id);
+    const link = acct.handleClaimed ? location.origin + "/@" + acct.handle : location.origin + location.pathname + "?u=" + encodeURIComponent(user.id);
     if (navigator.clipboard) { try { navigator.clipboard.writeText(link); } catch (e) {} }
     show(isPrivate ? "Link copied — your profile is private" : "Profile link copied");
   };
@@ -235,14 +271,14 @@ function SelfProfile({ user }) {
   return (
     <div className="self" style={accentStyle}>
       <AppBar />
-      <div className="cover"><img src={SAGenArt.dataUri(user.id + "-cover", { cat: "concept" })} alt="" /></div>
+      <div className="cover"><img src={coverSrc} alt="" /></div>
       <div className="wrap">
         <div className="phead">
-          <Avatar name={user.name} size={112} className="phead__avatar" />
+          <Avatar name={acct.name} size={112} className="phead__avatar" />
           <div className="phead__id">
-            <h1 className="phead__name">{user.name}<span className="youchip">You</span></h1>
+            <h1 className="phead__name">{acct.name}<span className="youchip">You</span></h1>
             <div className="phead__handle">
-              <span>@{handle}</span>
+              <span>@{acct.handle}</span>
               {profile.pronouns ? <span className="loc">{profile.pronouns}</span> : null}
               {profile.gender ? <span className="loc">{profile.gender}</span> : null}
               <span className="loc">{user.email}</span>
@@ -309,6 +345,24 @@ function SelfProfile({ user }) {
         <div className="pset">
           <p className="dm__eyebrow">Your profile</p>
           <h2 className="dm__title">Make it yours.</h2>
+
+          <div className="fld"><span>Banner</span>
+            <div className="banner-up">
+              <div className="banner-up__prev">{profile.bannerUrl ? <img src={profile.bannerUrl} alt="" /> : <span className="banner-up__empty">No banner yet</span>}</div>
+              <div className="banner-up__act">
+                <input ref={fileRef} type="file" accept="image/*" onChange={onBannerFile} style={{ display: "none" }} />
+                <Button variant="ghost" size="sm" onClick={pickBanner} disabled={bannerBusy}>{bannerBusy ? "Uploading…" : (profile.bannerUrl ? "Replace" : "Upload")}</Button>
+                {profile.bannerUrl ? <Button variant="ghost" size="sm" onClick={removeBanner} disabled={bannerBusy}>Remove</Button> : null}
+              </div>
+            </div>
+            <p className="pset__note">2048×1152 looks best · JPG or PNG under ~2MB.</p>
+          </div>
+
+          <div className="pset__grid">
+            <label className="fld"><span>Name</span><input value={name} onChange={(e) => setName(e.target.value)} placeholder="Your name" maxLength={80} /></label>
+            <label className="fld"><span>Handle</span><div className="handle-in"><span>@</span><input value={handle} onChange={(e) => setHandle(e.target.value.toLowerCase().replace(/[^a-z0-9_]/g, ""))} placeholder="yourname" maxLength={30} /></div></label>
+          </div>
+
           <div className="pset__grid">
             <label className="fld"><span>Pronouns</span><input value={pronouns} onChange={(e) => setPronouns(e.target.value)} placeholder="she/her · he/him · they/them" maxLength={40} /></label>
             <label className="fld"><span>Gender</span><input value={gender} onChange={(e) => setGender(e.target.value)} placeholder="Woman · Man · Non-binary · …" maxLength={40} /></label>
@@ -365,22 +419,23 @@ function Notice({ title, body }) {
 // Another member's public profile (profile.html?u=<userId>). The server decides what
 // to return — a private profile arrives with only { name, visibility:"private" }, so
 // the privacy choice is enforced server-side, not just hidden here.
-function PublicUserProfile({ userId }) {
+function PublicUserProfile({ userId, handle }) {
   const [status, setStatus] = React.useState("loading"); // loading | ok | private | missing
   const [prof, setProf] = React.useState(null);
   const [works, setWorks] = React.useState([]);
 
   React.useEffect(() => {
     let alive = true;
-    Promise.resolve(Session.getUser(userId)).then((p) => {
+    const load = handle ? Session.getUserByHandle(handle) : Session.getUser(userId);
+    Promise.resolve(load).then((p) => {
       if (!alive) return;
       if (!p) { setStatus("missing"); return; }
       if (p.visibility === "private") { setProf(p); setStatus("private"); return; }
       setProf(p); setStatus("ok");
-      if (window.SA_API) window.SA_API.listWorks().then((list) => { if (alive) setWorks((list || []).filter((w) => w.ownerId === userId)); }).catch(() => {});
+      if (window.SA_API) window.SA_API.listWorks().then((list) => { if (alive) setWorks((list || []).filter((w) => w.ownerId === p.id)); }).catch(() => {});
     }).catch(() => { if (alive) setStatus("missing"); });
     return () => { alive = false; };
-  }, [userId]);
+  }, [userId, handle]);
 
   if (status === "loading") return <Notice title="Loading profile…" body="Fetching this creator's public profile." />;
   if (status === "missing") return <Notice title="Profile unavailable." body="This profile can't be loaded — it may be offline, or the link is broken." />;
@@ -388,10 +443,11 @@ function PublicUserProfile({ userId }) {
 
   const accentStyle = ACCENTS[prof.accent] ? { "--brass": ACCENTS[prof.accent] } : undefined;
   const likeTags = prof.likes || [];
+  const coverSrc = prof.bannerUrl || SAGenArt.dataUri(prof.id + "-cover", { cat: "concept" });
   return (
     <div className="self" style={accentStyle}>
       <AppBar />
-      <div className="cover"><img src={SAGenArt.dataUri(prof.id + "-cover", { cat: "concept" })} alt="" /></div>
+      <div className="cover"><img src={coverSrc} alt="" /></div>
       <div className="wrap">
         <div className="phead">
           <Avatar name={prof.name} size={112} className="phead__avatar" />
@@ -445,11 +501,13 @@ function PublicUserProfile({ userId }) {
 function App() {
   const params = new URLSearchParams(location.search);
   const uid = params.get("u");
+  const h = params.get("h");
   const isMe = params.get("me") === "1" || params.get("artist") === "me";
   if (isMe) {
     const user = Session.current();
     return user ? <SelfProfile user={user} /> : <SelfSignedOut />;
   }
+  if (h) return <PublicUserProfile handle={h} />;
   if (uid) return <PublicUserProfile userId={uid} />;
   return <ArtistProfile artistId={qsArtist()} />;
 }

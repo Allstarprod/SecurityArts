@@ -12,6 +12,9 @@ CREATE TABLE IF NOT EXISTS users (
 );
 -- Existing installs: add the profile column if the table predates it.
 ALTER TABLE users ADD COLUMN IF NOT EXISTS profile JSONB NOT NULL DEFAULT '{}'::jsonb;
+-- Unique, user-chosen @handle (nullable until claimed; case-insensitively unique).
+ALTER TABLE users ADD COLUMN IF NOT EXISTS handle TEXT;
+CREATE UNIQUE INDEX IF NOT EXISTS users_handle_lower_idx ON users (lower(handle));
 
 CREATE TABLE IF NOT EXISTS works (
   id         TEXT PRIMARY KEY,

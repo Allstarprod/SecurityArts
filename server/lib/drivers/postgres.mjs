@@ -13,7 +13,7 @@ import fs from "node:fs/promises";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 
-const rowToUser = (r) => (r ? { id: r.id, email: r.email, name: r.name, pass: r.pass, createdAt: r.created_at, profile: r.profile || {} } : null);
+const rowToUser = (r) => (r ? { id: r.id, email: r.email, name: r.name, pass: r.pass, createdAt: r.created_at, profile: r.profile || {}, handle: r.handle || null } : null);
 const rowToWork = (r) => (r ? {
   id: r.id, own: r.own, title: r.title, artist: r.artist, cat: r.cat, medium: r.medium,
   price: r.price, cert: r.cert, ownerId: r.owner_id, createdAt: r.created_at,
@@ -66,6 +66,7 @@ export async function createRepo() {
     users: {
       async findByEmail(email) { return rowToUser((await q("SELECT * FROM users WHERE email=$1", [email])).rows[0]); },
       async findById(id) { return rowToUser((await q("SELECT * FROM users WHERE id=$1", [id])).rows[0]); },
+      async findByHandle(handle) { return rowToUser((await q("SELECT * FROM users WHERE lower(handle)=lower($1) LIMIT 1", [handle])).rows[0]); },
       async create(u) {
         await q(
           "INSERT INTO users (id,email,name,pass,created_at) VALUES ($1,$2,$3,$4,$5)",
@@ -77,6 +78,7 @@ export async function createRepo() {
       async update(id, patch) {
         const sets = [], vals = [];
         if (patch.name !== undefined) { vals.push(patch.name); sets.push(`name=$${vals.length}`); }
+        if (patch.handle !== undefined) { vals.push(patch.handle); sets.push(`handle=$${vals.length}`); }
         if (patch.profile !== undefined) { vals.push(JSON.stringify(patch.profile)); sets.push(`profile=$${vals.length}::jsonb`); }
         if (!sets.length) return rowToUser((await q("SELECT * FROM users WHERE id=$1", [id])).rows[0]);
         vals.push(id);
