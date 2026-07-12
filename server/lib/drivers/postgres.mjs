@@ -83,7 +83,15 @@ export async function createRepo() {
         if (patch.profile !== undefined) { vals.push(JSON.stringify(patch.profile)); sets.push(`profile=$${vals.length}::jsonb`); }
         if (!sets.length) return rowToUser((await q("SELECT * FROM users WHERE id=$1", [id])).rows[0]);
         vals.push(id);
-        const r = await q(`UPDATE users SET ${sets.join(",")} WHERE id=$${vals.length} RETURNING *`, vals);
+        let r;
+        try {
+          r = await q(`UPDATE users SET ${sets.join(",")} WHERE id=$${vals.length} RETURNING *`, vals);
+        } catch (e) {
+          // unique_violation on users_handle_lower_idx → a concurrent claim won. Surface a
+          // typed error so the route returns 409 instead of a 500 (matches the file driver).
+          if (e && e.code === "23505") throw Object.assign(new Error("handle taken"), { code: "HANDLE_TAKEN" });
+          throw e;
+        }
         return rowToUser(r.rows[0]);
       },
     },

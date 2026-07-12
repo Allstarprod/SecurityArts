@@ -8,7 +8,7 @@
   "rewrites": [
     {
       "source": "/@:handle",
-      "destination": "/SecurityArts Design System/website/ui_kits/discover/profile.html?h=:handle"
+      "destination": "/SecurityArts%20Design%20System/website/ui_kits/discover/profile.html?h=:handle"
     }
   ],
   "headers": [

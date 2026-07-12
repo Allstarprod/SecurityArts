@@ -15,6 +15,16 @@ import { googleConfigured, redirectUri, authUrl, exchangeCode } from "./lib/oaut
 
 const LOGIN_PATH = "/SecurityArts Design System/website/ui_kits/discover/";
 
+// Canonical public origin for links we EMAIL out (password resets). Pin it via
+// PUBLIC_BASE_URL in production so a spoofed Host header can't point a reset link at
+// an attacker domain (host-header / reset poisoning — CWE-640). Falls back to the
+// request host for local dev, where no canonical URL is configured.
+function publicOrigin(req, https) {
+  const configured = process.env.PUBLIC_BASE_URL;
+  if (configured) return configured.replace(/\/+$/, "");
+  return `${https ? "https" : "http"}://${req.headers.host}`;
+}
+
 const MEDIUM = {
   illustration: "Digital illustration", painting: "Oil on linen", "3d": "3D render",
   photography: "35mm photograph", lettering: "Hand lettering", concept: "Concept art", mixed: "Mixed media",
@@ -88,7 +98,11 @@ function cleanProfile(body, prev) {
 function publicProfile(u) {
   if (!u) return null;
   const p = u.profile || {};
-  const base = { id: u.id, name: u.name, handle: u.handle || handleFrom(u.email), visibility: VISIBILITY.includes(p.visibility) ? p.visibility : "public" };
+  // Fallback handle for the PUBLIC view must not be email-derived: a private profile
+  // (and any unclaimed account) would otherwise leak the email local-part. Use a
+  // neutral id-based slug until the owner claims a real handle.
+  const fallbackHandle = "user_" + String(u.id || "").replace(/[^a-z0-9]/gi, "").slice(-6);
+  const base = { id: u.id, name: u.name, handle: u.handle || fallbackHandle, visibility: VISIBILITY.includes(p.visibility) ? p.visibility : "public" };
   if (base.visibility === "private") return base;
   return { ...base, pronouns: p.pronouns || "", gender: p.gender || "", bio: p.bio || "", likes: Array.isArray(p.likes) ? p.likes : [], accent: ACCENTS.includes(p.accent) ? p.accent : "brass", bannerUrl: p.bannerUrl || "" };
 }
@@ -155,7 +169,7 @@ router.post("/api/auth/forgot", async ({ res, req, body, ip, https }) => {
       const token = crypto.randomBytes(32).toString("hex");
       const tokenHash = crypto.createHash("sha256").update(token).digest("hex");
       await repo.passwordResets.create({ tokenHash, userId: user.id, expiresAt: Date.now() + 3600_000, createdAt: new Date().toISOString() });
-      const link = `${https ? "https" : "http"}://${req.headers.host}` + encodeURI(LOGIN_PATH + "login.html") + "?token=" + token;
+      const link = publicOrigin(req, https) + encodeURI(LOGIN_PATH + "login.html") + "?token=" + token;
       await sendMail({ to: email, subject: "Reset your SecurityArts password", text: `Reset your SecurityArts password:\n\n${link}\n\nThis link expires in 1 hour. If you didn't request it, you can ignore this email.` });
       audit("auth.forgot", { userId: user.id, ip });
     } else {
@@ -206,6 +220,10 @@ router.get("/api/auth/google/callback", async ({ res, req, url, ip, https }) => 
   let profile;
   try { profile = await exchangeCode({ code, redirect: redirectUri(req, https) }); }
   catch (e) { audit("auth.google.exchangefail", { ip, msg: e.message }); return fail(res, 502, "Google sign-in failed. Please try again."); }
+  // Only trust a Google email we KNOW is verified — otherwise an unverified id_token
+  // claim could be used to link to (or pre-create) an account for an email the caller
+  // doesn't own. exchangeCode already surfaces email_verified as profile.emailVerified.
+  if (!profile.emailVerified) { audit("auth.google.unverified", { ip, email: profile.email }); return fail(res, 403, "Your Google account's email isn't verified."); }
   let user = await repo.users.findByEmail(profile.email);
   const isNew = !user;
   if (isNew) {
@@ -245,7 +263,15 @@ router.post("/api/profile", async ({ res, body, user, ip }) => {
       patch.handle = handle;
     }
   }
-  const updated = await repo.users.update(user.id, patch);
+  let updated;
+  try {
+    updated = await repo.users.update(user.id, patch);
+  } catch (e) {
+    // Both drivers throw HANDLE_TAKEN when a concurrent claim wins the race for the
+    // same handle (the pre-check above can't be atomic). Return a clean 409, not a 500.
+    if (e && e.code === "HANDLE_TAKEN") return fail(res, 409, "That handle is already taken.");
+    throw e;
+  }
   if (!updated) return fail(res, 404, "Account not found.");
   audit("profile.update", { userId: user.id, ip });
   return ok(res, publicUser(updated));

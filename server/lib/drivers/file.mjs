@@ -103,6 +103,13 @@ export async function createRepo() {
       async update(id, patch) {
         const u = idx.userById.get(id);
         if (!u) return null;
+        // Enforce case-insensitive handle uniqueness like the postgres unique index does,
+        // so a concurrent claim can't silently create two users with the same handle.
+        if (patch.handle) {
+          const h = String(patch.handle).toLowerCase();
+          const clash = db.users.find((x) => x.id !== id && x.handle && x.handle.toLowerCase() === h);
+          if (clash) throw Object.assign(new Error("handle taken"), { code: "HANDLE_TAKEN" });
+        }
         Object.assign(u, patch);
         schedule(); return clone(u);
       },
@@ -185,7 +192,7 @@ export async function createRepo() {
 
     stats: {
       async incrementView(workId) { db.workStats[workId] = (db.workStats[workId] || 0) + 1; schedule(); return db.workStats[workId]; },
-      async viewsFor(workIds) { const out = {}; for (const id of workIds) out[id] = db.workStats[id] || 0; return out; },
+      async viewsFor(workIds) { const out = {}; for (const id of workIds) { const v = db.workStats[id]; if (v) out[id] = v; } return out; }, // omit zero-count keys to match postgres
     },
 
     likes: {
@@ -196,7 +203,7 @@ export async function createRepo() {
         schedule(); return { likes: arr.length, liked: i === -1 };
       },
       async likedBy(workId, userId) { return (db.workLikes[workId] || []).includes(userId); },
-      async countByWorks(workIds) { const out = {}; for (const id of workIds) out[id] = (db.workLikes[id] || []).length; return out; },
+      async countByWorks(workIds) { const out = {}; for (const id of workIds) { const n = (db.workLikes[id] || []).length; if (n) out[id] = n; } return out; }, // omit zero-count keys to match postgres
     },
 
     passwordResets: {
