@@ -25,7 +25,7 @@
   async function add(workId, text, parentId) {
     text = String(text || "").trim().slice(0, 500);
     if (!text) throw new Error("Say something first.");
-    if (window.SA_API) return await window.SA_API.comments.add(workId, text, parentId || null);
+    if (window.SA_API && (await window.SA_API.available)) return await window.SA_API.comments.add(workId, text, parentId || null);
     // local demo
     var u = currentUser();
     var c = {
@@ -38,7 +38,7 @@
 
   // workId is needed for the local fallback's lookup; the API ignores it.
   async function like(id, workId) {
-    if (window.SA_API) return await window.SA_API.comments.like(id);
+    if (window.SA_API && (await window.SA_API.available)) return await window.SA_API.comments.like(id);
     var l = readLocal(workId);
     var c = l.filter(function (x) { return x.id === id; })[0];
     if (!c) return null;
@@ -49,7 +49,7 @@
   }
 
   async function remove(id, workId) {
-    if (window.SA_API) { await window.SA_API.comments.remove(id); return true; }
+    if (window.SA_API && (await window.SA_API.available)) { await window.SA_API.comments.remove(id); return true; }
     var l = readLocal(workId).filter(function (x) { return x.id !== id && x.parentId !== id; });
     writeLocal(workId, l); return true;
   }

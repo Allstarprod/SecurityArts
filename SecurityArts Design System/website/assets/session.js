@@ -33,7 +33,7 @@
 
   async function login(email, password) {
     email = String(email || "").trim().toLowerCase();
-    if (window.SA_API) {
+    if (window.SA_API && (await window.SA_API.available)) {
       var u = await window.SA_API.auth.login({ email: email, password: password });
       return write(Object.assign({ handle: handleFromEmail(email) }, u));
     }
@@ -42,7 +42,7 @@
   async function register(email, password, name) {
     email = String(email || "").trim().toLowerCase();
     name = String(name || "").trim() || nameFromEmail(email);
-    if (window.SA_API) {
+    if (window.SA_API && (await window.SA_API.available)) {
       var u = await window.SA_API.auth.register({ email: email, password: password, name: name });
       return write(Object.assign({ handle: handleFromEmail(email) }, u));
     }
