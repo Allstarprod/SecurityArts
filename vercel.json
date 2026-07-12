@@ -6,7 +6,8 @@
     "api/**": { "maxDuration": 30 }
   },
   "rewrites": [
-    { "source": "/api/(.*)", "destination": "/api/[...path]?__path=$1" }
+    { "source": "/api/(.*)", "destination": "/api/[...path]?__path=$1" },
+    { "source": "/@:handle", "destination": "/SecurityArts%20Design%20System/website/ui_kits/discover/profile.html?h=:handle" }
   ],
   "headers": [
     {
