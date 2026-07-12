@@ -114,7 +114,7 @@ const DUMMY_HASH = hashPassword(crypto.randomBytes(32).toString("hex"));
 export const router = new Router();
 
 /* ---- health --------------------------------------------------------- */
-router.get("/api/health", ({ res }) => ok(res, { status: "ok", signer: SIGNER_ID, driver: repo.driver }));
+router.get("/api/health", ({ res }) => ok(res, { status: "ok", signer: SIGNER_ID, driver: repo.driver, build: "post-review-1" }));
 router.get("/api/seal/pubkey", ({ res }) => ok(res, { signer: SIGNER_ID, publicKey: publicKeyPem }));
 
 /* ---- auth ----------------------------------------------------------- */

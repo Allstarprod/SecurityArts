@@ -1,5 +1,9 @@
 // Vercel serverless entry for the SecurityArts API.
 //
+// NOTE: this entry file's hash is part of Vercel's function build-cache key. Touch it
+// (this line) whenever the function must be force-rebuilt even though only imported
+// modules (routes.mjs, lib/*.mjs) changed. Rebuild marker: post-review-1 (2026-07-12).
+//
 // Reuses the SAME router + security stack as the standalone server (server/server.mjs);
 // this file is just the serverless adapter — no persistent listener, no cluster. Every
 // /api/* request is routed here (catch-all). Static files are served by Vercel's CDN.
