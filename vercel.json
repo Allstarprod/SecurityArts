@@ -5,6 +5,12 @@
   "functions": {
     "api/**": { "maxDuration": 30 }
   },
+  "rewrites": [
+    {
+      "source": "/@:handle",
+      "destination": "/SecurityArts Design System/website/ui_kits/discover/profile.html?h=:handle"
+    }
+  ],
   "headers": [
     {
       "source": "/(.*)",

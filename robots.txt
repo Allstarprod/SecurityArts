@@ -1,0 +1,7 @@
+# SecurityArts — https://security-arts.vercel.app
+User-agent: *
+Allow: /
+# The API is data, not pages — keep crawlers out of it.
+Disallow: /api/
+
+Sitemap: https://security-arts.vercel.app/sitemap.xml
