@@ -5,6 +5,9 @@
   "functions": {
     "api/**": { "maxDuration": 30 }
   },
+  "rewrites": [
+    { "source": "/api/(.*)", "destination": "/api/[...path]?__path=$1" }
+  ],
   "headers": [
     {
       "source": "/(.*)",

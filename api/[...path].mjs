@@ -28,7 +28,13 @@ export default async function handler(req, res) {
 
   const ip = clientIp(req); // TRUST_PROXY=1 → first X-Forwarded-For hop
   const url = new URL(req.url, `https://${req.headers.host || "localhost"}`);
-  const { pathname } = url;
+  // Vercel's filesystem catch-all ([...path]) only resolves a SINGLE segment on this
+  // project (custom outputDirectory), so nested /api/* paths 404 before ever reaching
+  // this function. The vercel.json rewrite forwards the real path as ?__path=… — prefer
+  // it (and strip it so route handlers see a clean query) when present.
+  const forwardedPath = url.searchParams.get("__path");
+  if (forwardedPath !== null) url.searchParams.delete("__path");
+  const pathname = forwardedPath !== null ? "/api/" + forwardedPath : url.pathname;
   const method = req.method.toUpperCase();
 
   try {
