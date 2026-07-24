@@ -546,8 +546,11 @@ function PublicUserProfile({ userId, handle }) {
 
 function App() {
   const params = new URLSearchParams(location.search);
+  // Vanity URL: /@handle (served here by the vercel.json rewrite). The handle lives in
+  // the PATH, not the query — the rewrite's ?h= never reaches the browser URL.
+  const vanity = (location.pathname.match(/\/@([a-zA-Z0-9_]{1,30})$/) || [])[1];
   const uid = params.get("u");
-  const h = params.get("h");
+  const h = vanity || params.get("h");
   const isMe = params.get("me") === "1" || params.get("artist") === "me";
   if (isMe) {
     const user = Session.current();

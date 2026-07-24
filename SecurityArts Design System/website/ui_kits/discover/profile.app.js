@@ -309,8 +309,9 @@ function PublicUserProfile({ userId, handle }) {
 }
 function App() {
   const params = new URLSearchParams(location.search);
+  const vanity = (location.pathname.match(/\/@([a-zA-Z0-9_]{1,30})$/) || [])[1];
   const uid = params.get("u");
-  const h = params.get("h");
+  const h = vanity || params.get("h");
   const isMe = params.get("me") === "1" || params.get("artist") === "me";
   if (isMe) {
     const user = Session.current();
