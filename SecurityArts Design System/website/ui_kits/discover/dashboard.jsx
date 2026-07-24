@@ -1,37 +1,9 @@
 const { Seal, Icon, IconButton, Button, Avatar, VerifiedBadge, Toast, ThemeToggle } = window.SecurityArtsDesignSystem_f7e889;
-const C = window.SACatalog, S = window.SAStore;
+const C = window.SACatalog, S = window.SAStore, Session = window.SASession;
 
 function useStoreTick() { const [, set] = React.useState(0); React.useEffect(() => S.subscribe(() => set((n) => n + 1)), []); }
-function money(n) { return "$" + n.toLocaleString("en-US"); }
 function strhash(s){var h=0;for(var i=0;i<s.length;i++)h=(Math.imul(31,h)+s.charCodeAt(i))|0;return h;}
-function mulberry(a){return function(){a|=0;a=a+0x6D2B79F5|0;var t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296;};}
-
-const BUYERS = ["Aria Fenn", "Marcus Lowe", "Studio Kite", "Devon Park", "Lena Cho", "Atlas & Co.", "Nadia Rios", "Owen Frost", "Juno Ba", "Halcyon Gallery"];
-const TIERS = ["Personal", "Commercial", "Exclusive"];
-const TIER_MULT = { Personal: 1, Commercial: 3, Exclusive: 9 };
-
-function qsArtist() {
-  const id = new URLSearchParams(location.search).get("artist");
-  return C.artistById[id] ? id : C.artists[0].id;
-}
-
-/* deterministic sales for an artist, derived from their works */
-function salesFor(artistId) {
-  const works = C.worksByArtist[artistId] || [];
-  const rand = mulberry(Math.abs(strhash("sales" + artistId)) + 1);
-  const out = [];
-  works.forEach((w, wi) => {
-    const n = 1 + Math.floor(rand() * 3);
-    for (let i = 0; i < n; i++) {
-      const tier = TIERS[Math.floor(rand() * TIERS.length)];
-      const amt = w.price * TIER_MULT[tier];
-      const daysAgo = 2 + Math.floor(rand() * 120);
-      out.push({ id: w.id + "-" + i, work: w, buyer: BUYERS[Math.floor(rand() * BUYERS.length)], tier, amt, daysAgo });
-    }
-  });
-  return out.sort((a, b) => a.daysAgo - b.daysAgo);
-}
-function dateAgo(days) { const d = new Date(Date.now() - days * 864e5); return d.toLocaleDateString("en-US", { month: "short", day: "numeric" }); }
+function num(n){ return (n || 0) >= 1000 ? ((n||0)/1000).toFixed(1).replace(/\.0$/, "") + "k" : String(n || 0); }
 
 function AppBar() {
   const pending = S.counts().pending;
@@ -45,6 +17,7 @@ function AppBar() {
         <a href="foryou.html" className="optional">For You</a>
         <a href="me.html" className="optional">You</a>
         <a href="dms.html">DMs{pending ? <span className="dot" /> : null}</a>
+        <a href="../market/index.html" className="optional">Market</a>
         <a href="verify.html" className="optional">Verify</a>
         <ThemeToggle size={38} />
       </nav>
@@ -52,153 +25,151 @@ function AppBar() {
   );
 }
 
+function SignedOut() {
+  return (
+    <React.Fragment>
+      <AppBar />
+      <div className="wrap">
+        <div className="empty" style={{ padding: "4rem 0", textAlign: "center" }}>
+          <Seal size={48} style={{ margin: "0 auto 1rem", color: "var(--bone-faint)" }} />
+          <h2>Sign in to open your studio.</h2>
+          <p>Your sealed works, views, likes, and earnings live here.</p>
+          <div style={{ marginTop: "1.4rem" }}>
+            <a href="login.html?next=dashboard.html"><Button variant="solid" size="sm" arrow>Sign in</Button></a>
+          </div>
+        </div>
+      </div>
+    </React.Fragment>
+  );
+}
+
 function App() {
   useStoreTick();
-  const [artistId] = React.useState(qsArtist);
-  const artist = C.artistById[artistId];
-  const works = C.worksByArtist[artistId] || [];
-  const sales = React.useMemo(() => salesFor(artistId), [artistId]);
+  const [user] = React.useState(() => Session && Session.current());
+  const [stats, setStats] = React.useState(null);   // { totals, top } from /api/me/stats
+  const [ownWorks, setOwnWorks] = React.useState([]);
   const [tab, setTab] = React.useState("works");
   const [toast, setToast] = React.useState("");
   const toastRef = React.useRef();
-  const show = (m) => { setToast(m); clearTimeout(toastRef.current); toastRef.current = setTimeout(() => setToast(""), 1900); };
+  const show = (m) => { setToast(m); clearTimeout(toastRef.current); toastRef.current = setTimeout(() => setToast(""), 2200); };
 
-  const totalSales = sales.reduce((s, x) => s + x.amt, 0);
-  const requests = S.threadList().filter((t) => t.status === "incoming");
-  const pending = requests.length;
+  React.useEffect(() => {
+    if (!user || !window.SA_API) return;
+    let alive = true;
+    window.SA_API.myStats().then((d) => { if (alive && d) setStats(d); }).catch(() => {});
+    window.SA_API.listWorks().then((list) => { if (alive) setOwnWorks((list || []).filter((w) => w.ownerId === user.id)); }).catch(() => {});
+    return () => { alive = false; };
+  }, [user]);
 
-  // payouts: 90% of sales to artist (10% marketplace fee), split into a few deterministic payout rows
-  const earned = Math.round(totalSales * 0.9);
-  const balance = Math.round(earned * 0.18);
-  const payouts = React.useMemo(() => {
-    const rand = mulberry(Math.abs(strhash("pay" + artistId)) + 5);
-    const rows = []; let remaining = earned - balance;
-    for (let i = 0; i < 4 && remaining > 0; i++) {
-      const amt = i === 3 ? remaining : Math.round(remaining * (0.28 + rand() * 0.22));
-      remaining -= amt;
-      rows.push({ id: "po" + i, amt, daysAgo: 12 + i * 30 + Math.floor(rand() * 8), method: rand() > 0.5 ? "Bank ••4471" : "PayPal" });
-    }
-    return rows;
-  }, [artistId, earned, balance]);
+  if (!user) return <SignedOut />;
+
+  const t = (stats && stats.totals) || { works: ownWorks.length, views: 0, comments: 0, likes: 0 };
+  const top = (stats && stats.top) || [];
+  const statOf = (id) => top.find((x) => x.id === id) || { views: 0, likes: 0, comments: 0 };
+  const handle = user.handle || (Session && Session.handleFromEmail(user.email)) || "you";
+  const worksCount = t.works || ownWorks.length;
 
   return (
     <React.Fragment>
       <AppBar />
       <div className="wrap">
         <div className="dhead">
-          <Avatar name={artist.name} size={92} verified />
+          <Avatar name={user.name} size={92} verified />
           <div className="dhead__id">
             <p className="dhead__eyebrow">Artist studio</p>
-            <h1 className="dhead__name">{artist.name}<Seal size={20} className="seal" title="Verified artist" /></h1>
+            <h1 className="dhead__name">{user.name}<Seal size={20} className="seal" title="Verified" /></h1>
             <div className="dhead__meta">
-              <span className="m"><Icon name="mapPin" size={13} /> {artist.city}</span>
-              <span className="m"><Icon name="shieldCheck" size={13} /> Verified · @{artist.handle}</span>
+              <span className="m"><Icon name="shieldCheck" size={13} /> @{handle}</span>
             </div>
           </div>
           <div className="dhead__actions">
             <a href="profile.html?me=1"><Button variant="ghost" size="sm">View public profile</Button></a>
-            <Button variant="solid" size="sm" arrow onClick={() => show("Verify flow — seal a new work")}>New work</Button>
+            <Button variant="solid" size="sm" arrow onClick={() => show("Sealing new work from the app is coming soon — your sealed pieces show up here.")}>Seal a work</Button>
           </div>
         </div>
 
         <div className="kpis">
-          <div className="kpi"><b>{works.length}</b><span>Sealed works</span></div>
-          <div className="kpi accent"><b>{money(totalSales)}</b><span>Gross sales</span></div>
-          <div className="kpi"><b>{artist.followers.toLocaleString()}</b><span>Followers</span></div>
-          <div className="kpi"><b>{pending}</b><span>Requests</span></div>
+          <div className="kpi"><b>{num(worksCount)}</b><span>Sealed works</span></div>
+          <div className="kpi accent"><b>{num(t.views)}</b><span>Total views</span></div>
+          <div className="kpi"><b>{num(t.likes)}</b><span>Likes</span></div>
+          <div className="kpi"><b>{num(t.comments)}</b><span>Comments</span></div>
         </div>
 
         <div className="tabs">
           <button className={`tab ${tab === "works" ? "active" : ""}`} onClick={() => setTab("works")}>Works</button>
-          <button className={`tab ${tab === "sales" ? "active" : ""}`} onClick={() => setTab("sales")}>Sales · {sales.length}</button>
-          <button className={`tab ${tab === "requests" ? "active" : ""}`} onClick={() => setTab("requests")}>Requests {pending ? <span className="pill">{pending}</span> : null}</button>
+          <button className={`tab ${tab === "analytics" ? "active" : ""}`} onClick={() => setTab("analytics")}>Analytics</button>
+          <button className={`tab ${tab === "sales" ? "active" : ""}`} onClick={() => setTab("sales")}>Sales</button>
           <button className={`tab ${tab === "payouts" ? "active" : ""}`} onClick={() => setTab("payouts")}>Payouts</button>
         </div>
 
         {tab === "works" ? (
-          <div className="works">
-            {works.map((w) => (
-              <div className="wcard" key={w.id}>
-                <div className="wcard__art">
-                  <img src={SAGenArt.dataUri(w.seed, { cat: w.cat })} alt={w.title} />
-                  <VerifiedBadge className="wcard__badge">Sealed</VerifiedBadge>
-                </div>
-                <div className="wcard__info">
-                  <div className="wcard__title">{w.title}</div>
-                  <div className="wcard__row"><span className="wcard__price">{money(w.price)}</span><span className="wcard__stat">{sales.filter((s) => s.work.id === w.id).length} sold</span></div>
-                </div>
-              </div>
-            ))}
-            <div className="newwork" onClick={() => show("Verify flow — seal a new work")}>
-              <Seal size={40} /><span>+ Seal a new work</span>
-            </div>
-          </div>
-        ) : null}
-
-        {tab === "sales" ? (
-          <div className="rows">
-            {sales.map((s) => (
-              <div className="row" key={s.id}>
-                <div className="row__thumb"><img src={SAGenArt.dataUri(s.work.seed, { cat: s.work.cat })} alt="" /></div>
-                <div className="row__main">
-                  <div className="row__title">{s.work.title}</div>
-                  <div className="row__sub">{s.tier} license</div>
-                </div>
-                <div className="row__buyer"><Avatar name={s.buyer} size={28} /><span>{s.buyer}</span></div>
-                <div className="row__amt">{money(s.amt)}</div>
-                <div className="row__date">{dateAgo(s.daysAgo)}</div>
-              </div>
-            ))}
-          </div>
-        ) : null}
-
-        {tab === "requests" ? (
-          requests.length ? (
-            <div className="rows">
-              {requests.map((t) => {
-                const a = C.artistById[t.artistId] || { name: "A collector", city: "" };
+          ownWorks.length ? (
+            <div className="works">
+              {ownWorks.map((w) => {
+                const st = statOf(w.id);
                 return (
-                  <div className="row" key={t.artistId}>
-                    <Avatar name={a.name} size={40} />
-                    <div className="row__main">
-                      <div className="row__title">{a.name}</div>
-                      <div className="row__sub" style={{ textTransform: "none", letterSpacing: 0, fontFamily: "var(--font-sans)", fontSize: "0.84rem", color: "var(--bone-dim)" }}>{t.last ? t.last.text : "Wants to connect"}</div>
+                  <div className="wcard" key={w.id}>
+                    <div className="wcard__art">
+                      <img src={w.img || SAGenArt.dataUri(strhash(w.id), { cat: w.cat })} alt={w.title} />
+                      <VerifiedBadge className="wcard__badge">Sealed</VerifiedBadge>
                     </div>
-                    <div className="req__actions">
-                      <Button variant="solid" size="sm" onClick={() => { S.accept(t.artistId); show("Request accepted"); }}>Accept</Button>
-                      <Button variant="ghost" size="sm" onClick={() => { S.decline(t.artistId); show("Request declined"); }}>Decline</Button>
+                    <div className="wcard__info">
+                      <div className="wcard__title">{w.title}</div>
+                      <div className="wcard__row"><span className="wcard__stat">{num(st.views)} views</span><span className="wcard__stat">{num(st.likes)} likes</span></div>
                     </div>
                   </div>
                 );
               })}
             </div>
           ) : (
-            <div className="empty"><Seal size={48} style={{ margin: "0 auto 1rem", color: "var(--bone-faint)" }} /><h2>No pending requests.</h2><p>New message requests from collectors land here.</p></div>
+            <div className="empty" style={{ textAlign: "center" }}>
+              <Seal size={48} style={{ margin: "0 auto 1rem", color: "var(--bone-faint)" }} />
+              <h2>No sealed works yet.</h2>
+              <p>Seal your first piece — it lands here with its certificate and starts collecting views.</p>
+              <div style={{ marginTop: "1.2rem" }}><a href="index.html"><Button variant="solid" size="sm" arrow>Browse the wall</Button></a></div>
+            </div>
           )
+        ) : null}
+
+        {tab === "analytics" ? (
+          top.length ? (
+            <div className="hubtable">
+              <div className="hubrow hubrow--head"><span>Top posts</span><span>Views</span><span>Likes</span><span>Comments</span></div>
+              {top.map((w) => (
+                <div className="hubrow" key={w.id}>
+                  <span className="hubwork"><img src={SAGenArt.dataUri(strhash(w.id), { cat: w.cat })} alt="" /><span className="hubwork__t">{w.title}</span></span>
+                  <span className="hubnum">{num(w.views)}</span>
+                  <span className="hubnum">{num(w.likes)}</span>
+                  <span className="hubnum">{num(w.comments)}</span>
+                </div>
+              ))}
+            </div>
+          ) : (
+            <div className="empty" style={{ textAlign: "center", padding: "2rem 0" }}>
+              <Seal size={40} style={{ margin: "0 auto 1rem", color: "var(--bone-faint)" }} />
+              <p>No analytics yet. Seal a work — views, likes, and comments land here as people discover it.</p>
+            </div>
+          )
+        ) : null}
+
+        {tab === "sales" ? (
+          <div className="empty" style={{ textAlign: "center", padding: "2rem 0" }}>
+            <Seal size={40} style={{ margin: "0 auto 1rem", color: "var(--bone-faint)" }} />
+            <h2>No sales yet.</h2>
+            <p>When a collector licenses one of your sealed works, it appears here — you keep 90% of every sale.</p>
+          </div>
         ) : null}
 
         {tab === "payouts" ? (
           <div className="paywrap">
             <div className="balance">
               <p className="balance__k">Available balance</p>
-              <p className="balance__v">{money(balance)}</p>
-              <p className="balance__note">90% of every sale is yours — a flat 10% marketplace fee, nothing else. Payouts settle to your linked account within 2 business days.</p>
-              <Button variant="brass" size="sm" arrow onClick={() => show("Payout requested — settling to Bank ••4471")}>Withdraw</Button>
+              <p className="balance__v">$0</p>
+              <p className="balance__note">90% of every sale is yours — a flat 10% marketplace fee, nothing else. Payouts settle to your linked account within 2 business days once you make your first sale.</p>
+              <Button variant="brass" size="sm" arrow onClick={() => show("Nothing to withdraw yet — earnings from sales land here.")}>Withdraw</Button>
             </div>
-            <div>
-              <p style={{ fontFamily: "var(--font-mono)", fontSize: "0.6rem", textTransform: "uppercase", letterSpacing: "0.14em", color: "var(--bone-faint)", marginBottom: "0.7rem" }}>Recent payouts · lifetime earned {money(earned)}</p>
-              <div className="rows">
-                {payouts.map((p) => (
-                  <div className="row" key={p.id}>
-                    <div style={{ width: 40, height: 40, borderRadius: "50%", background: "var(--ink-3)", display: "grid", placeItems: "center", flex: "0 0 auto" }}><Icon name="check" size={16} /></div>
-                    <div className="row__main">
-                      <div className="row__title" style={{ fontFamily: "var(--font-mono)", fontSize: "0.85rem", letterSpacing: "0.04em" }}>{money(p.amt)}</div>
-                      <div className="row__sub">Paid · {p.method}</div>
-                    </div>
-                    <div className="row__date">{dateAgo(p.daysAgo)}</div>
-                  </div>
-                ))}
-              </div>
+            <div className="empty" style={{ textAlign: "center", padding: "1.5rem 0" }}>
+              <p>No payouts yet. Your earnings from sales will show up here.</p>
             </div>
           </div>
         ) : null}

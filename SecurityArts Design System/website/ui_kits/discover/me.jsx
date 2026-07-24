@@ -92,6 +92,7 @@ function App() {
           </div>
           <div className="mehead__actions">
             <a href="profile.html?me=1"><Button variant="solid" size="sm" arrow>View your profile</Button></a>
+            <a href="dashboard.html"><Button variant="ghost" size="sm">Studio</Button></a>
             <Button variant="ghost" size="sm" onClick={logout}>Log out</Button>
           </div>
         </div>
