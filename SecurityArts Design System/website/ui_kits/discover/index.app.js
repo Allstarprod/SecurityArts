@@ -79,7 +79,7 @@ function App() {
         onSave: () => like(w.id)
       }
     );
-    return a ? /* @__PURE__ */ React.createElement("a", { key: w.id, className: "pinlink", href: `profile.html?artist=${a.id}` }, pin) : /* @__PURE__ */ React.createElement("div", { key: w.id, className: "pinlink" }, pin);
+    return /* @__PURE__ */ React.createElement("a", { key: w.id, className: "pinlink", href: `seal.html?work=${w.id}` }, pin);
   })) : /* @__PURE__ */ React.createElement("div", { className: "empty" }, /* @__PURE__ */ React.createElement("h2", null, "Nothing here \u2014 yet."), /* @__PURE__ */ React.createElement("p", null, "Try a different medium, clear your search, or get a new piece verified."))), /* @__PURE__ */ React.createElement("footer", { className: "foot" }, /* @__PURE__ */ React.createElement("a", { href: "../studio/index.html" }, "\u2190 Back to SecurityArts"), /* @__PURE__ */ React.createElement("span", { className: "m" }, "Every work sealed \xB7 Authentic \xB7 Verified \xB7 Human")), /* @__PURE__ */ React.createElement(
     Drawer,
     {

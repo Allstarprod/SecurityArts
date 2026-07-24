@@ -112,12 +112,14 @@ function ArtistProfile({ artistId }) {
             {tab === "works" ? (
               <div className="masonry">
                 {works.map((w) => (
-                  <Pin key={w.id}
-                    art={<img src={SAGenArt.dataUri(w.seed, { cat: w.cat })} alt={w.title} />}
-                    title={w.title} artist={artist.name}
-                    badge="Verified"
-                    saved={S.isLiked(w.id)} onSave={() => { const n = S.toggleLike(w.id); show(n ? "Added to your likes" : "Removed"); }}
-                  />
+                  <a key={w.id} className="pinlink" href={`seal.html?work=${w.id}`}>
+                    <Pin
+                      art={<img src={SAGenArt.dataUri(w.seed, { cat: w.cat })} alt={w.title} />}
+                      title={w.title} artist={artist.name}
+                      badge="Verified"
+                      saved={S.isLiked(w.id)} onSave={() => { const n = S.toggleLike(w.id); show(n ? "Added to your likes" : "Removed"); }}
+                    />
+                  </a>
                 ))}
               </div>
             ) : (

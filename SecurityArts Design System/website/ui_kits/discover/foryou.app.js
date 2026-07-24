@@ -12,7 +12,7 @@ function AppBar() {
 const CAT_LABEL = { illustration: "Illustration", painting: "Painting", "3d": "3D & CGI", photography: "Photography", lettering: "Lettering", concept: "Concept art", mixed: "Mixed media" };
 function PinCard({ w, onToast }) {
   const a = C.artistById[w.artistId];
-  return /* @__PURE__ */ React.createElement("a", { href: `profile.html?artist=${w.artistId}`, style: { display: "block" } }, /* @__PURE__ */ React.createElement(
+  return /* @__PURE__ */ React.createElement("a", { href: `seal.html?work=${w.id}`, style: { display: "block" } }, /* @__PURE__ */ React.createElement(
     Pin,
     {
       art: /* @__PURE__ */ React.createElement("img", { src: SAGenArt.dataUri(w.seed, { cat: w.cat }), alt: w.title }),

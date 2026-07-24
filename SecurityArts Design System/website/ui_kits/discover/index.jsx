@@ -104,9 +104,7 @@ function App() {
                   title={w.title} artist={artistName} own={w.own}
                   saved={S.isLiked(w.id)} onSave={() => like(w.id)} />
               );
-              return a
-                ? <a key={w.id} className="pinlink" href={`profile.html?artist=${a.id}`}>{pin}</a>
-                : <div key={w.id} className="pinlink">{pin}</div>;
+              return <a key={w.id} className="pinlink" href={`seal.html?work=${w.id}`}>{pin}</a>;
             })}
           </section>
         ) : (

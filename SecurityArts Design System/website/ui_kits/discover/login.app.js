@@ -16,9 +16,10 @@ const COPY = {
   reset: { eyebrow: "New password", title: /* @__PURE__ */ React.createElement(React.Fragment, null, "Set a ", /* @__PURE__ */ React.createElement("em", null, "new one.")), sub: "Choose a new password for your account, then you're back in." }
 };
 function App() {
-  const resetToken = new URLSearchParams(location.search).get("token");
+  const q0 = new URLSearchParams(location.search);
+  const resetToken = q0.get("token");
   const [user, setUser] = React.useState(() => Session.current());
-  const [mode, setMode] = React.useState(resetToken ? "reset" : "signin");
+  const [mode, setMode] = React.useState(resetToken ? "reset" : q0.get("mode") === "signup" ? "signup" : "signin");
   const [googleOn, setGoogleOn] = React.useState(false);
   const [name, setName] = React.useState("");
   const [email, setEmail] = React.useState("");

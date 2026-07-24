@@ -96,7 +96,7 @@ function App() {
             </div>
           </div>
           <div className="dhead__actions">
-            <a href={`profile.html?artist=${artist.id}`}><Button variant="ghost" size="sm">View public profile</Button></a>
+            <a href="profile.html?me=1"><Button variant="ghost" size="sm">View public profile</Button></a>
             <Button variant="solid" size="sm" arrow onClick={() => show("Verify flow — seal a new work")}>New work</Button>
           </div>
         </div>

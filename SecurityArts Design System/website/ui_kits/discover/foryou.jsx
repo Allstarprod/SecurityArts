@@ -28,7 +28,7 @@ const CAT_LABEL = { illustration: "Illustration", painting: "Painting", "3d": "3
 function PinCard({ w, onToast }) {
   const a = C.artistById[w.artistId];
   return (
-    <a href={`profile.html?artist=${w.artistId}`} style={{ display: "block" }}>
+    <a href={`seal.html?work=${w.id}`} style={{ display: "block" }}>
       <Pin
         art={<img src={SAGenArt.dataUri(w.seed, { cat: w.cat })} alt={w.title} />}
         title={w.title} artist={a.name} badge="Verified"

@@ -34,9 +34,10 @@ const COPY = {
 };
 
 function App() {
-  const resetToken = new URLSearchParams(location.search).get("token");
+  const q0 = new URLSearchParams(location.search);
+  const resetToken = q0.get("token");
   const [user, setUser] = React.useState(() => Session.current());
-  const [mode, setMode] = React.useState(resetToken ? "reset" : "signin"); // signin | signup | forgot | reset
+  const [mode, setMode] = React.useState(resetToken ? "reset" : (q0.get("mode") === "signup" ? "signup" : "signin")); // signin | signup | forgot | reset
   const [googleOn, setGoogleOn] = React.useState(false);
   const [name, setName] = React.useState("");
   const [email, setEmail] = React.useState("");
