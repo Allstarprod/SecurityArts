@@ -199,6 +199,15 @@
   .head-cta__arrow { transition: transform 0.3s var(--ease); }
   .head-cta:hover .head-cta__arrow { transform: translateX(2px); }
 
+  .head-auth { display: inline-flex; align-items: center; gap: 1.15rem; }
+  .head-auth a {
+    font-family: var(--mono); font-size: 0.74rem; text-transform: uppercase;
+    letter-spacing: 0.12em; color: var(--bone-dim); transition: color 0.25s var(--ease);
+  }
+  .head-auth a:hover { color: var(--bone); }
+  .head-auth__join { color: var(--bone); }
+  .head-auth__join:hover { color: var(--brass); }
+
   .menu-btn { display: none; }
 
   /* ───────────────── mobile menu ───────────────── */
@@ -514,7 +523,7 @@
 
   /* ───────────────── responsive ───────────────── */
   @media (max-width: 880px) {
-    .nav, .head-cta { display: none; }
+    .nav, .head-cta, .head-auth { display: none; }
     .menu-btn {
       display: inline-flex; flex-direction: column; align-items: center; justify-content: center;
       gap: 6px; margin-left: auto; min-width: 44px; min-height: 44px;
@@ -583,6 +592,11 @@
       <a href="discover.html"><span class="nav__idx">05</span> Discover</a>
     </nav>
 
+    <div class="head-auth">
+      <a href="/SecurityArts%20Design%20System/website/ui_kits/discover/login.html">Sign in</a>
+      <a class="head-auth__join" href="/SecurityArts%20Design%20System/website/ui_kits/discover/login.html">Join</a>
+    </div>
+
     <a class="head-cta" href="#contact">
       Request engagement
       <span class="head-cta__arrow" aria-hidden="true">→</span>
@@ -603,6 +617,8 @@
       <a href="#contact"><span>05</span> Contact</a>
       <a href="discover.html"><span>06</span> Discover</a>
       <a href="market.html"><span>07</span> Market</a>
+      <a href="/SecurityArts%20Design%20System/website/ui_kits/discover/login.html"><span>08</span> Sign in</a>
+      <a href="/SecurityArts%20Design%20System/website/ui_kits/discover/login.html"><span>09</span> Join</a>
     </nav>
     <a class="mobile-menu__cta" href="#contact">Request an engagement →</a>
   </div>
