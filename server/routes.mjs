@@ -487,21 +487,6 @@ router.get("/api/me/stats", async ({ res, user }) => {
   return ok(res, { totals, top: items.slice(0, 12) });
 });
 
-// Sales for the signed-in creator: every purchase line that references one of their
-// sealed works, plus gross + earned (90% after the flat 10% marketplace fee).
-router.get("/api/me/sales", async ({ res, user }) => {
-  if (!user) return fail(res, 401, "Sign in to see your sales.");
-  const works = await repo.works.listByOwner(user.id);
-  const titleById = {}; works.forEach((w) => { titleById[w.id] = w.title; });
-  const ids = works.map((w) => w.id);
-  const sales = ids.length ? await repo.orders.salesForWorks(ids) : [];
-  sales.forEach((s) => { s.title = titleById[s.workId] || "Untitled"; });
-  sales.sort((a, b) => new Date(b.date) - new Date(a.date));
-  const gross = sales.reduce((t, s) => t + (s.amt || 0), 0);
-  const earned = Math.round(gross * 0.9);
-  return ok(res, { sales: sales.slice(0, 100), totals: { count: sales.length, gross, earned } });
-});
-
 /* ---- checkout / orders --------------------------------------------- */
 router.post("/api/checkout", async ({ res, body, user, ip }) => {
   if (!(await rateLimit(`ck:${ip}`, 20, 60000))) return fail(res, 429, "Slow down a moment.");

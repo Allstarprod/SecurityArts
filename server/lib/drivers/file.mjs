@@ -188,14 +188,6 @@ export async function createRepo() {
     orders: {
       async create(order) { db.orders.push(order); idx.orderById.set(order.id, order); schedule(); return clone(order); },
       async findById(id) { return clone(idx.orderById.get(id) || null); },
-      // Sale line-items across all orders that reference any of the given work ids.
-      async salesForWorks(workIds) {
-        const set = new Set(workIds); const out = [];
-        for (const o of db.orders) for (const l of (o.lines || [])) {
-          if (set.has(l.id)) out.push({ orderId: o.id, workId: l.id, license: l.license, amt: l.price || 0, buyer: o.name || o.email || "A collector", date: o.createdAt });
-        }
-        return out;
-      },
     },
 
     stats: {

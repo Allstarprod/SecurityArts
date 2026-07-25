@@ -39,7 +39,6 @@
     workLikes: function (id) { return req("/works/" + encodeURIComponent(id) + "/likes"); },
     likeWork: function (id) { return req("/works/" + encodeURIComponent(id) + "/like", { method: "POST" }); },
     myStats: function () { return req("/me/stats"); },
-    mySales: function () { return req("/me/sales"); },
     verify: function (hash) { return req("/verify/" + encodeURIComponent(hash)); },
     checkout: function (payload) { return req("/checkout", { method: "POST", body: payload }); },
     order: function (id) { return req("/orders/" + encodeURIComponent(id)); },

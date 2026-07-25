@@ -202,20 +202,6 @@ export async function createRepo() {
         return o;
       },
       async findById(id) { return rowToOrder((await q("SELECT * FROM orders WHERE id=$1", [id])).rows[0]); },
-      async salesForWorks(workIds) {
-        if (!workIds.length) return [];
-        const rows = (await q(
-          `SELECT id, lines, email, name, created_at FROM orders
-            WHERE EXISTS (SELECT 1 FROM jsonb_array_elements(lines) e WHERE e->>'id' = ANY($1))`,
-          [workIds]
-        )).rows;
-        const set = new Set(workIds); const out = [];
-        for (const o of rows) {
-          const lines = Array.isArray(o.lines) ? o.lines : [];
-          for (const l of lines) if (set.has(l.id)) out.push({ orderId: o.id, workId: l.id, license: l.license, amt: l.price || 0, buyer: o.name || o.email || "A collector", date: o.created_at });
-        }
-        return out;
-      },
     },
 
     stats: {

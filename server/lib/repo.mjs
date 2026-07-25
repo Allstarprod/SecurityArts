@@ -83,7 +83,6 @@ export const repo = {
   orders: {
     create: (o) => must().orders.create(o),
     findById: (id) => must().orders.findById(id),
-    salesForWorks: (workIds) => must().orders.salesForWorks(workIds),
   },
   comments: {
     listByWork: (workId) => must().comments.listByWork(workId),

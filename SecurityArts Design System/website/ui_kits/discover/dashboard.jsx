@@ -4,8 +4,6 @@ const C = window.SACatalog, S = window.SAStore, Session = window.SASession;
 function useStoreTick() { const [, set] = React.useState(0); React.useEffect(() => S.subscribe(() => set((n) => n + 1)), []); }
 function strhash(s){var h=0;for(var i=0;i<s.length;i++)h=(Math.imul(31,h)+s.charCodeAt(i))|0;return h;}
 function num(n){ return (n || 0) >= 1000 ? ((n||0)/1000).toFixed(1).replace(/\.0$/, "") + "k" : String(n || 0); }
-function money(n){ return "$" + (n || 0).toLocaleString("en-US"); }
-function shortDate(iso){ try { return new Date(iso).toLocaleDateString("en-US", { month: "short", day: "numeric" }); } catch (e) { return ""; } }
 
 function AppBar() {
   const pending = S.counts().pending;
@@ -49,7 +47,6 @@ function App() {
   useStoreTick();
   const [user] = React.useState(() => Session && Session.current());
   const [stats, setStats] = React.useState(null);   // { totals, top } from /api/me/stats
-  const [sales, setSales] = React.useState(null);   // { sales, totals } from /api/me/sales
   const [ownWorks, setOwnWorks] = React.useState([]);
   const [tab, setTab] = React.useState("works");
   const [toast, setToast] = React.useState("");
@@ -60,7 +57,6 @@ function App() {
     if (!user || !window.SA_API) return;
     let alive = true;
     window.SA_API.myStats().then((d) => { if (alive && d) setStats(d); }).catch(() => {});
-    window.SA_API.mySales().then((d) => { if (alive && d) setSales(d); }).catch(() => {});
     window.SA_API.listWorks().then((list) => { if (alive) setOwnWorks((list || []).filter((w) => w.ownerId === user.id)); }).catch(() => {});
     return () => { alive = false; };
   }, [user]);
@@ -157,48 +153,25 @@ function App() {
         ) : null}
 
         {tab === "sales" ? (
-          sales && sales.sales.length ? (
-            <div className="rows">
-              {sales.sales.map((s, i) => (
-                <div className="row" key={s.orderId + "-" + i}>
-                  <div className="row__main">
-                    <div className="row__title">{s.title}</div>
-                    <div className="row__sub">{s.license} license</div>
-                  </div>
-                  <div className="row__buyer"><Avatar name={s.buyer} size={28} /><span>{s.buyer}</span></div>
-                  <div className="row__amt">{money(s.amt)}</div>
-                  <div className="row__date">{shortDate(s.date)}</div>
-                </div>
-              ))}
-            </div>
-          ) : (
-            <div className="empty" style={{ textAlign: "center", padding: "2rem 0" }}>
-              <Seal size={40} style={{ margin: "0 auto 1rem", color: "var(--bone-faint)" }} />
-              <h2>No sales yet.</h2>
-              <p>When a collector licenses one of your sealed works, it appears here — you keep 90% of every sale.</p>
-            </div>
-          )
+          <div className="empty" style={{ textAlign: "center", padding: "2rem 0" }}>
+            <Seal size={40} style={{ margin: "0 auto 1rem", color: "var(--bone-faint)" }} />
+            <h2>No sales yet.</h2>
+            <p>When a collector licenses one of your sealed works, it appears here — you keep 90% of every sale.</p>
+          </div>
         ) : null}
 
         {tab === "payouts" ? (
-          (() => {
-            const earned = sales ? sales.totals.earned : 0;
-            const gross = sales ? sales.totals.gross : 0;
-            const count = sales ? sales.totals.count : 0;
-            return (
-              <div className="paywrap">
-                <div className="balance">
-                  <p className="balance__k">Available balance</p>
-                  <p className="balance__v">{money(earned)}</p>
-                  <p className="balance__note">90% of every sale is yours — a flat 10% marketplace fee, nothing else. Payouts settle to your linked account within 2 business days{count ? "" : " once you make your first sale"}.</p>
-                  <Button variant="brass" size="sm" arrow onClick={() => show(earned ? "Payout requested — settling to your linked account." : "Nothing to withdraw yet — earnings from sales land here.")}>Withdraw</Button>
-                </div>
-                <div className="empty" style={{ textAlign: "center", padding: "1.5rem 0" }}>
-                  <p>{count ? `${count} sale${count === 1 ? "" : "s"} · ${money(gross)} gross · you keep ${money(earned)}.` : "No payouts yet. Your earnings from sales will show up here."}</p>
-                </div>
-              </div>
-            );
-          })()
+          <div className="paywrap">
+            <div className="balance">
+              <p className="balance__k">Available balance</p>
+              <p className="balance__v">$0</p>
+              <p className="balance__note">90% of every sale is yours — a flat 10% marketplace fee, nothing else. Payouts settle to your linked account within 2 business days once you make your first sale.</p>
+              <Button variant="brass" size="sm" arrow onClick={() => show("Nothing to withdraw yet — earnings from sales land here.")}>Withdraw</Button>
+            </div>
+            <div className="empty" style={{ textAlign: "center", padding: "1.5rem 0" }}>
+              <p>No payouts yet. Your earnings from sales will show up here.</p>
+            </div>
+          </div>
         ) : null}
       </div>
 
