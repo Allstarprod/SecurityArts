@@ -39,7 +39,10 @@ export default async function handler(req, res) {
 
   try {
     if (!repoReady) repoReady = initRepo();
-    await repoReady;
+    // Don't cache a FAILED init: if the DB was briefly unreachable (e.g. Supabase
+    // free-tier resume), clear the memo so the next request retries and the API
+    // self-heals — instead of a warm instance serving 500s until it's recycled.
+    try { await repoReady; } catch (e) { repoReady = null; throw e; }
 
     if (!(await rateLimit(`ip:${ip}`, 240, 60000))) return fail(res, 429, "Rate limit exceeded.");
     if (!sameOrigin(req)) { audit("csrf.block", { ip, pathname }); return fail(res, 403, "Cross-origin request blocked."); }
