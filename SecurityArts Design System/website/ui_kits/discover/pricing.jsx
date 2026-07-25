@@ -3,12 +3,12 @@ const { Seal, Icon, Button, ThemeToggle } = window.SecurityArtsDesignSystem_f7e8
 const PLANS = [
   {
     name: "Free", price: { mo: 0, yr: 0 }, who: "Browse, verify, and buy sealed originals. No subscription required to collect.",
-    cta: "Start free", variant: "ghost", href: "onboarding.html",
+    cta: "Start free", variant: "ghost", href: "login.html?mode=signup",
     feats: ["Unlimited browsing & search", "One-click seal verification", "Buy & license any work", "Save likes and boards"],
   },
   {
     name: "Collector+", price: { mo: 5, yr: 50 }, who: "For serious collectors — early access to drops and a sharper, deeper feed.",
-    cta: "Go Collector+", variant: "solid", href: "onboarding.html", feat: true, tag: "Most popular",
+    cta: "Go Collector+", variant: "solid", href: "login.html?mode=signup", feat: true, tag: "Most popular",
     feats: ["Everything in Free", "24h early access to new drops", "Advanced For You & saved searches", "Collection provenance export", "Priority message requests"],
   },
   {
@@ -126,7 +126,7 @@ function App() {
           <h2>Start free. Sell <em>sealed.</em></h2>
           <p>Collect for nothing, or open a studio for $15/mo and keep 90% of everything you sell.</p>
           <div className="close__cta">
-            <Button variant="solid" href="onboarding.html" arrow>Get started</Button>
+            <Button variant="solid" href="login.html?mode=signup" arrow>Get started</Button>
             <Button variant="ghost" href="dashboard.html">Open a studio</Button>
           </div>
         </section>
