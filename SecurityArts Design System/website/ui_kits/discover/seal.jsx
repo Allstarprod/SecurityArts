@@ -16,18 +16,29 @@ function resolveWork() {
   const wid = p.get("work");
   if (wid && C.workById[wid]) return C.workById[wid];
   if (sid) { const hit = C.works.find((w) => sealId(w.id) === sid); if (hit) return hit; }
+  if (wid) return null; // not in the local catalog — a user-published work; fetch from the API
   return C.workById["w3"] || C.works[0];
 }
 
+// Artist for a work: a catalog artist, or a lightweight stand-in for a user-published
+// work (which only carries an artist-name string + ownerId, no catalog profile).
+function artistFor(work) {
+  return C.artistById[work.artistId] || { id: null, ownerId: work.ownerId || null, name: work.artist || "Artist", city: "", handle: "" };
+}
+// Image source: generated art for catalog works (they carry a seed), the real uploaded
+// image for user works (they carry img/imgUrl from the API).
+function artSrc(work) { return work.seed != null ? SAGenArt.dataUri(work.seed, { cat: work.cat }) : (work.img || work.imgUrl || ""); }
+
 /* Deterministic provenance chain for a work. */
 function chainFor(work) {
-  const artist = C.artistById[work.artistId];
+  const artist = artistFor(work);
   const rand = mulberry(Math.abs(strhash("chain" + work.id)) + 3);
   const base = new Date(2026, 0, 1 + (Math.abs(strhash(work.id)) % 150));
   const events = [];
   events.push({ kind: "seal", title: "Sealed at origin", date: new Date(base), who: artist.name, body: <>Signed by <b>{artist.name}</b> and registered. The work's SHA-256 fingerprint was written to the public registry.</>, hash: hex("h" + work.id, 64) });
-  // 0–2 transfers
-  const nT = Math.floor(rand() * 3);
+  // 0–2 fabricated transfers — only for the demo catalog (which carries a numeric seed
+  // + scalar price). Real user-published works show just the true seal-at-origin event.
+  const nT = work.seed != null ? Math.floor(rand() * 3) : 0;
   let owner = artist.name, cursor = new Date(base);
   for (let i = 0; i < nT; i++) {
     cursor = new Date(cursor.getTime() + (20 + Math.floor(rand() * 90)) * 864e5);
@@ -192,14 +203,25 @@ function Comments({ workId }) {
 }
 
 function App() {
-  const [work] = React.useState(resolveWork);
-  const artist = C.artistById[work.artistId];
-  const id = sealId(work.id);
-  const chain = React.useMemo(() => chainFor(work), [work.id]);
+  const [work, setWork] = React.useState(resolveWork);
+  const [notFound, setNotFound] = React.useState(false);
+  // A work id we don't have in the catalog → user-published; fetch it from the API.
+  React.useEffect(() => {
+    if (work) return;
+    const wid = new URLSearchParams(location.search).get("work");
+    if (!wid || !window.SA_API) { setNotFound(true); return; }
+    let alive = true;
+    window.SA_API.getWork(wid).then((w) => { if (alive) { w ? setWork(w) : setNotFound(true); } }).catch(() => { if (alive) setNotFound(true); });
+    return () => { alive = false; };
+  }, []);
+  const artist = work ? artistFor(work) : null;
+  const id = work ? sealId(work.id) : "";
+  const chain = React.useMemo(() => (work ? chainFor(work) : []), [work]);
   const owner = React.useMemo(() => {
+    if (!work) return "";
     const ex = chain.find((e) => e.kind === "transfer" && /exclusive/i.test(e.title));
     return ex ? ex.who : artist.name;
-  }, [chain]);
+  }, [chain, work]);
   const [checking, setChecking] = React.useState(false);
   const [checkedAt, setCheckedAt] = React.useState(null);
   const [toast, setToast] = React.useState("");
@@ -212,17 +234,17 @@ function App() {
     const key = "sa-viewed-" + work.id;
     try { if (sessionStorage.getItem(key)) return; sessionStorage.setItem(key, "1"); } catch (e) {}
     window.SA_API.viewWork(work.id).catch(() => {});
-  }, [work.id]);
+  }, [work]);
 
   // Work-level likes (the public "❤" signal). Read on load; toggle optimistically.
   const [likes, setLikes] = React.useState(null);
   const [likedByMe, setLikedByMe] = React.useState(false);
   React.useEffect(() => {
-    if (!window.SA_API) return;
+    if (!window.SA_API || !work) return;
     let alive = true;
     window.SA_API.workLikes(work.id).then((r) => { if (alive && r) { setLikes(r.likes); setLikedByMe(!!r.likedByMe); } }).catch(() => {});
     return () => { alive = false; };
-  }, [work.id]);
+  }, [work]);
   const toggleLike = () => {
     if (!window.SA_API) { show("Sign in to like a work"); return; }
     const nextLiked = !likedByMe;
@@ -232,7 +254,7 @@ function App() {
   };
 
   // Related works — same medium, from the catalog.
-  const related = React.useMemo(() => C.works.filter((w) => w.cat === work.cat && w.id !== work.id).slice(0, 6), [work.id]);
+  const related = React.useMemo(() => (work ? C.works.filter((w) => w.cat === work.cat && w.id !== work.id).slice(0, 6) : []), [work]);
 
   const reverify = () => {
     setChecking(true);
@@ -241,6 +263,20 @@ function App() {
   const copyEmbed = () => { show("Embed snippet copied"); };
   const copyId = () => { show("Seal ID copied"); };
 
+  if (!work) return (
+    <React.Fragment>
+      <AppBar />
+      <div className="wrap">
+        <div className="cempty" style={{ padding: "4rem 0", textAlign: "center" }}>
+          {notFound
+            ? <React.Fragment><h1 className="lede__title" style={{ marginBottom: "0.6rem" }}>Work not found.</h1><p>This seal record doesn't exist or was removed.</p><p style={{ marginTop: "1.4rem" }}><a href="index.html"><Button variant="solid" size="sm" arrow>Back to Discover</Button></a></p></React.Fragment>
+            : <p>Loading seal record…</p>}
+        </div>
+      </div>
+    </React.Fragment>
+  );
+
+  const artistHref = artist.id ? `profile.html?artist=${artist.id}` : (artist.ownerId ? `profile.html?u=${encodeURIComponent(artist.ownerId)}` : null);
   const fullHash = hex("h" + work.id, 64);
   const embed =
 `<a href="https://securityarts.studio/s/${id}">
@@ -256,17 +292,17 @@ function App() {
 
         <div className="top">
           <div className="art">
-            <img src={SAGenArt.dataUri(work.seed, { cat: work.cat })} alt={work.title} />
+            <img src={artSrc(work)} alt={work.title} />
             <VerifiedBadge className="art__badge">Verified</VerifiedBadge>
           </div>
           <div>
             <p className="lede__eyebrow">Seal {id}</p>
             <h1 className="lede__title">{work.title}</h1>
             <div className="lede__by">
-              <a href={`profile.html?artist=${artist.id}`}><Avatar name={artist.name} size={38} verified /></a>
+              {artistHref ? <a href={artistHref}><Avatar name={artist.name} size={38} verified /></a> : <Avatar name={artist.name} size={38} verified />}
               <div>
-                <a href={`profile.html?artist=${artist.id}`}><div className="n">{artist.name}</div></a>
-                <div className="c">{work.medium} · {artist.city}</div>
+                {artistHref ? <a href={artistHref}><div className="n">{artist.name}</div></a> : <div className="n">{artist.name}</div>}
+                <div className="c">{work.medium}{artist.city ? " · " + artist.city : ""}</div>
               </div>
             </div>
 
@@ -294,7 +330,7 @@ function App() {
             <div className="facts">
               <div className="fact"><div className="fact__k">Current owner</div><div className="fact__v">{owner}</div></div>
               <div className="fact"><div className="fact__k">Algorithm</div><div className="fact__v brass">ECDSA P-256 · SHA-256</div></div>
-              <div className="fact"><div className="fact__k">Signer key</div><div className="fact__v">sa:key:{hex("k" + work.artistId, 12)}</div></div>
+              <div className="fact"><div className="fact__k">Signer key</div><div className="fact__v">sa:key:{hex("k" + (work.artistId || work.id), 12)}</div></div>
               <div className="fact"><div className="fact__k">Transfers</div><div className="fact__v">{chain.filter((e) => e.kind === "transfer").length}</div></div>
             </div>
           </div>

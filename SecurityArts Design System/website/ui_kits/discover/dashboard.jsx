@@ -108,7 +108,7 @@ function App() {
               {ownWorks.map((w) => {
                 const st = statOf(w.id);
                 return (
-                  <div className="wcard" key={w.id}>
+                  <a className="wcard" key={w.id} href={`seal.html?work=${w.id}`}>
                     <div className="wcard__art">
                       <img src={w.img || SAGenArt.dataUri(strhash(w.id), { cat: w.cat })} alt={w.title} />
                       <VerifiedBadge className="wcard__badge">Sealed</VerifiedBadge>
@@ -117,7 +117,7 @@ function App() {
                       <div className="wcard__title">{w.title}</div>
                       <div className="wcard__row"><span className="wcard__stat">{num(st.views)} views</span><span className="wcard__stat">{num(st.likes)} likes</span></div>
                     </div>
-                  </div>
+                  </a>
                 );
               })}
             </div>
