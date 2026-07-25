@@ -84,7 +84,7 @@ function App() {
           </div>
           <div className="dhead__actions">
             <a href="profile.html?me=1"><Button variant="ghost" size="sm">View public profile</Button></a>
-            <Button variant="solid" size="sm" arrow onClick={() => show("Sealing new work from the app is coming soon — your sealed pieces show up here.")}>Seal a work</Button>
+            <a href="create.html"><Button variant="solid" size="sm" arrow>Seal a work</Button></a>
           </div>
         </div>
 
@@ -126,7 +126,7 @@ function App() {
               <Seal size={48} style={{ margin: "0 auto 1rem", color: "var(--bone-faint)" }} />
               <h2>No sealed works yet.</h2>
               <p>Seal your first piece — it lands here with its certificate and starts collecting views.</p>
-              <div style={{ marginTop: "1.2rem" }}><a href="index.html"><Button variant="solid" size="sm" arrow>Browse the wall</Button></a></div>
+              <div style={{ marginTop: "1.2rem" }}><a href="create.html"><Button variant="solid" size="sm" arrow>Seal a work</Button></a></div>
             </div>
           )
         ) : null}
