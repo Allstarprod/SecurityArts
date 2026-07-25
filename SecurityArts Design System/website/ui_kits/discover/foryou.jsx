@@ -33,7 +33,7 @@ function PinCard({ w, onToast }) {
         art={<img src={SAGenArt.dataUri(w.seed, { cat: w.cat })} alt={w.title} />}
         title={w.title} artist={a.name} badge="Verified"
         saved={S.isLiked(w.id)}
-        onSave={() => { const n = S.toggleLike(w.id); onToast(n ? "Added to your likes" : "Removed"); }}
+        onSave={() => { const n = S.toggleLike(w.id); if (window.SA_API) window.SA_API.likeWork(w.id).catch(() => {}); onToast(n ? "Added to your likes" : "Removed"); }}
       />
     </a>
   );

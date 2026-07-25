@@ -1,5 +1,5 @@
 const { Seal, Icon, IconButton, Button, Avatar, VerifiedBadge, Toast, ThemeToggle } = window.SecurityArtsDesignSystem_f7e889;
-const C = window.SACatalog;
+const C = window.SACatalog, S = window.SAStore;
 
 function strhash(s){var h=0;for(var i=0;i<s.length;i++)h=(Math.imul(31,h)+s.charCodeAt(i))|0;return h;}
 function mulberry(a){return function(){a|=0;a=a+0x6D2B79F5|0;var t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296;};}
@@ -239,18 +239,27 @@ function App() {
   // Work-level likes (the public "❤" signal). Read on load; toggle optimistically.
   const [likes, setLikes] = React.useState(null);
   const [likedByMe, setLikedByMe] = React.useState(false);
+  // Keep the local "likes" store in sync with the work's real like state, so a like
+  // made here also shows up in the profile's Likes count (one like, counted once).
+  const syncLocalLike = (want) => {
+    if (!S || !work) return;
+    const has = S.isLiked(work.id);
+    if (want && !has) S.toggleLike(work.id);
+    else if (!want && has) S.toggleLike(work.id);
+  };
   React.useEffect(() => {
     if (!window.SA_API || !work) return;
     let alive = true;
-    window.SA_API.workLikes(work.id).then((r) => { if (alive && r) { setLikes(r.likes); setLikedByMe(!!r.likedByMe); } }).catch(() => {});
+    window.SA_API.workLikes(work.id).then((r) => { if (alive && r) { setLikes(r.likes); setLikedByMe(!!r.likedByMe); syncLocalLike(!!r.likedByMe); } }).catch(() => {});
     return () => { alive = false; };
   }, [work]);
   const toggleLike = () => {
     if (!window.SA_API) { show("Sign in to like a work"); return; }
     const nextLiked = !likedByMe;
     setLikedByMe(nextLiked); setLikes((n) => Math.max(0, (n || 0) + (nextLiked ? 1 : -1)));
-    window.SA_API.likeWork(work.id).then((r) => { if (r) { setLikes(r.likes); setLikedByMe(!!r.likedByMe); } })
-      .catch(() => { setLikedByMe(!nextLiked); setLikes((n) => Math.max(0, (n || 0) + (nextLiked ? -1 : 1))); show("Sign in to like a work"); });
+    syncLocalLike(nextLiked);
+    window.SA_API.likeWork(work.id).then((r) => { if (r) { setLikes(r.likes); setLikedByMe(!!r.likedByMe); syncLocalLike(!!r.likedByMe); } })
+      .catch(() => { setLikedByMe(!nextLiked); setLikes((n) => Math.max(0, (n || 0) + (nextLiked ? -1 : 1))); syncLocalLike(!nextLiked); show("Sign in to like a work"); });
   };
 
   // Related works — same medium, from the catalog.

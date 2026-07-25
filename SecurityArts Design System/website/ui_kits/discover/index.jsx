@@ -58,7 +58,7 @@ function App() {
     return (cat === "all" || w.cat === cat) && (!q || hay.includes(q.toLowerCase()));
   });
 
-  const like = (id) => { const n = S.toggleLike(id); showToast(n ? "Added to your likes" : "Removed from likes"); };
+  const like = (id) => { const n = S.toggleLike(id); if (window.SA_API) window.SA_API.likeWork(id).catch(() => {}); showToast(n ? "Added to your likes" : "Removed from likes"); };
 
   const generateSeal = () => setCert({ algo: "ECDSA P-256 · SHA-256", hash: rndHex(64), sig: rndHex(96), signer: "sa:key:" + rndHex(12), ts: new Date().toISOString() });
   const publish = async () => {
