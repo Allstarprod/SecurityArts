@@ -88,10 +88,12 @@ function App() {
     try {
       if (mode === "signup") {
         await Session.register(em, password, name.trim());
+        if (window.SAAnalytics) window.SAAnalytics.capture("signup");
         setNote({ t: "Sealed \u2014 let's set you up\u2026", kind: "ok" });
         location.href = "onboarding.html";
       } else {
         await Session.login(em, password);
+        if (window.SAAnalytics) window.SAAnalytics.capture("login");
         setNote({ t: "Sealed \u2014 taking you in\u2026", kind: "ok" });
         location.href = nextUrl();
       }

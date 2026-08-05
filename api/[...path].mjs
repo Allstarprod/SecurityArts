@@ -16,6 +16,7 @@ import { initRepo } from "../server/lib/repo.mjs";
 import { fail } from "../server/lib/http.mjs";
 import { currentUser } from "../server/lib/auth.mjs";
 import { setSecurityHeaders, rateLimit, sameOrigin, readBody, audit, clientIp } from "../server/lib/security.mjs";
+import { reportError } from "../server/lib/sentry.mjs";
 
 // Memoized across warm invocations of a function instance.
 let repoReady = null;
@@ -76,6 +77,9 @@ export default async function handler(req, res) {
       // Server-side only (client still gets the generic message) — surfaces the real
       // cause (e.g. ENOTFOUND on a bad DATABASE_URL, MODULE_NOT_FOUND for pg) in Vercel logs.
       console.error(`[api] ${status} ${pathname} — ${err && (err.stack || err.message)}${err && err.code ? " (code " + err.code + ")" : ""}`);
+      // Also report to Sentry when SENTRY_DSN is set (no-op otherwise). Awaited so the
+      // event actually flushes before this serverless invocation ends.
+      await reportError(err, { pathname, method, ip });
     }
     return fail(res, status, status >= 500 ? "Something went wrong." : err.message);
   }

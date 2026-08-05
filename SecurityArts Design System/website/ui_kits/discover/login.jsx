@@ -76,8 +76,8 @@ function App() {
     if (password.length < 8) { setNote({ t: "Password must be at least 8 characters.", kind: "err" }); return; }
     setBusy(true); setNote({ t: mode === "signup" ? "Creating your account…" : "Signing you in…", kind: "" });
     try {
-      if (mode === "signup") { await Session.register(em, password, name.trim()); setNote({ t: "Sealed — let's set you up…", kind: "ok" }); location.href = "onboarding.html"; }
-      else { await Session.login(em, password); setNote({ t: "Sealed — taking you in…", kind: "ok" }); location.href = nextUrl(); }
+      if (mode === "signup") { await Session.register(em, password, name.trim()); if (window.SAAnalytics) window.SAAnalytics.capture("signup"); setNote({ t: "Sealed — let's set you up…", kind: "ok" }); location.href = "onboarding.html"; }
+      else { await Session.login(em, password); if (window.SAAnalytics) window.SAAnalytics.capture("login"); setNote({ t: "Sealed — taking you in…", kind: "ok" }); location.href = nextUrl(); }
     } catch (err) { setNote({ t: (err && err.message) || "Couldn't sign you in. Try again.", kind: "err" }); setBusy(false); }
   };
 

@@ -18,6 +18,7 @@ import { initRepo, repo } from "./lib/repo.mjs";
 import { fail } from "./lib/http.mjs";
 import { currentUser } from "./lib/auth.mjs";
 import { setSecurityHeaders, rateLimit, sameOrigin, readBody, audit, clientIp } from "./lib/security.mjs";
+import { reportError } from "./lib/sentry.mjs";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const ROOT = path.resolve(__dirname, ".."); // static site root
@@ -94,7 +95,7 @@ async function handler(req, res) {
     serveStatic(req, res, pathname);
   } catch (err) {
     const status = err.status || 500;
-    if (status >= 500) audit("server.error", { ip, pathname, msg: err.message });
+    if (status >= 500) { audit("server.error", { ip, pathname, msg: err.message }); reportError(err, { pathname, method: req.method, ip }).catch(() => {}); }
     // Never leak internals to the client (OWASP A05 / info exposure).
     fail(res, status, status >= 500 ? "Something went wrong." : err.message);
   }

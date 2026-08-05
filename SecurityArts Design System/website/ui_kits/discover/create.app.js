@@ -77,6 +77,7 @@ function App() {
     setNote({ t: "Sealing your work\u2026", kind: "" });
     try {
       const w = await window.SA_API.publishWork({ title: t, artist: a, cat, image: img });
+      if (window.SAAnalytics) window.SAAnalytics.capture("work_sealed", { cat });
       setSealed(w);
     } catch (err) {
       setBusy(false);

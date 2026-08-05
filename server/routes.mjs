@@ -118,7 +118,7 @@ router.get("/api/health", ({ res }) => ok(res, { status: "ok", signer: SIGNER_ID
 router.get("/api/seal/pubkey", ({ res }) => ok(res, { signer: SIGNER_ID, publicKey: publicKeyPem }));
 
 /* ---- auth ----------------------------------------------------------- */
-router.post("/api/auth/register", async ({ res, body, ip, https }) => {
+router.post("/api/auth/register", async ({ res, req, body, ip, https }) => {
   if (!(await rateLimit(`reg:${ip}`, 5, 60000))) return fail(res, 429, "Too many attempts. Try again shortly.");
   const email = isEmail(body.email) ? body.email.trim().toLowerCase() : null;
   const password = str(body.password, { min: 8, max: 200 });
@@ -129,6 +129,12 @@ router.post("/api/auth/register", async ({ res, body, ip, https }) => {
   await repo.users.create(user);
   audit("auth.register", { userId: user.id, ip });
   res.setHeader("Set-Cookie", sessionCookie(createSession(user.id), { https }));
+  // Welcome email (Resend when configured; a no-op dev log otherwise). Best-effort —
+  // never let a mail hiccup fail the signup.
+  await sendMail({
+    to: user.email, subject: "Welcome to SecurityArts",
+    text: `Hi ${name},\n\nYour SecurityArts account is ready — seal your work to prove it's yours, collect verified human art, and carry provenance with every piece.\n\nOpen your studio: ${publicOrigin(req, https)}\n\n— SecurityArts`,
+  }).catch(() => {});
   return created(res, publicUser(user));
 });
 
@@ -153,7 +159,12 @@ router.post("/api/auth/logout", ({ res }) => { res.setHeader("Set-Cookie", clear
 router.get("/api/auth/me", ({ res, user }) => ok(res, publicUser(user)));
 
 // What optional sign-in methods are wired (so the login page shows the right buttons).
-router.get("/api/auth/config", ({ res }) => ok(res, { google: googleConfigured }));
+router.get("/api/auth/config", ({ res }) => ok(res, {
+  google: googleConfigured,
+  // Public client-side keys (safe to expose): PostHog project key + host for analytics.
+  posthog: process.env.POSTHOG_KEY || null,
+  posthogHost: process.env.POSTHOG_HOST || "https://us.i.posthog.com",
+}));
 
 /* ---- password reset ------------------------------------------------- */
 // Request a reset link. Always returns the same response — never reveals whether an
@@ -524,6 +535,12 @@ router.post("/api/checkout", async ({ res, body, user, ip }) => {
   };
   await repo.orders.create(order);
   audit("order.placed", { orderId: order.id, total, email, ip }); // NOTE: real payment (Stripe) goes here
+  // Order receipt (Resend when configured; dev-logged otherwise). Best-effort.
+  const receiptLines = lines.map((l) => `  • ${l.id} — ${l.license} license — $${l.price}`).join("\n");
+  await sendMail({
+    to: email, subject: `Your SecurityArts receipt · ${order.id}`,
+    text: `Thanks for your purchase.\n\nOrder ${order.id}\n${receiptLines}\n\nTotal: $${total}\n\nEvery piece is sealed and publicly verifiable. Keep this receipt for your records.\n\n— SecurityArts`,
+  }).catch(() => {});
   return created(res, { orderId: order.id, total, lines });
 });
 router.get("/api/orders/:id", async ({ res, params, user }) => {

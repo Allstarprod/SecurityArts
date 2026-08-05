@@ -14,13 +14,17 @@ ensureDataDir(); // so the first audit append never races a missing dir
 // Pragmatic CSP: the static pages inline their <style>/<script>, so script/style
 // allow 'unsafe-inline' for now. Hardening path (externalize JS → nonce CSP) is
 // tracked in COMPLIANCE.md. img/font/connect are locked to self + fonts + data.
+// Analytics/error hosts (PostHog + Sentry) allowlisted so the client SDKs can load +
+// report when their keys are configured. All env-gated: inert until keys are set.
+const POSTHOG = "https://*.posthog.com";
+const SENTRY = "https://*.ingest.sentry.io https://*.ingest.us.sentry.io https://*.ingest.de.sentry.io";
 const CSP = [
   "default-src 'self'",
-  "script-src 'self' 'unsafe-inline'",
+  `script-src 'self' 'unsafe-inline' ${POSTHOG}`,
   "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
   "font-src 'self' https://fonts.gstatic.com",
   "img-src 'self' data: blob:",
-  "connect-src 'self'",
+  `connect-src 'self' ${POSTHOG} ${SENTRY}`,
   "frame-ancestors 'none'",
   "base-uri 'self'",
   "form-action 'self'",
