@@ -58,7 +58,7 @@ function App() {
     return (cat === "all" || w.cat === cat) && (!q || hay.includes(q.toLowerCase()));
   });
 
-  const like = (id) => { const n = S.toggleLike(id); if (window.SA_API) window.SA_API.likeWork(id).catch(() => {}); showToast(n ? "Added to your likes" : "Removed from likes"); };
+  const like = (id) => { const n = S.toggleLike(id); showToast(n ? "Added to your likes" : "Removed from likes"); };
 
   const generateSeal = () => setCert({ algo: "ECDSA P-256 · SHA-256", hash: rndHex(64), sig: rndHex(96), signer: "sa:key:" + rndHex(12), ts: new Date().toISOString() });
   const publish = async () => {
@@ -66,12 +66,16 @@ function App() {
     const cat = "illustration";
     const title = vTitle.trim() || "Untitled";
     const artist = vArtist.trim() || "You";
+    let serverWork = null;
     try {
       // Server re-hashes the bytes and signs with the SecurityArts key — the
       // authoritative seal. (The client-side cert above is a preview.)
-      if (window.SA_API) await window.SA_API.publishWork({ title, artist, cat, image: SAGenArt.dataUri(SAGenArt.hashStr(id), { cat }) });
+      if (window.SA_API) serverWork = await window.SA_API.publishWork({ title, artist, cat, image: SAGenArt.dataUri(SAGenArt.hashStr(id), { cat }) });
     } catch (_) { /* backend unreachable — the local pin below still stands */ }
-    setExtra([{ id, seed: SAGenArt.hashStr(id), cat, title, artistName: artist, medium: "Your work", own: true }, ...extra]);
+    // Use the server-assigned id so the pin's seal link actually resolves (was a
+    // throwaway client "u_<timestamp>" id that no work page could ever load).
+    const pinId = (serverWork && serverWork.id) || id;
+    setExtra([{ id: pinId, seed: SAGenArt.hashStr(id), cat, title, artistName: artist, medium: "Your work", own: true }, ...extra]);
     setModal(false); setCert(null); setVTitle(""); setVArtist("");
     showToast("Published — your work is on the wall");
   };

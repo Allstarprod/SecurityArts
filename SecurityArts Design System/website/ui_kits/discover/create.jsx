@@ -59,7 +59,8 @@ function Sealed({ work }) {
 }
 
 function App() {
-  const [user] = React.useState(() => Session && Session.current());
+  const [user, setUser] = React.useState(() => Session && Session.current());
+  React.useEffect(() => { if (window.SASession) window.SASession.sync().then((u) => setUser(u || null)).catch(() => {}); }, []);
   const [img, setImg] = React.useState("");
   const [fileName, setFileName] = React.useState("");
   const [title, setTitle] = React.useState("");

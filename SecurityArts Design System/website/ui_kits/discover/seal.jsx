@@ -269,8 +269,8 @@ function App() {
     setChecking(true);
     setTimeout(() => { setChecking(false); setCheckedAt(new Date()); show("Signature valid — human-made"); }, 1100);
   };
-  const copyEmbed = () => { show("Embed snippet copied"); };
-  const copyId = () => { show("Seal ID copied"); };
+  const copyEmbed = () => { try { navigator.clipboard && navigator.clipboard.writeText(embed); } catch (e) {} show("Embed snippet copied"); };
+  const copyId = () => { try { navigator.clipboard && navigator.clipboard.writeText(id); } catch (e) {} show("Seal ID copied"); };
 
   if (!work) return (
     <React.Fragment>

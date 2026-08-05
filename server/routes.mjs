@@ -510,7 +510,11 @@ router.get("/api/me/stats", async ({ res, user }) => {
   // rank by engagement — likes and comments weigh more than a raw view
   items.sort((a, b) => (b.views + b.likes * 2 + b.comments * 3) - (a.views + a.likes * 2 + a.comments * 3));
   const totals = items.reduce((t, i) => ({ works: t.works + 1, views: t.views + i.views, comments: t.comments + i.comments, likes: t.likes + i.likes }), { works: 0, views: 0, comments: 0, likes: 0 });
-  return ok(res, { totals, top: items.slice(0, 12) });
+  // Full per-work map (keyed by id) so the studio grid shows correct stats for EVERY
+  // work, not just the top 12 returned for the ranked "top posts" table.
+  const byId = {};
+  items.forEach((i) => { byId[i.id] = { views: i.views, likes: i.likes, comments: i.comments }; });
+  return ok(res, { totals, top: items.slice(0, 12), byId });
 });
 
 // Sales for the signed-in creator: every purchase line that references one of their

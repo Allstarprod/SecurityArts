@@ -22,8 +22,6 @@ function PinCard({ w, onToast }) {
       saved: S.isLiked(w.id),
       onSave: () => {
         const n = S.toggleLike(w.id);
-        if (window.SA_API) window.SA_API.likeWork(w.id).catch(() => {
-        });
         onToast(n ? "Added to your likes" : "Removed");
       }
     }

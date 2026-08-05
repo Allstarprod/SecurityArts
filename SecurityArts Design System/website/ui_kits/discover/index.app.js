@@ -45,8 +45,6 @@ function App() {
   });
   const like = (id) => {
     const n = S.toggleLike(id);
-    if (window.SA_API) window.SA_API.likeWork(id).catch(() => {
-    });
     showToast(n ? "Added to your likes" : "Removed from likes");
   };
   const generateSeal = () => setCert({ algo: "ECDSA P-256 \xB7 SHA-256", hash: rndHex(64), sig: rndHex(96), signer: "sa:key:" + rndHex(12), ts: (/* @__PURE__ */ new Date()).toISOString() });
@@ -55,11 +53,13 @@ function App() {
     const cat2 = "illustration";
     const title = vTitle.trim() || "Untitled";
     const artist = vArtist.trim() || "You";
+    let serverWork = null;
     try {
-      if (window.SA_API) await window.SA_API.publishWork({ title, artist, cat: cat2, image: SAGenArt.dataUri(SAGenArt.hashStr(id), { cat: cat2 }) });
+      if (window.SA_API) serverWork = await window.SA_API.publishWork({ title, artist, cat: cat2, image: SAGenArt.dataUri(SAGenArt.hashStr(id), { cat: cat2 }) });
     } catch (_) {
     }
-    setExtra([{ id, seed: SAGenArt.hashStr(id), cat: cat2, title, artistName: artist, medium: "Your work", own: true }, ...extra]);
+    const pinId = serverWork && serverWork.id || id;
+    setExtra([{ id: pinId, seed: SAGenArt.hashStr(id), cat: cat2, title, artistName: artist, medium: "Your work", own: true }, ...extra]);
     setModal(false);
     setCert(null);
     setVTitle("");

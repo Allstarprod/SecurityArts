@@ -47,7 +47,10 @@ function SignedOut() {
 
 function App() {
   useStoreTick();
-  const [user] = React.useState(() => Session && Session.current());
+  const [user, setUser] = React.useState(() => Session && Session.current());
+  // Reconcile with the real httpOnly-cookie session on mount, so a valid session with a
+  // cleared/missing localStorage mirror isn't wrongly shown as signed-out.
+  React.useEffect(() => { if (window.SASession) window.SASession.sync().then((u) => setUser(u || null)).catch(() => {}); }, []);
   const [stats, setStats] = React.useState(null);   // { totals, top } from /api/me/stats
   const [sales, setSales] = React.useState(null);   // { sales, totals } from /api/me/sales
   const [ownWorks, setOwnWorks] = React.useState([]);
@@ -69,7 +72,7 @@ function App() {
 
   const t = (stats && stats.totals) || { works: ownWorks.length, views: 0, comments: 0, likes: 0 };
   const top = (stats && stats.top) || [];
-  const statOf = (id) => top.find((x) => x.id === id) || { views: 0, likes: 0, comments: 0 };
+  const statOf = (id) => (stats && stats.byId && stats.byId[id]) || top.find((x) => x.id === id) || { views: 0, likes: 0, comments: 0 };
   const handle = user.handle || (Session && Session.handleFromEmail(user.email)) || "you";
   const worksCount = t.works || ownWorks.length;
 
@@ -114,7 +117,7 @@ function App() {
                 return (
                   <a className="wcard" key={w.id} href={`seal.html?work=${w.id}`}>
                     <div className="wcard__art">
-                      <img src={w.img || SAGenArt.dataUri(strhash(w.id), { cat: w.cat })} alt={w.title} />
+                      <img src={w.img || w.imgUrl || SAGenArt.dataUri(strhash(w.id), { cat: w.cat })} alt={w.title} />
                       <VerifiedBadge className="wcard__badge">Sealed</VerifiedBadge>
                     </div>
                     <div className="wcard__info">

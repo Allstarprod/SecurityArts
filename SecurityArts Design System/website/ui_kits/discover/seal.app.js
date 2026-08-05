@@ -259,9 +259,17 @@ function App() {
     }, 1100);
   };
   const copyEmbed = () => {
+    try {
+      navigator.clipboard && navigator.clipboard.writeText(embed);
+    } catch (e) {
+    }
     show("Embed snippet copied");
   };
   const copyId = () => {
+    try {
+      navigator.clipboard && navigator.clipboard.writeText(id);
+    } catch (e) {
+    }
     show("Seal ID copied");
   };
   if (!work) return /* @__PURE__ */ React.createElement(React.Fragment, null, /* @__PURE__ */ React.createElement(AppBar, null), /* @__PURE__ */ React.createElement("div", { className: "wrap" }, /* @__PURE__ */ React.createElement("div", { className: "cempty", style: { padding: "4rem 0", textAlign: "center" } }, notFound ? /* @__PURE__ */ React.createElement(React.Fragment, null, /* @__PURE__ */ React.createElement("h1", { className: "lede__title", style: { marginBottom: "0.6rem" } }, "Work not found."), /* @__PURE__ */ React.createElement("p", null, "This seal record doesn't exist or was removed."), /* @__PURE__ */ React.createElement("p", { style: { marginTop: "1.4rem" } }, /* @__PURE__ */ React.createElement("a", { href: "index.html" }, /* @__PURE__ */ React.createElement(Button, { variant: "solid", size: "sm", arrow: true }, "Back to Discover")))) : /* @__PURE__ */ React.createElement("p", null, "Loading seal record\u2026"))));
