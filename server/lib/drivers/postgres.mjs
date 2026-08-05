@@ -46,11 +46,17 @@ export async function createRepo() {
 
   const q = (text, params) => pool.query(text, params);
 
-  await q("SELECT 1"); // fail fast if the DB is unreachable
-
-  if (process.env.DB_AUTO_MIGRATE === "1") {
-    const schema = await fs.readFile(path.join(path.dirname(fileURLToPath(import.meta.url)), "..", "..", "schema.sql"), "utf8");
-    await q(schema);
+  try {
+    await q("SELECT 1"); // fail fast if the DB is unreachable
+    if (process.env.DB_AUTO_MIGRATE === "1") {
+      const schema = await fs.readFile(path.join(path.dirname(fileURLToPath(import.meta.url)), "..", "..", "schema.sql"), "utf8");
+      await q(schema);
+    }
+  } catch (e) {
+    // Don't orphan the pool if init fails (e.g. Supabase paused/resuming) — a leaked
+    // pool per retry exhausts connections. Tear it down before bubbling up.
+    await pool.end().catch(() => {});
+    throw e;
   }
 
   async function tx(fn) {
@@ -106,7 +112,7 @@ export async function createRepo() {
               AND ($2::text IS NULL OR (w.title||' '||w.artist||' '||w.medium) ILIKE '%'||$2||'%')
             ORDER BY w.created_at DESC
             LIMIT $3 OFFSET $4`,
-          [cat && cat !== "all" ? cat : null, query || null, Math.min(limit || 1000, 1000), Math.max(0, offset | 0)]
+          [cat && cat !== "all" ? cat : null, query || null, Math.min(Math.max(1, limit || 1000), 1000), Math.max(0, offset | 0)]
         )).rows;
         return rows.map((r) => ({ ...rowToWork(r), hasImage: r.has_image }));
       },
@@ -121,18 +127,24 @@ export async function createRepo() {
         return rows.map((r) => ({ ...rowToWork(r), hasImage: r.has_image }));
       },
       async create(meta, image) {
-        return tx(async (c) => {
-          await c.query(
-            `INSERT INTO works (id,own,title,artist,cat,medium,price,cert,hash,owner_id,created_at,img_url)
-             VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12)`,
-            [meta.id, meta.own ?? true, meta.title, meta.artist, meta.cat, meta.medium,
-             JSON.stringify(meta.price), JSON.stringify(meta.cert), meta.cert?.hash || null, meta.ownerId, meta.createdAt, meta.imgUrl || null]
-          );
-          if (typeof image === "string") {
-            await c.query("INSERT INTO work_blobs (work_id,data) VALUES ($1,$2) ON CONFLICT (work_id) DO UPDATE SET data=EXCLUDED.data", [meta.id, image]);
-          }
-          return meta;
-        });
+        try {
+          return await tx(async (c) => {
+            await c.query(
+              `INSERT INTO works (id,own,title,artist,cat,medium,price,cert,hash,owner_id,created_at,img_url)
+               VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12)`,
+              [meta.id, meta.own ?? true, meta.title, meta.artist, meta.cat, meta.medium,
+               JSON.stringify(meta.price), JSON.stringify(meta.cert), meta.cert?.hash || null, meta.ownerId, meta.createdAt, meta.imgUrl || null]
+            );
+            if (typeof image === "string") {
+              await c.query("INSERT INTO work_blobs (work_id,data) VALUES ($1,$2) ON CONFLICT (work_id) DO UPDATE SET data=EXCLUDED.data", [meta.id, image]);
+            }
+            return meta;
+          });
+        } catch (e) {
+          // unique_violation on works.hash → these exact image bytes are already sealed.
+          if (e && e.code === "23505") throw Object.assign(new Error("duplicate seal"), { code: "DUP_SEAL" });
+          throw e;
+        }
       },
       async getImage(id) { return (await q("SELECT data FROM work_blobs WHERE work_id=$1", [id])).rows[0]?.data ?? null; },
     },
@@ -212,7 +224,7 @@ export async function createRepo() {
         const set = new Set(workIds); const out = [];
         for (const o of rows) {
           const lines = Array.isArray(o.lines) ? o.lines : [];
-          for (const l of lines) if (set.has(l.id)) out.push({ orderId: o.id, workId: l.id, license: l.license, amt: l.price || 0, buyer: o.name || o.email || "A collector", date: o.created_at });
+          for (const l of lines) if (set.has(l.id)) out.push({ orderId: o.id, workId: l.id, license: l.license, amt: l.price || 0, buyer: o.name || "A collector", date: o.created_at }); // never expose buyer email
         }
         return out;
       },

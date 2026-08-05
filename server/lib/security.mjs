@@ -93,8 +93,12 @@ export function readBody(req, maxBytes = 6 * 1024 * 1024) {
 /* ---- Audit log (JSON lines) ------------------------------------------ */
 // Maps to: NIST DE.CM / SOC 2 CC7 / ISO A.12.4 (logging & monitoring).
 export function audit(event, data = {}) {
-  const line = JSON.stringify({ ts: new Date().toISOString(), event, ...data }) + "\n";
-  fs.appendFile(AUDIT_FILE, line, () => {});
+  const rec = JSON.stringify({ ts: new Date().toISOString(), event, ...data });
+  // On Vercel the deployment FS is read-only, so appendFile silently drops every audit
+  // event — write to stdout instead (captured by the platform's log drain). Standalone
+  // hosts keep the on-disk log.
+  if (process.env.VERCEL || process.env.AUDIT_STDOUT === "1") { console.log("[audit] " + rec); return; }
+  fs.appendFile(AUDIT_FILE, rec + "\n", () => {});
 }
 
 // X-Forwarded-For is fully client-controlled, so honoring it on a directly-exposed

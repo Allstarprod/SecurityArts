@@ -53,7 +53,7 @@ export async function exchangeCode({ code, redirect }) {
   return {
     email: String(claims.email).toLowerCase(),
     name: claims.name || "",
-    emailVerified: claims.email_verified !== false,
+    emailVerified: claims.email_verified === true || claims.email_verified === "true", // absent claim ≠ verified
     sub: claims.sub,
   };
 }

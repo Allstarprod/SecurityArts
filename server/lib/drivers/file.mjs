@@ -121,7 +121,7 @@ export async function createRepo() {
         if (cat && cat !== "all") out = out.filter((w) => w.cat === cat);
         if (q) { const s = q.toLowerCase(); out = out.filter((w) => (w.title + " " + w.artist + " " + w.medium).toLowerCase().includes(s)); }
         const start = Math.max(0, offset | 0);
-        const end = start + Math.min(limit || MAX_LIST, MAX_LIST);
+        const end = start + Math.min(Math.max(1, limit || MAX_LIST), MAX_LIST);
         return out.slice(start, end).map((w) => ({ ...clone(w), hasImage: !!w.imgUrl || fs.existsSync(blobPath(w.id)) }));
       },
       async findById(id) { return clone(idx.workById.get(id) || null); },
@@ -130,6 +130,9 @@ export async function createRepo() {
         return db.works.filter((w) => w.ownerId === ownerId).map((w) => ({ ...clone(w), hasImage: !!w.imgUrl || fs.existsSync(blobPath(w.id)) }));
       },
       async create(meta, image) {
+        // Match the postgres works.hash UNIQUE constraint: identical image bytes = identical
+        // seal hash = already sealed. Reject so both drivers behave the same.
+        if (meta.cert?.hash && idx.workByHash.has(meta.cert.hash)) throw Object.assign(new Error("duplicate seal"), { code: "DUP_SEAL" });
         if (typeof image === "string") { ensureBlobDir(); await fsp.writeFile(blobPath(meta.id), image); }
         db.works.unshift(meta);
         idx.workById.set(meta.id, meta);
@@ -192,7 +195,7 @@ export async function createRepo() {
       async salesForWorks(workIds) {
         const set = new Set(workIds); const out = [];
         for (const o of db.orders) for (const l of (o.lines || [])) {
-          if (set.has(l.id)) out.push({ orderId: o.id, workId: l.id, license: l.license, amt: l.price || 0, buyer: o.name || o.email || "A collector", date: o.createdAt });
+          if (set.has(l.id)) out.push({ orderId: o.id, workId: l.id, license: l.license, amt: l.price || 0, buyer: o.name || "A collector", date: o.createdAt }); // never expose buyer email
         }
         return out;
       },

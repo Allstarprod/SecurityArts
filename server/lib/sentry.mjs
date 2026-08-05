@@ -47,6 +47,7 @@ export async function reportError(err, ctx = {}) {
       method: "POST",
       headers: { "Content-Type": "application/json", "X-Sentry-Auth": auth },
       body: JSON.stringify(event),
+      signal: AbortSignal.timeout(2000), // don't let a slow/paused Sentry stall the 5xx response
     });
   } catch { /* never let error reporting throw */ }
 }

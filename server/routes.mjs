@@ -360,6 +360,9 @@ router.post("/api/works", async ({ res, body, user, ip }) => {
   const image = typeof body.image === "string" && body.image.length < 8_000_000 ? body.image : null;
   if (!title || !artist || !cat || !image) return fail(res, 400, "title, artist, a valid medium, and an image are required.");
   const cert = seal(image);
+  // Identical image bytes → identical seal hash → already sealed (works.hash is UNIQUE).
+  // Check up front so we don't upload/store a doomed duplicate, and return a clean 409.
+  if (await repo.works.findByHash(cert.hash)) return fail(res, 409, "This exact image has already been sealed.");
   const id = "u_" + crypto.randomUUID().slice(0, 12);
   const meta = {
     id, own: true, title, artist, cat, medium: MEDIUM[cat],
@@ -369,7 +372,12 @@ router.post("/api/works", async ({ res, body, user, ip }) => {
   // failure fall back to the repo driver's blob store so publish never breaks.
   const imgUrl = blobStoreActive ? await putImage(id, image) : null;
   if (imgUrl) meta.imgUrl = imgUrl;
-  await repo.works.create(meta, imgUrl ? null : image); // blob out of the hot path
+  try {
+    await repo.works.create(meta, imgUrl ? null : image); // blob out of the hot path
+  } catch (e) {
+    if (e && e.code === "DUP_SEAL") return fail(res, 409, "This exact image has already been sealed."); // race backstop
+    throw e;
+  }
   audit("work.publish", { workId: id, hash: cert.hash, ownerId: meta.ownerId, storage: imgUrl ? "supabase" : "db", ip });
   return created(res, { ...meta, img: imgUrl || image });
 });
@@ -536,7 +544,7 @@ router.post("/api/checkout", async ({ res, body, user, ip }) => {
   }
   const total = lines.reduce((s, l) => s + l.price, 0);
   const order = {
-    id: "SA-" + crypto.randomBytes(3).toString("hex").toUpperCase(),
+    id: "SA-" + crypto.randomBytes(9).toString("hex").toUpperCase(), // unguessable (was 3 bytes)
     lines, total, email, name: str(body.name, { max: 80 }) || null,
     userId: user ? user.id : null, status: "paid", createdAt: new Date().toISOString(),
   };
@@ -553,7 +561,10 @@ router.post("/api/checkout", async ({ res, body, user, ip }) => {
 router.get("/api/orders/:id", async ({ res, params, user }) => {
   const o = await repo.orders.findById(params.id);
   if (!o) return fail(res, 404, "Order not found.");
-  if (o.userId && (!user || user.id !== o.userId)) return fail(res, 403, "Not your order.");
+  // Deny-by-default: only the authenticated owner may read an order. Guest orders
+  // (userId=null) are never readable online — the buyer has their emailed receipt.
+  // (Previously the guard was skipped when userId was null, exposing buyer PII to anyone.)
+  if (!user || user.id !== o.userId) return fail(res, 403, "Not your order.");
   return ok(res, o);
 });
 
