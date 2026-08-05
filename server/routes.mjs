@@ -115,6 +115,13 @@ export const router = new Router();
 
 /* ---- health --------------------------------------------------------- */
 router.get("/api/health", ({ res }) => ok(res, { status: "ok", signer: SIGNER_ID, driver: repo.driver }));
+
+// Keep-alive: a trivial real DB read so a free-tier database registers activity and
+// doesn't auto-pause. Hit by a daily Vercel cron (see vercel.json). Cheap + public.
+router.get("/api/keepalive", async ({ res }) => {
+  try { await repo.works.list({ limit: 1 }); return ok(res, { alive: true, ts: new Date().toISOString() }); }
+  catch { return ok(res, { alive: false }); }
+});
 router.get("/api/seal/pubkey", ({ res }) => ok(res, { signer: SIGNER_ID, publicKey: publicKeyPem }));
 
 /* ---- auth ----------------------------------------------------------- */
