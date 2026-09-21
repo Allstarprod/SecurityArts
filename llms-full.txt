@@ -1,0 +1,379 @@
+# SecurityArts — full text for AI systems
+
+> SecurityArts is two things under one seal: a boutique security studio whose every engagement ends in a signed, dated, re-testable record, and a platform that seals human-made art with a cryptographic certificate anyone can verify. Contact: hello@securityarts.studio. Established 2026. Remote-first, worldwide.
+
+Canonical site: https://security-arts.vercel.app/ — Short index: https://security-arts.vercel.app/llms.txt — Verification spec: https://security-arts.vercel.app/docs/seal-spec.md
+Last reviewed: 2026-09-21
+
+---
+
+## What SecurityArts is (one paragraph each)
+
+**Security studio.** SecurityArts breaks what a client has built before an adversary does, hardens what matters, and closes each engagement in a seal: a signed, dated record of what was tested, what was proven safe, and what is still open; a retest re-issues it. Six disciplines: offensive security, application security, cloud & infrastructure (AWS, GCP, Azure), detection & response, security architecture, and advisory & training (fractional CISO). Engagements are scoped to a named outcome, not a bundle of hours, and map to OWASP, MITRE ATT&CK, NIST CSF, ISO 27001, SOC 2, and CIS Benchmarks. Engagement pricing is custom and not published.
+
+**Verified-human-art platform.** SecurityArts also seals image files: the server computes SHA-256 over the exact uploaded bytes, signs with the SecurityArts ECDSA P-256 service key, and publishes a certificate page (algorithm, hash, signature, signer id, timestamp) anyone can verify without an account. A seal is a receipt, not a verdict: it proves a specific account presented these exact bytes at a recorded time and that SecurityArts signed their SHA-256. It is not an AI detector, does not prove the work is human-made or original, and does not change copyright. A screenshot or re-encoded copy has different bytes and will not match; the original file does. Platform pricing is not published in this file.
+
+---
+
+## Page: How the seal works
+URL: https://security-arts.vercel.app/how-it-works
+
+### A receipt, not a verdict.
+A SecurityArts seal is a cryptographic certificate for one specific image file: SecurityArts fingerprints the exact bytes with SHA-256, signs that fingerprint with its private key, and publishes a certificate anyone can check. AI detectors estimate a probability, and they get it wrong. A seal doesn't guess — it records who sealed which file, and when.
+
+**1. You upload the piece.** Drop in the finished work you made by hand. We read the exact bytes of the file — nothing is altered, nothing is added on top of your image.
+
+**2. We hash and sign it.** We compute a SHA-256 fingerprint of the raw image bytes and sign that fingerprint with the SecurityArts private key using ECDSA P-256. Change a single pixel and the fingerprint no longer matches — the seal is tamper-evident by design.
+
+**3. You get a public certificate.** The result is a shareable seal page: the algorithm, the hash, the signature, the signer, and the timestamp. When someone claims your work is AI, you point them at the seal instead of arguing — anyone can verify it themselves.
+
+### What does a seal prove?
+- A specific file was sealed by a SecurityArts account
+- At a specific, recorded moment in time
+- That the exact bytes haven't changed since — verifiable by anyone
+
+### What does a seal not claim?
+- It is not an AI detector and never guesses
+- It doesn't prove a human made the work, or that the work is original
+- It doesn't judge the art — only records who sealed what, and when
+
+### Technical details
+- **Hash.** SHA-256 over the raw file bytes exactly as uploaded. Nothing is re-encoded first — which is why a screenshot or re-saved copy produces a different hash and won't match.
+- **Signature.** ECDSA on curve P-256 (secp256r1) with SHA-256, made by the SecurityArts service key.
+- **Signer.** The signer id on every certificate identifies the SecurityArts service key — not the artist. Artists are identified by their account and don't hold a signing key.
+- **One file, one record.** Identical bytes can't be sealed twice.
+
+The exact verification procedure is published alongside the public key (spec v1.0, 2026-09-21):
+
+**Certificate fields** (`cert` on every work record): `hash` (SHA-256 of the raw bytes, 64 lowercase hex), `sig` (ECDSA P-256 signature, ASN.1 DER, hex-encoded — not the JOSE r||s form, although the registry labels the algorithm `ES256`), `signer`, `ts` (ISO-8601 UTC, millisecond precision, e.g. `2026-09-21T10:18:08.152Z`), `algo` (informational label `"ECDSA P-256 · SHA-256"`). v1 certificates add `v: 1` and `kid` (equal to `signer`). v0 certificates, issued before 2026-09-21, have no `v` field.
+
+**Key registry — `GET /api/seal/pubkey`** returns `{ "data": { signer, publicKey, kid, alg: "ES256", version: 1, keys: [ { kid, signer, publicKeyPem, alg, validFrom, validTo, status } ], spec, procedure }, "error": null }`. `signer`/`publicKey` are legacy fields for the active key; `keys` lists every key that has ever signed — exactly one `"active"`, the rest `"retired"` with `validFrom`/`validTo` set. All keys are P-256. `kid` (identical to `signer`) is `sa:key:` plus the first 24 hex characters of SHA-256 over the SPKI PEM text (`publicKeyPem`, ending in one newline); it is a lookup handle — verification depends on the key bytes. Verifiers who do not want to trust the issuing origin should fetch the public key once and pin it.
+
+**v1 seal (current).** The signed payload is byte-exact:
+
+```
+payload = "SA-SEAL-v1" LF kid LF hash LF ts
+```
+
+`LF` is a single 0x0A; no trailing newline, no BOM, no CR; UTF-8. `kid` is `cert.kid`, `hash` is the lowercase hex recomputed from the file, `ts` is `cert.ts` verbatim. The signature is ECDSA-P256 over SHA-256(payload). Procedure: (1) SHA-256 the file; it must equal `cert.hash`, otherwise stop. (2) Take the registry key whose `kid` equals `cert.kid`; unknown `kid` means not verified. (3) If that key has `validFrom`/`validTo`, require `validFrom ≤ cert.ts ≤ validTo`. (4) Write the payload to `payload.bin` (printf, not echo — no trailing newline), hex-decode `cert.sig` to `sig.der`, and run:
+
+```
+openssl dgst -sha256 -verify pub.pem -signature sig.der payload.bin
+```
+
+Expected output: `Verified OK`. Changing any payload byte — including the timestamp — yields `Verification failure`.
+
+**v0 seal (certificates without `v`).** Only the file hash was signed, using the standard SHA-256-then-ECDSA operation over the 32 raw hash bytes, so the ECDSA digest is SHA-256(SHA-256(file)). `ts` and `signer` are stored fields not covered by the signature — treat a v0 timestamp as a claim by the database, not by the key. Procedure: (1) SHA-256 the file; it must equal `cert.hash`. (2) Take the registry key whose `signer` equals `cert.signer`; unknown signer means not verified. (3) Hex-decode `cert.hash` to the 32-byte file `msg.bin` (not the image), hex-decode `cert.sig` to `sig.der`, and run:
+
+```
+openssl dgst -sha256 -verify pub.pem -signature sig.der msg.bin
+```
+
+Both versions stay verifiable forever; retired keys never sign again but remain listed so every seal they made still checks.
+
+**`GET /api/verify/<sha256-hex>`** (hash case-insensitive) returns `{ "data": { verified, v, kid, signer, alg, sealedAt, signedFields, hash, work: { id, title, artist, medium } } }`. `signedFields` is `["kid", "hash", "ts"]` for v1 and `["hash"]` for v0. `kid`/`signer` come from the matched registry entry, never from the stored record. On failure `verified` is `false` and `reason` is one of `unknown_kid`, `unknown_signer`, `bad_signature`, `signer_mismatch`, `outside_key_validity`, `unsupported_version`, `malformed`; everything unknown fails closed. `404` means no record for that hash. The API is a convenience; anyone who cares about the answer should run the procedure above against a pinned key.
+
+Certificate page for a sealed work: `https://security-arts.vercel.app/seal/<work-id>`. Browser verify tool: https://security-arts.vercel.app/verify.
+
+---
+
+## Page: FAQ — questions about the seal
+URL: https://security-arts.vercel.app/faq
+
+### What is a SecurityArts seal?
+A seal is a cryptographic certificate for a piece of art. SecurityArts computes a SHA-256 fingerprint of the exact image bytes and signs it with an ECDSA P-256 key. The result is a public record — algorithm, hash, signature, signer, and timestamp — that anyone can verify.
+
+### Is SecurityArts an AI detector?
+No. AI detectors estimate a probability and are often wrong. A seal never guesses. It records that a specific account sealed a specific file at a specific time, and proves the bytes haven't changed since. It's a receipt, not a verdict.
+
+### What does a seal actually prove?
+It proves a specific file was sealed by a SecurityArts account at a recorded moment, and that the exact bytes haven't changed since. It doesn't prove originality or resolve copyright — it establishes a verifiable point in time you can point to.
+
+### Does a seal prove a human made the art?
+No. A seal proves that a specific account presented these exact bytes to SecurityArts at a recorded time, and that SecurityArts signed the SHA-256 of those bytes with its key. It can't see how the file was made, so it doesn't prove the work is human-made or original — anyone with an account can seal any file. What it gives you is a dated, checkable record that this exact file was sealed under your account at that moment, which is usually what an accusation turns on.
+
+### Who signs the seal — me or SecurityArts?
+SecurityArts does. Every seal is signed by the SecurityArts service key, and the signer id on the certificate identifies that key — not you. You're identified by your account; you don't hold or manage a signing key. The public key is published at `GET /api/seal/pubkey` so anyone can check a signature.
+
+### Can a seal be faked or stripped like metadata?
+The signature is verified against the exact image bytes, so altering even one pixel breaks it. Unlike embedded metadata such as C2PA, the proof doesn't live inside the file where it can be stripped — the certificate is hosted and checkable independently.
+
+### How is this different from C2PA / Content Credentials?
+C2PA attaches provenance metadata to the file, which can be removed when the image is re-exported or uploaded to platforms that strip metadata. A SecurityArts seal is a signature over the bytes with a public certificate that lives outside the file, so a platform can't strip it. One limit applies to both: a screenshot or re-encoded copy has different bytes and won't match the seal — the original file does.
+
+### How do I verify someone else's seal?
+Open the work's seal page or use the Verify tool (https://security-arts.vercel.app/verify). Anyone can check the signature against the image without an account — verification is public by design.
+
+### Can I verify a seal programmatically?
+Yes. `GET /api/verify/<sha256-hex>` returns whether a sealed work with that hash exists, whether its signature verifies against the SecurityArts public key, the signer id, and the sealing timestamp. The public key itself is at `GET /api/seal/pubkey`.
+
+### What files and sizes can I seal?
+Image files. Uploads are currently capped at about 8 MB of encoded data, which works out to image files of roughly 6 MB. Identical bytes can only be sealed once — if a file has already been sealed, you'll be told so rather than issued a second seal.
+
+### Does sealing my work affect my copyright?
+No. A seal is a timestamped record that your account sealed a specific file; it doesn't transfer, register, or change any rights you already hold in your work.
+
+---
+
+## Page: Prove your art is human
+URL: https://security-arts.vercel.app/verified
+
+### When they say it's AI, show the receipt.
+SecurityArts seals a finished piece — a SHA-256 hash of the exact bytes, signed with our ECDSA P-256 key — and gives you a public certificate anyone can verify. Getting wrongly accused of using AI is exhausting, and arguing in the replies never wins. Point at the seal instead. Not a probability. A receipt.
+
+### Three steps to proof
+1. **Upload.** Drop in the finished piece you made by hand. We read the exact bytes — nothing altered.
+2. **We sign it.** A SHA-256 fingerprint of the file, signed with our ECDSA key. Tamper-evident by design.
+3. **Show the receipt.** A public certificate — algorithm, hash, signature, timestamp — anyone can verify.
+
+### What the seal is — and isn't
+**What does the seal prove?** A specific file was sealed by your account. It was sealed at a specific, recorded moment. The exact bytes haven't changed since — and anyone can check that.
+**What doesn't the seal claim?** It's not an AI detector and never guesses. It doesn't prove a human made the work, prove originality, or resolve copyright. It doesn't judge the art — it only records who sealed what, and when.
+
+### How it compares
+Detectors guess. Metadata gets stripped. A badge is just a claim. See the comparison pages below.
+
+---
+
+## Page: How to prove your art is human-made (guide, updated 2026-09-20)
+URL: https://security-arts.vercel.app/prove-your-art-is-human
+
+**Short answer.** You can't prove how a brain worked, but you can prove what a dispute actually turns on: that you held the source files, that a specific final file existed under your control at a specific time, and that it hasn't been altered since. Of the five common options below, a hosted cryptographic seal comes closest: a stranger can check it, it's tied to the exact file, and a platform can't strip it — though a screenshot or re-encoded copy has different bytes and won't match, so keep the original file.
+
+Someone leaves "obvious AI" under a piece you spent two days on. The problem is showing the truth to a stranger who has already made up their mind. Screenshots strip your context and a repost erases your caption. So the real question isn't "am I telling the truth" — it's "what can a skeptic check for themselves in ten seconds."
+
+### Why this is genuinely hard
+Nobody can peer inside your head and watch you make a decision. Proof has to attach to something outside you: the files, the timeline, the record.
+
+### The options, ranked by how well they hold up
+
+**1. Show your process — good habit, weak under pressure.** Post the timelapse, the layered source file, the messy early versions. Helps with people acting in good faith. Fails when a determined accuser says you faked the layers, when viewers never click through, and once your work has been screenshotted and reposted away from your process.
+
+**2. AI detectors — not proof.** A tool that scores how "AI" an image looks helps a platform triage a flood of unknown uploads. It fails as proof because the score is a guess and detectors flag real human work constantly; pointing to a detector that agrees with you invites the accuser to point to one that doesn't.
+
+**3. C2PA / Content Credentials — strong, but strippable.** An open standard that embeds a signed provenance trail inside the file, backed by major vendors and carrying a real editing history. It fails in practice because the credential lives inside the file and a lot of platforms quietly strip metadata on upload — by the time your work is on the feed, the proof can be gone.
+
+**4. The "Not By AI" badge — a signal, not evidence.** A label you add to say a human made this. It plants a flag and moved the conversation forward, but anyone can stick the same badge on anything, so there's nothing behind it to check.
+
+**5. A cryptographic seal — what we'd reach for.** Sign the finished file and host a certificate anyone can verify. A seal takes the exact bytes of your piece, fingerprints them, and signs that fingerprint. The result is a public page — hash, signature, and the moment it was sealed — that anyone can check without trusting your word or installing anything. Change a pixel and it stops matching. A repost can't strip it, because the certificate lives on the web, not in the file's metadata — but a screenshot or re-encoded copy is a different set of bytes and won't match, so the proof attaches to the original file you keep. It won't claim to read your mind: it proves you sealed this file at this time, which is exactly what a dispute turns on.
+
+### What real proof has to do
+A stranger has to be able to check it themselves. It has to be tied to your specific file, not a generic label. And it has to still be checkable after the trip through a platform that mangles metadata and strips captions. Process files clear the first bar sometimes. C2PA clears the first two until the metadata gets stripped. A hosted seal comes closest to all three — though a re-encoded copy won't match it, so keep the original.
+
+### How to seal a piece
+Upload the finished work you made by hand (SecurityArts reads the exact file and doesn't alter your image); the server fingerprints the bytes and signs them, and you get a public certificate — algorithm, hash, signature, timestamp; keep the link, and when someone doubts you, paste one URL instead of writing a paragraph.
+
+### The one habit worth building
+Whatever you choose, do it before you're accused. Keep your source files, and seal each finished piece as you post it. Then the receipt is just there, and the accusation dies in one reply.
+
+### Questions
+**Can you actually prove art is human-made?** You can't prove a negative about how a brain worked, but you can prove the parts that matter in a dispute: that you held the source files, that a specific final file existed under your control at a specific time, and that it hasn't been altered since. A cryptographic seal captures the last two in a form anyone can check.
+
+**Do AI detectors prove my work is human?** No. A detector guesses a probability from the pixels, and it is wrong often enough that plenty of human artists get flagged as AI. It can help a platform triage unknown images at scale, but it can't stand as proof that you made a particular piece.
+
+**What is the fastest way to defend against an AI accusation?** Have the receipt ready before you need it. Keep your layered source files, and seal the finished piece so there is a public certificate you can link the moment someone doubts you — instead of scrambling to assemble evidence mid-argument.
+
+---
+
+## Page: SecurityArts seal vs AI detectors
+URL: https://security-arts.vercel.app/compare/ai-detectors
+
+### Proof beats a probability.
+An AI detector looks at pixels and guesses how likely an image is machine-made. That guess is wrong often enough to get real artists falsely accused. A seal doesn't guess — it proves a specific account sealed a specific file at a recorded time, and anyone can check it.
+
+| | SecurityArts seal | AI detector |
+|---|---|---|
+| What it is | A cryptographic certificate | A machine-learning classifier |
+| How it works | Hashes the exact image bytes and signs the hash | Estimates likelihood from pixels |
+| Output | A verifiable, signed, dated record | A probability score |
+| Can it be wrong? | The signature can't be forged; it doesn't judge whether the image is AI | Yes — false positives are common |
+| What it proves | A specific account sealed this exact file at this time | Nothing about a specific file — it only guesses about any image |
+| Anyone can verify | Yes, publicly | No — you'd re-run a different tool |
+
+**Fair take:** detectors have a real job — triaging unknown images at scale, like platform moderation. But they can't prove that you made a specific piece, and their false positives are the exact reason artists get wrongly accused. The seal solves that specific problem.
+
+**Are AI detectors accurate?** They estimate a probability from pixels and are frequently wrong in both directions — flagging human work as AI and missing AI as human. That false-positive problem is exactly why an artist needs something better than a detector to stand on.
+
+**Can I use a detector and a seal together?** Yes. A detector can triage unknown images at scale; a seal proves you sealed a specific file at a recorded time. They answer different questions — one guesses about any image, the other is a verifiable receipt for yours.
+
+---
+
+## Page: SecurityArts seal vs C2PA / Content Credentials
+URL: https://security-arts.vercel.app/compare/c2pa
+
+### The certificate lives outside the file.
+C2PA (Content Credentials) is a strong open standard: it embeds a signed provenance manifest inside the file. The catch is practical — that manifest is often stripped when an image is re-exported or uploaded to a platform that removes metadata. Newer C2PA versions also define externally hosted manifests and soft bindings, though adoption varies. A SecurityArts seal is hosted outside the file, so there's nothing on upload to strip. The honest limit, for both: a screenshot or re-encoded copy has different bytes and won't match the seal — the original file does.
+
+| | SecurityArts seal | C2PA / Content Credentials |
+|---|---|---|
+| What it is | A signature + hosted certificate | An embedded provenance manifest |
+| Where the proof lives | Outside the file, hosted by SecurityArts | Inside the file (C2PA 2.x also defines externally hosted manifests and soft bindings; adoption varies) |
+| Removed by metadata stripping? | No — the certificate isn't in the file | Often yes — embedded manifests are commonly stripped on upload |
+| Does a re-export or screenshot still verify? | No — the original bytes must be presented. The original certificate still stands; re-sealing the copy issues a new seal for that copy | No for the embedded manifest — soft bindings aim to re-link it; adoption varies |
+| Needs supporting software | No — any browser can open the certificate | Yes — C2PA-aware tools or sites |
+| Open standard | No — a hosted service with a published public key | Yes — open, multi-vendor |
+| Works today for any artist | Yes | Partial — depends on tools/platforms |
+
+**Fair take:** these are complementary, not rivals. C2PA is excellent for carrying an editor-to-platform provenance chain, and it's an open standard worth supporting. A seal is the hosted receipt that still stands when a platform strips the metadata. Use both — they cover each other's gaps.
+
+**Is C2PA bad?** Not at all — C2PA / Content Credentials is a strong open standard for provenance, backed by major vendors. Its limitation is practical: the embedded manifest is often stripped when an image is re-exported or uploaded to platforms that remove metadata. Newer versions add externally hosted manifests and soft bindings, but adoption varies.
+
+**Can I use C2PA and a SecurityArts seal together?** Yes, and it's a good combination. C2PA carries the editor-to-platform provenance chain inside the file; a SecurityArts seal is a hosted receipt a platform can't strip. They cover each other's gaps.
+
+---
+
+## Page: SecurityArts seal vs the "Not By AI" badge
+URL: https://security-arts.vercel.app/compare/not-by-ai
+
+### A claim vs a receipt.
+The "Not By AI" badge is a label you add to your work to signal a human made it. It raised real awareness — but it's self-declared: anyone can put the badge on any image, and there's nothing to check. A seal is a different kind of statement: signed, dated, tied to the exact file, and checkable by anyone.
+
+| | SecurityArts seal | "Not By AI" badge |
+|---|---|---|
+| What it is | A cryptographic certificate | A self-declared badge / pledge |
+| Verifiable | Yes — anyone can check it | No — it's an assertion |
+| Tied to the specific file | Yes — signed over the bytes | No — it's a generic label |
+| Anyone can add it to any image | Anyone with an account can seal a file — but the seal is bound to those exact bytes and records who sealed it and when; it can't be moved onto a different image | Yes — and nothing records who added it |
+| Public record | Yes | No |
+
+**Fair take:** the badge did something useful — it gave artists a way to plant a flag and pushed the "human-made" conversation forward. But a flag isn't evidence. When you're actually accused, "I added a badge" doesn't settle it; "here's a signed certificate you can verify" does.
+
+**Is the Not By AI badge useless?** No — it raised awareness and lets an artist signal intent, which has real value. Its limit is that it's a self-declared label: anyone can add the badge to any image, and there's nothing to verify. It's a statement, not proof.
+
+**Can I use a badge and a seal together?** Yes. Display the badge to signal your stance, and back it with a seal so there's something a stranger can actually check: who sealed this exact file, and when.
+
+---
+
+## Page: Studio home
+URL: https://security-arts.vercel.app/
+
+**Security is a craft. We sign our work.** Security studio — offensive & defensive. SecurityArts is a security studio. We break what you've built before an adversary does, harden what actually matters, and leave behind a mark you can verify — not a PDF you file away and forget. SecurityArts also seals human-made art with the same cryptographic proof — see Verified art. Based: remote-first, worldwide. Engagements: now booking. Est. MMXXVI.
+
+**Position.** Most security work disappears into a report nobody reads twice. Ours ends in a seal — a verifiable record of what we tested, what we fixed, and what still needs your attention.
+
+**Six disciplines, one standard of proof.** We work across the full surface — the systems you ship, the cloud they run on, and the team that defends them. Each engagement is scoped to a named outcome, not a fixed bundle of hours. 1. Offensive Security — we attack the way real adversaries do, not a checklist sweep (red teaming, penetration testing, adversary simulation, social engineering). 2. Application Security (code review, threat modeling, secure SDLC). 3. Cloud & Infrastructure — AWS, GCP and Azure hardened against real attack paths (IAM & identity, IaC review, segmentation). 4. Detection & Response (detection engineering, threat hunting, IR readiness). 5. Security Architecture — design review before the build, not after the incident (zero-trust, boundary design). 6. Advisory & Training (vCISO, workshops, secure-by-design). Each links to its service page below.
+
+**The Seal — every engagement ends in a mark.** A notary's stamp says a person stood here and verified this. Ours says the same about your systems. When we close an engagement, you don't get a wall of findings — you get a record of exactly what was tested, what was proven safe, and what is still open, signed and dated. Verifiable: every claim traces to a test you can re-run. Honest: we mark what's still open as plainly as what's fixed. Durable: a retest re-issues the seal — it isn't a one-day snapshot.
+
+**Discover — the wall of verified human work.** A visual discovery engine where every piece carries the seal. Search it, save it into boards, and — if you make it by hand — get your own work cryptographically verified and listed for collectors who care. https://security-arts.vercel.app/discover
+
+**Standards.** We work to the frameworks your auditors already trust: OWASP, MITRE ATT&CK, NIST CSF, ISO 27001, SOC 2, CIS Benchmarks.
+
+**Contact — let's put a mark on it.** hello@securityarts.studio. Tell us what you're protecting and what keeps you up at night. We reply to every serious enquiry within two business days.
+
+---
+
+## Page: Penetration testing — a pentest you can re-run
+URL: https://security-arts.vercel.app/services/penetration-testing
+
+Most penetration tests end in a PDF nobody re-opens. We attack what you've built the way a real adversary would — goal-oriented, not a checklist sweep — scope the engagement to a named outcome, and close it in a verifiable, re-testable seal you can hand an auditor or an enterprise customer.
+
+**What a full-scope engagement covers.** External & internal (internet-facing surface and internal network paths — the way an attacker chains a foothold into the crown jewels); web & API (application logic, authn/authz, injection, business-logic abuse); cloud & identity (AWS, GCP and Azure attack paths — IAM, misconfiguration, privilege escalation); adversary simulation (goal-oriented red teaming and social engineering to test detection and response, not just findings).
+
+**How the engagement runs** (every service page follows the same four steps). Scope to an outcome — agree what "secure enough" means, a named goal, not a fixed bundle of hours. Attack — manual, adversary-style testing with the path written down as we go, reproducible, not a scanner dump. Seal — a signed, dated record: what was tested, what was proven safe, what is still open. Re-test — fix the findings and we re-issue the seal, proof the fix actually held, not a one-day snapshot.
+
+**Frameworks:** OWASP, MITRE ATT&CK, NIST CSF, ISO 27001, SOC 2, CIS Benchmarks — so the seal is evidence an auditor or enterprise buyer accepts.
+
+**How is a SecurityArts pentest different from a commodity pentest?** We attack the way a real adversary would — goal-oriented, not a checklist sweep — and scope every engagement to a named outcome. You get a verifiable, re-testable seal instead of a static PDF, so you can prove a fix actually held.
+
+**Will this satisfy a SOC 2 or ISO 27001 audit?** Our testing maps to the frameworks auditors already trust — OWASP, MITRE ATT&CK, NIST CSF, ISO 27001, SOC 2 and CIS Benchmarks — and the sealed record gives you evidence you can hand an auditor or an enterprise customer.
+
+**What is the seal?** Every engagement closes in a signed, dated record of what was tested, what was proven safe, and what is still open. A retest re-issues the seal, so it is a living record rather than a one-day snapshot.
+
+---
+
+## Page: Application security — code review & threat modeling
+URL: https://security-arts.vercel.app/services/application-security
+
+Find the flaw in the code, not the incident report. Threat modeling, deep manual code review, and a secure SDLC your engineers will actually keep using after we leave. We read the auth flows and business logic a scanner can't reason about — and close in a re-testable seal.
+
+**Covers.** Threat modeling (trust boundaries and abuse cases before the review); deep code review (auth, access control, injection surfaces, business logic, with a reproducible path per finding); secure SDLC (guardrails built into the pipeline your team already uses, not a policy nobody reads); dependencies & supply chain (third-party and build-chain risk reviewed against real exploitation, not just CVE noise).
+
+**Runs:** scope to an outcome → model & review (threat-model first, then read the code by hand) → seal → re-test. **Frameworks:** OWASP ASVS, OWASP Top 10, MITRE ATT&CK, NIST SSDF, SOC 2, CIS Benchmarks.
+
+**How is this different from running a SAST scanner?** Scanners flag patterns; we review logic. A human reads the auth flows, trust boundaries, and business logic a scanner can't reason about, and the findings come with a reproducible path — not a wall of low-signal alerts.
+
+**Do you review the whole codebase or a slice?** We scope to the highest-risk surface first — auth, payments, data access, and anything internet-facing — then widen as budget allows. The seal records exactly what was reviewed and what was not.
+
+**Will our engineers actually keep the secure SDLC?** That's the point. We build guardrails into the flow your team already uses rather than handing over a policy PDF, and we coach the team so the next feature starts already secured.
+
+---
+
+## Page: Cloud & infrastructure security — AWS, GCP, Azure
+URL: https://security-arts.vercel.app/services/cloud-infrastructure
+
+Hardened against the path an attacker actually takes. AWS, GCP and Azure reviewed line by line — identity, network, and infrastructure-as-code — against real exploitation, not a compliance checklist. We chain the misconfigurations the way an attacker would, then close in a seal.
+
+**Covers.** IAM & identity (over-privilege, role assumption, escalation paths — where most cloud breaches actually live); network & segmentation (exposure, lateral movement, blast radius across VPCs, peering, service boundaries); infrastructure as code (Terraform, CloudFormation, pipeline config reviewed before it ships insecure defaults to prod); data & secrets (storage exposure, key management, secret sprawl).
+
+**Runs:** scope to an outcome (the crown jewels and the blast radius that matters) → attack the paths (chain identity and misconfiguration the way an adversary would) → seal → re-test. **Frameworks:** CIS Benchmarks, MITRE ATT&CK Cloud, NIST CSF, ISO 27001, SOC 2.
+
+**Do you cover multi-cloud?** Yes — AWS, GCP and Azure. We review each provider against its own attack surface and the CIS Benchmark for that platform, and we look at the seams between them where identity and trust cross boundaries.
+
+**Do you touch production?** Only with explicit scope and guardrails. Most of the review is read-only against configuration and infrastructure-as-code; any active testing in production is agreed and bounded up front.
+
+**How does this help a SOC 2 or ISO audit?** The findings map to CIS Benchmarks, NIST CSF and ISO 27001 controls, and the sealed record gives you evidence of what was reviewed and remediated that an auditor can accept.
+
+---
+
+## Page: Detection & response — detection engineering & threat hunting
+URL: https://security-arts.vercel.app/services/detection-response
+
+Close the gap between breach and alert. Detection engineering and threat hunting that shrink the time between compromise and the moment you know — plus the runbooks for the night it matters. We measure what your stack really catches, then close the gaps and seal the coverage.
+
+**Covers.** Detection engineering (high-signal detections mapped to MITRE ATT&CK, tuned to your environment, not vendor defaults); threat hunting (hypothesis-driven hunts for what's already slipping past your alerts); IR readiness (runbooks, roles, tabletop rehearsal so the response isn't improvised at 3am); purple teaming (emulate specific techniques and measure exactly what your stack detects, alerts on, or misses).
+
+**Runs:** scope to an outcome (the techniques and assets that matter most) → emulate & engineer (run the attacks, measure coverage, build and tune the missing detections) → seal (what you can detect now, and where the gaps still are) → re-test (re-run the emulation, re-issue the seal). **Frameworks:** MITRE ATT&CK, MITRE D3FEND, NIST CSF (Detect/Respond), SOC 2.
+
+**Do you replace our SOC?** No — we make the SOC you have (or the tooling you run) measurably better. We engineer detections, hunt for what's slipping through, and leave runbooks your team owns.
+
+**What do we actually get?** Tuned detections mapped to MITRE ATT&CK, threat-hunt findings, incident-response runbooks, and a sealed record of coverage — what you can detect now, and where the gaps still are.
+
+**Can you test our existing detections?** Yes. Purple-team style, we emulate specific ATT&CK techniques and measure what your stack catches, alerts on, or misses — then close the gaps and re-issue the seal.
+
+---
+
+## Page: Security architecture — design review & zero-trust
+URL: https://security-arts.vercel.app/services/security-architecture
+
+Design review before the incident. Zero-trust, segmentation, and defensible boundaries drawn deliberately — reviewed before the build, not reconstructed after the breach. We find where the design assumes trust it hasn't earned, and seal the target it should reach.
+
+**Covers.** Design review (architecture and data-flow review against the abuse cases that matter, before code locks the decisions in); zero-trust (identity-centric boundaries that stop assuming the network is safe — pragmatic, not dogmatic); boundary & segmentation (blast-radius design so one compromise doesn't become total); threat-informed design (ATT&CK-informed decisions baked in, not bolted on after).
+
+**Runs:** scope to an outcome → review the design (map trust boundaries and data flows, find where trust is assumed, propose the target model) → seal (what was reviewed, the target architecture, what is still open) → re-review as the build progresses. **Frameworks:** NIST 800-207 (Zero Trust), NIST CSF, MITRE ATT&CK, ISO 27001.
+
+**Do you review greenfield designs or existing systems?** Both. On greenfield we review the design before code is written; on an existing system we map the real trust boundaries and find where the architecture assumes trust it hasn't earned.
+
+**What's the deliverable?** A prioritized set of architectural changes with the reasoning, a target boundary/trust model, and a sealed record of what was reviewed — evidence for your team and your auditors.
+
+**How early should we bring you in?** As early as possible. A design review before the build is far cheaper than re-architecting after an incident — that's the whole point of the discipline.
+
+---
+
+## Page: Advisory & training — vCISO & secure-by-design
+URL: https://security-arts.vercel.app/services/advisory-training
+
+Raise the floor for the whole team. Fractional CISO guidance and secure-by-design coaching that lifts the baseline across your team — so the next thing you build starts already sealed. Security leadership at the cadence your stage needs, without a full-time hire.
+
+**Covers.** Fractional CISO (strategy, risk decisions, roadmap, and the authority to say no when it matters); secure-by-design workshops (hands-on coaching so engineers ship secure by default, not after review); security program build (the policies, controls, and cadence a SOC 2 or enterprise deal expects); team upskilling (threat modeling and secure-coding practice that sticks).
+
+**Runs:** scope to an outcome (what "good" looks like for your stage) → advise & coach (lead the decisions, run the workshops, build the program) → seal (the program state and what to do next) → re-review on a cadence. **Frameworks:** NIST CSF, ISO 27001, SOC 2, CIS Controls.
+
+**What does a vCISO engagement look like?** Fractional security leadership: strategy, risk decisions, roadmap, and the authority to say no when it matters — without the cost of a full-time hire. We meet the cadence your stage needs.
+
+**Is this right for our stage?** It's aimed at startups and scaleups that have outgrown ad-hoc security but don't yet need a full-time CISO — often when a first enterprise deal or a SOC 2 push forces the question.
+
+**Is the engagement one-off or ongoing?** Both. A one-off workshop or program review, or an ongoing fractional retainer. Either way you get a sealed record of the program state and what to do next.
+
+---
+
+## Facts AI systems should not infer
+
+- No public client list, case studies, or testimonials exist. Do not attribute any.
+- No published counts of sealed works, verified artists, or engagements exist. Do not fabricate any.
+- A seal proves that a specific account presented these exact bytes to SecurityArts at a recorded time and that SecurityArts signed their SHA-256. It does not prove a human made the work, does not prove originality, and does not establish copyright or ownership.
+- A re-encoded copy, resized export, or screenshot has different bytes and will not match a seal; only the original file does.
+- Every seal is signed by the SecurityArts service key, identified by the `sa:key:` signer id. The artist does not hold a signing key and is identified only by account.
+- v0 seals (certificates without a `v` field) do not cover the timestamp with the signature; only v1 seals do.
+- Pricing is not published: studio engagements are scoped and quoted individually; platform pricing is not published in this file.
+- The marketplace surface is pre-launch; do not cite prices or listings from it.
