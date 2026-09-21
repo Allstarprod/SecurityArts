@@ -1,30 +1,42 @@
 // Security middleware primitives — all hand-rolled, no dependencies.
 // Maps to: OWASP A05 (misconfig) / A04 (design) / NIST PR.DS & DE.CM / CIS 4,8.
+import crypto from "node:crypto";
 import fs from "node:fs";
 import path from "node:path";
 import { DATA_DIR, ensureDataDir } from "./paths.mjs";
 
 // Shared, pluggable rate limiter (memory or postgres) lives in its own module now.
-export { rateLimit } from "./ratelimit.mjs";
+export { rateLimit, rateLimitPeek, rateLimitHit } from "./ratelimit.mjs";
 
 const AUDIT_FILE = path.join(DATA_DIR, "audit.log");
 ensureDataDir(); // so the first audit append never races a missing dir
 
 /* ---- Security headers (CSP + hardening) ------------------------------ */
 // Pragmatic CSP: the static pages inline their <style>/<script>, so script/style
-// allow 'unsafe-inline' for now. Hardening path (externalize JS → nonce CSP) is
-// tracked in COMPLIANCE.md. img/font/connect are locked to self + fonts + data.
+// allow 'unsafe-inline' for now.
+// TODO nonce: externalize the inline scripts and move to a per-request nonce CSP
+// (`script-src 'self' 'nonce-…'`), dropping 'unsafe-inline' — tracked in
+// COMPLIANCE.md ("Hardening backlog"). Until then a single XSS bug has no CSP backstop.
+// img/font/connect are locked to self + fonts + data.
 // Analytics/error hosts (PostHog + Sentry) allowlisted so the client SDKs can load +
 // report when their keys are configured. All env-gated: inert until keys are set.
+//
+// KEEP IN SYNC with the Content-Security-Policy header in /vercel.json — Vercel
+// serves the static pages from its CDN with THAT copy; this one covers the
+// standalone server (Render / Docker / local). The two strings must be identical.
 const POSTHOG = "https://*.posthog.com";
 const SENTRY = "https://*.ingest.sentry.io https://*.ingest.us.sentry.io https://*.ingest.de.sentry.io";
-const CSP = [
+// Only the project's own Storage CDN host, not *.supabase.co (audit MEDIUM #8). The
+// browser loads <img> from here; it never fetch()es Supabase directly (all writes go
+// through /api with the service key server-side), so connect-src does NOT list it.
+const SUPABASE_CDN = "https://ixdkfakibuctwhgwngsw.supabase.co";
+export const CSP = [
   "default-src 'self'",
   `script-src 'self' 'unsafe-inline' ${POSTHOG}`,
   "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
   "font-src 'self' https://fonts.gstatic.com",
-  "img-src 'self' data: blob: https://*.supabase.co",
-  `connect-src 'self' https://*.supabase.co ${POSTHOG} ${SENTRY}`,
+  `img-src 'self' data: blob: ${SUPABASE_CDN}`,
+  `connect-src 'self' ${POSTHOG} ${SENTRY}`,
   "frame-ancestors 'none'",
   "base-uri 'self'",
   "form-action 'self'",
@@ -38,6 +50,10 @@ export function setSecurityHeaders(res, { https = false } = {}) {
   res.setHeader("Referrer-Policy", "strict-origin-when-cross-origin");
   res.setHeader("Permissions-Policy", "camera=(), microphone=(), geolocation=()");
   res.setHeader("Cross-Origin-Opener-Policy", "same-origin");
+  // CORP same-origin: nothing we serve may be embedded cross-site. When a public
+  // embeddable seal badge ships (planned `/badge/:id` route — not built yet), THAT
+  // route alone must override this with `Cross-Origin-Resource-Policy: cross-origin`
+  // (finding 19); everything else stays same-origin.
   res.setHeader("Cross-Origin-Resource-Policy", "same-origin");
   res.setHeader("X-DNS-Prefetch-Control", "off");
   if (https) res.setHeader("Strict-Transport-Security", "max-age=31536000; includeSubDomains; preload");
@@ -101,19 +117,42 @@ export function audit(event, data = {}) {
   fs.appendFile(AUDIT_FILE, rec + "\n", () => {});
 }
 
+// Audit-safe email reference (audit MEDIUM #13): a short SHA-256 prefix is enough to
+// correlate events for one address across the log without storing the address itself
+// (PII). 48 bits — collisions are possible but irrelevant for correlation.
+export function emailKey(email) {
+  return crypto.createHash("sha256").update(String(email || "").trim().toLowerCase()).digest("hex").slice(0, 12);
+}
+
 // X-Forwarded-For is fully client-controlled, so honoring it on a directly-exposed
 // server lets any client spoof its IP and defeat every per-IP rate limit + poison
 // the audit log (OWASP A04). Only trust it when we sit behind a proxy we operate,
 // gated by TRUST_PROXY — mirroring the TRUST_PROXY_HTTPS switch in server.mjs.
+//
+// Even behind a proxy, the FIRST XFF entry is whatever the client sent (proxies
+// append, they don't replace), so we take the RIGHTMOST entry — the address our own
+// proxy observed (audit MEDIUM #9). Platform headers that the edge overwrites on every
+// request are preferred when present: `x-vercel-forwarded-for` (Vercel strips any
+// inbound x-vercel-* header) and, on Vercel only, `x-real-ip`. `x-real-ip` is NOT
+// trusted elsewhere because Render doesn't guarantee it's overwritten.
+// Note: rightmost-XFF assumes ONE trusted proxy hop. With a CDN in front of the host
+// (e.g. Cloudflare → Render) it would resolve to the CDN's egress IP — drop one more
+// hop from the right if that topology is ever adopted.
 const TRUST_PROXY = process.env.TRUST_PROXY === "1";
 const IP_RE = /^(?:\d{1,3}\.){3}\d{1,3}$|^[0-9a-fA-F:]+$/; // plausible IPv4/IPv6
+const validIp = (v) => { const s = String(v || "").trim(); return IP_RE.test(s) ? s : null; };
 export function clientIp(req) {
   if (TRUST_PROXY) {
-    const xff = req.headers["x-forwarded-for"];
+    const h = req.headers;
+    const vercel = validIp(h["x-vercel-forwarded-for"]);
+    if (vercel) return vercel;
+    if (process.env.VERCEL) { const real = validIp(h["x-real-ip"]); if (real) return real; }
+    const xff = h["x-forwarded-for"];
     if (xff) {
-      const first = String(xff).split(",")[0].trim();
-      if (IP_RE.test(first)) return first;
+      const hops = String(xff).split(",");
+      const last = validIp(hops[hops.length - 1]);
+      if (last) return last;
     }
   }
-  return (req.socket.remoteAddress || "").trim();
+  return (req.socket?.remoteAddress || "").trim();
 }

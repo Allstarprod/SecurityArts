@@ -15,6 +15,16 @@ ALTER TABLE users ADD COLUMN IF NOT EXISTS profile JSONB NOT NULL DEFAULT '{}'::
 -- Unique, user-chosen @handle (nullable until claimed; case-insensitively unique).
 ALTER TABLE users ADD COLUMN IF NOT EXISTS handle TEXT;
 CREATE UNIQUE INDEX IF NOT EXISTS users_handle_lower_idx ON users (lower(handle));
+-- Session revocation: every session cookie embeds this number and is honoured only
+-- while it matches. Bumped on password reset / logout-everywhere / Google merge.
+ALTER TABLE users ADD COLUMN IF NOT EXISTS session_version INTEGER NOT NULL DEFAULT 1;
+-- Ownership of the address is proven by clicking the emailed link (or by a verified
+-- Google login). Unverified accounts are replaced, not merged, when Google claims the
+-- same email — closes the pre-account-takeover hole.
+ALTER TABLE users ADD COLUMN IF NOT EXISTS email_verified BOOLEAN NOT NULL DEFAULT false;
+-- Google's stable subject id; Google logins match on this FIRST, email second.
+ALTER TABLE users ADD COLUMN IF NOT EXISTS google_sub TEXT;
+CREATE UNIQUE INDEX IF NOT EXISTS users_google_sub_idx ON users (google_sub);
 
 CREATE TABLE IF NOT EXISTS works (
   id         TEXT PRIMARY KEY,
@@ -23,7 +33,7 @@ CREATE TABLE IF NOT EXISTS works (
   artist     TEXT NOT NULL,
   cat        TEXT NOT NULL,
   medium     TEXT NOT NULL,
-  price      JSONB NOT NULL,             -- { personal, commercial, exclusive }
+  price      JSONB,                      -- { personal, commercial, exclusive } or NULL = not for sale
   cert       JSONB NOT NULL,             -- server-side seal { hash, sig, signer, algo, ts }
   hash       TEXT UNIQUE,               -- = cert.hash, for public verification lookups
   owner_id   TEXT,
@@ -33,6 +43,9 @@ CREATE TABLE IF NOT EXISTS works (
 CREATE INDEX IF NOT EXISTS works_cat_idx        ON works (cat);
 CREATE INDEX IF NOT EXISTS works_created_at_idx ON works (created_at DESC);
 CREATE INDEX IF NOT EXISTS works_owner_idx      ON works (owner_id);
+-- Sealing used to attach a synthetic price to every work; it no longer does, and the
+-- column is nullable for installs that predate that change.
+ALTER TABLE works ALTER COLUMN price DROP NOT NULL;
 
 -- Image bytes live in a side table so the hot catalog queries never pull blobs.
 -- At very high scale, move these to Supabase Storage / S3 and keep a URL on works.
@@ -73,10 +86,11 @@ CREATE TABLE IF NOT EXISTS orders (
   email      TEXT NOT NULL,
   name       TEXT,
   user_id    TEXT,
-  status     TEXT NOT NULL DEFAULT 'paid',
+  status     TEXT NOT NULL DEFAULT 'pending', -- 'pending' until a VERIFIED payment webhook flips it to 'paid'
   created_at TEXT NOT NULL
 );
 CREATE INDEX IF NOT EXISTS orders_user_idx ON orders (user_id);
+ALTER TABLE orders ALTER COLUMN status SET DEFAULT 'pending';
 
 CREATE TABLE IF NOT EXISTS newsletter (
   email TEXT PRIMARY KEY,
@@ -99,15 +113,19 @@ CREATE TABLE IF NOT EXISTS work_likes (
 );
 CREATE INDEX IF NOT EXISTS work_likes_work_idx ON work_likes (work_id);
 
--- Password-reset tokens. We store only the SHA-256 hash of the token, so a DB leak
--- never yields usable reset links. Rows are single-use and time-boxed.
+-- Single-use emailed tokens: password resets AND email-verification links (the table
+-- name is historical). We store only the SHA-256 hash of the token, so a DB leak
+-- never yields usable links. Rows are single-use and time-boxed; `purpose` keeps a
+-- verification token from ever being accepted as a reset token.
 CREATE TABLE IF NOT EXISTS password_resets (
   token_hash TEXT PRIMARY KEY,
   user_id    TEXT NOT NULL,
   expires_at BIGINT NOT NULL,        -- epoch ms
-  created_at TEXT NOT NULL
+  created_at TEXT NOT NULL,
+  purpose    TEXT NOT NULL DEFAULT 'reset'   -- 'reset' | 'verify'
 );
 CREATE INDEX IF NOT EXISTS password_resets_user_idx ON password_resets (user_id);
+ALTER TABLE password_resets ADD COLUMN IF NOT EXISTS purpose TEXT NOT NULL DEFAULT 'reset';
 
 -- Shared, cross-instance rate limiting (used when RATELIMIT_DRIVER=postgres).
 -- Fixed-window counters; old windows are pruned opportunistically.

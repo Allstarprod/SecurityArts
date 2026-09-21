@@ -14,13 +14,13 @@ Legend: ✅ implemented in code · 🟡 partial / config-dependent · ⬜ deploy
 | # | Risk | Status | Where / how |
 |---|------|--------|-------------|
 | A01 | Broken Access Control | ✅ | Board/order ownership checks; path-traversal guard in static server; auth-gated routes (`routes.mjs`, `server.mjs`). |
-| A02 | Cryptographic Failures | ✅ | scrypt password hashing; HMAC-signed sessions; ECDSA P-256 artwork signing (`auth.mjs`, `seal.mjs`). |
+| A02 | Cryptographic Failures | ✅ | scrypt password hashing; HMAC-signed sessions; ECDSA P-256 artwork seals with a versioned signed payload (v1 covers key id + hash + timestamp) and a key registry with rotation (`auth.mjs`, `seal.mjs`, `docs/seal-spec.md`). |
 | A03 | Injection | ✅ | Parameterized queries only — the Postgres driver uses `$1`/`$2` placeholders, never string-built SQL (`drivers/postgres.mjs`); strict input validation at the boundary; JSON-only bodies; output escaped client-side. |
 | A04 | Insecure Design | ✅ | Server-authoritative pricing (client can't set price); rate limiting; least-data responses (`/works` omits base64). |
 | A05 | Security Misconfiguration | ✅ | CSP + full security-header set; errors never leak internals; secrets off-repo (`security.mjs`, `.gitignore`). |
 | A06 | Vulnerable Components | ✅ | Minimal surface, `npm audit` **clean** (root + server). Server core is dependency-free; the only runtime dep is `pg` (Postgres driver, optional — for the Supabase backend, audit clean). Build-only tool `esbuild` compiles page JSX and is **not shipped** to the browser. Vendored React is pinned + committed. Backlog: wire Dependabot + `npm audit` into CI. |
 | A07 | Auth / Identification Failures | ✅ | Rate-limited login/register; uniform error (no user enumeration); scrypt + `timingSafeEqual`. |
-| A08 | Software & Data Integrity | ✅ | Server re-hashes + signs uploads; public `/api/verify/:hash`; atomic writes to the store. |
+| A08 | Software & Data Integrity | ✅ | Server re-hashes + signs uploads; the v1 seal binds hash, key id and sealing time so a DB edit of "sealed at" is detectable; public `/api/verify/:hash` + `/api/seal/pubkey` publish keys and the byte-exact procedure for offline `openssl` verification; atomic writes to the store. |
 | A09 | Logging & Monitoring Failures | ✅ | JSON-line audit log for auth, publish, orders, CSRF blocks, server errors (`audit()`). |
 | A10 | SSRF | ✅ | Server makes no outbound requests from user input; uploads handled as bytes, not URLs. |
 
@@ -38,7 +38,7 @@ Legend: ✅ implemented in code · 🟡 partial / config-dependent · ⬜ deploy
 - **Identify** — data map + control inventory in this doc and `HANDOFF.md`.
 - **Protect** — access control, scrypt/ECDSA crypto, security headers, least privilege on data files (`0o600` keys/secret).
 - **Detect** — audit logging of security-relevant events; CSRF/rate-limit rejections recorded.
-- **Respond** — uniform error handling, session revocation (logout), key rotation path documented.
+- **Respond** — uniform error handling, session revocation (logout), seal-key rotation implemented (retired keys keep old seals verifiable; `docs/seal-spec.md` §7 incl. the compromise case).
 - **Recover** — atomic JSON store writes; 🟡 backups are a deploy-time concern (managed DB + PITR).
 
 ## ISO/IEC 27001 (Annex A, 2022) — representative controls
@@ -79,9 +79,16 @@ Legend: ✅ implemented in code · 🟡 partial / config-dependent · ⬜ deploy
    (`DB_DRIVER=postgres`), connection pooling, shared rate limiting, and Supabase Storage for
    images. The file driver remains the zero-setup dev default. Managed encryption-at-rest +
    PITR backups come with Supabase.
-4. **Signing key on disk → PARTIAL.** The seal key can now be supplied via env
-   (`SEAL_*_B64`) so it's stable across instances/redeploys. Still move it to an HSM/KMS and
-   add rotation + a key registry for production.
+4. **Seal signing key → env var with a rotation path; not (yet) an HSM/KMS.** Be precise
+   with auditors: the private key is `SEAL_PRIVATE_KEY_B64` on the API hosts (dev: a file on
+   disk), i.e. a plaintext secret held by the platform's secret store — **not** hardware-backed.
+   What *is* in place: a key registry (`lib/seal.mjs`) with exactly one active key and any
+   number of retired public keys (`SEAL_KEYS_JSON`, with validity windows), so rotation — and
+   compromise response — never invalidates an issued seal; a versioned signed payload (v1) so
+   the timestamp and key id are tamper-evident; fail-closed verification for unknown keys.
+   **Remaining:** move signing to a KMS. The registry makes that a contained change — the
+   KMS replaces the single `sign()` callback (`createSealer({ publicKeyPem, sign })`); the
+   payload, registry and the published procedure (`docs/seal-spec.md`) do not change.
 5. **Payments** are simulated → integrate a PCI-compliant processor (never handle raw PAN).
 6. **Newsletter** stores raw emails → add double opt-in + ESP hand-off + suppression list.
 7. **Dependencies added** since the "dependency-free" era: `pg` (runtime, Postgres) and

@@ -13,6 +13,10 @@
 //                         NEVER shipped to a browser — uploads bypass RLS with it.
 // Optional:
 //   SUPABASE_BUCKET       bucket name (default: work-images; created, public)
+//
+// Callers hand us an image ALREADY decoded + sniffed by lib/image.mjs ({ bytes, type,
+// ext }). This module never parses a data URI or trusts a client Content-Type — the
+// old decodeDataUri() here accepted text/html and image/svg+xml verbatim (audit HIGH #3).
 import crypto from "node:crypto";
 
 const URL_BASE = (process.env.SUPABASE_URL || "").replace(/\/+$/, "");
@@ -21,39 +25,27 @@ const BUCKET = process.env.SUPABASE_BUCKET || "work-images";
 
 export const blobStoreActive = Boolean(URL_BASE && KEY);
 
-function decodeDataUri(input) {
-  const s = String(input);
-  if (!s.startsWith("data:")) {
-    // raw base64 (no data: prefix) — treat as png bytes
-    return { bytes: Buffer.from(s, "base64"), type: "image/png", ext: "png" };
-  }
-  const comma = s.indexOf(",");
-  const header = s.slice(5, comma); // e.g. "image/svg+xml" or "image/png;base64"
-  const isB64 = /;base64$/i.test(header);
-  const type = header.replace(/;base64$/i, "") || "application/octet-stream";
-  const payload = s.slice(comma + 1);
-  const bytes = isB64 ? Buffer.from(payload, "base64") : Buffer.from(decodeURIComponent(payload), "utf8");
-  const ext = { "image/svg+xml": "svg", "image/png": "png", "image/jpeg": "jpg", "image/webp": "webp", "image/gif": "gif" }[type] || "bin";
-  return { bytes, type, ext };
-}
+const PUBLIC_PREFIX = `${URL_BASE}/storage/v1/object/public/${BUCKET}/`;
 
 export function publicUrl(objectPath) {
-  return `${URL_BASE}/storage/v1/object/public/${BUCKET}/${objectPath}`;
+  return PUBLIC_PREFIX + objectPath;
 }
 
-// Upload a data-URI image for a work; returns the public CDN URL, or null on any
-// failure (caller falls back to the repo driver's blob storage — never breaks publish).
-export async function putImage(workId, dataUri) {
+// Upload a sniffed image ({ bytes, type, ext }) for a work; returns the public CDN URL,
+// or null on any failure (caller falls back to the repo driver's blob storage — never
+// breaks publish).
+export async function putImage(workId, image) {
   if (!blobStoreActive) return null;
   try {
-    const { bytes, type, ext } = decodeDataUri(dataUri);
+    const { bytes, type, ext } = image;
+    if (!Buffer.isBuffer(bytes) || !type || !ext) return null;
     // content-addressed-ish name: stable per work, cache-friendly, no collisions
     const objectPath = `${encodeURIComponent(workId)}-${crypto.createHash("sha256").update(bytes).digest("hex").slice(0, 12)}.${ext}`;
     const res = await fetch(`${URL_BASE}/storage/v1/object/${BUCKET}/${objectPath}`, {
       method: "POST",
       headers: {
         Authorization: `Bearer ${KEY}`,
-        "Content-Type": type,
+        "Content-Type": type, // from magic bytes, never from the client
         "x-upsert": "true",
         "Cache-Control": "public, max-age=31536000, immutable",
       },
@@ -67,5 +59,24 @@ export async function putImage(workId, dataUri) {
   } catch (e) {
     console.error("blobstore upload error:", e.message);
     return null;
+  }
+}
+
+// Best-effort removal of a work's object given the public URL we stored on it.
+// Returns true when the object is gone (or was never ours to delete). Never throws:
+// a stale object in the bucket is a cost problem, not a correctness one.
+export async function deleteImage(imgUrl) {
+  if (!blobStoreActive || typeof imgUrl !== "string" || !imgUrl.startsWith(PUBLIC_PREFIX)) return false;
+  const objectPath = imgUrl.slice(PUBLIC_PREFIX.length);
+  try {
+    const res = await fetch(`${URL_BASE}/storage/v1/object/${BUCKET}/${objectPath}`, {
+      method: "DELETE",
+      headers: { Authorization: `Bearer ${KEY}` },
+    });
+    if (!res.ok && res.status !== 404) console.error(`blobstore delete failed (${res.status}) for ${objectPath}`);
+    return res.ok || res.status === 404;
+  } catch (e) {
+    console.error("blobstore delete error:", e.message);
+    return false;
   }
 }

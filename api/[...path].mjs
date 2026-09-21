@@ -2,7 +2,7 @@
 //
 // NOTE: this entry file's hash is part of Vercel's function build-cache key. Touch it
 // (this line) whenever the function must be force-rebuilt even though only imported
-// modules (routes.mjs, lib/*.mjs) changed. Rebuild marker: post-review-1 (2026-07-12).
+// modules (routes.mjs, lib/*.mjs) changed. Rebuild marker: audit-hardening-1 (2026-09-20).
 //
 // Reuses the SAME router + security stack as the standalone server (server/server.mjs);
 // this file is just the serverless adapter — no persistent listener, no cluster. Every
@@ -10,13 +10,16 @@
 //
 // Requires (Vercel project env): DB_DRIVER=postgres, DATABASE_URL (Supabase POOLER url,
 // port 6543), RATELIMIT_DRIVER=postgres, SESSION_SECRET, SEAL_PRIVATE_KEY_B64,
-// SEAL_PUBLIC_KEY_B64, SUPABASE_URL, SUPABASE_SERVICE_KEY, TRUST_PROXY=1. See VERCEL.md.
+// SEAL_PUBLIC_KEY_B64, SUPABASE_URL, SUPABASE_SERVICE_KEY, TRUST_PROXY=1, and
+// PUBLIC_BASE_URL (required — the function refuses to serve without it in production).
+// See VERCEL.md.
 import { router } from "../server/routes.mjs";
 import { initRepo } from "../server/lib/repo.mjs";
 import { fail } from "../server/lib/http.mjs";
 import { currentUser } from "../server/lib/auth.mjs";
 import { setSecurityHeaders, rateLimit, sameOrigin, readBody, audit, clientIp } from "../server/lib/security.mjs";
 import { reportError } from "../server/lib/sentry.mjs";
+import { assertProdConfig } from "../server/lib/config.mjs";
 
 // Memoized across warm invocations of a function instance.
 let repoReady = null;
@@ -39,6 +42,7 @@ export default async function handler(req, res) {
   const method = req.method.toUpperCase();
 
   try {
+    assertProdConfig(); // PUBLIC_BASE_URL must be set (CWE-640); throws → 500 with the reason in the function log
     if (!repoReady) repoReady = initRepo();
     // Don't cache a FAILED init: if the DB was briefly unreachable (e.g. Supabase
     // free-tier resume), clear the memo so the next request retries and the API
@@ -68,7 +72,7 @@ export default async function handler(req, res) {
       }
     }
 
-    const user = await currentUser(req);
+    const user = await currentUser(req, { https: true }); // Vercel is always TLS → __Host- cookie name
     return await route.handler({ req, res, params: route.params, body, url, user, ip, https: true });
   } catch (err) {
     const status = err.status || 500;

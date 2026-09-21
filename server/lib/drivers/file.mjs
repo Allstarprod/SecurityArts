@@ -49,7 +49,14 @@ export async function createRepo() {
     }
   } catch { /* fresh start */ }
 
-  for (const u of db.users) { idx.userById.set(u.id, u); idx.userByEmail.set(u.email, u); }
+  for (const u of db.users) {
+    // Columns added by the 2026-09-20 hardening migration; default them for rows that
+    // predate it, exactly like the postgres DEFAULTs do.
+    if (u.sessionVersion === undefined) u.sessionVersion = 1;
+    if (u.emailVerified === undefined) u.emailVerified = false;
+    if (u.googleSub === undefined) u.googleSub = null;
+    idx.userById.set(u.id, u); idx.userByEmail.set(u.email, u);
+  }
   for (const w of db.works) { idx.workById.set(w.id, w); if (w.cert?.hash) idx.workByHash.set(w.cert.hash, w); }
   for (const b of db.boards) idx.boardById.set(b.id, b);
   for (const o of db.orders) idx.orderById.set(o.id, o);
@@ -93,10 +100,17 @@ export async function createRepo() {
         const h = String(handle || "").toLowerCase();
         return clone(db.users.find((u) => u.handle && u.handle.toLowerCase() === h) || null);
       },
+      async findByGoogleSub(sub) {
+        if (!sub) return null;
+        return clone(db.users.find((u) => u.googleSub && u.googleSub === sub) || null);
+      },
       async create(user) {
-        db.users.push(user);
-        idx.userById.set(user.id, user); idx.userByEmail.set(user.email, user);
-        schedule(); return clone(user);
+        const u = { sessionVersion: 1, emailVerified: false, googleSub: null, ...user };
+        // Mirror the postgres UNIQUE index on google_sub.
+        if (u.googleSub && db.users.some((x) => x.googleSub === u.googleSub)) throw Object.assign(new Error("google sub taken"), { code: "GOOGLE_SUB_TAKEN" });
+        db.users.push(u);
+        idx.userById.set(u.id, u); idx.userByEmail.set(u.email, u);
+        schedule(); return clone(u);
       },
       // Patch a user in place (v1: profile). idx and db.users share the object
       // reference, so mutating here updates both and the next snapshot persists it.
@@ -109,6 +123,9 @@ export async function createRepo() {
           const h = String(patch.handle).toLowerCase();
           const clash = db.users.find((x) => x.id !== id && x.handle && x.handle.toLowerCase() === h);
           if (clash) throw Object.assign(new Error("handle taken"), { code: "HANDLE_TAKEN" });
+        }
+        if (patch.googleSub && db.users.some((x) => x.id !== id && x.googleSub === patch.googleSub)) {
+          throw Object.assign(new Error("google sub taken"), { code: "GOOGLE_SUB_TAKEN" });
         }
         Object.assign(u, patch);
         schedule(); return clone(u);
@@ -140,6 +157,20 @@ export async function createRepo() {
         schedule(); return clone(meta);
       },
       async getImage(id) { try { return await fsp.readFile(blobPath(id), "utf8"); } catch { return null; } },
+      // Owner-only delete. Drops the work, its blob file, and every dependent row
+      // (comments, likes, view counter) so nothing dangles. Returns the removed work
+      // (caller cleans up the CDN object from imgUrl) or null when absent / not theirs.
+      async remove(id, ownerId) {
+        const w = idx.workById.get(id);
+        if (!w || !ownerId || w.ownerId !== ownerId) return null;
+        db.works.splice(db.works.indexOf(w), 1);
+        idx.workById.delete(id);
+        if (w.cert?.hash) idx.workByHash.delete(w.cert.hash);
+        for (const c of db.comments.filter((x) => x.workId === id)) { idx.commentById.delete(c.id); db.comments.splice(db.comments.indexOf(c), 1); }
+        delete db.workLikes[id]; delete db.workStats[id];
+        try { await fsp.unlink(blobPath(id)); } catch {}
+        schedule(); return clone(w);
+      },
     },
 
     boards: {
@@ -191,10 +222,12 @@ export async function createRepo() {
     orders: {
       async create(order) { db.orders.push(order); idx.orderById.set(order.id, order); schedule(); return clone(order); },
       async findById(id) { return clone(idx.orderById.get(id) || null); },
-      // Sale line-items across all orders that reference any of the given work ids.
+      // Sale line-items across PAID orders that reference any of the given work ids.
+      // Orders are created "pending" and only a verified payment webhook may mark them
+      // paid, so unpaid checkouts never show up as revenue (audit HIGH #4).
       async salesForWorks(workIds) {
         const set = new Set(workIds); const out = [];
-        for (const o of db.orders) for (const l of (o.lines || [])) {
+        for (const o of db.orders) for (const l of (o.status === "paid" ? o.lines || [] : [])) {
           if (set.has(l.id)) out.push({ orderId: o.id, workId: l.id, license: l.license, amt: l.price || 0, buyer: o.name || "A collector", date: o.createdAt }); // never expose buyer email
         }
         return out;
@@ -217,17 +250,19 @@ export async function createRepo() {
       async countByWorks(workIds) { const out = {}; for (const id of workIds) { const n = (db.workLikes[id] || []).length; if (n) out[id] = n; } return out; }, // omit zero-count keys to match postgres
     },
 
+    // Single-use emailed tokens (password reset AND email verification, told apart by
+    // `purpose`; rows without one predate the column and are resets).
     passwordResets: {
-      async create(r) { db.passwordResets.push(r); idx.resetByHash.set(r.tokenHash, r); schedule(); return clone(r); },
-      async findByHash(hash) { return clone(idx.resetByHash.get(hash) || null); },
+      async create(r) { const rec = { purpose: "reset", ...r }; db.passwordResets.push(rec); idx.resetByHash.set(rec.tokenHash, rec); schedule(); return clone(rec); },
+      async findByHash(hash) { const r = idx.resetByHash.get(hash); return r ? { purpose: "reset", ...clone(r) } : null; },
       async consume(hash) {
         const r = idx.resetByHash.get(hash);
         if (!r) return false;
         idx.resetByHash.delete(hash); db.passwordResets.splice(db.passwordResets.indexOf(r), 1);
         schedule(); return true;
       },
-      async removeByUser(userId) {
-        const gone = db.passwordResets.filter((r) => r.userId === userId);
+      async removeByUser(userId, purpose) {
+        const gone = db.passwordResets.filter((r) => r.userId === userId && (!purpose || (r.purpose || "reset") === purpose));
         for (const r of gone) { idx.resetByHash.delete(r.tokenHash); db.passwordResets.splice(db.passwordResets.indexOf(r), 1); }
         if (gone.length) schedule();
         return gone.length;

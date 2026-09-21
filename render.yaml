@@ -26,6 +26,8 @@ services:
         value: "1"
       - key: DB_AUTO_MIGRATE
         value: "0"                # schema already applied to Supabase
+      - key: PUBLIC_BASE_URL      # REQUIRED in production: origin for emailed links (CWE-640); server refuses to boot without it
+        value: https://securityarts.onrender.com   # ← placeholder: replace with this service's real public origin
       - key: SUPABASE_URL
         value: https://ixdkfakibuctwhgwngsw.supabase.co
       - key: SUPABASE_BUCKET

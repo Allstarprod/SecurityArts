@@ -14,7 +14,13 @@ One-time, in the Render dashboard:
    - `SESSION_SECRET`
    - `SUPABASE_SERVICE_KEY`
    - `SEAL_PRIVATE_KEY_B64`, `SEAL_PUBLIC_KEY_B64`
-3. Deploy. From then on **every `git push origin main` redeploys automatically**
+3. Set `PUBLIC_BASE_URL` to the service's public origin (e.g. `https://securityarts.onrender.com`,
+   or the custom domain once it's mapped). `render.yaml` ships a placeholder — **the server
+   refuses to start in production without it**, because every emailed link (password reset,
+   email verification) is built from it and must never come from the request's Host header.
+4. Apply any new files in `supabase/migrations/` to the database first (`supabase db push`,
+   or paste into the SQL editor) — the server reads columns they add.
+5. Deploy. From then on **every `git push origin main` redeploys automatically**
    (`autoDeploy: true`). Health check: `/api/health` must return 200.
 
 To stay always-on (no cold starts), change `plan: free` → `plan: starter` in `render.yaml`.
@@ -28,6 +34,7 @@ fly launch --no-deploy            # generates fly.toml from the Dockerfile
 fly secrets set \
   DATABASE_URL='...' SESSION_SECRET='...' SUPABASE_SERVICE_KEY='...' \
   SUPABASE_URL='https://ixdkfakibuctwhgwngsw.supabase.co' \
+  PUBLIC_BASE_URL='https://<your-app>.fly.dev' \
   SEAL_PRIVATE_KEY_B64='...' SEAL_PUBLIC_KEY_B64='...'
 fly deploy
 ```

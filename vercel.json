@@ -10,13 +10,36 @@
   ],
   "rewrites": [
     { "source": "/api/(.*)", "destination": "/api/[...path]?__path=$1" },
-    { "source": "/@:handle", "destination": "/SecurityArts%20Design%20System/website/ui_kits/discover/profile.html?h=:handle" }
+    { "source": "/@:handle", "destination": "/SecurityArts%20Design%20System/website/ui_kits/discover/profile.html?h=:handle" },
+    { "source": "/discover", "destination": "/SecurityArts%20Design%20System/website/ui_kits/discover/index.html" },
+    { "source": "/seal/:id", "destination": "/SecurityArts%20Design%20System/website/ui_kits/discover/seal.html?work=:id" },
+    { "source": "/verify", "destination": "/SecurityArts%20Design%20System/website/ui_kits/discover/verify.html" },
+    { "source": "/foryou", "destination": "/SecurityArts%20Design%20System/website/ui_kits/discover/foryou.html" },
+    { "source": "/create", "destination": "/SecurityArts%20Design%20System/website/ui_kits/discover/create.html" },
+    { "source": "/login", "destination": "/SecurityArts%20Design%20System/website/ui_kits/discover/login.html" },
+    { "source": "/join", "destination": "/SecurityArts%20Design%20System/website/ui_kits/discover/login.html?mode=signup" },
+    { "source": "/me", "destination": "/SecurityArts%20Design%20System/website/ui_kits/discover/me.html" },
+    { "source": "/pricing", "destination": "/SecurityArts%20Design%20System/website/ui_kits/discover/pricing.html" },
+    { "source": "/studio", "destination": "/SecurityArts%20Design%20System/website/ui_kits/studio/index.html" },
+    { "source": "/how-it-works", "destination": "/how-it-works.html" },
+    { "source": "/faq", "destination": "/faq.html" },
+    { "source": "/services/penetration-testing", "destination": "/services-penetration-testing.html" },
+    { "source": "/services/application-security", "destination": "/services-application-security.html" },
+    { "source": "/services/cloud-infrastructure", "destination": "/services-cloud-infrastructure.html" },
+    { "source": "/services/detection-response", "destination": "/services-detection-response.html" },
+    { "source": "/services/security-architecture", "destination": "/services-security-architecture.html" },
+    { "source": "/services/advisory-training", "destination": "/services-advisory-training.html" },
+    { "source": "/verified", "destination": "/verified.html" },
+    { "source": "/compare/ai-detectors", "destination": "/vs-ai-detectors.html" },
+    { "source": "/compare/c2pa", "destination": "/vs-c2pa.html" },
+    { "source": "/compare/not-by-ai", "destination": "/vs-not-by-ai.html" },
+    { "source": "/prove-your-art-is-human", "destination": "/how-to-prove-your-art-is-human.html" }
   ],
   "headers": [
     {
       "source": "/(.*)",
       "headers": [
-        { "key": "Content-Security-Policy", "value": "default-src 'self'; script-src 'self' 'unsafe-inline' https://*.posthog.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: blob: https://*.supabase.co; connect-src 'self' https://*.posthog.com https://*.supabase.co https://*.ingest.sentry.io https://*.ingest.us.sentry.io https://*.ingest.de.sentry.io; frame-ancestors 'none'; base-uri 'self'; form-action 'self'; object-src 'none'" },
+        { "key": "Content-Security-Policy", "value": "default-src 'self'; script-src 'self' 'unsafe-inline' https://*.posthog.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: blob: https://ixdkfakibuctwhgwngsw.supabase.co; connect-src 'self' https://*.posthog.com https://*.ingest.sentry.io https://*.ingest.us.sentry.io https://*.ingest.de.sentry.io; frame-ancestors 'none'; base-uri 'self'; form-action 'self'; object-src 'none'" },
         { "key": "X-Content-Type-Options", "value": "nosniff" },
         { "key": "X-Frame-Options", "value": "DENY" },
         { "key": "Referrer-Policy", "value": "strict-origin-when-cross-origin" },

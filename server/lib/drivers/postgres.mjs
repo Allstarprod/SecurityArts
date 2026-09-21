@@ -13,10 +13,14 @@ import fs from "node:fs/promises";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 
-const rowToUser = (r) => (r ? { id: r.id, email: r.email, name: r.name, pass: r.pass, createdAt: r.created_at, profile: r.profile || {}, handle: r.handle || null } : null);
+const rowToUser = (r) => (r ? {
+  id: r.id, email: r.email, name: r.name, pass: r.pass, createdAt: r.created_at, profile: r.profile || {}, handle: r.handle || null,
+  sessionVersion: Number(r.session_version ?? 1), emailVerified: r.email_verified === true, googleSub: r.google_sub || null,
+} : null);
 const rowToWork = (r) => (r ? {
   id: r.id, own: r.own, title: r.title, artist: r.artist, cat: r.cat, medium: r.medium,
-  price: r.price, cert: r.cert, ownerId: r.owner_id, createdAt: r.created_at,
+  price: r.price ?? undefined, // NULL = not for sale; omitted from JSON like the file driver
+  cert: r.cert, ownerId: r.owner_id, createdAt: r.created_at,
   imgUrl: r.img_url || undefined,
 } : null);
 const rowToBoard = (r) => (r ? { id: r.id, userId: r.user_id, name: r.name, pins: r.pins || [] } : null);
@@ -73,29 +77,43 @@ export async function createRepo() {
       async findByEmail(email) { return rowToUser((await q("SELECT * FROM users WHERE email=$1", [email])).rows[0]); },
       async findById(id) { return rowToUser((await q("SELECT * FROM users WHERE id=$1", [id])).rows[0]); },
       async findByHandle(handle) { return rowToUser((await q("SELECT * FROM users WHERE lower(handle)=lower($1) LIMIT 1", [handle])).rows[0]); },
+      async findByGoogleSub(sub) { return sub ? rowToUser((await q("SELECT * FROM users WHERE google_sub=$1", [sub])).rows[0]) : null; },
       async create(u) {
-        await q(
-          "INSERT INTO users (id,email,name,pass,created_at) VALUES ($1,$2,$3,$4,$5)",
-          [u.id, u.email, u.name, u.pass, u.createdAt]
-        );
-        return u;
+        try {
+          await q(
+            "INSERT INTO users (id,email,name,pass,created_at,session_version,email_verified,google_sub) VALUES ($1,$2,$3,$4,$5,$6,$7,$8)",
+            [u.id, u.email, u.name, u.pass, u.createdAt, u.sessionVersion ?? 1, u.emailVerified === true, u.googleSub || null]
+          );
+        } catch (e) {
+          if (e && e.code === "23505" && /google_sub/.test(e.constraint || "")) throw Object.assign(new Error("google sub taken"), { code: "GOOGLE_SUB_TAKEN" });
+          throw e;
+        }
+        return { sessionVersion: 1, emailVerified: false, googleSub: null, ...u };
       },
-      // Patch a user (v1: name / profile). Builds the SET clause from provided keys only.
+      // Patch a user (name / handle / pass / profile / session + verification state).
+      // Builds the SET clause from provided keys only.
       async update(id, patch) {
         const sets = [], vals = [];
         if (patch.name !== undefined) { vals.push(patch.name); sets.push(`name=$${vals.length}`); }
         if (patch.handle !== undefined) { vals.push(patch.handle); sets.push(`handle=$${vals.length}`); }
         if (patch.pass !== undefined) { vals.push(patch.pass); sets.push(`pass=$${vals.length}`); }
         if (patch.profile !== undefined) { vals.push(JSON.stringify(patch.profile)); sets.push(`profile=$${vals.length}::jsonb`); }
+        if (patch.sessionVersion !== undefined) { vals.push(Number(patch.sessionVersion)); sets.push(`session_version=$${vals.length}`); }
+        if (patch.emailVerified !== undefined) { vals.push(patch.emailVerified === true); sets.push(`email_verified=$${vals.length}`); }
+        if (patch.googleSub !== undefined) { vals.push(patch.googleSub || null); sets.push(`google_sub=$${vals.length}`); }
         if (!sets.length) return rowToUser((await q("SELECT * FROM users WHERE id=$1", [id])).rows[0]);
         vals.push(id);
         let r;
         try {
           r = await q(`UPDATE users SET ${sets.join(",")} WHERE id=$${vals.length} RETURNING *`, vals);
         } catch (e) {
-          // unique_violation on users_handle_lower_idx → a concurrent claim won. Surface a
-          // typed error so the route returns 409 instead of a 500 (matches the file driver).
-          if (e && e.code === "23505") throw Object.assign(new Error("handle taken"), { code: "HANDLE_TAKEN" });
+          // unique_violation → a concurrent claim won (handle, or a Google identity already
+          // linked elsewhere). Surface typed errors so routes answer 409, not 500 (matches
+          // the file driver).
+          if (e && e.code === "23505") {
+            if (/google_sub/.test(e.constraint || "")) throw Object.assign(new Error("google sub taken"), { code: "GOOGLE_SUB_TAKEN" });
+            throw Object.assign(new Error("handle taken"), { code: "HANDLE_TAKEN" });
+          }
           throw e;
         }
         return rowToUser(r.rows[0]);
@@ -133,7 +151,8 @@ export async function createRepo() {
               `INSERT INTO works (id,own,title,artist,cat,medium,price,cert,hash,owner_id,created_at,img_url)
                VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12)`,
               [meta.id, meta.own ?? true, meta.title, meta.artist, meta.cat, meta.medium,
-               JSON.stringify(meta.price), JSON.stringify(meta.cert), meta.cert?.hash || null, meta.ownerId, meta.createdAt, meta.imgUrl || null]
+               meta.price ? JSON.stringify(meta.price) : null, // nullable since the hardening migration — sealing no longer invents a price
+               JSON.stringify(meta.cert), meta.cert?.hash || null, meta.ownerId, meta.createdAt, meta.imgUrl || null]
             );
             if (typeof image === "string") {
               await c.query("INSERT INTO work_blobs (work_id,data) VALUES ($1,$2) ON CONFLICT (work_id) DO UPDATE SET data=EXCLUDED.data", [meta.id, image]);
@@ -147,6 +166,21 @@ export async function createRepo() {
         }
       },
       async getImage(id) { return (await q("SELECT data FROM work_blobs WHERE work_id=$1", [id])).rows[0]?.data ?? null; },
+      // Owner-only delete in one transaction: the work (work_blobs cascades) plus the
+      // dependent rows that carry no FK (comments, likes, view counter). Returns the
+      // removed work (caller cleans up the CDN object from imgUrl) or null.
+      async remove(id, ownerId) {
+        if (!ownerId) return null;
+        return tx(async (c) => {
+          const w = rowToWork((await c.query("SELECT * FROM works WHERE id=$1 AND owner_id=$2 FOR UPDATE", [id, ownerId])).rows[0]);
+          if (!w) return null;
+          await c.query("DELETE FROM comments WHERE work_id=$1", [id]);
+          await c.query("DELETE FROM work_likes WHERE work_id=$1", [id]);
+          await c.query("DELETE FROM work_stats WHERE work_id=$1", [id]);
+          await c.query("DELETE FROM works WHERE id=$1", [id]);
+          return w;
+        });
+      },
     },
 
     boards: {
@@ -214,11 +248,14 @@ export async function createRepo() {
         return o;
       },
       async findById(id) { return rowToOrder((await q("SELECT * FROM orders WHERE id=$1", [id])).rows[0]); },
+      // PAID orders only: orders are created "pending" and only a verified payment
+      // webhook may mark them paid, so unpaid checkouts never count as revenue (audit HIGH #4).
       async salesForWorks(workIds) {
         if (!workIds.length) return [];
         const rows = (await q(
           `SELECT id, lines, email, name, created_at FROM orders
-            WHERE EXISTS (SELECT 1 FROM jsonb_array_elements(lines) e WHERE e->>'id' = ANY($1))`,
+            WHERE status = 'paid'
+              AND EXISTS (SELECT 1 FROM jsonb_array_elements(lines) e WHERE e->>'id' = ANY($1))`,
           [workIds]
         )).rows;
         const set = new Set(workIds); const out = [];
@@ -261,17 +298,23 @@ export async function createRepo() {
       },
     },
 
+    // Single-use emailed tokens (password reset AND email verification, told apart by
+    // `purpose`; the table name is historical).
     passwordResets: {
       async create(r) {
-        await q("INSERT INTO password_resets (token_hash,user_id,expires_at,created_at) VALUES ($1,$2,$3,$4)", [r.tokenHash, r.userId, r.expiresAt, r.createdAt]);
-        return r;
+        await q("INSERT INTO password_resets (token_hash,user_id,expires_at,created_at,purpose) VALUES ($1,$2,$3,$4,$5)", [r.tokenHash, r.userId, r.expiresAt, r.createdAt, r.purpose || "reset"]);
+        return { purpose: "reset", ...r };
       },
       async findByHash(hash) {
         const row = (await q("SELECT * FROM password_resets WHERE token_hash=$1", [hash])).rows[0];
-        return row ? { tokenHash: row.token_hash, userId: row.user_id, expiresAt: Number(row.expires_at), createdAt: row.created_at } : null;
+        return row ? { tokenHash: row.token_hash, userId: row.user_id, expiresAt: Number(row.expires_at), createdAt: row.created_at, purpose: row.purpose || "reset" } : null;
       },
       async consume(hash) { return (await q("DELETE FROM password_resets WHERE token_hash=$1", [hash])).rowCount > 0; },
-      async removeByUser(userId) { return (await q("DELETE FROM password_resets WHERE user_id=$1", [userId])).rowCount; },
+      async removeByUser(userId, purpose) {
+        return purpose
+          ? (await q("DELETE FROM password_resets WHERE user_id=$1 AND purpose=$2", [userId, purpose])).rowCount
+          : (await q("DELETE FROM password_resets WHERE user_id=$1", [userId])).rowCount;
+      },
     },
 
     newsletter: {
