@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>FAQ — SecurityArts seals</title>
+  <meta name="description" content="Answers about SecurityArts seals: what a seal proves, whether it detects AI, if it can be faked or stripped, how to verify one, how it differs from C2PA, and whether it's free." />
+
+  <link rel="canonical" href="https://security-arts.vercel.app/faq" />
+  <meta property="og:type" content="website" />
+  <meta property="og:site_name" content="SecurityArts" />
+  <meta property="og:title" content="SecurityArts FAQ — how the seal works" />
+  <meta property="og:description" content="What a seal proves, whether it detects AI, if it can be faked, and how to verify one." />
+  <meta property="og:url" content="https://security-arts.vercel.app/faq" />
+  <meta property="og:image" content="https://security-arts.vercel.app/og-image.png" />
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="SecurityArts FAQ" />
+  <meta name="twitter:description" content="Plain answers about human-made art seals." />
+  <meta name="twitter:image" content="https://security-arts.vercel.app/og-image.png" />
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300..600;1,9..144,300..500&family=Geist:wght@300..600&family=Geist+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='18' fill='%230c0c0b'/%3E%3Cg fill='none' stroke='%23f4f1e9' stroke-width='4.2'%3E%3Ccircle cx='50' cy='50' r='27'/%3E%3C/g%3E%3Cpath fill='%23f4f1e9' d='M 50 34.5 L 53.76 44.82 L 64.74 45.21 L 56.09 51.98 L 59.11 62.54 L 50 56.4 L 40.89 62.54 L 43.91 51.98 L 35.26 45.21 L 46.24 44.82 Z'/%3E%3C/svg%3E" />
+
+  <script type="application/ld+json">
+  {
+    "@context":"https://schema.org",
+    "@type":"FAQPage",
+    "@id":"https://security-arts.vercel.app/faq#faq",
+    "url":"https://security-arts.vercel.app/faq",
+    "name":"FAQ — SecurityArts seals",
+    "inLanguage":"en-US",
+    "datePublished":"2026-08-07",
+    "dateModified":"2026-09-20",
+    "publisher":{"@id":"https://security-arts.vercel.app/#organization"},
+    "mainEntity":[
+      {"@type":"Question","name":"What is a SecurityArts seal?","acceptedAnswer":{"@type":"Answer","text":"A seal is a cryptographic certificate for a piece of art. SecurityArts computes a SHA-256 fingerprint of the exact image bytes and signs it with an ECDSA P-256 key. The result is a public record — algorithm, hash, signature, signer, and timestamp — that anyone can verify."}},
+      {"@type":"Question","name":"Is SecurityArts an AI detector?","acceptedAnswer":{"@type":"Answer","text":"No. AI detectors estimate a probability and are often wrong. A seal never guesses. It records that a specific account sealed a specific file at a specific time, and proves the bytes haven't changed since. It's a receipt, not a verdict."}},
+      {"@type":"Question","name":"What does a seal actually prove?","acceptedAnswer":{"@type":"Answer","text":"It proves a specific file was sealed by a SecurityArts account at a recorded moment, and that the exact bytes haven't changed since. It doesn't prove originality or resolve copyright — it establishes a verifiable point in time you can point to."}},
+      {"@type":"Question","name":"Does a seal prove a human made the art?","acceptedAnswer":{"@type":"Answer","text":"No. A seal proves that a specific account presented these exact bytes to SecurityArts at a recorded time, and that SecurityArts signed the SHA-256 of those bytes with its key. It can't see how the file was made, so it doesn't prove the work is human-made or original — anyone with an account can seal any file. What it gives you is a dated, checkable record that this exact file was sealed under your account at that moment, which is usually what an accusation turns on."}},
+      {"@type":"Question","name":"Who signs the seal — me or SecurityArts?","acceptedAnswer":{"@type":"Answer","text":"SecurityArts does. Every seal is signed by the SecurityArts service key, and the signer id on the certificate identifies that key — not you. You're identified by your account; you don't hold or manage a signing key. The public key is published at GET /api/seal/pubkey so anyone can check a signature."}},
+      {"@type":"Question","name":"Can a seal be faked or stripped like metadata?","acceptedAnswer":{"@type":"Answer","text":"The signature is verified against the exact image bytes, so altering even one pixel breaks it. Unlike embedded metadata such as C2PA, the proof doesn't live inside the file where it can be stripped — the certificate is hosted and checkable independently."}},
+      {"@type":"Question","name":"How is this different from C2PA / Content Credentials?","acceptedAnswer":{"@type":"Answer","text":"C2PA attaches provenance metadata to the file, which can be removed when the image is re-exported or uploaded to platforms that strip metadata. A SecurityArts seal is a signature over the bytes with a public certificate that lives outside the file, so a platform can't strip it. One limit applies to both: a screenshot or re-encoded copy has different bytes and won't match the seal — the original file does."}},
+      {"@type":"Question","name":"How do I verify someone else's seal?","acceptedAnswer":{"@type":"Answer","text":"Open the work's seal page or use the Verify tool. Anyone can check the signature against the image without an account — verification is public by design."}},
+      {"@type":"Question","name":"Can I verify a seal programmatically?","acceptedAnswer":{"@type":"Answer","text":"Yes. GET /api/verify/<sha256-hex> returns whether a sealed work with that hash exists, whether its signature verifies against the SecurityArts public key, the signer id, and the sealing timestamp. The public key itself is at GET /api/seal/pubkey."}},
+      {"@type":"Question","name":"What files and sizes can I seal?","acceptedAnswer":{"@type":"Answer","text":"Image files. Uploads are currently capped at about 8 MB of encoded data, which works out to image files of roughly 6 MB. Identical bytes can only be sealed once — if a file has already been sealed, you'll be told so rather than issued a second seal."}},
+      {"@type":"Question","name":"Is it free?","acceptedAnswer":{"@type":"Answer","text":"Sealing your work and verifying any seal is free. Paid tiers are not public yet."}},
+      {"@type":"Question","name":"Does sealing my work affect my copyright?","acceptedAnswer":{"@type":"Answer","text":"No. A seal is a timestamped record that your account sealed a specific file; it doesn't transfer, register, or change any rights you already hold in your work."}}
+    ]
+  }
+  </script>
+
+  <style>
+    :root{
+      --ink:#0c0c0b; --ink-2:#131312; --ink-3:#1b1a18;
+      --bone:#f4f1e9; --bone-dim:#a39e92; --bone-faint:#6f6b62;
+      --brass:#c2a14e; --line:rgba(244,241,233,0.12); --line-strong:rgba(244,241,233,0.22);
+      --gutter:clamp(1.25rem,4vw,5rem); --maxw:840px;
+      --serif:"Fraunces","Times New Roman",serif; --sans:"Geist",-apple-system,system-ui,sans-serif; --mono:"Geist Mono",ui-monospace,monospace;
+      --ease:cubic-bezier(0.16,1,0.3,1);
+    }
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+    body{background:var(--ink);color:var(--bone);font-family:var(--sans);font-weight:360;font-size:clamp(1rem,0.95rem+0.25vw,1.125rem);line-height:1.62;-webkit-font-smoothing:antialiased;overflow-x:hidden}
+    a{color:inherit;text-decoration:none}
+    svg{display:block}
+    ::selection{background:var(--brass);color:var(--ink)}
+    :focus-visible{outline:2px solid var(--brass);outline-offset:3px;border-radius:2px}
+
+    .head{position:sticky;top:0;z-index:20;display:flex;align-items:center;gap:1.2rem;padding:1rem var(--gutter);background:color-mix(in srgb,var(--ink) 85%,transparent);backdrop-filter:blur(14px);border-bottom:1px solid var(--line)}
+    .brand{display:inline-flex;align-items:center;gap:0.6rem}
+    .brand svg{width:28px;height:28px}
+    .brand__word{font-family:var(--serif);font-weight:460;font-size:1.28rem;letter-spacing:-0.01em}
+    .head__spacer{margin-left:auto}
+    .head a.nav{font-family:var(--mono);font-size:0.74rem;text-transform:uppercase;letter-spacing:0.12em;color:var(--bone-dim);transition:color 0.25s var(--ease)}
+    .head a.nav:hover{color:var(--bone)}
+    .head .cta{font-family:var(--mono);font-size:0.74rem;text-transform:uppercase;letter-spacing:0.12em;color:var(--ink);background:var(--bone);padding:0.55rem 0.9rem;border-radius:100px;transition:background 0.25s var(--ease)}
+    .head .cta:hover{background:var(--brass)}
+    /* Mobile header: drop the text nav, keep the logo + primary CTA on one line */
+    @media (max-width:720px){
+      .head{gap:0.6rem;padding:0.85rem 1rem}
+      .head a.nav,.head__spacer{display:none}
+      .brand{flex:0 0 auto;gap:0.5rem}
+      .brand svg{width:24px;height:24px}
+      .brand__word{font-size:1.1rem;white-space:nowrap}
+      .head .cta{margin-left:auto;flex:0 0 auto;white-space:nowrap;font-size:0.66rem;letter-spacing:0.08em;padding:0.5rem 0.75rem}
+    }
+    @media (max-width:359px){
+      .brand__word{display:none}
+    }
+
+    main{max-width:var(--maxw);margin-inline:auto;padding:clamp(3rem,7vw,6rem) var(--gutter) 4rem}
+    .eyebrow{font-family:var(--mono);font-size:0.72rem;text-transform:uppercase;letter-spacing:0.2em;color:var(--brass);display:inline-flex;align-items:center;gap:0.6rem;margin-bottom:1.4rem}
+    .eyebrow::before{content:"";width:7px;height:7px;border-radius:50%;background:var(--brass);box-shadow:0 0 0 4px rgba(194,161,78,0.16)}
+    h1{font-family:var(--serif);font-weight:340;font-size:clamp(2.6rem,1rem+5vw,4.4rem);line-height:1;letter-spacing:-0.03em;margin-bottom:1rem}
+    .lede{color:var(--bone-dim);font-size:clamp(1.05rem,0.95rem+0.45vw,1.25rem);max-width:58ch;margin-bottom:3rem}
+
+    .qa{list-style:none;border-top:1px solid var(--line)}
+    .qa details{border-bottom:1px solid var(--line)}
+    .qa summary{cursor:pointer;list-style:none;padding:1.5rem 2.5rem 1.5rem 0;position:relative;font-family:var(--serif);font-weight:420;font-size:clamp(1.2rem,1rem+0.8vw,1.6rem);letter-spacing:-0.015em;color:var(--bone);transition:color 0.2s var(--ease)}
+    .qa summary h3{font:inherit;letter-spacing:inherit;color:inherit;display:inline}
+    .qa summary::-webkit-details-marker{display:none}
+    .qa summary:hover{color:var(--brass)}
+    .qa summary::after{content:"+";position:absolute;right:0;top:1.4rem;font-family:var(--mono);font-size:1.4rem;color:var(--brass);transition:transform 0.3s var(--ease)}
+    .qa details[open] summary::after{transform:rotate(45deg)}
+    .qa__a{color:var(--bone-dim);padding:0 0 1.6rem;max-width:64ch}
+    .qa__a code{font-family:var(--mono);font-size:0.85em;color:var(--bone);background:var(--ink-3);padding:0.1em 0.4em;border-radius:5px}
+
+    .cta-band{margin-top:3.5rem;border-top:1px solid var(--line);padding-top:clamp(2.5rem,5vw,3.5rem);display:flex;flex-wrap:wrap;gap:1rem;align-items:center}
+    .cta-band p{font-family:var(--serif);font-weight:360;font-size:clamp(1.5rem,1rem+2vw,2.2rem);letter-spacing:-0.02em;flex:1 1 300px}
+    .btn{font-family:var(--mono);font-size:0.78rem;text-transform:uppercase;letter-spacing:0.1em;padding:0.9rem 1.5rem;border-radius:100px;border:1px solid transparent;transition:all 0.3s var(--ease);display:inline-flex;align-items:center;gap:0.5rem}
+    .btn--solid{background:var(--bone);color:var(--ink)}
+    .btn--solid:hover{background:var(--brass);transform:translateY(-2px)}
+    .btn--ghost{border-color:var(--line-strong);color:var(--bone)}
+    .btn--ghost:hover{border-color:var(--bone);transform:translateY(-2px)}
+
+    footer{border-top:1px solid var(--line);max-width:var(--maxw);margin:0 auto;padding:2.5rem var(--gutter);display:flex;flex-wrap:wrap;gap:1rem;justify-content:space-between}
+    footer a,footer span{font-family:var(--mono);font-size:0.72rem;text-transform:uppercase;letter-spacing:0.12em;color:var(--bone-faint)}
+    footer a:hover{color:var(--bone-dim)}
+  </style>
+</head>
+<body>
+  <header class="head">
+    <a class="brand" href="/" aria-label="SecurityArts home">
+      <svg viewBox="0 0 100 100" aria-hidden="true"><g fill="none" stroke="currentColor" stroke-width="4.2"><circle cx="50" cy="50" r="27"/></g><path fill="currentColor" d="M 50 34.5 L 53.76 44.82 L 64.74 45.21 L 56.09 51.98 L 59.11 62.54 L 50 56.4 L 40.89 62.54 L 43.91 51.98 L 35.26 45.21 L 46.24 44.82 Z"/></svg>
+      <span class="brand__word">SecurityArts</span>
+    </a>
+    <span class="head__spacer"></span>
+    <a class="nav" href="/how-it-works">How it works</a>
+    <a class="nav" href="/verified">Verified art</a>
+    <a class="cta" href="/join">Get verified</a>
+  </header>
+
+  <main>
+    <p class="eyebrow">FAQ</p>
+    <h1>Questions about the seal.</h1>
+    <p class="lede">Plain answers about what a SecurityArts seal is, what it proves, and what it deliberately doesn't.</p>
+
+    <ul class="qa">
+      <li><details open>
+        <summary><h3>What is a SecurityArts seal?</h3></summary>
+        <div class="qa__a">A seal is a cryptographic certificate for a piece of art. SecurityArts computes a <code>SHA-256</code> fingerprint of the exact image bytes and signs it with an <code>ECDSA P-256</code> key. The result is a public record — algorithm, hash, signature, signer, and timestamp — that anyone can verify.</div>
+      </details></li>
+      <li><details>
+        <summary><h3>Is SecurityArts an AI detector?</h3></summary>
+        <div class="qa__a">No. AI detectors estimate a probability and are often wrong. A seal never guesses. It records that a specific account sealed a specific file at a specific time, and proves the bytes haven't changed since. It's a receipt, not a verdict.</div>
+      </details></li>
+      <li><details>
+        <summary><h3>What does a seal actually prove?</h3></summary>
+        <div class="qa__a">It proves a specific file was sealed by a SecurityArts account at a recorded moment, and that the exact bytes haven't changed since. It doesn't prove originality or resolve copyright — it establishes a verifiable point in time you can point to.</div>
+      </details></li>
+      <li><details>
+        <summary><h3>Does a seal prove a human made the art?</h3></summary>
+        <div class="qa__a">No. A seal proves that a specific account presented these exact bytes to SecurityArts at a recorded time, and that SecurityArts signed the <code>SHA-256</code> of those bytes with its key. It can't see how the file was made, so it doesn't prove the work is human-made or original — anyone with an account can seal any file. What it gives you is a dated, checkable record that this exact file was sealed under your account at that moment, which is usually what an accusation turns on.</div>
+      </details></li>
+      <li><details>
+        <summary><h3>Who signs the seal — me or SecurityArts?</h3></summary>
+        <div class="qa__a">SecurityArts does. Every seal is signed by the SecurityArts service key, and the signer id on the certificate identifies that key — not you. You're identified by your account; you don't hold or manage a signing key. The public key is published at <code>GET /api/seal/pubkey</code> so anyone can check a signature.</div>
+      </details></li>
+      <li><details>
+        <summary><h3>Can a seal be faked or stripped like metadata?</h3></summary>
+        <div class="qa__a">The signature is verified against the exact image bytes, so altering even one pixel breaks it. Unlike embedded metadata such as C2PA, the proof doesn't live inside the file where it can be stripped — the certificate is hosted and checkable independently.</div>
+      </details></li>
+      <li><details>
+        <summary><h3>How is this different from C2PA / Content Credentials?</h3></summary>
+        <div class="qa__a">C2PA attaches provenance metadata to the file, which can be removed when the image is re-exported or uploaded to platforms that strip metadata. A SecurityArts seal is a signature over the bytes with a public certificate that lives outside the file, so a platform can't strip it. One limit applies to both: a screenshot or re-encoded copy has different bytes and won't match the seal — the original file does.</div>
+      </details></li>
+      <li><details>
+        <summary><h3>How do I verify someone else's seal?</h3></summary>
+        <div class="qa__a">Open the work's seal page or use the <a href="/verify" style="color:var(--brass)">Verify</a> tool. Anyone can check the signature against the image without an account — verification is public by design.</div>
+      </details></li>
+      <li><details>
+        <summary><h3>Can I verify a seal programmatically?</h3></summary>
+        <div class="qa__a">Yes. <code>GET /api/verify/&lt;sha256-hex&gt;</code> returns whether a sealed work with that hash exists, whether its signature verifies against the SecurityArts public key, the signer id, and the sealing timestamp. The public key itself is at <code>GET /api/seal/pubkey</code>.</div>
+      </details></li>
+      <li><details>
+        <summary><h3>What files and sizes can I seal?</h3></summary>
+        <div class="qa__a">Image files. Uploads are currently capped at about 8 MB of encoded data, which works out to image files of roughly 6 MB. Identical bytes can only be sealed once — if a file has already been sealed, you'll be told so rather than issued a second seal.</div>
+      </details></li>
+      <li><details>
+        <summary><h3>Is it free?</h3></summary>
+        <div class="qa__a">Sealing your work and verifying any seal is free. Paid tiers are not public yet.</div>
+      </details></li>
+      <li><details>
+        <summary><h3>Does sealing my work affect my copyright?</h3></summary>
+        <div class="qa__a">No. A seal is a timestamped record that your account sealed a specific file; it doesn't transfer, register, or change any rights you already hold in your work.</div>
+      </details></li>
+    </ul>
+
+    <div class="cta-band">
+      <p>Ready when they say it's AI.</p>
+      <a class="btn btn--solid" href="/join">Get your work verified →</a>
+      <a class="btn btn--ghost" href="/how-it-works">How it works</a>
+    </div>
+  </main>
+
+  <footer>
+    <a href="/">← SecurityArts</a>
+    <a href="/how-it-works">How it works</a>
+    <span>Updated <time datetime="2026-09-20">20 Sep 2026</time></span>
+    <span>Authentic · Verified · Human</span>
+  </footer>
+</body>
+</html>

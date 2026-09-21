@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Detection &amp; Response — detection engineering &amp; threat hunting · SecurityArts</title>
+  <meta name="description" content="Detection engineering, threat hunting, and incident-response readiness that close the gap between breach and alert — plus the runbooks for the night it matters. Mapped to MITRE ATT&CK and sealed." />
+
+  <link rel="canonical" href="https://security-arts.vercel.app/services/detection-response" />
+  <meta property="og:type" content="website" />
+  <meta property="og:site_name" content="SecurityArts" />
+  <meta property="og:title" content="Detection &amp; Response — SecurityArts" />
+  <meta property="og:description" content="Detection engineering, threat hunting, and IR readiness — close the gap between breach and alert. Sealed and re-testable." />
+  <meta property="og:url" content="https://security-arts.vercel.app/services/detection-response" />
+  <meta property="og:image" content="https://security-arts.vercel.app/og-image.png" />
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="Detection &amp; Response — SecurityArts" />
+  <meta name="twitter:description" content="Close the gap between breach and alert." />
+  <meta name="twitter:image" content="https://security-arts.vercel.app/og-image.png" />
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300..600;1,9..144,300..500&family=Geist:wght@300..600&family=Geist+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='18' fill='%230c0c0b'/%3E%3Cg fill='none' stroke='%23f4f1e9' stroke-width='4.2'%3E%3Ccircle cx='50' cy='50' r='27'/%3E%3C/g%3E%3Cpath fill='%23f4f1e9' d='M 50 34.5 L 53.76 44.82 L 64.74 45.21 L 56.09 51.98 L 59.11 62.54 L 50 56.4 L 40.89 62.54 L 43.91 51.98 L 35.26 45.21 L 46.24 44.82 Z'/%3E%3C/svg%3E" />
+
+  <script type="application/ld+json">
+  {"@context":"https://schema.org","@type":"Service","@id":"https://security-arts.vercel.app/services/detection-response#service","url":"https://security-arts.vercel.app/services/detection-response","serviceType":"Detection and Response","name":"SecurityArts Detection & Response","description":"Detection engineering, threat hunting and incident-response readiness mapped to MITRE ATT&CK, closing the gap between breach and alert and closed with a verifiable seal.","provider":{"@id":"https://security-arts.vercel.app/#organization"},"areaServed":"Worldwide"}
+  </script>
+  <script type="application/ld+json">
+  {"@context":"https://schema.org","@type":"FAQPage","url":"https://security-arts.vercel.app/services/detection-response","dateModified":"2026-09-20","about":{"@id":"https://security-arts.vercel.app/services/detection-response#service"},"mainEntity":[
+    {"@type":"Question","name":"Do you replace our SOC?","acceptedAnswer":{"@type":"Answer","text":"No — we make the SOC you have (or the tooling you run) measurably better. We engineer detections, hunt for what's slipping through, and leave runbooks your team owns."}},
+    {"@type":"Question","name":"What do we actually get?","acceptedAnswer":{"@type":"Answer","text":"Tuned detections mapped to MITRE ATT&CK, threat-hunt findings, incident-response runbooks, and a sealed record of coverage — what you can detect now, and where the gaps still are."}},
+    {"@type":"Question","name":"Can you test our existing detections?","acceptedAnswer":{"@type":"Answer","text":"Yes. Purple-team style, we emulate specific ATT&CK techniques and measure what your stack catches, alerts on, or misses — then close the gaps and re-issue the seal."}}
+  ]}
+  </script>
+
+  <style>
+    :root{--ink:#0c0c0b;--ink-2:#131312;--ink-3:#1b1a18;--bone:#f4f1e9;--bone-dim:#a39e92;--bone-faint:#6f6b62;--brass:#c2a14e;--line:rgba(244,241,233,0.12);--line-strong:rgba(244,241,233,0.22);--gutter:clamp(1.25rem,4vw,5rem);--maxw:1040px;--serif:"Fraunces","Times New Roman",serif;--sans:"Geist",-apple-system,system-ui,sans-serif;--mono:"Geist Mono",ui-monospace,monospace;--ease:cubic-bezier(0.16,1,0.3,1)}
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+    body{background:var(--ink);color:var(--bone);font-family:var(--sans);font-weight:360;font-size:clamp(1rem,0.95rem+0.25vw,1.125rem);line-height:1.62;-webkit-font-smoothing:antialiased;overflow-x:hidden}
+    a{color:inherit;text-decoration:none}svg{display:block}::selection{background:var(--brass);color:var(--ink)}
+    :focus-visible{outline:2px solid var(--brass);outline-offset:3px;border-radius:2px}
+    .head{position:sticky;top:0;z-index:20;display:flex;align-items:center;gap:1.2rem;padding:1rem var(--gutter);background:color-mix(in srgb,var(--ink) 85%,transparent);backdrop-filter:blur(14px);border-bottom:1px solid var(--line)}
+    .brand{display:inline-flex;align-items:center;gap:0.6rem}.brand svg{width:28px;height:28px}
+    .brand__word{font-family:var(--serif);font-weight:460;font-size:1.28rem;letter-spacing:-0.01em}
+    .head__spacer{margin-left:auto}
+    .head a.nav{font-family:var(--mono);font-size:0.74rem;text-transform:uppercase;letter-spacing:0.12em;color:var(--bone-dim);transition:color 0.25s var(--ease)}
+    .head a.nav:hover{color:var(--bone)}
+    .head .cta{font-family:var(--mono);font-size:0.74rem;text-transform:uppercase;letter-spacing:0.12em;color:var(--ink);background:var(--bone);padding:0.55rem 0.9rem;border-radius:100px;transition:background 0.25s var(--ease)}
+    .head .cta:hover{background:var(--brass)}
+    /* Mobile header: drop the text nav, keep the logo + primary CTA on one line */
+    @media (max-width:720px){
+      .head{gap:0.6rem;padding:0.85rem 1rem}
+      .head a.nav,.head__spacer{display:none}
+      .brand{flex:0 0 auto;gap:0.5rem}
+      .brand svg{width:24px;height:24px}
+      .brand__word{font-size:1.1rem;white-space:nowrap}
+      .head .cta{margin-left:auto;flex:0 0 auto;white-space:nowrap;font-size:0.66rem;letter-spacing:0.08em;padding:0.5rem 0.75rem}
+    }
+    @media (max-width:359px){
+      .brand__word{display:none}
+    }
+    main{max-width:var(--maxw);margin-inline:auto;padding:clamp(3rem,7vw,6rem) var(--gutter) 4rem}
+    .crumb{font-family:var(--mono);font-size:0.66rem;text-transform:uppercase;letter-spacing:0.14em;color:var(--bone-faint);margin-bottom:1.6rem}.crumb a:hover{color:var(--bone-dim)}
+    .eyebrow{font-family:var(--mono);font-size:0.72rem;text-transform:uppercase;letter-spacing:0.2em;color:var(--brass);display:inline-flex;align-items:center;gap:0.6rem;margin-bottom:1.4rem}
+    .eyebrow::before{content:"";width:7px;height:7px;border-radius:50%;background:var(--brass);box-shadow:0 0 0 4px rgba(194,161,78,0.16)}
+    h1{font-family:var(--serif);font-weight:340;font-size:clamp(2.6rem,1rem+6vw,5rem);line-height:0.98;letter-spacing:-0.03em;margin-bottom:1.3rem}h1 em{color:var(--brass);font-style:italic}
+    .lede{color:var(--bone-dim);font-size:clamp(1.05rem,0.95rem+0.5vw,1.3rem);max-width:62ch;margin-bottom:2.4rem}
+    .actions{display:flex;flex-wrap:wrap;gap:0.9rem;margin-bottom:3.5rem}
+    .btn{font-family:var(--mono);font-size:0.78rem;text-transform:uppercase;letter-spacing:0.1em;padding:0.9rem 1.5rem;border-radius:100px;border:1px solid transparent;transition:all 0.3s var(--ease);display:inline-flex;align-items:center;gap:0.5rem}
+    .btn--solid{background:var(--bone);color:var(--ink)}.btn--solid:hover{background:var(--brass);transform:translateY(-2px)}
+    .btn--ghost{border-color:var(--line-strong);color:var(--bone)}.btn--ghost:hover{border-color:var(--bone);transform:translateY(-2px)}
+    .h2{font-family:var(--serif);font-weight:380;font-size:clamp(1.7rem,1rem+2.4vw,2.8rem);letter-spacing:-0.02em;line-height:1.05;margin:0 0 1.6rem}
+    section.block{padding:clamp(2.5rem,5vw,4rem) 0;border-top:1px solid var(--line)}
+    .cols{display:grid;grid-template-columns:1fr;gap:1px;background:var(--line);border:1px solid var(--line);border-radius:14px;overflow:hidden}
+    @media(min-width:720px){.cols{grid-template-columns:1fr 1fr}}
+    .cell{background:var(--ink);padding:clamp(1.5rem,3vw,2.2rem)}
+    .cell h3{font-family:var(--serif);font-weight:420;font-size:1.3rem;letter-spacing:-0.015em;margin-bottom:0.7rem}.cell p{color:var(--bone-dim);font-size:0.97rem}
+    .steps{list-style:none;counter-reset:s;display:grid;gap:1.2rem}
+    .steps li{display:grid;grid-template-columns:auto 1fr;gap:1.2rem;align-items:baseline}
+    .steps li::before{counter-increment:s;content:counter(s,decimal-leading-zero);font-family:var(--mono);font-size:0.8rem;color:var(--brass)}
+    .steps b{font-family:var(--serif);font-weight:440;font-size:1.1rem}.steps span{color:var(--bone-dim)}
+    .frameworks{list-style:none;display:flex;flex-wrap:wrap;gap:0.6rem;margin-top:0.4rem}
+    .frameworks li{font-family:var(--mono);font-size:0.72rem;text-transform:uppercase;letter-spacing:0.08em;color:var(--bone-dim);border:1px solid var(--line-strong);padding:0.4rem 0.8rem;border-radius:100px}
+    .seal-note{border:1px solid var(--brass);border-radius:14px;background:linear-gradient(160deg,#19150d,var(--ink-2) 70%);padding:clamp(1.6rem,3vw,2.4rem);margin-top:1.5rem}
+    .seal-note b{color:var(--bone)}.seal-note p{color:var(--bone-dim)}
+    .qa{max-width:72ch}
+    .qa h3{font-family:var(--serif);font-weight:420;font-size:1.3rem;letter-spacing:-0.015em;margin:1.6rem 0 0.5rem}.qa h3:first-child{margin-top:0}
+    .qa p{color:var(--bone-dim)}
+    .cta-band{border-top:1px solid var(--line);padding-top:clamp(2.5rem,5vw,3.5rem);margin-top:1rem;display:flex;flex-wrap:wrap;gap:1rem;align-items:center}
+    .cta-band p{font-family:var(--serif);font-weight:360;font-size:clamp(1.5rem,1rem+2vw,2.4rem);letter-spacing:-0.02em;flex:1 1 320px}
+    footer{border-top:1px solid var(--line);max-width:var(--maxw);margin:0 auto;padding:2.5rem var(--gutter);display:flex;flex-wrap:wrap;gap:1rem;justify-content:space-between}
+    footer a,footer span{font-family:var(--mono);font-size:0.72rem;text-transform:uppercase;letter-spacing:0.12em;color:var(--bone-faint)}footer a:hover{color:var(--bone-dim)}
+  </style>
+</head>
+<body>
+  <header class="head">
+    <a class="brand" href="/" aria-label="SecurityArts home">
+      <svg viewBox="0 0 100 100" aria-hidden="true"><g fill="none" stroke="currentColor" stroke-width="4.2"><circle cx="50" cy="50" r="27"/></g><path fill="currentColor" d="M 50 34.5 L 53.76 44.82 L 64.74 45.21 L 56.09 51.98 L 59.11 62.54 L 50 56.4 L 40.89 62.54 L 43.91 51.98 L 35.26 45.21 L 46.24 44.82 Z"/></svg>
+      <span class="brand__word">SecurityArts</span>
+    </a>
+    <span class="head__spacer"></span>
+    <a class="nav" href="/#practice">Practice</a>
+    <a class="nav" href="/#seal">The Seal</a>
+    <a class="cta" href="/#contact">Request an engagement</a>
+  </header>
+
+  <main>
+    <p class="crumb"><a href="/">SecurityArts</a> / Practice / Detection &amp; Response</p>
+    <p class="eyebrow">Detection &amp; Response</p>
+    <h1>Close the gap between<br />breach and <em>alert.</em></h1>
+    <p class="lede">
+      Detection engineering and threat hunting that shrink the time between compromise
+      and the moment you know — plus the runbooks for the night it matters. We measure
+      what your stack really catches, then close the gaps and seal the coverage.
+    </p>
+    <div class="actions">
+      <a class="btn btn--solid" href="/#contact">Request an engagement →</a>
+      <a class="btn btn--ghost" href="/#seal">What the seal is</a>
+    </div>
+
+    <section class="block">
+      <h2 class="h2">What the engagement covers</h2>
+      <div class="cols">
+        <div class="cell"><h3>Detection engineering</h3><p>High-signal detections mapped to MITRE ATT&amp;CK — tuned to your environment, not vendor defaults.</p></div>
+        <div class="cell"><h3>Threat hunting</h3><p>Hypothesis-driven hunts for what's already slipping past your alerts.</p></div>
+        <div class="cell"><h3>IR readiness</h3><p>Runbooks, roles, and tabletop rehearsal so the response isn't improvised at 3am.</p></div>
+        <div class="cell"><h3>Purple teaming</h3><p>Emulate specific techniques and measure exactly what your stack detects, alerts on, or misses.</p></div>
+      </div>
+    </section>
+
+    <section class="block">
+      <h2 class="h2">How the engagement runs</h2>
+      <ol class="steps">
+        <li><span><b>Scope to an outcome.</b> Agree the techniques and assets that matter most — a named goal, not a bundle of hours.</span></li>
+        <li><span><b>Emulate &amp; engineer.</b> Run the attacks, measure coverage, build and tune the detections that were missing.</span></li>
+        <li><span><b>Seal.</b> A signed, dated record: what you can detect now, and where the gaps still are.</span></li>
+        <li><span><b>Re-test.</b> Re-run the emulation and re-issue the seal — proof the coverage held.</span></li>
+      </ol>
+    </section>
+
+    <section class="block">
+      <h2 class="h2">Mapped to the standards your auditors trust</h2>
+      <p class="lede" style="margin-bottom:1rem">Coverage aligns to the frameworks an auditor or enterprise buyer recognizes.</p>
+      <ul class="frameworks"><li>MITRE ATT&amp;CK</li><li>MITRE D3FEND</li><li>NIST CSF · Detect/Respond</li><li>SOC 2</li></ul>
+      <div class="seal-note"><p><b>The seal is the deliverable.</b> Verifiable, honest about what's still open, and durable across re-tests — evidence you can hand an auditor or an enterprise customer.</p></div>
+    </section>
+
+    <section class="block" id="questions">
+      <h2 class="h2">Questions</h2>
+      <div class="qa">
+        <h3>Do you replace our SOC?</h3>
+        <p>No — we make the SOC you have (or the tooling you run) measurably better. We engineer detections, hunt for what's slipping through, and leave runbooks your team owns.</p>
+        <h3>What do we actually get?</h3>
+        <p>Tuned detections mapped to MITRE ATT&amp;CK, threat-hunt findings, incident-response runbooks, and a sealed record of coverage — what you can detect now, and where the gaps still are.</p>
+        <h3>Can you test our existing detections?</h3>
+        <p>Yes. Purple-team style, we emulate specific ATT&amp;CK techniques and measure what your stack catches, alerts on, or misses — then close the gaps and re-issue the seal.</p>
+      </div>
+    </section>
+
+    <div class="cta-band">
+      <p>Tell us what you'd need to catch.</p>
+      <a class="btn btn--solid" href="/#contact">Request an engagement →</a>
+      <a class="btn btn--ghost" href="/#practice">All disciplines</a>
+    </div>
+  </main>
+
+  <footer>
+    <a href="/">← SecurityArts</a>
+    <a href="/#practice">All disciplines</a>
+    <span>Verifiable · Honest · Durable</span>
+  </footer>
+</body>
+</html>

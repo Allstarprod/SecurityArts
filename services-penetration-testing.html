@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Penetration Testing — a pentest you can re-run · SecurityArts</title>
+  <meta name="description" content="Boutique penetration testing scoped to a named outcome, mapped to OWASP, MITRE ATT&CK, NIST and SOC 2. Every engagement ends in a verifiable, re-testable seal — not a PDF you file away." />
+
+  <link rel="canonical" href="https://security-arts.vercel.app/services/penetration-testing" />
+  <meta property="og:type" content="website" />
+  <meta property="og:site_name" content="SecurityArts" />
+  <meta property="og:title" content="Penetration Testing — a pentest you can re-run" />
+  <meta property="og:description" content="Boutique pentesting scoped to an outcome, mapped to the frameworks your auditors trust, sealed and re-testable." />
+  <meta property="og:url" content="https://security-arts.vercel.app/services/penetration-testing" />
+  <meta property="og:image" content="https://security-arts.vercel.app/og-image.png" />
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="Penetration Testing — SecurityArts" />
+  <meta name="twitter:description" content="A pentest you can re-run. Proof you can keep." />
+  <meta name="twitter:image" content="https://security-arts.vercel.app/og-image.png" />
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300..600;1,9..144,300..500&family=Geist:wght@300..600&family=Geist+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='18' fill='%230c0c0b'/%3E%3Cg fill='none' stroke='%23f4f1e9' stroke-width='4.2'%3E%3Ccircle cx='50' cy='50' r='27'/%3E%3C/g%3E%3Cpath fill='%23f4f1e9' d='M 50 34.5 L 53.76 44.82 L 64.74 45.21 L 56.09 51.98 L 59.11 62.54 L 50 56.4 L 40.89 62.54 L 43.91 51.98 L 35.26 45.21 L 46.24 44.82 Z'/%3E%3C/svg%3E" />
+
+  <script type="application/ld+json">
+  {
+    "@context":"https://schema.org",
+    "@type":"Service",
+    "@id":"https://security-arts.vercel.app/services/penetration-testing#service",
+    "url":"https://security-arts.vercel.app/services/penetration-testing",
+    "serviceType":"Penetration Testing",
+    "name":"SecurityArts Penetration Testing",
+    "description":"Boutique penetration testing scoped to a named outcome and mapped to OWASP, MITRE ATT&CK, NIST CSF and SOC 2. Every engagement closes with a verifiable, re-testable seal.",
+    "provider":{"@id":"https://security-arts.vercel.app/#organization"},
+    "areaServed":"Worldwide",
+    "audience":{"@type":"Audience","audienceType":"Startups and scaleups shipping software"}
+  }
+  </script>
+  <script type="application/ld+json">
+  {
+    "@context":"https://schema.org",
+    "@type":"FAQPage",
+    "url":"https://security-arts.vercel.app/services/penetration-testing",
+    "dateModified":"2026-09-20",
+    "about":{"@id":"https://security-arts.vercel.app/services/penetration-testing#service"},
+    "mainEntity":[
+      {"@type":"Question","name":"How is a SecurityArts pentest different from a commodity pentest?","acceptedAnswer":{"@type":"Answer","text":"We attack the way a real adversary would — goal-oriented, not a checklist sweep — and scope every engagement to a named outcome. You get a verifiable, re-testable seal instead of a static PDF, so you can prove a fix actually held."}},
+      {"@type":"Question","name":"Will this satisfy a SOC 2 or ISO 27001 audit?","acceptedAnswer":{"@type":"Answer","text":"Our testing maps to the frameworks auditors already trust — OWASP, MITRE ATT&CK, NIST CSF, ISO 27001, SOC 2 and CIS Benchmarks — and the sealed record gives you evidence you can hand an auditor or an enterprise customer."}},
+      {"@type":"Question","name":"What is the seal?","acceptedAnswer":{"@type":"Answer","text":"Every engagement closes in a signed, dated record of what was tested, what was proven safe, and what is still open. A retest re-issues the seal, so it is a living record rather than a one-day snapshot."}}
+    ]
+  }
+  </script>
+
+  <style>
+    :root{
+      --ink:#0c0c0b; --ink-2:#131312; --ink-3:#1b1a18;
+      --bone:#f4f1e9; --bone-dim:#a39e92; --bone-faint:#6f6b62;
+      --brass:#c2a14e; --line:rgba(244,241,233,0.12); --line-strong:rgba(244,241,233,0.22);
+      --gutter:clamp(1.25rem,4vw,5rem); --maxw:1040px;
+      --serif:"Fraunces","Times New Roman",serif; --sans:"Geist",-apple-system,system-ui,sans-serif; --mono:"Geist Mono",ui-monospace,monospace;
+      --ease:cubic-bezier(0.16,1,0.3,1);
+    }
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+    body{background:var(--ink);color:var(--bone);font-family:var(--sans);font-weight:360;font-size:clamp(1rem,0.95rem+0.25vw,1.125rem);line-height:1.62;-webkit-font-smoothing:antialiased;overflow-x:hidden}
+    a{color:inherit;text-decoration:none}
+    svg{display:block}
+    ::selection{background:var(--brass);color:var(--ink)}
+    :focus-visible{outline:2px solid var(--brass);outline-offset:3px;border-radius:2px}
+
+    .head{position:sticky;top:0;z-index:20;display:flex;align-items:center;gap:1.2rem;padding:1rem var(--gutter);background:color-mix(in srgb,var(--ink) 85%,transparent);backdrop-filter:blur(14px);border-bottom:1px solid var(--line)}
+    .brand{display:inline-flex;align-items:center;gap:0.6rem}
+    .brand svg{width:28px;height:28px}
+    .brand__word{font-family:var(--serif);font-weight:460;font-size:1.28rem;letter-spacing:-0.01em}
+    .head__spacer{margin-left:auto}
+    .head a.nav{font-family:var(--mono);font-size:0.74rem;text-transform:uppercase;letter-spacing:0.12em;color:var(--bone-dim);transition:color 0.25s var(--ease)}
+    .head a.nav:hover{color:var(--bone)}
+    .head .cta{font-family:var(--mono);font-size:0.74rem;text-transform:uppercase;letter-spacing:0.12em;color:var(--ink);background:var(--bone);padding:0.55rem 0.9rem;border-radius:100px;transition:background 0.25s var(--ease)}
+    .head .cta:hover{background:var(--brass)}
+    /* Mobile header: drop the text nav, keep the logo + primary CTA on one line */
+    @media (max-width:720px){
+      .head{gap:0.6rem;padding:0.85rem 1rem}
+      .head a.nav,.head__spacer{display:none}
+      .brand{flex:0 0 auto;gap:0.5rem}
+      .brand svg{width:24px;height:24px}
+      .brand__word{font-size:1.1rem;white-space:nowrap}
+      .head .cta{margin-left:auto;flex:0 0 auto;white-space:nowrap;font-size:0.66rem;letter-spacing:0.08em;padding:0.5rem 0.75rem}
+    }
+    @media (max-width:359px){
+      .brand__word{display:none}
+    }
+
+    main{max-width:var(--maxw);margin-inline:auto;padding:clamp(3rem,7vw,6rem) var(--gutter) 4rem}
+    .crumb{font-family:var(--mono);font-size:0.66rem;text-transform:uppercase;letter-spacing:0.14em;color:var(--bone-faint);margin-bottom:1.6rem}
+    .crumb a:hover{color:var(--bone-dim)}
+    .eyebrow{font-family:var(--mono);font-size:0.72rem;text-transform:uppercase;letter-spacing:0.2em;color:var(--brass);display:inline-flex;align-items:center;gap:0.6rem;margin-bottom:1.4rem}
+    .eyebrow::before{content:"";width:7px;height:7px;border-radius:50%;background:var(--brass);box-shadow:0 0 0 4px rgba(194,161,78,0.16)}
+    h1{font-family:var(--serif);font-weight:340;font-size:clamp(2.6rem,1rem+6vw,5rem);line-height:0.98;letter-spacing:-0.03em;margin-bottom:1.3rem}
+    h1 em{color:var(--brass);font-style:italic}
+    .lede{color:var(--bone-dim);font-size:clamp(1.05rem,0.95rem+0.5vw,1.3rem);max-width:62ch;margin-bottom:2.4rem}
+    .actions{display:flex;flex-wrap:wrap;gap:0.9rem;margin-bottom:3.5rem}
+    .btn{font-family:var(--mono);font-size:0.78rem;text-transform:uppercase;letter-spacing:0.1em;padding:0.9rem 1.5rem;border-radius:100px;border:1px solid transparent;transition:all 0.3s var(--ease);display:inline-flex;align-items:center;gap:0.5rem}
+    .btn--solid{background:var(--bone);color:var(--ink)}
+    .btn--solid:hover{background:var(--brass);transform:translateY(-2px)}
+    .btn--ghost{border-color:var(--line-strong);color:var(--bone)}
+    .btn--ghost:hover{border-color:var(--bone);transform:translateY(-2px)}
+
+    .h2{font-family:var(--serif);font-weight:380;font-size:clamp(1.7rem,1rem+2.4vw,2.8rem);letter-spacing:-0.02em;line-height:1.05;margin:0 0 1.6rem}
+    section.block{padding:clamp(2.5rem,5vw,4rem) 0;border-top:1px solid var(--line)}
+
+    .cols{display:grid;grid-template-columns:1fr;gap:1px;background:var(--line);border:1px solid var(--line);border-radius:14px;overflow:hidden}
+    @media(min-width:720px){.cols{grid-template-columns:1fr 1fr}}
+    .cell{background:var(--ink);padding:clamp(1.5rem,3vw,2.2rem)}
+    .cell h3{font-family:var(--serif);font-weight:420;font-size:1.3rem;letter-spacing:-0.015em;margin-bottom:0.7rem}
+    .cell p{color:var(--bone-dim);font-size:0.97rem}
+
+    .steps{list-style:none;counter-reset:s;display:grid;gap:1.2rem}
+    .steps li{display:grid;grid-template-columns:auto 1fr;gap:1.2rem;align-items:baseline}
+    .steps li::before{counter-increment:s;content:counter(s,decimal-leading-zero);font-family:var(--mono);font-size:0.8rem;color:var(--brass)}
+    .steps b{font-family:var(--serif);font-weight:440;font-size:1.1rem}
+    .steps span{color:var(--bone-dim)}
+
+    .frameworks{list-style:none;display:flex;flex-wrap:wrap;gap:0.6rem;margin-top:0.4rem}
+    .frameworks li{font-family:var(--mono);font-size:0.72rem;text-transform:uppercase;letter-spacing:0.08em;color:var(--bone-dim);border:1px solid var(--line-strong);padding:0.4rem 0.8rem;border-radius:100px}
+
+    .seal-note{border:1px solid var(--brass);border-radius:14px;background:linear-gradient(160deg,#19150d,var(--ink-2) 70%);padding:clamp(1.6rem,3vw,2.4rem);margin-top:1.5rem}
+    .seal-note b{color:var(--bone)}
+    .seal-note p{color:var(--bone-dim)}
+
+    .qa{max-width:72ch}
+    .qa h3{font-family:var(--serif);font-weight:420;font-size:1.3rem;letter-spacing:-0.015em;margin:1.6rem 0 0.5rem}
+    .qa h3:first-child{margin-top:0}
+    .qa p{color:var(--bone-dim)}
+
+    .cta-band{border-top:1px solid var(--line);padding-top:clamp(2.5rem,5vw,3.5rem);margin-top:1rem;display:flex;flex-wrap:wrap;gap:1rem;align-items:center}
+    .cta-band p{font-family:var(--serif);font-weight:360;font-size:clamp(1.5rem,1rem+2vw,2.4rem);letter-spacing:-0.02em;flex:1 1 320px}
+
+    footer{border-top:1px solid var(--line);max-width:var(--maxw);margin:0 auto;padding:2.5rem var(--gutter);display:flex;flex-wrap:wrap;gap:1rem;justify-content:space-between}
+    footer a,footer span{font-family:var(--mono);font-size:0.72rem;text-transform:uppercase;letter-spacing:0.12em;color:var(--bone-faint)}
+    footer a:hover{color:var(--bone-dim)}
+  </style>
+</head>
+<body>
+  <header class="head">
+    <a class="brand" href="/" aria-label="SecurityArts home">
+      <svg viewBox="0 0 100 100" aria-hidden="true"><g fill="none" stroke="currentColor" stroke-width="4.2"><circle cx="50" cy="50" r="27"/></g><path fill="currentColor" d="M 50 34.5 L 53.76 44.82 L 64.74 45.21 L 56.09 51.98 L 59.11 62.54 L 50 56.4 L 40.89 62.54 L 43.91 51.98 L 35.26 45.21 L 46.24 44.82 Z"/></svg>
+      <span class="brand__word">SecurityArts</span>
+    </a>
+    <span class="head__spacer"></span>
+    <a class="nav" href="/#practice">Practice</a>
+    <a class="nav" href="/#seal">The Seal</a>
+    <a class="cta" href="/#contact">Request an engagement</a>
+  </header>
+
+  <main>
+    <p class="crumb"><a href="/">SecurityArts</a> / Practice / Penetration Testing</p>
+    <p class="eyebrow">Offensive Security</p>
+    <h1>A pentest you can<br /><em>re-run.</em> Proof you keep.</h1>
+    <p class="lede">
+      Most penetration tests end in a PDF nobody re-opens. We attack what you've built
+      the way a real adversary would — goal-oriented, not a checklist sweep — scope the
+      engagement to a named outcome, and close it in a verifiable, re-testable seal you
+      can hand an auditor or an enterprise customer.
+    </p>
+    <div class="actions">
+      <a class="btn btn--solid" href="/#contact">Request an engagement →</a>
+      <a class="btn btn--ghost" href="/#seal">What the seal is</a>
+    </div>
+
+    <section class="block">
+      <h2 class="h2">What a full-scope engagement covers</h2>
+      <div class="cols">
+        <div class="cell"><h3>External &amp; internal</h3><p>Internet-facing surface and internal network paths — the way an attacker chains a foothold into the crown jewels.</p></div>
+        <div class="cell"><h3>Web &amp; API</h3><p>Application logic, authn/authz, injection, and business-logic abuse across your web app and APIs.</p></div>
+        <div class="cell"><h3>Cloud &amp; identity</h3><p>AWS, GCP and Azure attack paths — IAM, misconfiguration, and privilege escalation, reviewed against real exploitation.</p></div>
+        <div class="cell"><h3>Adversary simulation</h3><p>Goal-oriented red teaming and social engineering when you want to test detection and response, not just findings.</p></div>
+      </div>
+    </section>
+
+    <section class="block">
+      <h2 class="h2">How the engagement runs</h2>
+      <ol class="steps">
+        <li><span><b>Scope to an outcome.</b> We agree on what "secure enough" means for this engagement — a named goal, not a fixed bundle of hours.</span></li>
+        <li><span><b>Attack.</b> Manual, adversary-style testing with the path written down as we go — reproducible, not a scanner dump.</span></li>
+        <li><span><b>Seal.</b> You get a signed, dated record: what was tested, what was proven safe, what is still open.</span></li>
+        <li><span><b>Re-test.</b> Fix the findings and we re-issue the seal — proof the fix actually held, not a one-day snapshot.</span></li>
+      </ol>
+    </section>
+
+    <section class="block">
+      <h2 class="h2">Mapped to the frameworks your auditors trust</h2>
+      <p class="lede" style="margin-bottom:1rem">Testing and reporting align to the standards an auditor or enterprise buyer already recognizes — so the seal is evidence they accept.</p>
+      <ul class="frameworks">
+        <li>OWASP</li><li>MITRE ATT&amp;CK</li><li>NIST CSF</li><li>ISO 27001</li><li>SOC 2</li><li>CIS Benchmarks</li>
+      </ul>
+      <div class="seal-note">
+        <p><b>The seal is the deliverable.</b> A notary's stamp says a person stood here and verified this. Ours says the same about your systems — verifiable, honest about what's still open, and durable across re-tests.</p>
+      </div>
+    </section>
+
+    <section class="block" id="questions">
+      <h2 class="h2">Questions</h2>
+      <div class="qa">
+        <h3>How is a SecurityArts pentest different from a commodity pentest?</h3>
+        <p>We attack the way a real adversary would — goal-oriented, not a checklist sweep — and scope every engagement to a named outcome. You get a verifiable, re-testable seal instead of a static PDF, so you can prove a fix actually held.</p>
+        <h3>Will this satisfy a SOC 2 or ISO 27001 audit?</h3>
+        <p>Our testing maps to the frameworks auditors already trust — OWASP, MITRE ATT&amp;CK, NIST CSF, ISO 27001, SOC 2 and CIS Benchmarks — and the sealed record gives you evidence you can hand an auditor or an enterprise customer.</p>
+        <h3>What is the seal?</h3>
+        <p>Every engagement closes in a signed, dated record of what was tested, what was proven safe, and what is still open. A retest re-issues the seal, so it is a living record rather than a one-day snapshot.</p>
+      </div>
+    </section>
+
+    <div class="cta-band">
+      <p>Tell us what you're protecting.</p>
+      <a class="btn btn--solid" href="/#contact">Request an engagement →</a>
+      <a class="btn btn--ghost" href="/#contact">Ask about scope</a>
+    </div>
+  </main>
+
+  <footer>
+    <a href="/">← SecurityArts</a>
+    <a href="/#practice">All disciplines</a>
+    <span>Verifiable · Honest · Durable</span>
+  </footer>
+</body>
+</html>

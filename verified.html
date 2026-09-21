@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Prove your art is human — SecurityArts</title>
+  <meta name="description" content="When someone says your work is AI, show the receipt. SecurityArts seals a piece with a public cryptographic certificate anyone can verify — who sealed which file, and when. Free." />
+
+  <link rel="canonical" href="https://security-arts.vercel.app/verified" />
+  <meta property="og:type" content="website" />
+  <meta property="og:site_name" content="SecurityArts" />
+  <meta property="og:title" content="Prove your art is human — show the receipt" />
+  <meta property="og:description" content="A public cryptographic certificate anyone can verify. When they say it's AI, point at the seal instead of arguing. Free." />
+  <meta property="og:url" content="https://security-arts.vercel.app/verified" />
+  <meta property="og:image" content="https://security-arts.vercel.app/og-image.png" />
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="Prove your art is human — SecurityArts" />
+  <meta name="twitter:description" content="When they say it's AI, show the receipt." />
+  <meta name="twitter:image" content="https://security-arts.vercel.app/og-image.png" />
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300..600;1,9..144,300..500&family=Geist:wght@300..600&family=Geist+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='18' fill='%230c0c0b'/%3E%3Cg fill='none' stroke='%23f4f1e9' stroke-width='4.2'%3E%3Ccircle cx='50' cy='50' r='27'/%3E%3C/g%3E%3Cpath fill='%23f4f1e9' d='M 50 34.5 L 53.76 44.82 L 64.74 45.21 L 56.09 51.98 L 59.11 62.54 L 50 56.4 L 40.89 62.54 L 43.91 51.98 L 35.26 45.21 L 46.24 44.82 Z'/%3E%3C/svg%3E" />
+
+  <script type="application/ld+json">
+  {
+    "@context":"https://schema.org",
+    "@type":["WebPage","FAQPage"],
+    "@id":"https://security-arts.vercel.app/verified#webpage",
+    "url":"https://security-arts.vercel.app/verified",
+    "name":"Prove your art is human — SecurityArts",
+    "description":"SecurityArts seals a finished piece — a SHA-256 hash of the exact bytes, signed with an ECDSA P-256 key — and gives the artist a public certificate anyone can verify: who sealed which file, and when.",
+    "inLanguage":"en-US",
+    "datePublished":"2026-08-07",
+    "dateModified":"2026-09-20",
+    "image":"https://security-arts.vercel.app/og-image.png",
+    "publisher":{"@id":"https://security-arts.vercel.app/#organization"},
+    "about":{"@type":"Thing","name":"Human-made art verification"},
+    "mainEntity":[
+      {"@type":"Question","name":"What does the seal prove?","acceptedAnswer":{"@type":"Answer","text":"A specific file was sealed by your account. It was sealed at a specific, recorded moment. The exact bytes haven't changed since — and anyone can check that."}},
+      {"@type":"Question","name":"What doesn't the seal claim?","acceptedAnswer":{"@type":"Answer","text":"It's not an AI detector and never guesses. It doesn't prove a human made the work, prove originality, or resolve copyright. It doesn't judge the art — it only records who sealed what, and when."}}
+    ]
+  }
+  </script>
+
+  <style>
+    :root{--ink:#0c0c0b;--ink-2:#131312;--ink-3:#1b1a18;--bone:#f4f1e9;--bone-dim:#a39e92;--bone-faint:#6f6b62;--brass:#c2a14e;--line:rgba(244,241,233,0.12);--line-strong:rgba(244,241,233,0.22);--gutter:clamp(1.25rem,4vw,5rem);--maxw:1040px;--serif:"Fraunces","Times New Roman",serif;--sans:"Geist",-apple-system,system-ui,sans-serif;--mono:"Geist Mono",ui-monospace,monospace;--ease:cubic-bezier(0.16,1,0.3,1)}
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+    body{background:var(--ink);color:var(--bone);font-family:var(--sans);font-weight:360;font-size:clamp(1rem,0.95rem+0.25vw,1.125rem);line-height:1.62;-webkit-font-smoothing:antialiased;overflow-x:hidden}
+    a{color:inherit;text-decoration:none}svg{display:block}::selection{background:var(--brass);color:var(--ink)}
+    :focus-visible{outline:2px solid var(--brass);outline-offset:3px;border-radius:2px}
+    .head{position:sticky;top:0;z-index:20;display:flex;align-items:center;gap:1.2rem;padding:1rem var(--gutter);background:color-mix(in srgb,var(--ink) 85%,transparent);backdrop-filter:blur(14px);border-bottom:1px solid var(--line)}
+    .brand{display:inline-flex;align-items:center;gap:0.6rem}.brand svg{width:28px;height:28px}
+    .brand__word{font-family:var(--serif);font-weight:460;font-size:1.28rem;letter-spacing:-0.01em}
+    .head__spacer{margin-left:auto}
+    .head a.nav{font-family:var(--mono);font-size:0.74rem;text-transform:uppercase;letter-spacing:0.12em;color:var(--bone-dim);transition:color 0.25s var(--ease)}
+    .head a.nav:hover{color:var(--bone)}
+    .head .cta{font-family:var(--mono);font-size:0.74rem;text-transform:uppercase;letter-spacing:0.12em;color:var(--ink);background:var(--bone);padding:0.55rem 0.9rem;border-radius:100px;transition:background 0.25s var(--ease)}
+    .head .cta:hover{background:var(--brass)}
+    /* Mobile header: drop the text nav, keep the logo + primary CTA on one line */
+    @media (max-width:720px){
+      .head{gap:0.6rem;padding:0.85rem 1rem}
+      .head a.nav,.head__spacer{display:none}
+      .brand{flex:0 0 auto;gap:0.5rem}
+      .brand svg{width:24px;height:24px}
+      .brand__word{font-size:1.1rem;white-space:nowrap}
+      .head .cta{margin-left:auto;flex:0 0 auto;white-space:nowrap;font-size:0.66rem;letter-spacing:0.08em;padding:0.5rem 0.75rem}
+    }
+    @media (max-width:359px){
+      .brand__word{display:none}
+    }
+    main{max-width:var(--maxw);margin-inline:auto;padding:clamp(3rem,7vw,5.5rem) var(--gutter) 4rem}
+    .eyebrow{font-family:var(--mono);font-size:0.72rem;text-transform:uppercase;letter-spacing:0.2em;color:var(--brass);display:inline-flex;align-items:center;gap:0.6rem;margin-bottom:1.4rem}
+    .eyebrow::before{content:"";width:7px;height:7px;border-radius:50%;background:var(--brass);box-shadow:0 0 0 4px rgba(194,161,78,0.16)}
+    h1{font-family:var(--serif);font-weight:330;font-size:clamp(2.8rem,1rem+7vw,5.6rem);line-height:0.96;letter-spacing:-0.035em;margin-bottom:1.4rem}h1 em{color:var(--brass);font-style:italic}
+    .lede{color:var(--bone-dim);font-size:clamp(1.08rem,0.95rem+0.55vw,1.35rem);max-width:60ch;margin-bottom:2.4rem}
+    .actions{display:flex;flex-wrap:wrap;gap:0.9rem;margin-bottom:3.5rem}
+    .btn{font-family:var(--mono);font-size:0.78rem;text-transform:uppercase;letter-spacing:0.1em;padding:0.95rem 1.6rem;border-radius:100px;border:1px solid transparent;transition:all 0.3s var(--ease);display:inline-flex;align-items:center;gap:0.5rem}
+    .btn--solid{background:var(--bone);color:var(--ink)}.btn--solid:hover{background:var(--brass);transform:translateY(-2px)}
+    .btn--ghost{border-color:var(--line-strong);color:var(--bone)}.btn--ghost:hover{border-color:var(--bone);transform:translateY(-2px)}
+    .h2{font-family:var(--serif);font-weight:380;font-size:clamp(1.7rem,1rem+2.4vw,2.8rem);letter-spacing:-0.02em;line-height:1.05;margin:0 0 1.6rem}
+    section.block{padding:clamp(2.5rem,5vw,4rem) 0;border-top:1px solid var(--line)}
+    .steps{list-style:none;counter-reset:s;display:grid;gap:1px;background:var(--line);border:1px solid var(--line);border-radius:14px;overflow:hidden}
+    @media(min-width:720px){.steps{grid-template-columns:repeat(3,1fr)}}
+    .steps li{background:var(--ink);padding:clamp(1.5rem,3vw,2.2rem)}
+    .steps li::before{counter-increment:s;content:counter(s,decimal-leading-zero);font-family:var(--mono);font-size:0.8rem;color:var(--brass);display:block;margin-bottom:0.7rem}
+    .steps b{font-family:var(--serif);font-weight:440;font-size:1.2rem;display:block;margin-bottom:0.4rem}.steps span{color:var(--bone-dim);font-size:0.95rem}
+    .split{display:grid;grid-template-columns:1fr;gap:1px;background:var(--line);border:1px solid var(--line);border-radius:14px;overflow:hidden}
+    @media(min-width:720px){.split{grid-template-columns:1fr 1fr}}
+    .panel{background:var(--ink);padding:clamp(1.6rem,3vw,2.4rem)}
+    .panel h3{font-family:var(--serif);font-weight:420;font-size:1.4rem;letter-spacing:-0.015em;margin-bottom:1.1rem}
+    .panel ul{list-style:none;display:flex;flex-direction:column;gap:0.9rem}
+    .panel li{color:var(--bone-dim);padding-left:1.5rem;position:relative}
+    .panel.proves li::before{content:"✓";position:absolute;left:0;color:var(--brass)}
+    .panel.not li::before{content:"—";position:absolute;left:0;color:var(--bone-faint)}
+    .panel.not h3{color:var(--bone-dim)}
+    .compare-links{display:flex;flex-wrap:wrap;gap:0.7rem;margin-top:0.6rem}
+    .compare-links a{font-family:var(--mono);font-size:0.72rem;text-transform:uppercase;letter-spacing:0.08em;color:var(--bone-dim);border:1px solid var(--line-strong);padding:0.5rem 0.9rem;border-radius:100px;transition:all 0.25s var(--ease)}
+    .compare-links a:hover{color:var(--bone);border-color:var(--bone)}
+    .cta-band{border-top:1px solid var(--line);padding-top:clamp(2.5rem,5vw,3.5rem);margin-top:1rem;display:flex;flex-wrap:wrap;gap:1rem;align-items:center}
+    .cta-band p{font-family:var(--serif);font-weight:360;font-size:clamp(1.6rem,1rem+2.2vw,2.6rem);letter-spacing:-0.02em;flex:1 1 320px}
+    footer{border-top:1px solid var(--line);max-width:var(--maxw);margin:0 auto;padding:2.5rem var(--gutter);display:flex;flex-wrap:wrap;gap:1rem;justify-content:space-between}
+    footer a,footer span{font-family:var(--mono);font-size:0.72rem;text-transform:uppercase;letter-spacing:0.12em;color:var(--bone-faint)}footer a:hover{color:var(--bone-dim)}
+  </style>
+</head>
+<body>
+  <header class="head">
+    <a class="brand" href="/" aria-label="SecurityArts home">
+      <svg viewBox="0 0 100 100" aria-hidden="true"><g fill="none" stroke="currentColor" stroke-width="4.2"><circle cx="50" cy="50" r="27"/></g><path fill="currentColor" d="M 50 34.5 L 53.76 44.82 L 64.74 45.21 L 56.09 51.98 L 59.11 62.54 L 50 56.4 L 40.89 62.54 L 43.91 51.98 L 35.26 45.21 L 46.24 44.82 Z"/></svg>
+      <span class="brand__word">SecurityArts</span>
+    </a>
+    <span class="head__spacer"></span>
+    <a class="nav" href="/how-it-works">How it works</a>
+    <a class="nav" href="/verified">Verified art</a>
+    <a class="cta" href="/join">Get verified</a>
+  </header>
+
+  <main>
+    <p class="eyebrow">Verified human art</p>
+    <h1>When they say it's AI,<br /><em>show the receipt.</em></h1>
+    <p class="lede">
+      SecurityArts seals a finished piece — a SHA-256 hash of the exact bytes, signed with
+      our ECDSA P-256 key — and gives you a public certificate anyone can verify. Getting
+      wrongly accused of using AI is exhausting, and arguing in the replies never wins.
+      Point at the seal instead. Not a probability. A receipt. Free.
+    </p>
+    <div class="actions">
+      <a class="btn btn--solid" href="/join">Seal your work →</a>
+      <a class="btn btn--ghost" href="/discover">See the wall</a>
+    </div>
+
+    <section class="block">
+      <h2 class="h2">Three steps to proof</h2>
+      <ol class="steps">
+        <li><b>Upload</b><span>Drop in the finished piece you made by hand. We read the exact bytes — nothing altered.</span></li>
+        <li><b>We sign it</b><span>A SHA-256 fingerprint of the file, signed with our ECDSA key. Tamper-evident by design.</span></li>
+        <li><b>Show the receipt</b><span>A public certificate — algorithm, hash, signature, timestamp — anyone can verify.</span></li>
+      </ol>
+      <p style="margin-top:1.2rem"><a href="/how-it-works" style="color:var(--brass);font-family:var(--mono);font-size:0.78rem;letter-spacing:0.08em;text-transform:uppercase">Read the full how-it-works →</a></p>
+    </section>
+
+    <section class="block">
+      <h2 class="h2">What the seal is — and isn't</h2>
+      <div class="split">
+        <div class="panel proves">
+          <h3>What does the seal prove?</h3>
+          <ul>
+            <li>A specific file was sealed by your account.</li>
+            <li>It was sealed at a specific, recorded moment.</li>
+            <li>The exact bytes haven't changed since — and anyone can check that.</li>
+          </ul>
+        </div>
+        <div class="panel not">
+          <h3>What doesn't the seal claim?</h3>
+          <ul>
+            <li>It's not an AI detector and never guesses.</li>
+            <li>It doesn't prove a human made the work, prove originality, or resolve copyright.</li>
+            <li>It doesn't judge the art — it only records who sealed what, and when.</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <section class="block">
+      <h2 class="h2">How it compares</h2>
+      <p class="lede" style="margin-bottom:0.8rem">Detectors guess. Metadata gets stripped. A badge is just a claim. See the honest breakdown:</p>
+      <div class="compare-links">
+        <a href="/compare/ai-detectors">vs AI detectors</a>
+        <a href="/compare/c2pa">vs C2PA / Content Credentials</a>
+        <a href="/compare/not-by-ai">vs the "Not By AI" badge</a>
+      </div>
+    </section>
+
+    <div class="cta-band">
+      <p>Seal your next piece and keep the receipt.</p>
+      <a class="btn btn--solid" href="/join">Get your work verified →</a>
+      <a class="btn btn--ghost" href="/faq">Read the FAQ</a>
+    </div>
+  </main>
+
+  <footer>
+    <a href="/">← SecurityArts</a>
+    <a href="/how-it-works">How it works</a>
+    <a href="/faq">FAQ</a>
+    <span>Updated <time datetime="2026-09-20">20 Sep 2026</time></span>
+    <span>Authentic · Verified · Human</span>
+  </footer>
+</body>
+</html>

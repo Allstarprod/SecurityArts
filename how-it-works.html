@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>How the seal works — SecurityArts</title>
+  <meta name="description" content="How a SecurityArts seal works: we hash the exact image bytes with SHA-256, sign that hash with our ECDSA P-256 key, and give you a public certificate anyone can verify. Not an AI detector — a receipt." />
+
+  <link rel="canonical" href="https://security-arts.vercel.app/how-it-works" />
+  <meta property="og:type" content="article" />
+  <meta property="og:site_name" content="SecurityArts" />
+  <meta property="og:title" content="How the seal works — a receipt, not a verdict" />
+  <meta property="og:description" content="We hash and sign the exact image bytes and give you a public certificate anyone can verify. Not an AI detector — a receipt." />
+  <meta property="og:url" content="https://security-arts.vercel.app/how-it-works" />
+  <meta property="og:image" content="https://security-arts.vercel.app/og-image.png" />
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="How the SecurityArts seal works" />
+  <meta name="twitter:description" content="Hash, sign, publish a certificate — how the seal works, in plain English." />
+  <meta name="twitter:image" content="https://security-arts.vercel.app/og-image.png" />
+  <meta property="article:published_time" content="2026-08-07" />
+  <meta property="article:modified_time" content="2026-09-20" />
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300..600;1,9..144,300..500&family=Geist:wght@300..600&family=Geist+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='18' fill='%230c0c0b'/%3E%3Cg fill='none' stroke='%23f4f1e9' stroke-width='4.2'%3E%3Ccircle cx='50' cy='50' r='27'/%3E%3C/g%3E%3Cpath fill='%23f4f1e9' d='M 50 34.5 L 53.76 44.82 L 64.74 45.21 L 56.09 51.98 L 59.11 62.54 L 50 56.4 L 40.89 62.54 L 43.91 51.98 L 35.26 45.21 L 46.24 44.82 Z'/%3E%3C/svg%3E" />
+
+  <script type="application/ld+json">
+  {
+    "@context":"https://schema.org",
+    "@graph":[
+      {
+        "@type":"TechArticle",
+        "@id":"https://security-arts.vercel.app/how-it-works#article",
+        "headline":"How the SecurityArts seal works",
+        "description":"A SecurityArts seal is a cryptographic certificate for one specific image file: SecurityArts fingerprints the exact bytes with SHA-256, signs that fingerprint with its ECDSA P-256 key, and publishes a certificate anyone can check.",
+        "url":"https://security-arts.vercel.app/how-it-works",
+        "mainEntityOfPage":"https://security-arts.vercel.app/how-it-works",
+        "image":"https://security-arts.vercel.app/og-image.png",
+        "inLanguage":"en-US",
+        "datePublished":"2026-08-07",
+        "dateModified":"2026-09-20",
+        "author":{"@id":"https://security-arts.vercel.app/#organization"},
+        "publisher":{"@id":"https://security-arts.vercel.app/#organization"},
+        "about":[
+          {"@type":"Thing","name":"Digital signatures"},
+          {"@type":"Thing","name":"Content authenticity"}
+        ]
+      },
+      {
+        "@type":"HowTo",
+        "@id":"https://security-arts.vercel.app/how-it-works#howto",
+        "name":"How to seal a piece of art with SecurityArts",
+        "description":"Upload the finished file, SecurityArts hashes and signs the exact bytes, and you get a public certificate anyone can verify.",
+        "inLanguage":"en-US",
+        "datePublished":"2026-08-07",
+        "dateModified":"2026-09-20",
+        "step":[
+          {"@type":"HowToStep","position":1,"name":"You upload the piece","url":"https://security-arts.vercel.app/how-it-works#step-1","text":"Drop in the finished work you made by hand. We read the exact bytes of the file — nothing is altered, nothing is added on top of your image."},
+          {"@type":"HowToStep","position":2,"name":"We hash and sign it","url":"https://security-arts.vercel.app/how-it-works#step-2","text":"We compute a SHA-256 fingerprint of the raw image bytes and sign that fingerprint with the SecurityArts private key using ECDSA P-256. Change a single pixel and the fingerprint no longer matches — the seal is tamper-evident by design."},
+          {"@type":"HowToStep","position":3,"name":"You get a public certificate","url":"https://security-arts.vercel.app/how-it-works#step-3","text":"The result is a shareable seal page: the algorithm, the hash, the signature, the signer, and the timestamp. When someone claims your work is AI, you point them at the seal instead of arguing — anyone can verify it themselves."}
+        ]
+      }
+    ]
+  }
+  </script>
+
+  <style>
+    :root{
+      --ink:#0c0c0b; --ink-2:#131312; --ink-3:#1b1a18; --cream:#e8e4d8;
+      --bone:#f4f1e9; --bone-dim:#a39e92; --bone-faint:#6f6b62;
+      --brass:#c2a14e; --brass-deep:#9c7e34;
+      --line:rgba(244,241,233,0.12); --line-strong:rgba(244,241,233,0.22);
+      --gutter:clamp(1.25rem,4vw,5rem); --maxw:1040px;
+      --serif:"Fraunces","Times New Roman",serif; --sans:"Geist",-apple-system,system-ui,sans-serif; --mono:"Geist Mono",ui-monospace,monospace;
+      --ease:cubic-bezier(0.16,1,0.3,1);
+    }
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+    html{scroll-behavior:smooth}
+    body{background:var(--ink);color:var(--bone);font-family:var(--sans);font-weight:360;font-size:clamp(1rem,0.95rem+0.25vw,1.125rem);line-height:1.62;-webkit-font-smoothing:antialiased;overflow-x:hidden}
+    a{color:inherit;text-decoration:none}
+    svg{display:block}
+    ::selection{background:var(--brass);color:var(--ink)}
+    :focus-visible{outline:2px solid var(--brass);outline-offset:3px;border-radius:2px}
+
+    .head{position:sticky;top:0;z-index:20;display:flex;align-items:center;gap:1.2rem;padding:1rem var(--gutter);background:color-mix(in srgb,var(--ink) 85%,transparent);backdrop-filter:blur(14px);border-bottom:1px solid var(--line)}
+    .brand{display:inline-flex;align-items:center;gap:0.6rem}
+    .brand svg{width:28px;height:28px}
+    .brand__word{font-family:var(--serif);font-weight:460;font-size:1.28rem;letter-spacing:-0.01em}
+    .brand__word b{font-weight:460;color:var(--bone)}
+    .head__spacer{margin-left:auto}
+    .head a.nav{font-family:var(--mono);font-size:0.74rem;text-transform:uppercase;letter-spacing:0.12em;color:var(--bone-dim);transition:color 0.25s var(--ease)}
+    .head a.nav:hover{color:var(--bone)}
+    .head .cta{font-family:var(--mono);font-size:0.74rem;text-transform:uppercase;letter-spacing:0.12em;color:var(--ink);background:var(--bone);padding:0.55rem 0.9rem;border-radius:100px;transition:background 0.25s var(--ease)}
+    .head .cta:hover{background:var(--brass)}
+    /* Mobile header: drop the text nav, keep the logo + primary CTA on one line */
+    @media (max-width:720px){
+      .head{gap:0.6rem;padding:0.85rem 1rem}
+      .head a.nav,.head__spacer{display:none}
+      .brand{flex:0 0 auto;gap:0.5rem}
+      .brand svg{width:24px;height:24px}
+      .brand__word{font-size:1.1rem;white-space:nowrap}
+      .head .cta{margin-left:auto;flex:0 0 auto;white-space:nowrap;font-size:0.66rem;letter-spacing:0.08em;padding:0.5rem 0.75rem}
+    }
+    @media (max-width:359px){
+      .brand__word{display:none}
+    }
+
+    main{max-width:var(--maxw);margin-inline:auto;padding:clamp(3rem,7vw,6rem) var(--gutter) 4rem}
+    .eyebrow{font-family:var(--mono);font-size:0.72rem;text-transform:uppercase;letter-spacing:0.2em;color:var(--brass);display:inline-flex;align-items:center;gap:0.6rem;margin-bottom:1.4rem}
+    .eyebrow::before{content:"";width:7px;height:7px;border-radius:50%;background:var(--brass);box-shadow:0 0 0 4px rgba(194,161,78,0.16)}
+    h1{font-family:var(--serif);font-weight:340;font-size:clamp(2.6rem,1rem+6vw,5rem);line-height:0.98;letter-spacing:-0.03em;margin-bottom:1.4rem}
+    h1 em{color:var(--brass);font-style:italic}
+    .lede{color:var(--bone-dim);font-size:clamp(1.05rem,0.95rem+0.5vw,1.3rem);max-width:60ch;margin-bottom:3rem}
+
+    .steps{list-style:none;display:grid;gap:1px;background:var(--line);border:1px solid var(--line);border-radius:14px;overflow:hidden;margin-bottom:3.5rem}
+    .step{background:var(--ink);padding:clamp(1.6rem,3vw,2.4rem);display:grid;grid-template-columns:auto 1fr;gap:1.4rem;align-items:start}
+    .step__n{font-family:var(--mono);font-size:0.8rem;color:var(--brass);border:1px solid var(--line-strong);border-radius:100px;width:2.4rem;height:2.4rem;display:grid;place-items:center;flex:0 0 auto}
+    .step__t{font-family:var(--serif);font-weight:420;font-size:clamp(1.4rem,1rem+1vw,1.9rem);letter-spacing:-0.015em;line-height:1.1;margin-bottom:0.5rem}
+    .step__b{color:var(--bone-dim);max-width:60ch}
+    .step__b code{font-family:var(--mono);font-size:0.85em;color:var(--bone);background:var(--ink-3);padding:0.1em 0.4em;border-radius:5px}
+
+    .split{display:grid;grid-template-columns:1fr;gap:1px;background:var(--line);border:1px solid var(--line);border-radius:14px;overflow:hidden;margin-bottom:3.5rem}
+    @media(min-width:720px){.split{grid-template-columns:1fr 1fr}}
+    .panel{background:var(--ink);padding:clamp(1.6rem,3vw,2.4rem)}
+    .panel h2{font-family:var(--serif);font-weight:420;font-size:1.5rem;letter-spacing:-0.015em;margin-bottom:1.1rem;display:flex;align-items:center;gap:0.6rem}
+    .panel.proves h2{color:var(--bone)}
+    .panel.proves .mk{color:var(--brass)}
+    .panel.not h2{color:var(--bone-dim)}
+    .panel ul{list-style:none;display:flex;flex-direction:column;gap:0.9rem}
+    .panel li{color:var(--bone-dim);padding-left:1.5rem;position:relative}
+    .panel.proves li::before{content:"✓";position:absolute;left:0;color:var(--brass)}
+    .panel.not li::before{content:"—";position:absolute;left:0;color:var(--bone-faint)}
+
+    .tech{margin-bottom:3.5rem}
+    .tech h2{font-family:var(--serif);font-weight:420;font-size:clamp(1.5rem,1rem+1.4vw,2rem);letter-spacing:-0.015em;margin-bottom:1rem}
+    .tech p{color:var(--bone-dim);max-width:64ch;margin-bottom:1.1rem}
+    .tech ul{list-style:none;display:flex;flex-direction:column;gap:0.8rem;margin-bottom:1.2rem}
+    .tech li{color:var(--bone-dim);padding-left:1.5rem;position:relative;max-width:64ch}
+    .tech li::before{content:"·";position:absolute;left:0;color:var(--brass)}
+    .tech li b{color:var(--bone);font-weight:500}
+    .tech code{font-family:var(--mono);font-size:0.85em;color:var(--bone);background:var(--ink-3);padding:0.1em 0.4em;border-radius:5px}
+
+    .cta-band{border-top:1px solid var(--line);padding-top:clamp(2.5rem,5vw,3.5rem);display:flex;flex-wrap:wrap;gap:1rem;align-items:center}
+    .cta-band p{font-family:var(--serif);font-weight:360;font-size:clamp(1.5rem,1rem+2vw,2.4rem);letter-spacing:-0.02em;flex:1 1 320px}
+    .btn{font-family:var(--mono);font-size:0.78rem;text-transform:uppercase;letter-spacing:0.1em;padding:0.9rem 1.5rem;border-radius:100px;border:1px solid transparent;transition:all 0.3s var(--ease);display:inline-flex;align-items:center;gap:0.5rem}
+    .btn--solid{background:var(--bone);color:var(--ink)}
+    .btn--solid:hover{background:var(--brass);transform:translateY(-2px)}
+    .btn--ghost{border-color:var(--line-strong);color:var(--bone)}
+    .btn--ghost:hover{border-color:var(--bone);transform:translateY(-2px)}
+
+    footer{border-top:1px solid var(--line);max-width:var(--maxw);margin:0 auto;padding:2.5rem var(--gutter);display:flex;flex-wrap:wrap;gap:1rem;justify-content:space-between}
+    footer a,footer span{font-family:var(--mono);font-size:0.72rem;text-transform:uppercase;letter-spacing:0.12em;color:var(--bone-faint)}
+    footer a:hover{color:var(--bone-dim)}
+  </style>
+</head>
+<body>
+  <header class="head">
+    <a class="brand" href="/" aria-label="SecurityArts home">
+      <svg viewBox="0 0 100 100" aria-hidden="true"><g fill="none" stroke="currentColor" stroke-width="4.2"><circle cx="50" cy="50" r="27"/></g><path fill="currentColor" d="M 50 34.5 L 53.76 44.82 L 64.74 45.21 L 56.09 51.98 L 59.11 62.54 L 50 56.4 L 40.89 62.54 L 43.91 51.98 L 35.26 45.21 L 46.24 44.82 Z"/></svg>
+      <span class="brand__word">Security<b>Arts</b></span>
+    </a>
+    <span class="head__spacer"></span>
+    <a class="nav" href="/how-it-works">How it works</a>
+    <a class="nav" href="/verified">Verified art</a>
+    <a class="cta" href="/join">Get verified</a>
+  </header>
+
+  <main>
+    <p class="eyebrow">How it works</p>
+    <h1>A receipt,<br /><em>not a verdict.</em></h1>
+    <p class="lede">
+      A SecurityArts seal is a cryptographic certificate for one specific image file:
+      SecurityArts fingerprints the exact bytes with SHA-256, signs that fingerprint with
+      its private key, and publishes a certificate anyone can check. AI detectors estimate
+      a probability, and they get it wrong. A seal doesn't guess — it records who sealed
+      which file, and when.
+    </p>
+
+    <ol class="steps">
+      <li class="step" id="step-1">
+        <span class="step__n">1</span>
+        <div>
+          <h2 class="step__t">You upload the piece</h2>
+          <p class="step__b">Drop in the finished work you made by hand. We read the exact bytes of the file — nothing is altered, nothing is added on top of your image.</p>
+        </div>
+      </li>
+      <li class="step" id="step-2">
+        <span class="step__n">2</span>
+        <div>
+          <h2 class="step__t">We hash and sign it</h2>
+          <p class="step__b">We compute a <code>SHA-256</code> fingerprint of the raw image bytes and sign that fingerprint with the SecurityArts private key using <code>ECDSA P-256</code>. Change a single pixel and the fingerprint no longer matches — the seal is tamper-evident by design.</p>
+        </div>
+      </li>
+      <li class="step" id="step-3">
+        <span class="step__n">3</span>
+        <div>
+          <h2 class="step__t">You get a public certificate</h2>
+          <p class="step__b">The result is a shareable seal page: the algorithm, the hash, the signature, the signer, and the timestamp. When someone claims your work is AI, you point them at the seal instead of arguing — anyone can verify it themselves.</p>
+        </div>
+      </li>
+    </ol>
+
+    <div class="split">
+      <section class="panel proves">
+        <h2><span class="mk">✦</span> What does a seal prove?</h2>
+        <ul>
+          <li>A specific file was sealed by a SecurityArts account</li>
+          <li>At a specific, recorded moment in time</li>
+          <li>That the exact bytes haven't changed since — verifiable by anyone</li>
+        </ul>
+      </section>
+      <section class="panel not">
+        <h2>What does a seal not claim?</h2>
+        <ul>
+          <li>It is not an AI detector and never guesses</li>
+          <li>It doesn't prove a human made the work, or that the work is original</li>
+          <li>It doesn't judge the art — only records who sealed what, and when</li>
+        </ul>
+      </section>
+    </div>
+
+    <section class="tech" id="technical-details">
+      <h2>Technical details</h2>
+      <p>For anyone who wants to check a seal without taking this page's word for it.</p>
+      <ul>
+        <li><b>Hash.</b> <code>SHA-256</code> over the raw file bytes exactly as uploaded. Nothing is re-encoded first — which is why a screenshot or re-saved copy produces a different hash and won't match.</li>
+        <li><b>Signature.</b> <code>ECDSA</code> on curve <code>P-256</code> (secp256r1) with SHA-256, made by the SecurityArts service key.</li>
+        <li><b>Signer.</b> The signer id on every certificate identifies the SecurityArts service key — not the artist. Artists are identified by their account and don't hold a signing key.</li>
+        <li><b>Public key.</b> <code>GET /api/seal/pubkey</code> returns the current signer id and public key.</li>
+        <li><b>Verify by hash.</b> <code>GET /api/verify/&lt;sha256-hex&gt;</code> returns whether a sealed work with that hash exists, whether its signature verifies, the signer id, and the sealing timestamp.</li>
+        <li><b>One file, one record.</b> Identical bytes can't be sealed twice.</li>
+      </ul>
+      <p>The exact verification procedure is published alongside the public key.</p>
+    </section>
+
+    <div class="cta-band">
+      <p>Seal your next piece and keep the receipt.</p>
+      <a class="btn btn--solid" href="/join">Get your work verified →</a>
+      <a class="btn btn--ghost" href="/faq">Read the FAQ</a>
+    </div>
+  </main>
+
+  <footer>
+    <a href="/">← SecurityArts</a>
+    <a href="/faq">FAQ</a>
+    <span>Updated <time datetime="2026-09-20">20 Sep 2026</time></span>
+    <span>Authentic · Verified · Human</span>
+  </footer>
+</body>
+</html>

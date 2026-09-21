@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>How to prove your art is human-made (2026 guide) — SecurityArts</title>
+  <meta name="description" content="Wrongly accused of using AI? Here are the real ways to prove a human made your art — process files, detectors, C2PA, badges, and cryptographic seals — with honest pros and cons of each." />
+
+  <link rel="canonical" href="https://security-arts.vercel.app/prove-your-art-is-human" />
+  <meta property="og:type" content="article" />
+  <meta property="og:site_name" content="SecurityArts" />
+  <meta property="og:title" content="How to prove your art is human-made" />
+  <meta property="og:description" content="The real ways to prove a human made your art, and where each one falls short. A practical guide for accused artists." />
+  <meta property="og:url" content="https://security-arts.vercel.app/prove-your-art-is-human" />
+  <meta property="og:image" content="https://security-arts.vercel.app/og-image.png" />
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="How to prove your art is human-made" />
+  <meta name="twitter:description" content="The real ways to prove a human made your art, and where each falls short." />
+  <meta name="twitter:image" content="https://security-arts.vercel.app/og-image.png" />
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300..600;1,9..144,300..500&family=Geist:wght@300..600&family=Geist+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='18' fill='%230c0c0b'/%3E%3Cg fill='none' stroke='%23f4f1e9' stroke-width='4.2'%3E%3Ccircle cx='50' cy='50' r='27'/%3E%3C/g%3E%3Cpath fill='%23f4f1e9' d='M 50 34.5 L 53.76 44.82 L 64.74 45.21 L 56.09 51.98 L 59.11 62.54 L 50 56.4 L 40.89 62.54 L 43.91 51.98 L 35.26 45.21 L 46.24 44.82 Z'/%3E%3C/svg%3E" />
+
+  <script type="application/ld+json">
+  {
+    "@context":"https://schema.org",
+    "@graph":[
+      {
+        "@type":"Article",
+        "@id":"https://security-arts.vercel.app/prove-your-art-is-human#article",
+        "headline":"How to prove your art is human-made",
+        "description":"A practical guide to proving a human made your art — process files, AI detectors, C2PA, badges, and cryptographic seals — with the trade-offs of each.",
+        "url":"https://security-arts.vercel.app/prove-your-art-is-human",
+        "mainEntityOfPage":"https://security-arts.vercel.app/prove-your-art-is-human",
+        "image":"https://security-arts.vercel.app/og-image.png",
+        "inLanguage":"en-US",
+        "datePublished":"2026-08-07",
+        "dateModified":"2026-09-20",
+        "author":{"@id":"https://security-arts.vercel.app/#organization"},
+        "publisher":{"@id":"https://security-arts.vercel.app/#organization"}
+      },
+      {
+        "@type":"BreadcrumbList",
+        "@id":"https://security-arts.vercel.app/prove-your-art-is-human#breadcrumb",
+        "itemListElement":[
+          {"@type":"ListItem","position":1,"name":"Verified art","item":"https://security-arts.vercel.app/verified"},
+          {"@type":"ListItem","position":2,"name":"Guide","item":"https://security-arts.vercel.app/prove-your-art-is-human"}
+        ]
+      },
+      {
+        "@type":"FAQPage",
+        "@id":"https://security-arts.vercel.app/prove-your-art-is-human#faq",
+        "url":"https://security-arts.vercel.app/prove-your-art-is-human",
+        "dateModified":"2026-09-20",
+        "publisher":{"@id":"https://security-arts.vercel.app/#organization"},
+        "mainEntity":[
+          {"@type":"Question","name":"Can you actually prove art is human-made?","acceptedAnswer":{"@type":"Answer","text":"You can't prove a negative about how a brain worked, but you can prove the parts that matter in a dispute: that you held the source files, that a specific final file existed under your control at a specific time, and that it hasn't been altered since. A cryptographic seal captures the last two in a form anyone can check."}},
+          {"@type":"Question","name":"Do AI detectors prove my work is human?","acceptedAnswer":{"@type":"Answer","text":"No. A detector guesses a probability from the pixels, and it is wrong often enough that plenty of human artists get flagged as AI. It can help a platform triage unknown images at scale, but it can't stand as proof that you made a particular piece."}},
+          {"@type":"Question","name":"What is the fastest way to defend against an AI accusation?","acceptedAnswer":{"@type":"Answer","text":"Have the receipt ready before you need it. Keep your layered source files, and seal the finished piece so there is a public certificate you can link the moment someone doubts you — instead of scrambling to assemble evidence mid-argument."}}
+        ]
+      }
+    ]
+  }
+  </script>
+
+  <style>
+    :root{--ink:#0c0c0b;--ink-2:#131312;--ink-3:#1b1a18;--bone:#f4f1e9;--bone-dim:#a39e92;--bone-faint:#6f6b62;--brass:#c2a14e;--line:rgba(244,241,233,0.12);--line-strong:rgba(244,241,233,0.22);--gutter:clamp(1.25rem,4vw,5rem);--maxw:760px;--serif:"Fraunces","Times New Roman",serif;--sans:"Geist",-apple-system,system-ui,sans-serif;--mono:"Geist Mono",ui-monospace,monospace;--ease:cubic-bezier(0.16,1,0.3,1)}
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+    body{background:var(--ink);color:var(--bone);font-family:var(--sans);font-weight:360;font-size:clamp(1.02rem,0.95rem+0.3vw,1.16rem);line-height:1.7;-webkit-font-smoothing:antialiased;overflow-x:hidden}
+    a{color:inherit}svg{display:block}::selection{background:var(--brass);color:var(--ink)}
+    :focus-visible{outline:2px solid var(--brass);outline-offset:3px;border-radius:2px}
+    .head{position:sticky;top:0;z-index:20;display:flex;align-items:center;gap:1.2rem;padding:1rem var(--gutter);background:color-mix(in srgb,var(--ink) 85%,transparent);backdrop-filter:blur(14px);border-bottom:1px solid var(--line)}
+    .brand{display:inline-flex;align-items:center;gap:0.6rem;text-decoration:none}.brand svg{width:28px;height:28px}
+    .brand__word{font-family:var(--serif);font-weight:460;font-size:1.28rem;letter-spacing:-0.01em}
+    .head__spacer{margin-left:auto}
+    .head a.nav{font-family:var(--mono);font-size:0.74rem;text-transform:uppercase;letter-spacing:0.12em;color:var(--bone-dim);text-decoration:none;transition:color 0.25s var(--ease)}.head a.nav:hover{color:var(--bone)}
+    .head .cta{font-family:var(--mono);font-size:0.74rem;text-transform:uppercase;letter-spacing:0.12em;color:var(--ink);background:var(--bone);padding:0.55rem 0.9rem;border-radius:100px;text-decoration:none;transition:background 0.25s var(--ease)}.head .cta:hover{background:var(--brass)}
+    /* Mobile header: drop the text nav, keep the logo + primary CTA on one line */
+    @media (max-width:720px){
+      .head{gap:0.6rem;padding:0.85rem 1rem}
+      .head a.nav,.head__spacer{display:none}
+      .brand{flex:0 0 auto;gap:0.5rem}
+      .brand svg{width:24px;height:24px}
+      .brand__word{font-size:1.1rem;white-space:nowrap}
+      .head .cta{margin-left:auto;flex:0 0 auto;white-space:nowrap;font-size:0.66rem;letter-spacing:0.08em;padding:0.5rem 0.75rem}
+    }
+    @media (max-width:359px){
+      .brand__word{display:none}
+    }
+    article{max-width:var(--maxw);margin-inline:auto;padding:clamp(3rem,7vw,5.5rem) var(--gutter) 4rem}
+    .crumb{font-family:var(--mono);font-size:0.66rem;text-transform:uppercase;letter-spacing:0.14em;color:var(--bone-faint);margin-bottom:1.6rem}.crumb a{color:inherit;text-decoration:none}.crumb a:hover{color:var(--bone-dim)}
+    .eyebrow{font-family:var(--mono);font-size:0.72rem;text-transform:uppercase;letter-spacing:0.2em;color:var(--brass);margin-bottom:1.3rem}
+    h1{font-family:var(--serif);font-weight:340;font-size:clamp(2.4rem,1rem+5vw,4rem);line-height:1;letter-spacing:-0.03em;margin-bottom:1.2rem}
+    .standfirst{color:var(--bone-dim);font-size:clamp(1.15rem,1rem+0.6vw,1.4rem);line-height:1.5;margin-bottom:2.6rem}
+    .short{border:1px solid var(--line-strong);border-left:2px solid var(--brass);border-radius:0 14px 14px 0;padding:1.1rem 1.3rem;margin-bottom:2rem;background:var(--ink-2)}
+    .short__k{font-family:var(--mono);font-size:0.68rem;text-transform:uppercase;letter-spacing:0.14em;color:var(--brass);margin-bottom:0.5rem}
+    .short p{margin-bottom:0;font-size:0.98rem}
+    .eyebrow time{color:inherit}
+    article p{margin-bottom:1.4rem;color:#cfccc2}
+    article h2{font-family:var(--serif);font-weight:400;font-size:clamp(1.6rem,1rem+1.8vw,2.3rem);letter-spacing:-0.02em;line-height:1.1;margin:3rem 0 1.1rem}
+    article h3{font-family:var(--serif);font-weight:440;font-size:1.3rem;letter-spacing:-0.01em;margin:2rem 0 0.6rem;color:var(--bone)}
+    article strong{color:var(--bone);font-weight:500}
+    article a[href]{color:var(--brass);text-decoration:none;border-bottom:1px solid rgba(194,161,78,0.3)}
+    article a[href]:hover{border-bottom-color:var(--brass)}
+    .verdict{font-family:var(--mono);font-size:0.68rem;text-transform:uppercase;letter-spacing:0.1em;padding:0.25rem 0.6rem;border-radius:100px;border:1px solid var(--line-strong);color:var(--bone-dim);display:inline-block;margin-bottom:0.6rem}
+    .option{border:1px solid var(--line);border-radius:14px;padding:1.4rem 1.5rem;margin-bottom:1.2rem;background:var(--ink-2)}
+    .option h3{margin-top:0}
+    .option p{margin-bottom:0.6rem;font-size:0.98rem}
+    .option .pc{font-size:0.92rem;color:var(--bone-dim)}
+    .option .pc b{color:var(--bone)}
+    .pick{border-color:var(--brass);background:linear-gradient(160deg,#19150d,var(--ink-2) 70%)}
+    .steps{counter-reset:s;list-style:none;margin:0 0 1.4rem;padding:0}
+    .steps li{position:relative;padding:0 0 1.1rem 2.4rem;color:#cfccc2}
+    .steps li::before{counter-increment:s;content:counter(s);position:absolute;left:0;top:0;font-family:var(--mono);font-size:0.75rem;color:var(--brass);border:1px solid var(--line-strong);border-radius:50%;width:1.7rem;height:1.7rem;display:grid;place-items:center}
+    .cta-band{border-top:1px solid var(--line);padding-top:2.6rem;margin-top:3rem;display:flex;flex-wrap:wrap;gap:1rem;align-items:center}
+    .cta-band p{font-family:var(--serif);font-weight:360;font-size:clamp(1.5rem,1rem+2vw,2.2rem);letter-spacing:-0.02em;flex:1 1 300px;margin:0;color:var(--bone)}
+    .btn{font-family:var(--mono);font-size:0.78rem;text-transform:uppercase;letter-spacing:0.1em;padding:0.9rem 1.5rem;border-radius:100px;border:1px solid transparent;text-decoration:none;transition:all 0.3s var(--ease);display:inline-flex;align-items:center;gap:0.5rem}
+    .btn--solid{background:var(--bone);color:var(--ink)}.btn--solid:hover{background:var(--brass);transform:translateY(-2px)}
+    .btn--ghost{border-color:var(--line-strong);color:var(--bone)}.btn--ghost:hover{border-color:var(--bone);transform:translateY(-2px)}
+    footer{border-top:1px solid var(--line);max-width:var(--maxw);margin:0 auto;padding:2.5rem var(--gutter);display:flex;flex-wrap:wrap;gap:1rem;justify-content:space-between}
+    footer a,footer span{font-family:var(--mono);font-size:0.72rem;text-transform:uppercase;letter-spacing:0.12em;color:var(--bone-faint);text-decoration:none}footer a:hover{color:var(--bone-dim)}
+  </style>
+</head>
+<body>
+  <header class="head">
+    <a class="brand" href="/" aria-label="SecurityArts home">
+      <svg viewBox="0 0 100 100" aria-hidden="true"><g fill="none" stroke="currentColor" stroke-width="4.2"><circle cx="50" cy="50" r="27"/></g><path fill="currentColor" d="M 50 34.5 L 53.76 44.82 L 64.74 45.21 L 56.09 51.98 L 59.11 62.54 L 50 56.4 L 40.89 62.54 L 43.91 51.98 L 35.26 45.21 L 46.24 44.82 Z"/></svg>
+      <span class="brand__word">SecurityArts</span>
+    </a>
+    <span class="head__spacer"></span>
+    <a class="nav" href="/how-it-works">How it works</a>
+    <a class="nav" href="/verified">Verified art</a>
+    <a class="cta" href="/join">Get verified</a>
+  </header>
+
+  <article>
+    <p class="crumb"><a href="/verified">Verified art</a> / Guide</p>
+    <p class="eyebrow">Guide · Updated <time datetime="2026-09-20">20 Sep 2026</time></p>
+    <h1>How to prove your art is human-made</h1>
+    <div class="short">
+      <p class="short__k">Short answer</p>
+      <p>You can't prove how a brain worked, but you can prove what a dispute actually turns on: that you held the source files, that a specific final file existed under your control at a specific time, and that it hasn't been altered since. Of the five common options below, a hosted cryptographic seal comes closest: a stranger can check it, it's tied to the exact file, and a platform can't strip it — though a screenshot or re-encoded copy has different bytes and won't match, so keep the original file.</p>
+    </div>
+    <p class="standfirst">Someone leaves "obvious AI" under a piece you spent two days on. You know the truth. The problem is showing it to a stranger who has already made up their mind. Here's what actually works, and what only looks like it does.</p>
+
+    <p>The accusation spreads faster than any defense. By the time you type a reply, the comment has a dozen likes and your reputation is taking the hit. Screenshots strip your context. A repost erases your caption. So the real question isn't "am I telling the truth" — it's "what can a skeptic check for themselves in ten seconds." That reframes everything below.</p>
+
+    <h2>Why this is genuinely hard</h2>
+    <p>Nobody can peer inside your head and watch you make a decision. Proof has to attach to something outside you: the files, the timeline, the record. Most artists reach for one of a handful of options when they're accused. Some hold up. Some just feel reassuring.</p>
+
+    <h2>The options, ranked by how well they hold up</h2>
+
+    <div class="option">
+      <span class="verdict">Good habit, weak under pressure</span>
+      <h3>1. Show your process</h3>
+      <p>Post the timelapse, the layered source file, the messy early versions.</p>
+      <p class="pc"><b>Where it helps:</b> for people acting in good faith, a PSD with 80 layers is convincing. <b>Where it fails:</b> a determined accuser will say you faked the layers, and most viewers never click through to check. It also does nothing once your work has been screenshotted and reposted away from your process.</p>
+    </div>
+
+    <div class="option">
+      <span class="verdict">Not proof</span>
+      <h3>2. AI detectors</h3>
+      <p>Run the image through a tool that scores how "AI" it looks.</p>
+      <p class="pc"><b>Where it helps:</b> a platform can triage a flood of unknown uploads. <b>Where it fails:</b> the score is a guess, and detectors flag real human work constantly. Pointing to a detector that agrees with you invites the accuser to point to one that doesn't. <a href="/compare/ai-detectors">Full breakdown: seal vs AI detectors →</a></p>
+    </div>
+
+    <div class="option">
+      <span class="verdict">Strong, but strippable</span>
+      <h3>3. C2PA / Content Credentials</h3>
+      <p>An open standard that embeds a signed provenance trail inside the file.</p>
+      <p class="pc"><b>Where it helps:</b> it's backed by major vendors and carries a real editing history. <b>Where it fails:</b> the credential lives inside the file, and a lot of platforms quietly strip metadata on upload — so by the time your work is on the feed, the proof can be gone. <a href="/compare/c2pa">Full breakdown: seal vs C2PA →</a></p>
+    </div>
+
+    <div class="option">
+      <span class="verdict">A signal, not evidence</span>
+      <h3>4. The "Not By AI" badge</h3>
+      <p>A label you add to say a human made this.</p>
+      <p class="pc"><b>Where it helps:</b> it plants a flag and it moved the conversation forward. <b>Where it fails:</b> anyone can stick the same badge on anything, so there's nothing behind it to check. <a href="/compare/not-by-ai">Full breakdown: seal vs the badge →</a></p>
+    </div>
+
+    <div class="option pick">
+      <span class="verdict" style="color:var(--brass);border-color:var(--brass)">What we'd reach for</span>
+      <h3>5. A cryptographic seal</h3>
+      <p>Sign the finished file and host a certificate anyone can verify.</p>
+      <p class="pc">This is the one built for a stranger's skepticism. A seal takes the exact bytes of your piece, fingerprints them, and signs that fingerprint. The result is a public page — with the hash, the signature, and the moment it was sealed — that anyone can check without trusting your word or installing anything. Change a pixel and it stops matching. A repost can't strip it, because the certificate lives on the web, not in the file's metadata — but a screenshot or re-encoded copy is a different set of bytes and won't match, so the proof attaches to the original file you keep. It won't claim to read your mind, and it's honest about that: it proves you sealed this file at this time, which is exactly what a dispute turns on.</p>
+    </div>
+
+    <h2>What real proof has to do</h2>
+    <p>Strip away the marketing and every option above is trying to clear three bars. A stranger has to be able to <strong>check it themselves</strong>. It has to be <strong>tied to your specific file</strong>, not a generic label. And it has to <strong>still be checkable after the trip through a platform</strong> that mangles metadata and strips captions. Process files clear the first bar sometimes. C2PA clears the first two until the metadata gets stripped. A hosted seal comes closest to all three: a platform can't strip a certificate that isn't in the file — though a re-encoded copy won't match it, so keep the original.</p>
+
+    <h2>How to seal a piece</h2>
+    <ol class="steps">
+      <li>Upload the finished work you made by hand. SecurityArts reads the exact file — it doesn't alter your image.</li>
+      <li>The server fingerprints the bytes and signs them. You get a public certificate: algorithm, hash, signature, timestamp.</li>
+      <li>Keep the link. When someone doubts you, you paste one URL instead of writing a paragraph.</li>
+    </ol>
+    <p><a href="/how-it-works">The full how-it-works, in plain English →</a></p>
+
+    <h2>The one habit worth building</h2>
+    <p>Whatever you choose, do it <em>before</em> you're accused. The worst time to assemble evidence is in the middle of an argument you're already losing. Keep your source files, and seal each finished piece as you post it. Then the receipt is just there, and the accusation dies in one reply.</p>
+
+    <h2 id="questions">Questions</h2>
+    <h3>Can you actually prove art is human-made?</h3>
+    <p>You can't prove a negative about how a brain worked, but you can prove the parts that matter in a dispute: that you held the source files, that a specific final file existed under your control at a specific time, and that it hasn't been altered since. A cryptographic seal captures the last two in a form anyone can check.</p>
+    <h3>Do AI detectors prove my work is human?</h3>
+    <p>No. A detector guesses a probability from the pixels, and it is wrong often enough that plenty of human artists get flagged as AI. It can help a platform triage unknown images at scale, but it can't stand as proof that you made a particular piece.</p>
+    <h3>What is the fastest way to defend against an AI accusation?</h3>
+    <p>Have the receipt ready before you need it. Keep your layered source files, and seal the finished piece so there is a public certificate you can link the moment someone doubts you — instead of scrambling to assemble evidence mid-argument.</p>
+
+    <div class="cta-band">
+      <p>Seal your next piece and keep the receipt.</p>
+      <a class="btn btn--solid" href="/join">Get your work verified →</a>
+      <a class="btn btn--ghost" href="/verified">Why a seal</a>
+    </div>
+  </article>
+
+  <footer>
+    <a href="/verified">← Verified art</a>
+    <a href="/how-it-works">How it works</a>
+    <a href="/faq">FAQ</a>
+    <span>Updated <time datetime="2026-09-20">20 Sep 2026</time></span>
+    <span>Authentic · Verified · Human</span>
+  </footer>
+</body>
+</html>
