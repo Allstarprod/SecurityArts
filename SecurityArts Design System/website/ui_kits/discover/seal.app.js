@@ -6,31 +6,17 @@ function strhash(s) {
   for (var i = 0; i < s.length; i++) h = Math.imul(31, h) + s.charCodeAt(i) | 0;
   return h;
 }
-function mulberry(a) {
-  return function() {
-    a |= 0;
-    a = a + 1831565813 | 0;
-    var t = Math.imul(a ^ a >>> 15, 1 | a);
-    t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t;
-    return ((t ^ t >>> 14) >>> 0) / 4294967296;
-  };
-}
-function hex(seed, n) {
-  var r = mulberry(strhash(seed));
-  var o = "";
-  for (var i = 0; i < n; i++) o += "0123456789abcdef"[r() * 16 | 0];
-  return o;
-}
 function sealId(id) {
   return "SA-" + ((strhash("seal" + id) >>> 0).toString(36).toUpperCase() + "000000").slice(0, 6);
 }
-function money(n) {
-  return "$" + n.toLocaleString("en-US");
+function fdate(iso) {
+  const d = new Date(iso);
+  return isNaN(d) ? String(iso) : d.toLocaleDateString("en-US", { year: "numeric", month: "short", day: "numeric" });
 }
-function fdate(d) {
-  return d.toLocaleDateString("en-US", { year: "numeric", month: "short", day: "numeric" });
+function ftime(iso) {
+  const d = new Date(iso);
+  return isNaN(d) ? String(iso) : d.toLocaleString("en-US", { year: "numeric", month: "short", day: "numeric", hour: "numeric", minute: "2-digit", timeZoneName: "short" });
 }
-const BUYERS = ["Aria Fenn", "Atlas & Co.", "Halcyon Gallery", "Devon Park", "Lena Cho", "Nadia Rios"];
 function resolveWork() {
   const p = new URLSearchParams(location.search);
   const sid = (p.get("id") || "").toUpperCase();
@@ -40,8 +26,11 @@ function resolveWork() {
     const hit = C.works.find((w) => sealId(w.id) === sid);
     if (hit) return hit;
   }
-  if (wid) return null;
-  return C.workById["w3"] || C.works[0];
+  return null;
+}
+function verifyHref(hash) {
+  const q = hash ? "?hash=" + encodeURIComponent(hash) : "";
+  return /\.html$/i.test(location.pathname) ? "verify.html" + q : "/verify" + q;
 }
 function artistFor(work) {
   return C.artistById[work.artistId] || { id: null, ownerId: work.ownerId || null, name: work.artist || "Artist", city: "", handle: "" };
@@ -49,24 +38,9 @@ function artistFor(work) {
 function artSrc(work) {
   return work.seed != null ? SAGenArt.dataUri(work.seed, { cat: work.cat }) : work.img || work.imgUrl || "";
 }
-function chainFor(work) {
-  const artist = artistFor(work);
-  const rand = mulberry(Math.abs(strhash("chain" + work.id)) + 3);
-  const base = new Date(2026, 0, 1 + Math.abs(strhash(work.id)) % 150);
-  const events = [];
-  events.push({ kind: "seal", title: "Sealed at origin", date: new Date(base), who: artist.name, body: /* @__PURE__ */ React.createElement(React.Fragment, null, "Signed by ", /* @__PURE__ */ React.createElement("b", null, artist.name), " and registered. The work's SHA-256 fingerprint was written to the public registry."), hash: hex("h" + work.id, 64) });
-  const nT = work.seed != null ? Math.floor(rand() * 3) : 0;
-  let owner = artist.name, cursor = new Date(base);
-  for (let i = 0; i < nT; i++) {
-    cursor = new Date(cursor.getTime() + (20 + Math.floor(rand() * 90)) * 864e5);
-    const tier = ["Personal", "Commercial", "Exclusive"][Math.floor(rand() * 3)];
-    const to = BUYERS[Math.floor(rand() * BUYERS.length)];
-    events.push({ kind: "transfer", title: tier === "Exclusive" ? "Sold \u2014 exclusive" : tier + " license", date: new Date(cursor), who: to, body: /* @__PURE__ */ React.createElement(React.Fragment, null, /* @__PURE__ */ React.createElement("b", null, owner), " \u2192 ", /* @__PURE__ */ React.createElement("b", null, to), " \xB7 ", tier, " license \xB7 ", money(work.price * (tier === "Exclusive" ? 9 : tier === "Commercial" ? 3 : 1)), ". Seal transferred and re-signed to the new holder."), hash: hex("t" + work.id + i, 64) });
-    if (tier === "Exclusive") owner = to;
-  }
-  cursor = new Date(Date.now() - (5 + Math.floor(rand() * 20)) * 864e5);
-  events.push({ kind: "verify", title: "Re-verified", date: cursor, who: "Registry", body: /* @__PURE__ */ React.createElement(React.Fragment, null, "Signature checked against the registry \u2014 ", /* @__PURE__ */ React.createElement("b", null, "valid"), ". Anyone can run this check at any time."), hash: null });
-  return events.reverse();
+function certOf(work) {
+  const c = work && work.cert;
+  return c && c.hash && c.sig ? c : null;
 }
 function AppBar() {
   return /* @__PURE__ */ React.createElement("header", { className: "appbar" }, /* @__PURE__ */ React.createElement("a", { className: "brand", href: "index.html", "aria-label": "SecurityArts Discover" }, /* @__PURE__ */ React.createElement(Seal, { size: 30 }), /* @__PURE__ */ React.createElement("span", { className: "brand__word" }, "SecurityArts"), /* @__PURE__ */ React.createElement("span", { className: "brand__sub" }, "Seal record")), /* @__PURE__ */ React.createElement("nav", { className: "nav" }, /* @__PURE__ */ React.createElement("a", { href: "index.html", className: "optional" }, "Discover"), /* @__PURE__ */ React.createElement("a", { href: "verify.html" }, "Verify"), /* @__PURE__ */ React.createElement("a", { href: "me.html", className: "optional" }, "You"), /* @__PURE__ */ React.createElement(ThemeToggle, { size: 38 })));
@@ -152,7 +126,7 @@ function Comments({ workId }) {
     setReplyTo(replyTo === c.id ? null : c.id);
     setReplyText("");
   } }, "Reply") : null, user && user.id === c.userId ? /* @__PURE__ */ React.createElement("button", { className: "cdel", onClick: () => del(c) }, "Delete") : null);
-  return /* @__PURE__ */ React.createElement("section", { className: "section", id: "discussion" }, /* @__PURE__ */ React.createElement("p", { className: "section__h" }, /* @__PURE__ */ React.createElement("span", null, "03"), " Discussion", items ? " \xB7 " + items.length : ""), user ? /* @__PURE__ */ React.createElement("div", { className: "cbox" }, /* @__PURE__ */ React.createElement(Avatar, { name: user.name, size: 38 }), /* @__PURE__ */ React.createElement("div", { className: "cbox__main" }, /* @__PURE__ */ React.createElement("textarea", { className: "cinput", value: text, onChange: (e) => setText(e.target.value), placeholder: "Add a comment\u2026", maxLength: 500, rows: 2 }), /* @__PURE__ */ React.createElement("div", { className: "cbox__act" }, /* @__PURE__ */ React.createElement(Button, { variant: "solid", size: "sm", onClick: () => post(text, null), disabled: busy || !text.trim() }, busy ? "Posting\u2026" : "Post")))) : /* @__PURE__ */ React.createElement("p", { className: "csignin" }, /* @__PURE__ */ React.createElement(Icon, { name: "message", size: 16 }), " ", /* @__PURE__ */ React.createElement("a", { href: signInHref }, "Sign in"), " to join the discussion."), items === null ? /* @__PURE__ */ React.createElement("p", { className: "cempty" }, "Loading comments\u2026") : tops.length === 0 ? /* @__PURE__ */ React.createElement("p", { className: "cempty" }, "No comments yet \u2014 be the first to weigh in.") : /* @__PURE__ */ React.createElement("ul", { className: "clist" }, tops.map((c) => /* @__PURE__ */ React.createElement("li", { key: c.id, className: "citem" }, /* @__PURE__ */ React.createElement(Avatar, { name: c.authorName, size: 36 }), /* @__PURE__ */ React.createElement("div", { className: "citem__body" }, /* @__PURE__ */ React.createElement("div", { className: "citem__head" }, /* @__PURE__ */ React.createElement("b", null, c.authorName), /* @__PURE__ */ React.createElement("span", null, timeAgo(c.createdAt))), /* @__PURE__ */ React.createElement("p", { className: "citem__text" }, c.text), actions(c, false), replyTo === c.id ? /* @__PURE__ */ React.createElement("div", { className: "creplybox" }, /* @__PURE__ */ React.createElement("textarea", { className: "cinput", value: replyText, onChange: (e) => setReplyText(e.target.value), placeholder: "Reply to " + c.authorName + "\u2026", maxLength: 500, rows: 2, autoFocus: true }), /* @__PURE__ */ React.createElement("div", { className: "cbox__act" }, /* @__PURE__ */ React.createElement(Button, { variant: "solid", size: "sm", onClick: () => post(replyText, c.id), disabled: busy || !replyText.trim() }, "Reply"), /* @__PURE__ */ React.createElement(Button, { variant: "ghost", size: "sm", onClick: () => setReplyTo(null) }, "Cancel"))) : null, repliesOf(c.id).map((r) => /* @__PURE__ */ React.createElement("div", { key: r.id, className: "creplyitem" }, /* @__PURE__ */ React.createElement(Avatar, { name: r.authorName, size: 28 }), /* @__PURE__ */ React.createElement("div", { className: "citem__body" }, /* @__PURE__ */ React.createElement("div", { className: "citem__head" }, /* @__PURE__ */ React.createElement("b", null, r.authorName), /* @__PURE__ */ React.createElement("span", null, timeAgo(r.createdAt))), /* @__PURE__ */ React.createElement("p", { className: "citem__text" }, r.text), actions(r, true)))))))), /* @__PURE__ */ React.createElement(Toast, { show: !!toast }, toast));
+  return /* @__PURE__ */ React.createElement("section", { className: "section", id: "discussion" }, /* @__PURE__ */ React.createElement("p", { className: "section__h" }, /* @__PURE__ */ React.createElement("span", null, "02"), " Discussion", items ? " \xB7 " + items.length : ""), user ? /* @__PURE__ */ React.createElement("div", { className: "cbox" }, /* @__PURE__ */ React.createElement(Avatar, { name: user.name, size: 38 }), /* @__PURE__ */ React.createElement("div", { className: "cbox__main" }, /* @__PURE__ */ React.createElement("textarea", { className: "cinput", value: text, onChange: (e) => setText(e.target.value), placeholder: "Add a comment\u2026", maxLength: 500, rows: 2 }), /* @__PURE__ */ React.createElement("div", { className: "cbox__act" }, /* @__PURE__ */ React.createElement(Button, { variant: "solid", size: "sm", onClick: () => post(text, null), disabled: busy || !text.trim() }, busy ? "Posting\u2026" : "Post")))) : /* @__PURE__ */ React.createElement("p", { className: "csignin" }, /* @__PURE__ */ React.createElement(Icon, { name: "message", size: 16 }), " ", /* @__PURE__ */ React.createElement("a", { href: signInHref }, "Sign in"), " to join the discussion."), items === null ? /* @__PURE__ */ React.createElement("p", { className: "cempty" }, "Loading comments\u2026") : tops.length === 0 ? /* @__PURE__ */ React.createElement("p", { className: "cempty" }, "No comments yet \u2014 be the first to weigh in.") : /* @__PURE__ */ React.createElement("ul", { className: "clist" }, tops.map((c) => /* @__PURE__ */ React.createElement("li", { key: c.id, className: "citem" }, /* @__PURE__ */ React.createElement(Avatar, { name: c.authorName, size: 36 }), /* @__PURE__ */ React.createElement("div", { className: "citem__body" }, /* @__PURE__ */ React.createElement("div", { className: "citem__head" }, /* @__PURE__ */ React.createElement("b", null, c.authorName), /* @__PURE__ */ React.createElement("span", null, timeAgo(c.createdAt))), /* @__PURE__ */ React.createElement("p", { className: "citem__text" }, c.text), actions(c, false), replyTo === c.id ? /* @__PURE__ */ React.createElement("div", { className: "creplybox" }, /* @__PURE__ */ React.createElement("textarea", { className: "cinput", value: replyText, onChange: (e) => setReplyText(e.target.value), placeholder: "Reply to " + c.authorName + "\u2026", maxLength: 500, rows: 2, autoFocus: true }), /* @__PURE__ */ React.createElement("div", { className: "cbox__act" }, /* @__PURE__ */ React.createElement(Button, { variant: "solid", size: "sm", onClick: () => post(replyText, c.id), disabled: busy || !replyText.trim() }, "Reply"), /* @__PURE__ */ React.createElement(Button, { variant: "ghost", size: "sm", onClick: () => setReplyTo(null) }, "Cancel"))) : null, repliesOf(c.id).map((r) => /* @__PURE__ */ React.createElement("div", { key: r.id, className: "creplyitem" }, /* @__PURE__ */ React.createElement(Avatar, { name: r.authorName, size: 28 }), /* @__PURE__ */ React.createElement("div", { className: "citem__body" }, /* @__PURE__ */ React.createElement("div", { className: "citem__head" }, /* @__PURE__ */ React.createElement("b", null, r.authorName), /* @__PURE__ */ React.createElement("span", null, timeAgo(r.createdAt))), /* @__PURE__ */ React.createElement("p", { className: "citem__text" }, r.text), actions(r, true)))))))), /* @__PURE__ */ React.createElement(Toast, { show: !!toast }, toast));
 }
 function App() {
   const [work, setWork] = React.useState(resolveWork);
@@ -177,15 +151,9 @@ function App() {
     };
   }, []);
   const artist = work ? artistFor(work) : null;
-  const id = work ? sealId(work.id) : "";
-  const chain = React.useMemo(() => work ? chainFor(work) : [], [work]);
-  const owner = React.useMemo(() => {
-    if (!work) return "";
-    const ex = chain.find((e) => e.kind === "transfer" && /exclusive/i.test(e.title));
-    return ex ? ex.who : artist.name;
-  }, [chain, work]);
-  const [checking, setChecking] = React.useState(false);
-  const [checkedAt, setCheckedAt] = React.useState(null);
+  const cert = certOf(work);
+  const [check, setCheck] = React.useState({ status: "idle" });
+  const checkRef = React.useRef(0);
   const [toast, setToast] = React.useState("");
   const toastRef = React.useRef();
   const show = (m) => {
@@ -250,36 +218,39 @@ function App() {
     });
   };
   const related = React.useMemo(() => work ? C.works.filter((w) => w.cat === work.cat && w.id !== work.id).slice(0, 6) : [], [work]);
-  const reverify = () => {
-    setChecking(true);
-    setTimeout(() => {
-      setChecking(false);
-      setCheckedAt(/* @__PURE__ */ new Date());
-      show("Signature valid \u2014 human-made");
-    }, 1100);
-  };
-  const copyEmbed = () => {
+  const reverify = React.useCallback(async () => {
+    if (!cert) return;
+    if (!window.SA_API) {
+      setCheck({ status: "error", msg: "The registry API isn't reachable from this page." });
+      return;
+    }
+    const id = ++checkRef.current;
+    setCheck({ status: "checking" });
     try {
-      navigator.clipboard && navigator.clipboard.writeText(embed);
+      const r = await window.SA_API.verify(cert.hash);
+      if (id !== checkRef.current) return;
+      setCheck({ status: r && r.verified ? "ok" : "invalid", at: /* @__PURE__ */ new Date(), signer: r && r.signer, sealedAt: r && r.sealedAt });
+    } catch (e) {
+      if (id !== checkRef.current) return;
+      const m = e && e.message || "";
+      setCheck(/no sealed work|HTTP 404/i.test(m) ? { status: "notfound", at: /* @__PURE__ */ new Date() } : { status: "error", at: /* @__PURE__ */ new Date(), msg: m || "Couldn't reach the registry." });
+    }
+  }, [cert]);
+  React.useEffect(() => {
+    reverify();
+  }, [reverify]);
+  const copyHash = () => {
+    try {
+      navigator.clipboard && navigator.clipboard.writeText(cert.hash);
     } catch (e) {
     }
-    show("Embed snippet copied");
-  };
-  const copyId = () => {
-    try {
-      navigator.clipboard && navigator.clipboard.writeText(id);
-    } catch (e) {
-    }
-    show("Seal ID copied");
+    show("SHA-256 copied");
   };
   if (!work) return /* @__PURE__ */ React.createElement(React.Fragment, null, /* @__PURE__ */ React.createElement(AppBar, null), /* @__PURE__ */ React.createElement("div", { className: "wrap" }, /* @__PURE__ */ React.createElement("div", { className: "cempty", style: { padding: "4rem 0", textAlign: "center" } }, notFound ? /* @__PURE__ */ React.createElement(React.Fragment, null, /* @__PURE__ */ React.createElement("h1", { className: "lede__title", style: { marginBottom: "0.6rem" } }, "Work not found."), /* @__PURE__ */ React.createElement("p", null, "This seal record doesn't exist or was removed."), /* @__PURE__ */ React.createElement("p", { style: { marginTop: "1.4rem" } }, /* @__PURE__ */ React.createElement("a", { href: "index.html" }, /* @__PURE__ */ React.createElement(Button, { variant: "solid", size: "sm", arrow: true }, "Back to Discover")))) : /* @__PURE__ */ React.createElement("p", null, "Loading seal record\u2026"))));
   const artistHref = artist.id ? `profile.html?artist=${artist.id}` : artist.ownerId ? `profile.html?u=${encodeURIComponent(artist.ownerId)}` : null;
-  const fullHash = hex("h" + work.id, 64);
-  const embed = `<a href="https://securityarts.studio/s/${id}">
-  <img alt="Verified by SecurityArts"
-       src="https://securityarts.studio/badge/${id}.svg" />
-</a>`;
-  return /* @__PURE__ */ React.createElement(React.Fragment, null, /* @__PURE__ */ React.createElement(AppBar, null), /* @__PURE__ */ React.createElement("div", { className: "wrap" }, /* @__PURE__ */ React.createElement("div", { className: "crumb" }, /* @__PURE__ */ React.createElement("a", { href: "verify.html" }, "Verify"), " ", /* @__PURE__ */ React.createElement(Icon, { name: "arrowRight", size: 11 }), " ", /* @__PURE__ */ React.createElement("span", null, id)), /* @__PURE__ */ React.createElement("div", { className: "top" }, /* @__PURE__ */ React.createElement("div", { className: "art" }, /* @__PURE__ */ React.createElement("img", { src: artSrc(work), alt: work.title }), /* @__PURE__ */ React.createElement(VerifiedBadge, { className: "art__badge" }, "Verified")), /* @__PURE__ */ React.createElement("div", null, /* @__PURE__ */ React.createElement("p", { className: "lede__eyebrow" }, "Seal ", id), /* @__PURE__ */ React.createElement("h1", { className: "lede__title" }, work.title), /* @__PURE__ */ React.createElement("div", { className: "lede__by" }, artistHref ? /* @__PURE__ */ React.createElement("a", { href: artistHref }, /* @__PURE__ */ React.createElement(Avatar, { name: artist.name, size: 38, verified: true })) : /* @__PURE__ */ React.createElement(Avatar, { name: artist.name, size: 38, verified: true }), /* @__PURE__ */ React.createElement("div", null, artistHref ? /* @__PURE__ */ React.createElement("a", { href: artistHref }, /* @__PURE__ */ React.createElement("div", { className: "n" }, artist.name)) : /* @__PURE__ */ React.createElement("div", { className: "n" }, artist.name), /* @__PURE__ */ React.createElement("div", { className: "c" }, work.medium, artist.city ? " \xB7 " + artist.city : ""))), /* @__PURE__ */ React.createElement("div", { className: "engage" }, /* @__PURE__ */ React.createElement("button", { className: `likebtn ${likedByMe ? "on" : ""}`, onClick: toggleLike, "aria-pressed": likedByMe, title: "Like this work" }, /* @__PURE__ */ React.createElement(Icon, { name: "heart", size: 16 }), " ", /* @__PURE__ */ React.createElement("span", null, likes != null ? likes : "\u2014")), /* @__PURE__ */ React.createElement("a", { className: "engage__jump", href: "#discussion" }, /* @__PURE__ */ React.createElement(Icon, { name: "message", size: 15 }), " Join the discussion")), /* @__PURE__ */ React.createElement("div", { className: "verify-panel" }, /* @__PURE__ */ React.createElement("div", { className: "verify-row" }, /* @__PURE__ */ React.createElement(Seal, { size: 44, className: "verify-seal" }), /* @__PURE__ */ React.createElement("div", { className: "verify-main" }, /* @__PURE__ */ React.createElement("div", { className: "verify-status" }, /* @__PURE__ */ React.createElement("span", { className: "live" }), checking ? "Checking\u2026" : "Authentic \u2014 human-made"), /* @__PURE__ */ React.createElement("div", { className: "verify-sub" }, checkedAt ? "Re-verified " + checkedAt.toLocaleTimeString([], { hour: "numeric", minute: "2-digit" }) : "Signature valid \xB7 registry match"))), /* @__PURE__ */ React.createElement("div", { className: "verify-actions" }, /* @__PURE__ */ React.createElement(Button, { variant: "brass", size: "sm", onClick: reverify, disabled: checking }, checking ? "Verifying\u2026" : "Re-verify now"), /* @__PURE__ */ React.createElement(Button, { variant: "ghost", size: "sm", onClick: copyId }, "Copy seal ID"))), /* @__PURE__ */ React.createElement("div", { className: "facts" }, /* @__PURE__ */ React.createElement("div", { className: "fact" }, /* @__PURE__ */ React.createElement("div", { className: "fact__k" }, "Current owner"), /* @__PURE__ */ React.createElement("div", { className: "fact__v" }, owner)), /* @__PURE__ */ React.createElement("div", { className: "fact" }, /* @__PURE__ */ React.createElement("div", { className: "fact__k" }, "Algorithm"), /* @__PURE__ */ React.createElement("div", { className: "fact__v brass" }, "ECDSA P-256 \xB7 SHA-256")), /* @__PURE__ */ React.createElement("div", { className: "fact" }, /* @__PURE__ */ React.createElement("div", { className: "fact__k" }, "Signer key"), /* @__PURE__ */ React.createElement("div", { className: "fact__v" }, "sa:key:", hex("k" + (work.artistId || work.id), 12))), /* @__PURE__ */ React.createElement("div", { className: "fact" }, /* @__PURE__ */ React.createElement("div", { className: "fact__k" }, "Transfers"), /* @__PURE__ */ React.createElement("div", { className: "fact__v" }, chain.filter((e) => e.kind === "transfer").length))))), /* @__PURE__ */ React.createElement("section", { className: "section" }, /* @__PURE__ */ React.createElement("p", { className: "section__h" }, /* @__PURE__ */ React.createElement("span", null, "01"), " Provenance"), /* @__PURE__ */ React.createElement("ul", { className: "timeline" }, chain.map((e, i) => /* @__PURE__ */ React.createElement("li", { className: `event ${e.kind}`, key: i }, /* @__PURE__ */ React.createElement("span", { className: "event__dot" }, /* @__PURE__ */ React.createElement(Icon, { name: e.kind === "seal" ? "shieldCheck" : e.kind === "transfer" ? "arrowRight" : "checkCircle", size: 13 })), /* @__PURE__ */ React.createElement("div", { className: "event__head" }, /* @__PURE__ */ React.createElement("span", { className: "event__title" }, e.title), /* @__PURE__ */ React.createElement("span", { className: "event__date" }, fdate(e.date))), /* @__PURE__ */ React.createElement("div", { className: "event__body" }, e.body), e.hash ? /* @__PURE__ */ React.createElement("div", { className: "event__hash" }, "tx ", e.hash.slice(0, 40), "\u2026", e.hash.slice(-8)) : null)))), /* @__PURE__ */ React.createElement("section", { className: "section" }, /* @__PURE__ */ React.createElement("p", { className: "section__h" }, /* @__PURE__ */ React.createElement("span", null, "02"), " Embed the badge"), /* @__PURE__ */ React.createElement("div", { className: "embed" }, /* @__PURE__ */ React.createElement("div", { className: "embed__preview" }, /* @__PURE__ */ React.createElement("span", { className: "badge-chip" }, /* @__PURE__ */ React.createElement(Seal, { size: 16, className: "s" }), " Verified by SecurityArts")), /* @__PURE__ */ React.createElement("div", null, /* @__PURE__ */ React.createElement("div", { className: "code" }, /* @__PURE__ */ React.createElement(IconButton, { icon: "check", variant: "outline", label: "Copy", className: "code__copy", onClick: copyEmbed }), /* @__PURE__ */ React.createElement("pre", null, /* @__PURE__ */ React.createElement("span", { className: "tag" }, "<a"), " ", /* @__PURE__ */ React.createElement("span", { className: "attr" }, "href"), "=", /* @__PURE__ */ React.createElement("span", { className: "str" }, '"https://securityarts.studio/s/', id, '"'), /* @__PURE__ */ React.createElement("span", { className: "tag" }, ">"), "\n  ", /* @__PURE__ */ React.createElement("span", { className: "tag" }, "<img"), " ", /* @__PURE__ */ React.createElement("span", { className: "attr" }, "alt"), "=", /* @__PURE__ */ React.createElement("span", { className: "str" }, '"Verified by SecurityArts"'), "\n       ", /* @__PURE__ */ React.createElement("span", { className: "attr" }, "src"), "=", /* @__PURE__ */ React.createElement("span", { className: "str" }, '"https://securityarts.studio/badge/', id, '.svg"'), " ", /* @__PURE__ */ React.createElement("span", { className: "tag" }, "/>"), "\n", /* @__PURE__ */ React.createElement("span", { className: "tag" }, "</a>"))), /* @__PURE__ */ React.createElement("p", { className: "embed__note" }, "Drop this on a portfolio, gallery listing, or marketplace. The badge links back to this record so any visitor can confirm the seal is live \u2014 the same check galleries and platforms run through our API.")))), /* @__PURE__ */ React.createElement(Comments, { workId: work.id }), related.length ? /* @__PURE__ */ React.createElement("section", { className: "section" }, /* @__PURE__ */ React.createElement("p", { className: "section__h" }, /* @__PURE__ */ React.createElement("span", null, "04"), " More like this"), /* @__PURE__ */ React.createElement("div", { className: "rail" }, related.map((w) => {
+  const statusLine = !cert ? { t: "No seal on record", s: "This catalog preview hasn't been sealed \u2014 nothing to verify." } : check.status === "checking" ? { t: "Checking the registry\u2026", s: "GET /api/verify/" + cert.hash.slice(0, 12) + "\u2026" } : check.status === "ok" ? { t: "Signature verified", s: "Registry match \xB7 checked " + check.at.toLocaleTimeString([], { hour: "numeric", minute: "2-digit" }) } : check.status === "invalid" ? { t: "Signature did not verify", s: "The registry has this hash, but the signature fails against the current key" } : check.status === "notfound" ? { t: "Not in the registry", s: "This record's hash returned no match \u2014 treat the seal as unconfirmed" } : check.status === "error" ? { t: "Couldn't reach the registry", s: check.msg || "Try again in a moment" } : { t: "Sealed", s: "Signature on record \xB7 not yet re-checked" };
+  const statusClass = !cert || check.status === "invalid" || check.status === "notfound" || check.status === "error" ? "bad" : check.status === "ok" ? "ok" : "";
+  return /* @__PURE__ */ React.createElement(React.Fragment, null, /* @__PURE__ */ React.createElement(AppBar, null), /* @__PURE__ */ React.createElement("div", { className: "wrap" }, /* @__PURE__ */ React.createElement("div", { className: "crumb" }, /* @__PURE__ */ React.createElement("a", { href: verifyHref() }, "Verify"), " ", /* @__PURE__ */ React.createElement(Icon, { name: "arrowRight", size: 11 }), " ", /* @__PURE__ */ React.createElement("span", null, work.id)), /* @__PURE__ */ React.createElement("div", { className: "top" }, /* @__PURE__ */ React.createElement("div", { className: "art" }, /* @__PURE__ */ React.createElement("img", { src: artSrc(work), alt: work.title }), cert && check.status === "ok" ? /* @__PURE__ */ React.createElement(VerifiedBadge, { className: "art__badge" }, "Verified") : null), /* @__PURE__ */ React.createElement("div", null, /* @__PURE__ */ React.createElement("p", { className: "lede__eyebrow" }, cert ? "Seal record \xB7 " + work.id : "Catalog preview \xB7 " + work.id), /* @__PURE__ */ React.createElement("h1", { className: "lede__title" }, work.title), /* @__PURE__ */ React.createElement("div", { className: "lede__by" }, artistHref ? /* @__PURE__ */ React.createElement("a", { href: artistHref }, /* @__PURE__ */ React.createElement(Avatar, { name: artist.name, size: 38, verified: true })) : /* @__PURE__ */ React.createElement(Avatar, { name: artist.name, size: 38, verified: true }), /* @__PURE__ */ React.createElement("div", null, artistHref ? /* @__PURE__ */ React.createElement("a", { href: artistHref }, /* @__PURE__ */ React.createElement("div", { className: "n" }, artist.name)) : /* @__PURE__ */ React.createElement("div", { className: "n" }, artist.name), /* @__PURE__ */ React.createElement("div", { className: "c" }, work.medium, artist.city ? " \xB7 " + artist.city : ""))), /* @__PURE__ */ React.createElement("div", { className: "engage" }, /* @__PURE__ */ React.createElement("button", { className: `likebtn ${likedByMe ? "on" : ""}`, onClick: toggleLike, "aria-pressed": likedByMe, title: "Like this work" }, /* @__PURE__ */ React.createElement(Icon, { name: "heart", size: 16 }), " ", /* @__PURE__ */ React.createElement("span", null, likes != null ? likes : "\u2014")), /* @__PURE__ */ React.createElement("a", { className: "engage__jump", href: "#discussion" }, /* @__PURE__ */ React.createElement(Icon, { name: "message", size: 15 }), " Join the discussion")), /* @__PURE__ */ React.createElement("div", { className: `verify-panel ${statusClass}` }, /* @__PURE__ */ React.createElement("div", { className: "verify-row" }, /* @__PURE__ */ React.createElement(Seal, { size: 44, className: "verify-seal" }), /* @__PURE__ */ React.createElement("div", { className: "verify-main" }, /* @__PURE__ */ React.createElement("div", { className: "verify-status" }, /* @__PURE__ */ React.createElement("span", { className: "live" }), statusLine.t), /* @__PURE__ */ React.createElement("div", { className: "verify-sub" }, statusLine.s))), cert ? /* @__PURE__ */ React.createElement("div", { className: "verify-actions" }, /* @__PURE__ */ React.createElement(Button, { variant: "brass", size: "sm", onClick: reverify, disabled: check.status === "checking" }, check.status === "checking" ? "Checking\u2026" : "Re-verify now"), /* @__PURE__ */ React.createElement(Button, { variant: "ghost", size: "sm", onClick: copyHash }, "Copy SHA-256"), /* @__PURE__ */ React.createElement("a", { href: verifyHref(cert.hash) }, /* @__PURE__ */ React.createElement(Button, { variant: "ghost", size: "sm" }, "Open in Verify"))) : /* @__PURE__ */ React.createElement("div", { className: "verify-actions" }, /* @__PURE__ */ React.createElement("a", { href: verifyHref() }, /* @__PURE__ */ React.createElement(Button, { variant: "ghost", size: "sm", arrow: true }, "Verify a real seal")))), cert ? /* @__PURE__ */ React.createElement("div", { className: "facts" }, /* @__PURE__ */ React.createElement("div", { className: "fact" }, /* @__PURE__ */ React.createElement("div", { className: "fact__k" }, "Algorithm"), /* @__PURE__ */ React.createElement("div", { className: "fact__v brass" }, cert.algo || "\u2014")), /* @__PURE__ */ React.createElement("div", { className: "fact" }, /* @__PURE__ */ React.createElement("div", { className: "fact__k" }, "Sealed at"), /* @__PURE__ */ React.createElement("div", { className: "fact__v" }, cert.ts)), /* @__PURE__ */ React.createElement("div", { className: "fact" }, /* @__PURE__ */ React.createElement("div", { className: "fact__k" }, "Signer key"), /* @__PURE__ */ React.createElement("div", { className: "fact__v" }, cert.signer)), /* @__PURE__ */ React.createElement("div", { className: "fact" }, /* @__PURE__ */ React.createElement("div", { className: "fact__k" }, "Record"), /* @__PURE__ */ React.createElement("div", { className: "fact__v" }, work.id)), /* @__PURE__ */ React.createElement("div", { className: "fact fact--wide" }, /* @__PURE__ */ React.createElement("div", { className: "fact__k" }, "SHA-256 of the file"), /* @__PURE__ */ React.createElement("div", { className: "fact__v" }, cert.hash)), /* @__PURE__ */ React.createElement("div", { className: "fact fact--wide" }, /* @__PURE__ */ React.createElement("div", { className: "fact__k" }, "Signature"), /* @__PURE__ */ React.createElement("div", { className: "fact__v" }, cert.sig))) : null)), /* @__PURE__ */ React.createElement("section", { className: "section" }, /* @__PURE__ */ React.createElement("p", { className: "section__h" }, /* @__PURE__ */ React.createElement("span", null, "01"), " Provenance"), cert ? /* @__PURE__ */ React.createElement("ul", { className: "timeline" }, /* @__PURE__ */ React.createElement("li", { className: "event seal" }, /* @__PURE__ */ React.createElement("span", { className: "event__dot" }, /* @__PURE__ */ React.createElement(Icon, { name: "shieldCheck", size: 13 })), /* @__PURE__ */ React.createElement("div", { className: "event__head" }, /* @__PURE__ */ React.createElement("span", { className: "event__title" }, "Sealed"), /* @__PURE__ */ React.createElement("span", { className: "event__date" }, fdate(cert.ts))), /* @__PURE__ */ React.createElement("div", { className: "event__body" }, ftime(cert.ts), " \u2014 the server hashed the uploaded bytes with SHA-256 and signed that hash with key ", /* @__PURE__ */ React.createElement("b", null, cert.signer), ". This is the only event on record for this work."), /* @__PURE__ */ React.createElement("div", { className: "event__hash" }, "sha256 ", cert.hash))) : /* @__PURE__ */ React.createElement("p", { className: "cempty" }, "No events \u2014 this catalog preview was never sealed, so there is no hash, signature, or timestamp to show.")), /* @__PURE__ */ React.createElement(Comments, { workId: work.id }), related.length ? /* @__PURE__ */ React.createElement("section", { className: "section" }, /* @__PURE__ */ React.createElement("p", { className: "section__h" }, /* @__PURE__ */ React.createElement("span", null, "03"), " More like this"), /* @__PURE__ */ React.createElement("div", { className: "rail" }, related.map((w) => {
     const a = C.artistById[w.artistId];
     return /* @__PURE__ */ React.createElement("a", { className: "railcard", key: w.id, href: `seal.html?work=${w.id}` }, /* @__PURE__ */ React.createElement("div", { className: "railcard__art" }, /* @__PURE__ */ React.createElement("img", { src: SAGenArt.dataUri(w.seed, { cat: w.cat }), alt: w.title })), /* @__PURE__ */ React.createElement("div", { className: "railcard__t" }, w.title), /* @__PURE__ */ React.createElement("div", { className: "railcard__a" }, a ? a.name : ""));
   }))) : null), /* @__PURE__ */ React.createElement("footer", { className: "foot" }, /* @__PURE__ */ React.createElement("a", { href: "verify.html" }, "\u2190 Back to Verify"), /* @__PURE__ */ React.createElement("span", { className: "m" }, "One seal \xB7 One human \xB7 Publicly verifiable")), /* @__PURE__ */ React.createElement(Toast, { show: !!toast }, toast));

@@ -4,6 +4,25 @@
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <title>Seal record — SecurityArts</title>
+<meta name="description" content="A SecurityArts seal record — the SHA-256 of one exact file, signed by the SecurityArts key at a recorded time. Shows the hash, signature, signer key and timestamp, and re-checks them against the public registry." />
+<meta property="og:type" content="article" />
+<meta property="og:site_name" content="SecurityArts" />
+<meta property="og:title" content="Seal record — SecurityArts" />
+<meta property="og:description" content="The SHA-256 of one exact file, signed by the SecurityArts key at a recorded time. Verify it against the public registry." />
+<meta property="og:image" content="https://security-arts.vercel.app/og-image.png" />
+<meta name="twitter:card" content="summary_large_image" />
+<meta name="twitter:title" content="Seal record — SecurityArts" />
+<meta name="twitter:description" content="The SHA-256 of one exact file, signed by the SecurityArts key at a recorded time. Verify it yourself." />
+<meta name="twitter:image" content="https://security-arts.vercel.app/og-image.png" />
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"CreativeWork","name":"SecurityArts seal record","description":"A cryptographic seal recording that a specific file (by SHA-256) was signed by the SecurityArts key at a specific time, using ECDSA P-256 over the exact file bytes.","creator":{"@type":"Organization","name":"SecurityArts","url":"https://security-arts.vercel.app/"},"provider":{"@type":"Organization","name":"SecurityArts"}}
+</script>
+<script>
+/* No static canonical/og:url: every work has its own URL, so a fixed value would be wrong
+   for all of them (and non-JS fetchers fall back to the URL they requested, which is right).
+   When a work id is present, add both pointing at the clean /seal/<id> path. */
+(function(){try{var p=new URLSearchParams(location.search);var id=p.get('work');if(!id)return;var clean='https://security-arts.vercel.app/seal/'+encodeURIComponent(id);var c=document.createElement('link');c.rel='canonical';c.href=clean;document.head.appendChild(c);var o=document.createElement('meta');o.setAttribute('property','og:url');o.setAttribute('content',clean);document.head.appendChild(o);}catch(e){}})();
+</script>
 <script>try{var t=localStorage.getItem('sa-theme');if(t)document.documentElement.setAttribute('data-theme',t)}catch(e){}</script>
 <link rel="icon" href="../../assets/favicon.svg" />
 <link rel="stylesheet" href="../../styles.css" />
@@ -45,13 +64,18 @@
   .verify-seal { color: var(--brass); flex: 0 0 auto; }
   .verify-main { flex: 1 1 auto; min-width: 0; }
   .verify-status { font-family: var(--font-serif); font-weight: 400; font-size: 1.35rem; letter-spacing: -0.015em; display: flex; align-items: center; gap: 0.5rem; }
-  .verify-status .live { width: 8px; height: 8px; border-radius: 50%; background: var(--ok); box-shadow: 0 0 0 4px color-mix(in srgb, var(--ok) 22%, transparent); animation: sapulse 2.4s var(--ease) infinite; }
+  .verify-status .live { width: 8px; height: 8px; border-radius: 50%; background: var(--bone-faint); box-shadow: 0 0 0 4px color-mix(in srgb, var(--bone-faint) 22%, transparent); }
+  .verify-panel.ok .verify-status .live { background: var(--ok); box-shadow: 0 0 0 4px color-mix(in srgb, var(--ok) 22%, transparent); animation: sapulse 2.4s var(--ease) infinite; }
+  .verify-panel.bad { border-color: var(--line-strong); background: var(--ink-2); }
+  .verify-panel.bad .verify-seal { color: var(--bone-faint); }
+  .verify-panel.bad .verify-status .live { background: var(--error); box-shadow: 0 0 0 4px color-mix(in srgb, var(--error) 22%, transparent); }
   @keyframes sapulse { 0%,100% { opacity: 1; } 50% { opacity: 0.4; } }
-  .verify-sub { font-family: var(--font-mono); font-size: 0.62rem; letter-spacing: 0.08em; color: var(--bone-dim); margin-top: 0.3rem; }
+  .verify-sub { font-family: var(--font-mono); font-size: 0.62rem; letter-spacing: 0.08em; color: var(--bone-dim); margin-top: 0.3rem; overflow-wrap: anywhere; }
   .verify-actions { display: flex; gap: 0.6rem; margin-top: 1rem; flex-wrap: wrap; }
   .facts { display: grid; grid-template-columns: repeat(2, 1fr); gap: 0.8rem; }
+  .fact--wide { grid-column: 1 / -1; }
   @media (max-width: 520px) { .facts { grid-template-columns: 1fr; } }
-  .fact { border: 1px solid var(--line); border-radius: var(--radius-md); padding: 0.7rem 0.85rem; }
+  .fact { border: 1px solid var(--line); border-radius: var(--radius-md); padding: 0.7rem 0.85rem; min-width: 0; }
   .fact__k { font-family: var(--font-mono); font-size: 0.54rem; text-transform: uppercase; letter-spacing: 0.12em; color: var(--bone-faint); }
   .fact__v { font-family: var(--font-mono); font-size: 0.8rem; color: var(--bone); margin-top: 0.25rem; word-break: break-all; }
   .fact__v.brass { color: var(--brass); }
@@ -73,18 +97,6 @@
   .event__body { color: var(--bone-dim); font-size: 0.9rem; line-height: 1.55; margin-top: 0.3rem; }
   .event__body b { color: var(--bone); font-weight: 460; }
   .event__hash { font-family: var(--font-mono); font-size: 0.62rem; color: var(--bone-faint); margin-top: 0.4rem; word-break: break-all; }
-
-  /* embed */
-  .embed { display: grid; gap: 1.4rem; grid-template-columns: 1fr; }
-  @media (min-width: 780px) { .embed { grid-template-columns: 300px 1fr; align-items: start; } }
-  .embed__preview { border: 1px solid var(--line); border-radius: var(--radius-card); background: var(--ink-2); padding: 1.4rem; display: grid; place-items: center; }
-  .badge-chip { display: inline-flex; align-items: center; gap: 0.5rem; background: var(--ink); border: 1px solid var(--brass); border-radius: var(--radius-pill); padding: 0.5rem 0.9rem 0.5rem 0.6rem; font-family: var(--font-mono); font-size: 0.62rem; text-transform: uppercase; letter-spacing: 0.1em; color: var(--bone); }
-  .badge-chip .s { color: var(--brass); }
-  .code { position: relative; border: 1px solid var(--line); border-radius: var(--radius-card); background: #0a0a09; overflow: hidden; }
-  .code pre { margin: 0; padding: 1rem 1.1rem; overflow-x: auto; font-family: var(--font-mono); font-size: 0.72rem; line-height: 1.7; color: var(--bone-dim); }
-  .code .tag { color: #8ea6d6; } .code .attr { color: var(--brass); } .code .str { color: #a7c9a0; }
-  .code__copy { position: absolute; top: 0.6rem; right: 0.6rem; }
-  .embed__note { font-size: 0.78rem; color: var(--bone-faint); line-height: 1.55; margin-top: 0.9rem; }
 
   .foot { border-top: 1px solid var(--line); padding: 2.4rem var(--gutter-app); display: flex; flex-wrap: wrap; justify-content: space-between; gap: 1rem; margin-top: 2rem; }
   .foot a { font-family: var(--font-mono); font-size: 0.74rem; text-transform: uppercase; letter-spacing: 0.12em; color: var(--bone-dim); }

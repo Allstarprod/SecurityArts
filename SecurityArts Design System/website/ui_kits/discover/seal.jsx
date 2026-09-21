@@ -1,14 +1,16 @@
 const { Seal, Icon, IconButton, Button, Avatar, VerifiedBadge, Toast, ThemeToggle } = window.SecurityArtsDesignSystem_f7e889;
 const C = window.SACatalog, S = window.SAStore;
 
-function strhash(s){var h=0;for(var i=0;i<s.length;i++)h=(Math.imul(31,h)+s.charCodeAt(i))|0;return h;}
-function mulberry(a){return function(){a|=0;a=a+0x6D2B79F5|0;var t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296;};}
-function hex(seed,n){var r=mulberry(strhash(seed));var o="";for(var i=0;i<n;i++)o+="0123456789abcdef"[(r()*16)|0];return o;}
-function sealId(id){return "SA-"+((strhash("seal"+id)>>>0).toString(36).toUpperCase()+"000000").slice(0,6);}
-function money(n){return "$"+n.toLocaleString("en-US");}
-function fdate(d){return d.toLocaleDateString("en-US",{year:"numeric",month:"short",day:"numeric"});}
+/* Seal record. Everything cryptographic on this page comes from `work.cert`
+   ({ hash, sig, signer, algo, ts }) as the server stored it — rendered verbatim,
+   never derived client-side. Catalog previews carry no cert and say so. */
 
-const BUYERS = ["Aria Fenn", "Atlas & Co.", "Halcyon Gallery", "Devon Park", "Lena Cho", "Nadia Rios"];
+function strhash(s){var h=0;for(var i=0;i<s.length;i++)h=(Math.imul(31,h)+s.charCodeAt(i))|0;return h;}
+// Legacy `?id=SA-XXXXXX` links (me.html purchases) — a lookup key for catalog previews only.
+function sealId(id){return "SA-"+((strhash("seal"+id)>>>0).toString(36).toUpperCase()+"000000").slice(0,6);}
+function fdate(iso){const d=new Date(iso);return isNaN(d)?String(iso):d.toLocaleDateString("en-US",{year:"numeric",month:"short",day:"numeric"});}
+// (dateStyle/timeStyle can't be combined with timeZoneName — Intl throws.)
+function ftime(iso){const d=new Date(iso);return isNaN(d)?String(iso):d.toLocaleString("en-US",{year:"numeric",month:"short",day:"numeric",hour:"numeric",minute:"2-digit",timeZoneName:"short"});}
 
 function resolveWork() {
   const p = new URLSearchParams(location.search);
@@ -16,8 +18,14 @@ function resolveWork() {
   const wid = p.get("work");
   if (wid && C.workById[wid]) return C.workById[wid];
   if (sid) { const hit = C.works.find((w) => sealId(w.id) === sid); if (hit) return hit; }
-  if (wid) return null; // not in the local catalog — a user-published work; fetch from the API
-  return C.workById["w3"] || C.works[0];
+  return null; // user-published id → fetch from the API; no id at all → not found
+}
+
+/* Clean route on the deployed site (/verify via vercel.json); the sibling file when
+   this page is opened by its .html path (local dev / plain static host). */
+function verifyHref(hash) {
+  const q = hash ? "?hash=" + encodeURIComponent(hash) : "";
+  return /\.html$/i.test(location.pathname) ? "verify.html" + q : "/verify" + q;
 }
 
 // Artist for a work: a catalog artist, or a lightweight stand-in for a user-published
@@ -28,30 +36,8 @@ function artistFor(work) {
 // Image source: generated art for catalog works (they carry a seed), the real uploaded
 // image for user works (they carry img/imgUrl from the API).
 function artSrc(work) { return work.seed != null ? SAGenArt.dataUri(work.seed, { cat: work.cat }) : (work.img || work.imgUrl || ""); }
-
-/* Deterministic provenance chain for a work. */
-function chainFor(work) {
-  const artist = artistFor(work);
-  const rand = mulberry(Math.abs(strhash("chain" + work.id)) + 3);
-  const base = new Date(2026, 0, 1 + (Math.abs(strhash(work.id)) % 150));
-  const events = [];
-  events.push({ kind: "seal", title: "Sealed at origin", date: new Date(base), who: artist.name, body: <>Signed by <b>{artist.name}</b> and registered. The work's SHA-256 fingerprint was written to the public registry.</>, hash: hex("h" + work.id, 64) });
-  // 0–2 fabricated transfers — only for the demo catalog (which carries a numeric seed
-  // + scalar price). Real user-published works show just the true seal-at-origin event.
-  const nT = work.seed != null ? Math.floor(rand() * 3) : 0;
-  let owner = artist.name, cursor = new Date(base);
-  for (let i = 0; i < nT; i++) {
-    cursor = new Date(cursor.getTime() + (20 + Math.floor(rand() * 90)) * 864e5);
-    const tier = ["Personal", "Commercial", "Exclusive"][Math.floor(rand() * 3)];
-    const to = BUYERS[Math.floor(rand() * BUYERS.length)];
-    events.push({ kind: "transfer", title: (tier === "Exclusive" ? "Sold — exclusive" : tier + " license"), date: new Date(cursor), who: to, body: <><b>{owner}</b> → <b>{to}</b> · {tier} license · {money(work.price * (tier === "Exclusive" ? 9 : tier === "Commercial" ? 3 : 1))}. Seal transferred and re-signed to the new holder.</>, hash: hex("t" + work.id + i, 64) });
-    if (tier === "Exclusive") owner = to;
-  }
-  // a re-verification event
-  cursor = new Date(Date.now() - (5 + Math.floor(rand() * 20)) * 864e5);
-  events.push({ kind: "verify", title: "Re-verified", date: cursor, who: "Registry", body: <>Signature checked against the registry — <b>valid</b>. Anyone can run this check at any time.</>, hash: null });
-  return events.reverse(); // newest first
-}
+// A real seal is the server-issued cert: hash + signature + signer + timestamp.
+function certOf(work) { const c = work && work.cert; return c && c.hash && c.sig ? c : null; }
 
 function AppBar() {
   return (
@@ -146,7 +132,7 @@ function Comments({ workId }) {
 
   return (
     <section className="section" id="discussion">
-      <p className="section__h"><span>03</span> Discussion{items ? " · " + items.length : ""}</p>
+      <p className="section__h"><span>02</span> Discussion{items ? " · " + items.length : ""}</p>
 
       {user ? (
         <div className="cbox">
@@ -215,15 +201,10 @@ function App() {
     return () => { alive = false; };
   }, []);
   const artist = work ? artistFor(work) : null;
-  const id = work ? sealId(work.id) : "";
-  const chain = React.useMemo(() => (work ? chainFor(work) : []), [work]);
-  const owner = React.useMemo(() => {
-    if (!work) return "";
-    const ex = chain.find((e) => e.kind === "transfer" && /exclusive/i.test(e.title));
-    return ex ? ex.who : artist.name;
-  }, [chain, work]);
-  const [checking, setChecking] = React.useState(false);
-  const [checkedAt, setCheckedAt] = React.useState(null);
+  const cert = certOf(work);
+  // Live registry check: { status: idle | checking | ok | invalid | notfound | error, at, msg }
+  const [check, setCheck] = React.useState({ status: "idle" });
+  const checkRef = React.useRef(0);
   const [toast, setToast] = React.useState("");
   const toastRef = React.useRef();
   const show = (m) => { setToast(m); clearTimeout(toastRef.current); toastRef.current = setTimeout(() => setToast(""), 1900); };
@@ -265,12 +246,26 @@ function App() {
   // Related works — same medium, from the catalog.
   const related = React.useMemo(() => (work ? C.works.filter((w) => w.cat === work.cat && w.id !== work.id).slice(0, 6) : []), [work]);
 
-  const reverify = () => {
-    setChecking(true);
-    setTimeout(() => { setChecking(false); setCheckedAt(new Date()); show("Signature valid — human-made"); }, 1100);
-  };
-  const copyEmbed = () => { try { navigator.clipboard && navigator.clipboard.writeText(embed); } catch (e) {} show("Embed snippet copied"); };
-  const copyId = () => { try { navigator.clipboard && navigator.clipboard.writeText(id); } catch (e) {} show("Seal ID copied"); };
+  // Ask the registry to re-check this record's hash — GET /api/verify/:hash. Runs once on
+  // load and again on demand; the panel renders exactly what the API answered.
+  const reverify = React.useCallback(async () => {
+    if (!cert) return;
+    if (!window.SA_API) { setCheck({ status: "error", msg: "The registry API isn't reachable from this page." }); return; }
+    const id = ++checkRef.current;
+    setCheck({ status: "checking" });
+    try {
+      const r = await window.SA_API.verify(cert.hash);
+      if (id !== checkRef.current) return;
+      setCheck({ status: r && r.verified ? "ok" : "invalid", at: new Date(), signer: r && r.signer, sealedAt: r && r.sealedAt });
+    } catch (e) {
+      if (id !== checkRef.current) return;
+      const m = (e && e.message) || "";
+      setCheck(/no sealed work|HTTP 404/i.test(m) ? { status: "notfound", at: new Date() } : { status: "error", at: new Date(), msg: m || "Couldn't reach the registry." });
+    }
+  }, [cert]);
+  React.useEffect(() => { reverify(); }, [reverify]);
+
+  const copyHash = () => { try { navigator.clipboard && navigator.clipboard.writeText(cert.hash); } catch (e) {} show("SHA-256 copied"); };
 
   if (!work) return (
     <React.Fragment>
@@ -286,26 +281,28 @@ function App() {
   );
 
   const artistHref = artist.id ? `profile.html?artist=${artist.id}` : (artist.ownerId ? `profile.html?u=${encodeURIComponent(artist.ownerId)}` : null);
-  const fullHash = hex("h" + work.id, 64);
-  const embed =
-`<a href="https://securityarts.studio/s/${id}">
-  <img alt="Verified by SecurityArts"
-       src="https://securityarts.studio/badge/${id}.svg" />
-</a>`;
+  const statusLine = !cert ? { t: "No seal on record", s: "This catalog preview hasn't been sealed — nothing to verify." }
+    : check.status === "checking" ? { t: "Checking the registry…", s: "GET /api/verify/" + cert.hash.slice(0, 12) + "…" }
+    : check.status === "ok" ? { t: "Signature verified", s: "Registry match · checked " + check.at.toLocaleTimeString([], { hour: "numeric", minute: "2-digit" }) }
+    : check.status === "invalid" ? { t: "Signature did not verify", s: "The registry has this hash, but the signature fails against the current key" }
+    : check.status === "notfound" ? { t: "Not in the registry", s: "This record's hash returned no match — treat the seal as unconfirmed" }
+    : check.status === "error" ? { t: "Couldn't reach the registry", s: check.msg || "Try again in a moment" }
+    : { t: "Sealed", s: "Signature on record · not yet re-checked" };
+  const statusClass = !cert || check.status === "invalid" || check.status === "notfound" || check.status === "error" ? "bad" : check.status === "ok" ? "ok" : "";
 
   return (
     <React.Fragment>
       <AppBar />
       <div className="wrap">
-        <div className="crumb"><a href="verify.html">Verify</a> <Icon name="arrowRight" size={11} /> <span>{id}</span></div>
+        <div className="crumb"><a href={verifyHref()}>Verify</a> <Icon name="arrowRight" size={11} /> <span>{work.id}</span></div>
 
         <div className="top">
           <div className="art">
             <img src={artSrc(work)} alt={work.title} />
-            <VerifiedBadge className="art__badge">Verified</VerifiedBadge>
+            {cert && check.status === "ok" ? <VerifiedBadge className="art__badge">Verified</VerifiedBadge> : null}
           </div>
           <div>
-            <p className="lede__eyebrow">Seal {id}</p>
+            <p className="lede__eyebrow">{cert ? "Seal record · " + work.id : "Catalog preview · " + work.id}</p>
             <h1 className="lede__title">{work.title}</h1>
             <div className="lede__by">
               {artistHref ? <a href={artistHref}><Avatar name={artist.name} size={38} verified /></a> : <Avatar name={artist.name} size={38} verified />}
@@ -322,64 +319,61 @@ function App() {
               <a className="engage__jump" href="#discussion"><Icon name="message" size={15} /> Join the discussion</a>
             </div>
 
-            <div className="verify-panel">
+            <div className={`verify-panel ${statusClass}`}>
               <div className="verify-row">
                 <Seal size={44} className="verify-seal" />
                 <div className="verify-main">
-                  <div className="verify-status"><span className="live" />{checking ? "Checking…" : "Authentic — human-made"}</div>
-                  <div className="verify-sub">{checkedAt ? "Re-verified " + checkedAt.toLocaleTimeString([], { hour: "numeric", minute: "2-digit" }) : "Signature valid · registry match"}</div>
+                  <div className="verify-status"><span className="live" />{statusLine.t}</div>
+                  <div className="verify-sub">{statusLine.s}</div>
                 </div>
               </div>
-              <div className="verify-actions">
-                <Button variant="brass" size="sm" onClick={reverify} disabled={checking}>{checking ? "Verifying…" : "Re-verify now"}</Button>
-                <Button variant="ghost" size="sm" onClick={copyId}>Copy seal ID</Button>
-              </div>
+              {cert ? (
+                <div className="verify-actions">
+                  <Button variant="brass" size="sm" onClick={reverify} disabled={check.status === "checking"}>{check.status === "checking" ? "Checking…" : "Re-verify now"}</Button>
+                  <Button variant="ghost" size="sm" onClick={copyHash}>Copy SHA-256</Button>
+                  <a href={verifyHref(cert.hash)}><Button variant="ghost" size="sm">Open in Verify</Button></a>
+                </div>
+              ) : (
+                <div className="verify-actions">
+                  <a href={verifyHref()}><Button variant="ghost" size="sm" arrow>Verify a real seal</Button></a>
+                </div>
+              )}
             </div>
 
-            <div className="facts">
-              <div className="fact"><div className="fact__k">Current owner</div><div className="fact__v">{owner}</div></div>
-              <div className="fact"><div className="fact__k">Algorithm</div><div className="fact__v brass">ECDSA P-256 · SHA-256</div></div>
-              <div className="fact"><div className="fact__k">Signer key</div><div className="fact__v">sa:key:{hex("k" + (work.artistId || work.id), 12)}</div></div>
-              <div className="fact"><div className="fact__k">Transfers</div><div className="fact__v">{chain.filter((e) => e.kind === "transfer").length}</div></div>
-            </div>
+            {cert ? (
+              <div className="facts">
+                <div className="fact"><div className="fact__k">Algorithm</div><div className="fact__v brass">{cert.algo || "—"}</div></div>
+                <div className="fact"><div className="fact__k">Sealed at</div><div className="fact__v">{cert.ts}</div></div>
+                <div className="fact"><div className="fact__k">Signer key</div><div className="fact__v">{cert.signer}</div></div>
+                <div className="fact"><div className="fact__k">Record</div><div className="fact__v">{work.id}</div></div>
+                <div className="fact fact--wide"><div className="fact__k">SHA-256 of the file</div><div className="fact__v">{cert.hash}</div></div>
+                <div className="fact fact--wide"><div className="fact__k">Signature</div><div className="fact__v">{cert.sig}</div></div>
+              </div>
+            ) : null}
           </div>
         </div>
 
         <section className="section">
           <p className="section__h"><span>01</span> Provenance</p>
-          <ul className="timeline">
-            {chain.map((e, i) => (
-              <li className={`event ${e.kind}`} key={i}>
-                <span className="event__dot"><Icon name={e.kind === "seal" ? "shieldCheck" : e.kind === "transfer" ? "arrowRight" : "checkCircle"} size={13} /></span>
-                <div className="event__head"><span className="event__title">{e.title}</span><span className="event__date">{fdate(e.date)}</span></div>
-                <div className="event__body">{e.body}</div>
-                {e.hash ? <div className="event__hash">tx {e.hash.slice(0, 40)}…{e.hash.slice(-8)}</div> : null}
+          {cert ? (
+            <ul className="timeline">
+              <li className="event seal">
+                <span className="event__dot"><Icon name="shieldCheck" size={13} /></span>
+                <div className="event__head"><span className="event__title">Sealed</span><span className="event__date">{fdate(cert.ts)}</span></div>
+                <div className="event__body">{ftime(cert.ts)} — the server hashed the uploaded bytes with SHA-256 and signed that hash with key <b>{cert.signer}</b>. This is the only event on record for this work.</div>
+                <div className="event__hash">sha256 {cert.hash}</div>
               </li>
-            ))}
-          </ul>
-        </section>
-
-        <section className="section">
-          <p className="section__h"><span>02</span> Embed the badge</p>
-          <div className="embed">
-            <div className="embed__preview">
-              <span className="badge-chip"><Seal size={16} className="s" /> Verified by SecurityArts</span>
-            </div>
-            <div>
-              <div className="code">
-                <IconButton icon="check" variant="outline" label="Copy" className="code__copy" onClick={copyEmbed} />
-                <pre><span className="tag">&lt;a</span> <span className="attr">href</span>=<span className="str">"https://securityarts.studio/s/{id}"</span><span className="tag">&gt;</span>{"\n  "}<span className="tag">&lt;img</span> <span className="attr">alt</span>=<span className="str">"Verified by SecurityArts"</span>{"\n       "}<span className="attr">src</span>=<span className="str">"https://securityarts.studio/badge/{id}.svg"</span> <span className="tag">/&gt;</span>{"\n"}<span className="tag">&lt;/a&gt;</span></pre>
-              </div>
-              <p className="embed__note">Drop this on a portfolio, gallery listing, or marketplace. The badge links back to this record so any visitor can confirm the seal is live — the same check galleries and platforms run through our API.</p>
-            </div>
-          </div>
+            </ul>
+          ) : (
+            <p className="cempty">No events — this catalog preview was never sealed, so there is no hash, signature, or timestamp to show.</p>
+          )}
         </section>
 
         <Comments workId={work.id} />
 
         {related.length ? (
           <section className="section">
-            <p className="section__h"><span>04</span> More like this</p>
+            <p className="section__h"><span>03</span> More like this</p>
             <div className="rail">
               {related.map((w) => {
                 const a = C.artistById[w.artistId];
