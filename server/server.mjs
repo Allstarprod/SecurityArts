@@ -19,9 +19,11 @@ import { fail } from "./lib/http.mjs";
 import { currentUser } from "./lib/auth.mjs";
 import { setSecurityHeaders, rateLimit, sameOrigin, readBody, audit, clientIp } from "./lib/security.mjs";
 import { reportError } from "./lib/sentry.mjs";
+import { resolvePublicPath } from "./lib/static.mjs";
+import { assertProdConfig } from "./lib/config.mjs";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
-const ROOT = path.resolve(__dirname, ".."); // static site root
+const ROOT = path.resolve(__dirname, ".."); // static site root == repo root (see lib/static.mjs for why that needs an allowlist)
 const PORT = Number(process.env.PORT) || 8137;
 const HTTPS = process.env.TRUST_PROXY_HTTPS === "1"; // set behind a TLS terminator
 
@@ -30,30 +32,30 @@ const TYPES = {
   ".css": "text/css; charset=utf-8", ".json": "application/json; charset=utf-8",
   ".svg": "image/svg+xml", ".png": "image/png", ".jpg": "image/jpeg", ".jpeg": "image/jpeg",
   ".webp": "image/webp", ".ico": "image/x-icon", ".woff2": "font/woff2", ".map": "application/json",
+  ".txt": "text/plain; charset=utf-8", ".xml": "application/xml; charset=utf-8",
 };
 
+// SPA-ish fallback: unknown non-API path → home, with a 404 status. ALSO the answer
+// for every path outside the allowlist, so "denied" and "absent" are indistinguishable.
+function notFound(res) {
+  fs.readFile(path.join(ROOT, "index.html"), (err, buf) => {
+    if (err) { res.writeHead(404).end("Not found"); return; }
+    res.writeHead(404, { "Content-Type": "text/html; charset=utf-8" }); res.end(buf);
+  });
+}
+
 function serveStatic(req, res, pathname) {
-  let rel = decodeURIComponent(pathname);
-  if (rel.endsWith("/")) rel += "index.html";
-  const abs = path.join(ROOT, rel);
-  // Path-traversal guard (OWASP A01) — resolved path must stay under ROOT.
-  if (!abs.startsWith(ROOT + path.sep) && abs !== path.join(ROOT, "index.html")) {
-    res.writeHead(403).end("Forbidden"); return;
-  }
-  fs.stat(abs, (err, st) => {
-    if (err || !st.isFile()) {
-      // SPA-ish fallback: unknown non-API path → home
-      const home = path.join(ROOT, "index.html");
-      fs.readFile(home, (e2, buf) => {
-        if (e2) { res.writeHead(404).end("Not found"); return; }
-        res.writeHead(404, { "Content-Type": "text/html; charset=utf-8" }); res.end(buf);
-      });
-      return;
-    }
-    const type = TYPES[path.extname(abs).toLowerCase()] || "application/octet-stream";
-    const cache = /\.(png|jpe?g|webp|svg|woff2|ico)$/i.test(abs) ? "public, max-age=86400" : "no-cache";
+  // Allowlist + traversal guard (OWASP A01; audit CRITICAL #1). Only the public
+  // site is reachable — never server/, .git/, .env, data/, docs, screenshots…
+  const r = resolvePublicPath(ROOT, pathname);
+  if (r && r.status) { res.writeHead(r.status).end(r.status === 400 ? "Bad request" : "Forbidden"); return; }
+  if (!r) return notFound(res);
+  fs.stat(r.abs, (err, st) => {
+    if (err || !st.isFile()) return notFound(res);
+    const type = TYPES[path.extname(r.abs).toLowerCase()] || "application/octet-stream";
+    const cache = /\.(png|jpe?g|webp|svg|woff2|ico)$/i.test(r.abs) ? "public, max-age=86400" : "no-cache";
     res.writeHead(200, { "Content-Type": type, "Cache-Control": cache });
-    fs.createReadStream(abs).pipe(res);
+    fs.createReadStream(r.abs).pipe(res);
   });
 }
 
@@ -81,7 +83,7 @@ async function handler(req, res) {
         const raw = await readBody(req, maxBody);
         if (raw) { try { body = JSON.parse(raw); } catch { return fail(res, 400, "Invalid JSON body."); } }
       }
-      const user = await currentUser(req);
+      const user = await currentUser(req, { https: HTTPS }); // https picks the __Host- cookie name
       return await route.handler({ req, res, params: route.params, body, url, user, ip, https: HTTPS });
     }
     // Vanity handle URLs: /@name → the public profile page for that handle.
@@ -109,6 +111,7 @@ function workerCount() {
 }
 
 async function start() {
+  assertProdConfig(); // refuse to boot a production process without PUBLIC_BASE_URL (CWE-640)
   await initRepo(); // connect DB / load store before we accept traffic
   const server = http.createServer(handler);
   server.listen(PORT, () => {

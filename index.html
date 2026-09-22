@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>SecurityArts — A security studio that signs its work</title>
   <meta name="description" content="SecurityArts is a security studio. We break systems before adversaries do, harden what matters, and leave a verifiable mark behind — offensive security, application security, cloud, and detection & response." />
+  <link rel="canonical" href="https://security-arts.vercel.app/" />
 
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -271,6 +272,9 @@
     max-width: 640px; margin-left: auto;
   }
   .hero__lede { color: var(--bone-dim); font-size: clamp(1.02rem, 0.95rem + 0.4vw, 1.22rem); line-height: 1.55; }
+  .hero__also { color: var(--bone-faint); font-size: 0.92rem; line-height: 1.5; margin-top: -0.9rem; }
+  .hero__also a { color: var(--bone-dim); text-decoration: underline; text-underline-offset: 0.2em; transition: color 0.25s var(--ease); }
+  .hero__also a:hover { color: var(--brass); }
   .hero__actions { display: flex; flex-wrap: wrap; gap: 0.9rem; }
 
   .btn {
@@ -552,14 +556,41 @@
   <!-- Social / Open Graph -->
   <meta property="og:type" content="website" />
   <meta property="og:site_name" content="SecurityArts" />
-  <meta property="og:title" content="SecurityArts — proof a human made it" />
-  <meta property="og:description" content="A security studio and platform that seals human-made art with cryptographic proof — verify origin, sell verified work, and push back on AI fakes." />
-  <meta property="og:url" content="https://securityarts.studio/" />
-  <meta property="og:image" content="/og-image.png" />
+  <meta property="og:title" content="SecurityArts — A security studio that signs its work" />
+  <meta property="og:description" content="SecurityArts is a security studio. We break systems before adversaries do, harden what matters, and leave a verifiable mark behind — offensive security, application security, cloud, and detection &amp; response." />
+  <meta property="og:url" content="https://security-arts.vercel.app/" />
+  <meta property="og:image" content="https://security-arts.vercel.app/og-image.png" />
   <meta name="twitter:card" content="summary_large_image" />
-  <meta name="twitter:title" content="SecurityArts — proof a human made it" />
-  <meta name="twitter:description" content="Cryptographically sealed human-made art. Verify origin, sell verified work, fight AI fakes." />
-  <meta name="twitter:image" content="/og-image.png" />
+  <meta name="twitter:title" content="SecurityArts — A security studio that signs its work" />
+  <meta name="twitter:description" content="We break systems before adversaries do, harden what matters, and leave a verifiable mark behind — offensive security, application security, cloud, and detection &amp; response." />
+  <meta name="twitter:image" content="https://security-arts.vercel.app/og-image.png" />
+
+  <script type="application/ld+json">
+  {
+    "@context":"https://schema.org",
+    "@graph":[
+      {
+        "@type":"Organization",
+        "@id":"https://security-arts.vercel.app/#organization",
+        "name":"SecurityArts",
+        "url":"https://security-arts.vercel.app/",
+        "logo":"https://security-arts.vercel.app/og-image.png",
+        "email":"hello@securityarts.studio",
+        "foundingDate":"2026",
+        "description":"A security studio that signs its work — offensive and defensive security, plus a platform that seals human-made art with cryptographic proof.",
+        "knowsAbout":["Penetration testing","Application security","Cloud security","Detection and response","Security architecture","vCISO advisory","Content authenticity"]
+      },
+      {
+        "@type":"WebSite",
+        "@id":"https://security-arts.vercel.app/#website",
+        "name":"SecurityArts",
+        "url":"https://security-arts.vercel.app/",
+        "inLanguage":"en-US",
+        "publisher":{"@id":"https://security-arts.vercel.app/#organization"}
+      }
+    ]
+  }
+  </script>
 
   <script src="js/api.js"></script>
 </head>
@@ -589,12 +620,12 @@
       <a href="#seal"><span class="nav__idx">02</span> The Seal</a>
       <a href="#identity"><span class="nav__idx">03</span> Identity</a>
       <a href="#standards"><span class="nav__idx">04</span> Standards</a>
-      <a href="/SecurityArts%20Design%20System/website/ui_kits/discover/index.html"><span class="nav__idx">05</span> Discover</a>
+      <a href="/discover"><span class="nav__idx">05</span> Discover</a>
     </nav>
 
     <div class="head-auth">
-      <a href="/SecurityArts%20Design%20System/website/ui_kits/discover/login.html">Sign in</a>
-      <a class="head-auth__join" href="/SecurityArts%20Design%20System/website/ui_kits/discover/login.html?mode=signup">Join</a>
+      <a href="/login">Sign in</a>
+      <a class="head-auth__join" href="/join">Join</a>
     </div>
 
     <a class="head-cta" href="#contact">
@@ -615,10 +646,10 @@
       <a href="#identity"><span>03</span> Identity</a>
       <a href="#standards"><span>04</span> Standards</a>
       <a href="#contact"><span>05</span> Contact</a>
-      <a href="/SecurityArts%20Design%20System/website/ui_kits/discover/index.html"><span>06</span> Discover</a>
-      <a href="/SecurityArts%20Design%20System/website/ui_kits/market/index.html"><span>07</span> Market</a>
-      <a href="/SecurityArts%20Design%20System/website/ui_kits/discover/login.html"><span>08</span> Sign in</a>
-      <a href="/SecurityArts%20Design%20System/website/ui_kits/discover/login.html?mode=signup"><span>09</span> Join</a>
+      <a href="/discover"><span>06</span> Discover</a>
+      <a href="market.html"><span>07</span> Market</a>
+      <a href="/login"><span>08</span> Sign in</a>
+      <a href="/join"><span>09</span> Join</a>
     </nav>
     <a class="mobile-menu__cta" href="#contact">Request an engagement →</a>
   </div>
@@ -650,6 +681,9 @@
             an adversary does, harden what actually matters, and leave behind a
             mark you can verify — not a PDF you file away and forget.
           </p>
+          <p class="hero__also">
+            SecurityArts also seals human-made art with the same cryptographic proof — see <a href="/verified">Verified art</a>.
+          </p>
           <div class="hero__actions">
             <a class="btn btn--solid" href="#contact">Request an engagement</a>
             <a class="btn btn--ghost" href="#practice">See the practice</a>
@@ -664,7 +698,7 @@
         </div>
         <div class="hero__meta">
           <span class="meta-k">Engagements</span>
-          <span class="meta-v">Q3 2026 — limited</span>
+          <span class="meta-v">Now booking</span>
         </div>
         <div class="hero__meta hero__meta--end">
           <span class="meta-k">Est.</span>
@@ -719,7 +753,7 @@
             <span class="card__idx">01</span>
             <svg class="seal card__seal" aria-hidden="true"><use href="#saSeal"/></svg>
           </div>
-          <h3 class="card__title">Offensive Security</h3>
+          <h3 class="card__title"><a href="/services/penetration-testing" style="color:inherit">Offensive Security</a></h3>
           <p class="card__body">
             We attack the way real adversaries do — not a checklist sweep. Goal-
             oriented red teaming, full-scope penetration testing, and adversary
@@ -735,7 +769,7 @@
             <span class="card__idx">02</span>
             <svg class="seal card__seal" aria-hidden="true"><use href="#saSeal"/></svg>
           </div>
-          <h3 class="card__title">Application Security</h3>
+          <h3 class="card__title"><a href="/services/application-security" style="color:inherit">Application Security</a></h3>
           <p class="card__body">
             Threat modeling, deep code review, and a secure SDLC your engineers
             will actually keep using after we leave.
@@ -750,7 +784,7 @@
             <span class="card__idx">03</span>
             <svg class="seal card__seal" aria-hidden="true"><use href="#saSeal"/></svg>
           </div>
-          <h3 class="card__title">Cloud &amp; Infrastructure</h3>
+          <h3 class="card__title"><a href="/services/cloud-infrastructure" style="color:inherit">Cloud &amp; Infrastructure</a></h3>
           <p class="card__body">
             AWS, GCP and Azure hardened against real attack paths. Identity,
             network, and infrastructure-as-code reviewed line by line.
@@ -765,7 +799,7 @@
             <span class="card__idx">04</span>
             <svg class="seal card__seal" aria-hidden="true"><use href="#saSeal"/></svg>
           </div>
-          <h3 class="card__title">Detection &amp; Response</h3>
+          <h3 class="card__title"><a href="/services/detection-response" style="color:inherit">Detection &amp; Response</a></h3>
           <p class="card__body">
             Detection engineering and threat hunting that close the gap between
             breach and alert — plus the runbooks for the night it matters.
@@ -780,7 +814,7 @@
             <span class="card__idx">05</span>
             <svg class="seal card__seal" aria-hidden="true"><use href="#saSeal"/></svg>
           </div>
-          <h3 class="card__title">Security Architecture</h3>
+          <h3 class="card__title"><a href="/services/security-architecture" style="color:inherit">Security Architecture</a></h3>
           <p class="card__body">
             Design review before the build, not after the incident. Zero-trust,
             segmentation, and defensible boundaries drawn deliberately.
@@ -795,7 +829,7 @@
             <span class="card__idx">06</span>
             <svg class="seal card__seal" aria-hidden="true"><use href="#saSeal"/></svg>
           </div>
-          <h3 class="card__title">Advisory &amp; Training</h3>
+          <h3 class="card__title"><a href="/services/advisory-training" style="color:inherit">Advisory &amp; Training</a></h3>
           <p class="card__body">
             Fractional CISO guidance and secure-by-design coaching that raises
             the floor for your whole team — so the next thing you build starts
@@ -893,10 +927,10 @@
           cryptographically verified and listed for collectors who care.
         </p>
         <div class="discover-cta__actions reveal">
-          <a class="btn btn--solid" href="/SecurityArts%20Design%20System/website/ui_kits/discover/index.html">Enter the wall →</a>
+          <a class="btn btn--solid" href="/discover">Enter the wall →</a>
           <a class="btn btn--ghost" href="market.html">Shop the marketplace →</a>
         </div>
-        <a class="discover-cta__verify reveal" href="/SecurityArts%20Design%20System/website/ui_kits/discover/login.html?mode=signup">Make it by hand? Get your work verified →</a>
+        <a class="discover-cta__verify reveal" href="/verified">Make it by hand? Get your work verified →</a>
       </div>
       <div class="discover-cta__tiles reveal" aria-hidden="true">
         <span class="dt"><svg class="seal"><use href="#saSeal"/></svg></span>
@@ -973,9 +1007,11 @@
         <a href="#identity">Identity</a>
         <a href="#standards">Standards</a>
         <a href="#contact">Contact</a>
-        <a href="/SecurityArts%20Design%20System/website/ui_kits/discover/index.html">Discover</a>
-        <a href="/SecurityArts%20Design%20System/website/ui_kits/market/index.html">Market</a>
-        <a href="/SecurityArts%20Design%20System/website/ui_kits/discover/pricing.html">Pricing</a>
+        <a href="/discover">Discover</a>
+        <a href="market.html">Market</a>
+        <a href="/how-it-works">How it works</a>
+        <a href="/faq">FAQ</a>
+        <a href="/pricing">Pricing</a>
       </nav>
     </div>
     <div class="site-foot__base">

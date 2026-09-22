@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>SecurityArts vs AI detectors — proof beats a probability</title>
+  <meta name="description" content="AI detectors estimate a probability and wrongly flag real artists. A SecurityArts seal proves a specific account sealed a specific file at a recorded time — signed, dated, verifiable. An honest comparison." />
+
+  <link rel="canonical" href="https://security-arts.vercel.app/compare/ai-detectors" />
+  <meta property="og:type" content="article" />
+  <meta property="og:site_name" content="SecurityArts" />
+  <meta property="og:title" content="SecurityArts vs AI detectors — proof beats a probability" />
+  <meta property="og:description" content="Detectors guess and get it wrong. A seal proves a specific account sealed a specific file at a recorded time. Honest comparison." />
+  <meta property="og:url" content="https://security-arts.vercel.app/compare/ai-detectors" />
+  <meta property="og:image" content="https://security-arts.vercel.app/og-image.png" />
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="SecurityArts vs AI detectors" />
+  <meta name="twitter:description" content="Proof beats a probability." />
+  <meta name="twitter:image" content="https://security-arts.vercel.app/og-image.png" />
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300..600;1,9..144,300..500&family=Geist:wght@300..600&family=Geist+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='18' fill='%230c0c0b'/%3E%3Cg fill='none' stroke='%23f4f1e9' stroke-width='4.2'%3E%3Ccircle cx='50' cy='50' r='27'/%3E%3C/g%3E%3Cpath fill='%23f4f1e9' d='M 50 34.5 L 53.76 44.82 L 64.74 45.21 L 56.09 51.98 L 59.11 62.54 L 50 56.4 L 40.89 62.54 L 43.91 51.98 L 35.26 45.21 L 46.24 44.82 Z'/%3E%3C/svg%3E" />
+
+  <script type="application/ld+json">
+  {
+    "@context":"https://schema.org",
+    "@graph":[
+      {
+        "@type":"Article",
+        "@id":"https://security-arts.vercel.app/compare/ai-detectors#article",
+        "headline":"SecurityArts vs AI detectors — proof beats a probability",
+        "description":"AI detectors estimate a probability and wrongly flag real artists. A SecurityArts seal proves a specific account sealed a specific file at a recorded time — signed, dated, verifiable. An honest comparison.",
+        "url":"https://security-arts.vercel.app/compare/ai-detectors",
+        "mainEntityOfPage":"https://security-arts.vercel.app/compare/ai-detectors",
+        "image":"https://security-arts.vercel.app/og-image.png",
+        "inLanguage":"en-US",
+        "datePublished":"2026-08-07",
+        "dateModified":"2026-09-20",
+        "author":{"@id":"https://security-arts.vercel.app/#organization"},
+        "publisher":{"@id":"https://security-arts.vercel.app/#organization"},
+        "about":[
+          {"@type":"Thing","name":"SecurityArts seal"},
+          {"@type":"Thing","name":"AI image detectors"}
+        ]
+      },
+      {
+        "@type":"FAQPage",
+        "@id":"https://security-arts.vercel.app/compare/ai-detectors#faq",
+        "url":"https://security-arts.vercel.app/compare/ai-detectors",
+        "dateModified":"2026-09-20",
+        "publisher":{"@id":"https://security-arts.vercel.app/#organization"},
+        "mainEntity":[
+          {"@type":"Question","name":"Are AI detectors accurate?","acceptedAnswer":{"@type":"Answer","text":"They estimate a probability from pixels and are frequently wrong in both directions — flagging human work as AI and missing AI as human. That false-positive problem is exactly why an artist needs something better than a detector to stand on."}},
+          {"@type":"Question","name":"Can I use a detector and a seal together?","acceptedAnswer":{"@type":"Answer","text":"Yes. A detector can triage unknown images at scale; a seal proves you sealed a specific file at a recorded time. They answer different questions — one guesses about any image, the other is a verifiable receipt for yours."}}
+        ]
+      }
+    ]
+  }
+  </script>
+
+  <style>
+    :root{--ink:#0c0c0b;--ink-2:#131312;--ink-3:#1b1a18;--bone:#f4f1e9;--bone-dim:#a39e92;--bone-faint:#6f6b62;--brass:#c2a14e;--line:rgba(244,241,233,0.12);--line-strong:rgba(244,241,233,0.22);--gutter:clamp(1.25rem,4vw,5rem);--maxw:960px;--serif:"Fraunces","Times New Roman",serif;--sans:"Geist",-apple-system,system-ui,sans-serif;--mono:"Geist Mono",ui-monospace,monospace;--ease:cubic-bezier(0.16,1,0.3,1)}
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+    body{background:var(--ink);color:var(--bone);font-family:var(--sans);font-weight:360;font-size:clamp(1rem,0.95rem+0.25vw,1.125rem);line-height:1.62;-webkit-font-smoothing:antialiased;overflow-x:hidden}
+    a{color:inherit;text-decoration:none}svg{display:block}::selection{background:var(--brass);color:var(--ink)}
+    :focus-visible{outline:2px solid var(--brass);outline-offset:3px;border-radius:2px}
+    .head{position:sticky;top:0;z-index:20;display:flex;align-items:center;gap:1.2rem;padding:1rem var(--gutter);background:color-mix(in srgb,var(--ink) 85%,transparent);backdrop-filter:blur(14px);border-bottom:1px solid var(--line)}
+    .brand{display:inline-flex;align-items:center;gap:0.6rem}.brand svg{width:28px;height:28px}
+    .brand__word{font-family:var(--serif);font-weight:460;font-size:1.28rem;letter-spacing:-0.01em}
+    .head__spacer{margin-left:auto}
+    .head a.nav{font-family:var(--mono);font-size:0.74rem;text-transform:uppercase;letter-spacing:0.12em;color:var(--bone-dim);transition:color 0.25s var(--ease)}.head a.nav:hover{color:var(--bone)}
+    .head .cta{font-family:var(--mono);font-size:0.74rem;text-transform:uppercase;letter-spacing:0.12em;color:var(--ink);background:var(--bone);padding:0.55rem 0.9rem;border-radius:100px;transition:background 0.25s var(--ease)}.head .cta:hover{background:var(--brass)}
+    /* Mobile header: drop the text nav, keep the logo + primary CTA on one line */
+    @media (max-width:720px){
+      .head{gap:0.6rem;padding:0.85rem 1rem}
+      .head a.nav,.head__spacer{display:none}
+      .brand{flex:0 0 auto;gap:0.5rem}
+      .brand svg{width:24px;height:24px}
+      .brand__word{font-size:1.1rem;white-space:nowrap}
+      .head .cta{margin-left:auto;flex:0 0 auto;white-space:nowrap;font-size:0.66rem;letter-spacing:0.08em;padding:0.5rem 0.75rem}
+    }
+    @media (max-width:359px){
+      .brand__word{display:none}
+    }
+    .sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}
+    main{max-width:var(--maxw);margin-inline:auto;padding:clamp(3rem,7vw,5.5rem) var(--gutter) 4rem}
+    .crumb{font-family:var(--mono);font-size:0.66rem;text-transform:uppercase;letter-spacing:0.14em;color:var(--bone-faint);margin-bottom:1.6rem}.crumb a:hover{color:var(--bone-dim)}
+    .eyebrow{font-family:var(--mono);font-size:0.72rem;text-transform:uppercase;letter-spacing:0.2em;color:var(--brass);display:inline-flex;align-items:center;gap:0.6rem;margin-bottom:1.4rem}
+    .eyebrow::before{content:"";width:7px;height:7px;border-radius:50%;background:var(--brass);box-shadow:0 0 0 4px rgba(194,161,78,0.16)}
+    h1{font-family:var(--serif);font-weight:340;font-size:clamp(2.6rem,1rem+6vw,4.8rem);line-height:0.98;letter-spacing:-0.03em;margin-bottom:1.2rem}h1 em{color:var(--brass);font-style:italic}
+    .lede{color:var(--bone-dim);font-size:clamp(1.05rem,0.95rem+0.5vw,1.28rem);max-width:62ch;margin-bottom:2.6rem}
+    .ctable-wrap{overflow-x:auto;border:1px solid var(--line);border-radius:14px;margin-bottom:2.4rem}
+    table.ctable{border-collapse:collapse;width:100%;min-width:600px}
+    .ctable th,.ctable td{text-align:left;padding:1rem 1.1rem;border-bottom:1px solid var(--line);vertical-align:top;font-size:0.95rem}
+    .ctable thead th{font-family:var(--mono);font-size:0.68rem;text-transform:uppercase;letter-spacing:0.1em;color:var(--bone-dim);background:var(--ink-2)}
+    .ctable thead th.own{color:var(--brass)}
+    .ctable tbody th{font-family:var(--mono);font-size:0.7rem;text-transform:uppercase;letter-spacing:0.08em;color:var(--bone-faint);font-weight:500;width:24%}
+    .ctable td{color:var(--bone-dim)}
+    .ctable td.own{color:var(--bone);background:linear-gradient(160deg,rgba(194,161,78,0.07),transparent);border-left:1px solid rgba(194,161,78,0.3)}
+    .ctable tr:last-child th,.ctable tr:last-child td{border-bottom:0}
+    .note{border-left:2px solid var(--brass);padding:0.4rem 0 0.4rem 1.3rem;margin:0 0 3rem;color:var(--bone-dim)}
+    .note b{color:var(--bone)}
+    .h2{font-family:var(--serif);font-weight:400;font-size:clamp(1.4rem,1rem+1.4vw,2rem);letter-spacing:-0.015em;margin:0 0 1.2rem}
+    .qa{list-style:none;border-top:1px solid var(--line);margin-bottom:2.5rem}
+    .qa li{border-bottom:1px solid var(--line);padding:1.2rem 0}
+    .qa h3{font-family:var(--serif);font-weight:440;font-size:1.1rem;letter-spacing:-0.01em;display:block;margin-bottom:0.4rem}
+    .qa p{color:var(--bone-dim)}
+    .cta-band{border-top:1px solid var(--line);padding-top:clamp(2.5rem,5vw,3.5rem);display:flex;flex-wrap:wrap;gap:1rem;align-items:center}
+    .cta-band p{font-family:var(--serif);font-weight:360;font-size:clamp(1.5rem,1rem+2vw,2.4rem);letter-spacing:-0.02em;flex:1 1 300px}
+    .btn{font-family:var(--mono);font-size:0.78rem;text-transform:uppercase;letter-spacing:0.1em;padding:0.9rem 1.5rem;border-radius:100px;border:1px solid transparent;transition:all 0.3s var(--ease);display:inline-flex;align-items:center;gap:0.5rem}
+    .btn--solid{background:var(--bone);color:var(--ink)}.btn--solid:hover{background:var(--brass);transform:translateY(-2px)}
+    .btn--ghost{border-color:var(--line-strong);color:var(--bone)}.btn--ghost:hover{border-color:var(--bone);transform:translateY(-2px)}
+    footer{border-top:1px solid var(--line);max-width:var(--maxw);margin:0 auto;padding:2.5rem var(--gutter);display:flex;flex-wrap:wrap;gap:1rem;justify-content:space-between}
+    footer a,footer span{font-family:var(--mono);font-size:0.72rem;text-transform:uppercase;letter-spacing:0.12em;color:var(--bone-faint)}footer a:hover{color:var(--bone-dim)}
+  </style>
+</head>
+<body>
+  <header class="head">
+    <a class="brand" href="/" aria-label="SecurityArts home">
+      <svg viewBox="0 0 100 100" aria-hidden="true"><g fill="none" stroke="currentColor" stroke-width="4.2"><circle cx="50" cy="50" r="27"/></g><path fill="currentColor" d="M 50 34.5 L 53.76 44.82 L 64.74 45.21 L 56.09 51.98 L 59.11 62.54 L 50 56.4 L 40.89 62.54 L 43.91 51.98 L 35.26 45.21 L 46.24 44.82 Z"/></svg>
+      <span class="brand__word">SecurityArts</span>
+    </a>
+    <span class="head__spacer"></span>
+    <a class="nav" href="/how-it-works">How it works</a>
+    <a class="nav" href="/verified">Verified art</a>
+    <a class="cta" href="/join">Get verified</a>
+  </header>
+
+  <main>
+    <p class="crumb"><a href="/verified">Verified art</a> / Compare / AI detectors</p>
+    <p class="eyebrow">SecurityArts vs AI detectors</p>
+    <h1>Proof beats<br />a <em>probability.</em></h1>
+    <p class="lede">
+      An AI detector looks at pixels and guesses how likely an image is machine-made.
+      That guess is wrong often enough to get real artists falsely accused. A seal doesn't
+      guess — it proves a specific account sealed a specific file at a recorded time, and
+      anyone can check it.
+    </p>
+
+    <div class="ctable-wrap">
+      <table class="ctable">
+        <caption class="sr-only">SecurityArts seal compared with AI detectors</caption>
+        <thead><tr><th></th><th class="own">SecurityArts seal</th><th>AI detector</th></tr></thead>
+        <tbody>
+          <tr><th scope="row">What it is</th><td class="own">A cryptographic certificate</td><td>A machine-learning classifier</td></tr>
+          <tr><th scope="row">How it works</th><td class="own">Hashes the exact image bytes and signs the hash</td><td>Estimates likelihood from pixels</td></tr>
+          <tr><th scope="row">Output</th><td class="own">A verifiable, signed, dated record</td><td>A probability score</td></tr>
+          <tr><th scope="row">Can it be wrong?</th><td class="own">The signature can't be forged; it doesn't judge whether the image is AI</td><td>Yes — false positives are common</td></tr>
+          <tr><th scope="row">What it proves</th><td class="own">A specific account sealed this exact file at this time</td><td>Nothing about a specific file — it only guesses about any image</td></tr>
+          <tr><th scope="row">Anyone can verify</th><td class="own">Yes, publicly</td><td>No — you'd re-run a different tool</td></tr>
+          <tr><th scope="row">Cost</th><td class="own">Free</td><td>Varies</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <p class="note"><b>Fair take:</b> detectors have a real job — triaging unknown images at scale, like platform moderation. But they can't <i>prove</i> that <i>you</i> made a specific piece, and their false positives are the exact reason artists get wrongly accused. The seal solves that specific problem.</p>
+
+    <h2 class="h2">Questions</h2>
+    <ul class="qa">
+      <li><h3>Are AI detectors accurate?</h3><p>They estimate a probability from pixels and are frequently wrong in both directions — flagging human work as AI and missing AI as human. That false-positive problem is exactly why an artist needs something better than a detector to stand on.</p></li>
+      <li><h3>Can I use a detector and a seal together?</h3><p>Yes. A detector can triage unknown images at scale; a seal proves you sealed a specific file at a recorded time. They answer different questions — one guesses about any image, the other is a verifiable receipt for yours.</p></li>
+    </ul>
+
+    <div class="cta-band">
+      <p>Stop arguing. Seal it.</p>
+      <a class="btn btn--solid" href="/join">Get your work verified →</a>
+      <a class="btn btn--ghost" href="/verified">Why a seal</a>
+    </div>
+  </main>
+
+  <footer>
+    <a href="/verified">← Verified art</a>
+    <a href="/compare/c2pa">vs C2PA</a>
+    <a href="/compare/not-by-ai">vs Not By AI</a>
+    <span>Updated <time datetime="2026-09-20">20 Sep 2026</time></span>
+    <span>Proof · Not a guess</span>
+  </footer>
+</body>
+</html>

@@ -72,7 +72,11 @@ function App() {
       <AppBar />
       <div className="shell" data-view={view}>
         <div className="list">
-          <div className="list__head"><h1 className="list__title">Messages</h1></div>
+          <div className="list__head">
+            <h1 className="list__title">Messages</h1>
+            {/* SAStore seeds sample threads with catalog artists (assets/store.js) — say so. */}
+            <p className="demo-note"><Icon name="shieldCheck" size={11} /> Demo — sample conversations kept in this browser, not real people</p>
+          </div>
           <div className="list__scroll">
             {requests.length ? <div className="group-label"><Icon name="bell" size={12} /> Requests <span className="n">· {requests.length}</span></div> : null}
             <Rows items={requests} />
@@ -95,7 +99,7 @@ function App() {
               </div>
 
               <div className="thread__scroll" ref={scrollRef}>
-                <span className="daystamp">{thread.status === "incoming" ? "Message request" : "Sealed conversation"}</span>
+                <span className="daystamp">{thread.status === "incoming" ? "Demo message request" : "Demo conversation"}</span>
                 {thread.messages.map((m, i) => (
                   <div key={i} className={`bubble ${m.from}`}>
                     {m.text}

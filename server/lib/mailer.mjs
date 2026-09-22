@@ -7,8 +7,17 @@
 // Unconfigured (dev / self-host without a provider): mail is NOT sent; instead the
 // message is logged server-side so flows like password reset are still usable locally.
 // `sendMail` returns { delivered, dev } so callers can adapt.
+import fs from "node:fs";
+import path from "node:path";
+import { DATA_DIR, ensureDataDir } from "./paths.mjs";
+
 const RESEND_KEY = process.env.RESEND_API_KEY || "";
 const MAIL_FROM = process.env.MAIL_FROM || "SecurityArts <onboarding@resend.dev>";
+// Dev outbox: the same message that goes to stdout is also appended here (JSON lines)
+// so the e2e suite can pick up verification / reset links from a local file driver
+// run. Lives in the git-ignored data dir; never served (server/ is outside the static
+// allowlist). Best-effort — a read-only disk just skips it.
+const OUTBOX_FILE = path.join(DATA_DIR, "outbox.log");
 
 export const mailerActive = Boolean(RESEND_KEY);
 
@@ -16,6 +25,7 @@ export async function sendMail({ to, subject, text, html }) {
   if (!mailerActive) {
     // Dev fallback: make the content visible in server logs (never in an API response).
     console.log(`[mailer:dev] would email ${to} — ${subject}\n${text || ""}`);
+    try { ensureDataDir(); fs.appendFileSync(OUTBOX_FILE, JSON.stringify({ ts: new Date().toISOString(), to, subject, text: text || "" }) + "\n"); } catch {}
     return { delivered: false, dev: true };
   }
   try {

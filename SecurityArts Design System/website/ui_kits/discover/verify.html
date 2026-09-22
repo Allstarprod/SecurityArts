@@ -3,8 +3,22 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>Verify — SecurityArts</title>
+<title>Verify a seal — SecurityArts</title>
+<meta name="description" content="Check a SecurityArts seal against the public registry. Paste a file's SHA-256 hash or drop the original file; the registry answers whether it was sealed, by which key, and when." />
+<link rel="canonical" href="https://security-arts.vercel.app/verify" />
+<meta property="og:type" content="website" />
+<meta property="og:site_name" content="SecurityArts" />
+<meta property="og:title" content="Verify a seal — SecurityArts" />
+<meta property="og:description" content="Paste a SHA-256 hash or drop the original file. The public registry answers whether it was sealed, by which key, and when." />
+<meta property="og:url" content="https://security-arts.vercel.app/verify" />
+<meta property="og:image" content="https://security-arts.vercel.app/og-image.png" />
+<meta name="twitter:card" content="summary_large_image" />
+<meta name="twitter:title" content="Verify a seal — SecurityArts" />
+<meta name="twitter:description" content="Paste a SHA-256 hash or drop the original file. The public registry answers whether it was sealed, by which key, and when." />
+<meta name="twitter:image" content="https://security-arts.vercel.app/og-image.png" />
 <script>try{var t=localStorage.getItem('sa-theme');if(t)document.documentElement.setAttribute('data-theme',t)}catch(e){}</script>
+<!-- Marks that scripts run, so the static no-JS fallback below #root can hide itself. -->
+<script>document.documentElement.classList.add('js')</script>
 <link rel="icon" href="../../assets/favicon.svg" />
 <link rel="stylesheet" href="../../styles.css" />
 <style>
@@ -36,8 +50,18 @@
   .checker { max-width: 620px; margin: clamp(1.6rem,3vw,2.4rem) auto 0; }
   .checkform { display: flex; gap: 0.6rem; flex-wrap: wrap; }
   .checkform > *:first-child { flex: 1 1 260px; }
-  .samples { display: flex; flex-wrap: wrap; align-items: center; gap: 0.5rem; margin-top: 1rem; justify-content: center; }
-  .samples .lbl { font-family: var(--font-mono); font-size: 0.6rem; letter-spacing: 0.14em; text-transform: uppercase; color: var(--bone-faint); }
+  .checkform input { font-family: var(--font-mono); font-size: 0.8rem; letter-spacing: 0.02em; }
+
+  /* file drop — hashed locally with crypto.subtle; only the digest is sent */
+  .drop { position: relative; margin-top: 0.9rem; border: 1px dashed var(--line-strong); border-radius: var(--radius-card); background: var(--ink-2); transition: border-color 0.25s var(--ease), background 0.25s var(--ease); }
+  .drop:hover, .drop.over { border-color: var(--brass); background: color-mix(in srgb, var(--brass) 6%, var(--ink-2)); }
+  .drop.busy { opacity: 0.7; }
+  .drop__input { position: absolute; width: 1px; height: 1px; opacity: 0; overflow: hidden; }
+  .drop__input:focus-visible + .drop__label { outline: 2px solid var(--brass); outline-offset: 3px; border-radius: var(--radius-card); }
+  .drop__label { display: grid; grid-template-columns: auto 1fr; column-gap: 0.7rem; align-items: center; padding: 0.9rem 1.1rem; cursor: pointer; text-align: left; color: var(--bone-dim); }
+  .drop__label > svg { grid-row: 1 / span 2; color: var(--brass); }
+  .drop__t { font-family: var(--font-serif); font-weight: 440; font-size: 1rem; color: var(--bone); letter-spacing: -0.01em; }
+  .drop__b { font-size: 0.78rem; color: var(--bone-faint); line-height: 1.45; overflow-wrap: anywhere; }
 
   /* trust steps (shown before a search) */
   .steps { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1px; background: var(--line); border: 1px solid var(--line); border-radius: var(--radius-card); overflow: hidden; margin: clamp(2.5rem,5vw,4rem) 0; }
@@ -47,29 +71,36 @@
   .step__t { font-family: var(--font-serif); font-weight: 420; font-size: 1.25rem; letter-spacing: -0.01em; }
   .step__b { color: var(--bone-dim); font-size: 0.88rem; line-height: 1.55; }
 
-  /* result */
-  .result { margin: clamp(1.5rem,3vw,2.5rem) 0 1rem; display: grid; gap: clamp(1.2rem,2.5vw,2rem); grid-template-columns: 1fr; }
-  @media (min-width: 860px) { .result { grid-template-columns: 0.9fr 1.1fr; align-items: start; } }
-  .result__art { position: relative; border-radius: var(--radius-card); overflow: hidden; border: 1px solid var(--line); aspect-ratio: 4/5; background: var(--ink-2); }
-  .result__art img { width: 100%; height: 100%; object-fit: cover; }
-  .result__badge { position: absolute; top: 0.8rem; left: 0.8rem; }
-  .result__cap { position: absolute; inset: auto 0 0 0; padding: 1.8rem 1rem 0.9rem; background: linear-gradient(to top, rgba(7,7,6,0.92), transparent); }
-  .result__cap .t { font-family: var(--font-serif); font-weight: 460; font-size: 1.2rem; letter-spacing: -0.01em; color: #f4f1e9; }
-  .result__cap .a { font-size: 0.82rem; color: #cfc9bb; margin-top: 0.15rem; }
+  /* result — one column; the registry answer carries no image, the seal record does */
+  .result { max-width: 760px; margin: clamp(1.5rem,3vw,2.5rem) auto 1rem; }
   .verdict { display: flex; flex-direction: column; gap: 1.1rem; }
   .verdict__stamp { display: flex; align-items: center; gap: 1rem; }
   .verdict__seal { color: var(--brass); flex: 0 0 auto; }
+  .verdict__seal.bad { color: var(--error); }
   .verdict__title { font-family: var(--font-serif); font-weight: 360; font-size: clamp(1.7rem,1rem+2vw,2.4rem); letter-spacing: -0.02em; line-height: 1; }
   .verdict__sub { font-family: var(--font-mono); font-size: 0.62rem; text-transform: uppercase; letter-spacing: 0.16em; color: var(--brass); margin-top: 0.4rem; }
-  .artistrow { display: flex; align-items: center; gap: 0.8rem; padding: 0.8rem 0; border-top: 1px solid var(--line); border-bottom: 1px solid var(--line); }
-  .artistrow__main { flex: 1 1 auto; min-width: 0; }
-  .artistrow__name { font-family: var(--font-serif); font-weight: 440; font-size: 1.1rem; letter-spacing: -0.01em; }
-  .artistrow__meta { font-family: var(--font-mono); font-size: 0.58rem; text-transform: uppercase; letter-spacing: 0.1em; color: var(--bone-faint); margin-top: 0.15rem; }
   .verdict__actions { display: flex; gap: 0.7rem; flex-wrap: wrap; }
+  .fine { font-size: 0.82rem; color: var(--bone-faint); line-height: 1.55; max-width: 64ch; }
 
   .notfound { text-align: center; padding: clamp(2rem,4vw,3rem); border: 1px dashed var(--line-strong); border-radius: var(--radius-card); margin: clamp(1.5rem,3vw,2.5rem) 0; }
   .notfound h2 { font-family: var(--font-serif); font-weight: 360; font-size: clamp(1.5rem,1rem+2vw,2.1rem); letter-spacing: -0.02em; margin-bottom: 0.5rem; }
-  .notfound p { color: var(--bone-dim); max-width: 40ch; margin: 0 auto; line-height: 1.55; }
+  .notfound p { color: var(--bone-dim); max-width: 56ch; margin: 0 auto 0.7rem; line-height: 1.55; }
+  .notfound p:last-of-type { margin-bottom: 0; }
+  .notfound code { font-family: var(--font-mono); font-size: 0.78rem; color: var(--bone); background: var(--ink-2); padding: 0.1em 0.4em; border-radius: 4px; }
+  .notfound .hashcode { display: block; margin: 0.5rem auto 0; word-break: break-all; padding: 0.5rem 0.7rem; }
+
+  /* static fallback — real text + a native form for readers without scripts;
+     hidden the moment the html.js hook runs (see <head>). */
+  .static { max-width: 620px; margin: clamp(2.6rem,6vw,5rem) auto 0; padding: 0 var(--gutter-app); text-align: center; }
+  .static h1 { font-family: var(--font-serif); font-weight: 340; font-size: clamp(2.2rem,1rem+5vw,4rem); letter-spacing: -0.03em; line-height: 0.98; margin-bottom: 1rem; }
+  .static p { color: var(--bone-dim); line-height: 1.55; margin-bottom: 1rem; }
+  .static form { display: flex; gap: 0.6rem; flex-wrap: wrap; margin-top: 1.4rem; }
+  .static label { flex-basis: 100%; font-family: var(--font-mono); font-size: 0.62rem; text-transform: uppercase; letter-spacing: 0.14em; color: var(--bone-faint); text-align: left; }
+  .static input { flex: 1 1 260px; background: var(--ink-2); border: 1px solid var(--line-strong); color: var(--bone); font-family: var(--font-mono); font-size: 0.8rem; padding: 0.75rem 1rem; border-radius: var(--radius-pill); }
+  .static input:focus { outline: none; border-color: var(--brass); }
+  .static button { cursor: pointer; font-family: var(--font-mono); font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.12em; color: var(--ink); background: var(--bone); border: 0; border-radius: var(--radius-pill); padding: 0.75rem 1.3rem; }
+  .static code { font-family: var(--font-mono); font-size: 0.8rem; color: var(--bone); }
+  .js .static { display: none; }
 
   .foot { border-top: 1px solid var(--line); padding: 2.4rem var(--gutter-app); display: flex; flex-wrap: wrap; justify-content: space-between; gap: 1rem; margin-top: 3rem; }
   .foot a { font-family: var(--font-mono); font-size: 0.74rem; text-transform: uppercase; letter-spacing: 0.12em; color: var(--bone-dim); }
@@ -81,11 +112,19 @@
 </head>
 <body>
 <div id="root"></div>
+<section class="static" aria-labelledby="static-verify-h1">
+  <h1 id="static-verify-h1">Verify a SecurityArts seal</h1>
+  <p>A SecurityArts seal is an ECDSA P-256 signature over one exact file's SHA-256 hash, made by the SecurityArts key at upload time. To check a seal, compute the SHA-256 of the original file (<code>shasum -a 256 file.png</code> on macOS/Linux, <code>certutil -hashfile file.png SHA256</code> on Windows) and look it up in the public registry. A match tells you which key signed those exact bytes and when; a re-saved or re-exported copy hashes differently and will not match.</p>
+  <form method="GET" action="">
+    <label for="static-verify-hash">SHA-256 hash of the original file</label>
+    <input id="static-verify-hash" name="hash" type="text" inputmode="text" autocomplete="off" spellcheck="false" pattern="[0-9a-fA-F]{64}" minlength="64" maxlength="64" placeholder="64 hexadecimal characters" required />
+    <button type="submit">Verify</button>
+  </form>
+  <p>The check runs in this page's script; the same answer is available as JSON from <code>GET /api/verify/&lt;sha256&gt;</code> and the signing public key from <code>GET /api/seal/pubkey</code>.</p>
+</section>
 <div class="grain" aria-hidden="true"></div>
 <script src="../../assets/vendor/react.production.min.js"></script>
 <script src="../../assets/vendor/react-dom.production.min.js"></script>
-<script src="../../assets/catalog.js"></script>
-<script src="../../assets/genart.js"></script>
 <script src="../../assets/transition.js"></script>
 <script src="../../../../js/api.js"></script>
 <script src="../../_ds_bundle.js"></script>

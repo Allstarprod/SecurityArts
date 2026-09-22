@@ -10,14 +10,15 @@
 //
 // Interface (all async):
 //   init(): connect / load                     close(): flush / disconnect
-//   users.findByEmail(email) findById(id) findByHandle(handle) create(user) update(id, patch)
-//   works.list({cat,q,limit,offset}) listByOwner(ownerId) findById(id) findByHash(hash) create(meta,image) getImage(id)
+//   users.findByEmail(email) findById(id) findByHandle(handle) findByGoogleSub(sub) create(user) update(id, patch)
+//   works.list({cat,q,limit,offset}) listByOwner(ownerId) findById(id) findByHash(hash) create(meta,image) getImage(id) remove(id, ownerId)
 //   stats.incrementView(workId) viewsFor(workIds) -> { workId: views }
 //   likes.toggle(workId,userId) likedBy(workId,userId) countByWorks(workIds) -> { workId: count }
 //   boards.listByUser(uid) findByUserAndId(uid,id) create(board) remove(uid,id) togglePin(uid,id,workId)
-//   orders.create(order) findById(id)
+//   orders.create(order) findById(id) salesForWorks(workIds)   (paid lines only — pending orders never count)
 //   comments.listByWork(workId) findById(id) create(c) toggleLike(id,userId) remove(id,userId)
-//   passwordResets.create(r) findByHash(hash) consume(hash) removeByUser(userId)
+//   passwordResets.create(r) findByHash(hash) consume(hash) removeByUser(userId, purpose?)
+//     (single-use emailed tokens; r.purpose = "reset" | "verify" — table name is historical)
 //   newsletter.add(email, ip) -> true if newly added
 
 let impl = null;
@@ -53,6 +54,7 @@ export const repo = {
     findByEmail: (e) => must().users.findByEmail(e),
     findById: (id) => must().users.findById(id),
     findByHandle: (h) => must().users.findByHandle(h),
+    findByGoogleSub: (sub) => must().users.findByGoogleSub(sub),
     create: (u) => must().users.create(u),
     update: (id, patch) => must().users.update(id, patch),
   },
@@ -63,6 +65,7 @@ export const repo = {
     findByHash: (h) => must().works.findByHash(h),
     create: (meta, image) => must().works.create(meta, image),
     getImage: (id) => must().works.getImage(id),
+    remove: (id, ownerId) => must().works.remove(id, ownerId),
   },
   stats: {
     incrementView: (workId) => must().stats.incrementView(workId),
@@ -97,7 +100,7 @@ export const repo = {
     create: (r) => must().passwordResets.create(r),
     findByHash: (h) => must().passwordResets.findByHash(h),
     consume: (h) => must().passwordResets.consume(h),
-    removeByUser: (uid) => must().passwordResets.removeByUser(uid),
+    removeByUser: (uid, purpose) => must().passwordResets.removeByUser(uid, purpose),
   },
   newsletter: {
     add: (email, ip) => must().newsletter.add(email, ip),

@@ -1,15 +1,16 @@
 {
   "name": "securityarts-server",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "private": true,
   "type": "module",
   "description": "SecurityArts backend — API + static host with server-side sealing. Pluggable storage (file or Postgres/Supabase) and rate limiting for horizontal scale.",
-  "engines": { "node": ">=18" },
+  "engines": { "node": ">=22" },
   "scripts": {
     "start": "node server.mjs",
     "start:pg": "node --env-file=.env server.mjs",
     "start:cluster": "CLUSTER=max node --env-file=.env server.mjs",
-    "check": "node --check server.mjs && node --check routes.mjs",
+    "check": "node --check server.mjs && node --check routes.mjs && node --check lib/auth.mjs && node --check lib/blobstore.mjs && node --check lib/config.mjs && node --check lib/http.mjs && node --check lib/image.mjs && node --check lib/mailer.mjs && node --check lib/oauth.mjs && node --check lib/paths.mjs && node --check lib/ratelimit.mjs && node --check lib/repo.mjs && node --check lib/seal.mjs && node --check lib/security.mjs && node --check lib/sentry.mjs && node --check lib/static.mjs && node --check lib/drivers/file.mjs && node --check lib/drivers/postgres.mjs",
+    "test:unit": "node --test test/unit.mjs",
     "test:e2e": "node test/e2e.mjs",
     "verify:live": "node test/e2e.mjs postgres"
   },

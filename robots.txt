@@ -1,7 +1,131 @@
 # SecurityArts — https://security-arts.vercel.app
+# AI crawler access policy. Last reviewed: 2026-09-20
+#
+# POSTURE (default chosen — see tradeoff at the bottom):
+#   1. Search engines and AI *answer/citation* crawlers: allowed everywhere except /api/.
+#      These drive discovery and citations, which is the whole point of the content layer.
+#   2. AI *training* crawlers: allowed on the marketing/explainer pages, blocked on the
+#      surfaces that carry artists' images (the wall, seal records, profiles, feed).
+#      Artists seal work here specifically to prove it is human-made; letting training
+#      crawlers ingest that work would contradict the platform's promise.
+#   3. Known aggressive scrapers that ignore or abuse robots: blocked outright.
+#
+# NOTE: robots.txt is advisory. Enforcement for crawlers that ignore it (Bytespider is
+# widely reported to) belongs in the Vercel Firewall / WAF rules, not here.
+# NOTE: artwork bytes are served from Supabase Storage (*.supabase.co). This file cannot
+# govern that host. The training-crawler block below covers the HTML pages that embed
+# and link the images, not the image origin itself.
+
+# ---------------------------------------------------------------------------
+# Search engines (unchanged behaviour)
+# ---------------------------------------------------------------------------
+User-agent: Googlebot
+User-agent: Bingbot
+User-agent: DuckDuckBot
+User-agent: Applebot
+Allow: /
+Allow: /api/seal/pubkey
+Allow: /api/verify/
+Disallow: /api/
+
+# ---------------------------------------------------------------------------
+# AI answer engines, search indexes and user-initiated fetchers — ALLOW
+# These fetch pages to cite them in answers (Perplexity, ChatGPT search, Claude
+# search/browsing, Gemini grounding). No training use is implied by these agents.
+# ---------------------------------------------------------------------------
+User-agent: OAI-SearchBot
+User-agent: ChatGPT-User
+User-agent: Claude-SearchBot
+User-agent: Claude-User
+User-agent: PerplexityBot
+User-agent: Perplexity-User
+User-agent: DuckAssistBot
+User-agent: meta-externalfetcher
+User-agent: MistralAI-User
+Allow: /
+Allow: /api/seal/pubkey
+Allow: /api/verify/
+Disallow: /api/
+
+# ---------------------------------------------------------------------------
+# AI training crawlers — ALLOW explainer/service pages, BLOCK artist-content surfaces
+# GPTBot (OpenAI), ClaudeBot (Anthropic), Google-Extended (Gemini training token),
+# Applebot-Extended (Apple Intelligence training token), CCBot (Common Crawl),
+# meta-externalagent (Meta), Amazonbot (Amazon), cohere-ai, anthropic-ai (legacy token).
+# ---------------------------------------------------------------------------
+User-agent: GPTBot
+User-agent: ClaudeBot
+User-agent: anthropic-ai
+User-agent: Google-Extended
+User-agent: Applebot-Extended
+User-agent: CCBot
+User-agent: meta-externalagent
+User-agent: Amazonbot
+User-agent: cohere-ai
+User-agent: Diffbot
+User-agent: omgili
+User-agent: omgilibot
+Allow: /
+Allow: /llms.txt
+Allow: /llms-full.txt
+Disallow: /api/
+Disallow: /discover
+Disallow: /discover.html
+Disallow: /foryou
+Disallow: /seal/
+Disallow: /@
+Disallow: /me
+Disallow: /create
+Disallow: /login
+Disallow: /join
+Disallow: /market.html
+Disallow: /SecurityArts%20Design%20System/
+
+# ---------------------------------------------------------------------------
+# Aggressive / non-compliant scrapers — BLOCK
+# ---------------------------------------------------------------------------
+User-agent: Bytespider
+User-agent: PetalBot
+User-agent: ImagesiftBot
+User-agent: Timpibot
+User-agent: FacebookBot
+Disallow: /
+
+# ---------------------------------------------------------------------------
+# Everyone else
+# ---------------------------------------------------------------------------
 User-agent: *
 Allow: /
-# The API is data, not pages — keep crawlers out of it.
+Allow: /api/seal/pubkey
+Allow: /api/verify/
 Disallow: /api/
 
 Sitemap: https://security-arts.vercel.app/sitemap.xml
+
+# ---------------------------------------------------------------------------
+# TRADEOFF — training crawlers (decide once, document it here)
+#
+# Option A (chosen above): allow training on marketing/explainer pages, block it on
+#   artist-content surfaces.
+#   + Pages that explain the product are eligible to be learned and cited by future
+#     models; the artists' images are not offered up.
+#   + Consistent with the brand promise to artists and with the community the
+#     platform is courting (the same community that left platforms over AI training).
+#   - Slightly more complex file; per-path rules must be kept in sync with vercel.json
+#     rewrites when routes change.
+#
+# Option B: allow all training crawlers everywhere (except /api/).
+#   + Simplest; maximum exposure for a pre-traction site.
+#   - Offers sealed human artwork to training sets. Expect this to be raised by
+#     artists and to undercut the "proof a human made it" positioning.
+#
+# Option C: block all training crawlers everywhere.
+#   + Strongest content-licensing stance.
+#   - GPTBot and ClaudeBot also feed the models' background knowledge of who
+#     SecurityArts is; blocking them makes the brand less likely to appear in
+#     answers that are not backed by live search. For a new brand this cost is real.
+#
+# Google-Extended and Applebot-Extended are opt-out tokens (no crawler uses them as a
+# user agent); listing them here is how you tell Google/Apple not to use fetched
+# content for AI training. Search indexing is unaffected.
+# ---------------------------------------------------------------------------

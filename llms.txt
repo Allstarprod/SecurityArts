@@ -1,0 +1,42 @@
+# SecurityArts
+
+> SecurityArts is two things under one seal. (1) A boutique security studio — penetration testing, application security, cloud hardening, detection & response, security architecture, and vCISO advisory — where every engagement ends in a signed, dated, re-testable record instead of a PDF. (2) A platform that seals human-made art: the server hashes the exact image bytes (SHA-256), signs the hash with the SecurityArts ECDSA P-256 key, and publishes a public certificate anyone can verify. A seal proves a specific account sealed a specific file at a specific time and that the bytes have not changed since. It is not an AI detector and does not prove originality or copyright.
+
+Contact: hello@securityarts.studio. Company established 2026, remote-first. Studio engagements are scoped and quoted individually; platform pricing is not published here.
+
+Preferred terms: "seal" (not watermark), "proof" or "receipt" (not score), "verify" (not detect), "engagement" (not project), "human-made".
+
+## Art platform — proving human authorship
+
+- [Prove your art is human](https://security-arts.vercel.app/verified): Landing page for artists. What a seal proves and does not, the three-step flow, links to the comparison pages.
+- [How the seal works](https://security-arts.vercel.app/how-it-works): Plain-English explanation of upload → SHA-256 hash → ECDSA P-256 signature → public certificate, plus what the seal proves and deliberately does not claim.
+- [FAQ](https://security-arts.vercel.app/faq): Direct answers — what a seal is, whether it is an AI detector (no), whether it can be faked or stripped, how it differs from C2PA, how to verify someone else's seal, effect on copyright (none).
+- [How to prove your art is human-made (guide)](https://security-arts.vercel.app/prove-your-art-is-human): The five options an accused artist has — process files, AI detectors, C2PA / Content Credentials, the "Not By AI" badge, and a cryptographic seal — ranked by how well each holds up to a skeptic.
+
+## Comparisons
+
+- [Seal vs AI detectors](https://security-arts.vercel.app/compare/ai-detectors): Detectors estimate a probability from pixels and produce false positives; a seal is a signature over the exact bytes. Different tools for different questions; a detector triages, a seal proves who sealed what and when.
+- [Seal vs C2PA / Content Credentials](https://security-arts.vercel.app/compare/c2pa): C2PA embeds a signed manifest in the file and is often stripped when platforms re-encode uploads; a SecurityArts certificate is hosted outside the file. Complementary, not rivals.
+- [Seal vs the "Not By AI" badge](https://security-arts.vercel.app/compare/not-by-ai): The badge is a self-declared label anyone can add; a seal is tied to a specific file and publicly verifiable.
+
+## Verifying a seal (public, no account required)
+
+- [Verify tool](https://security-arts.vercel.app/verify): Browser tool to check a seal against an image. Every sealed work also has a public record page at `/seal/<work-id>` showing the algorithm, SHA-256 hash, signature, signer id and timestamp.
+- [Signing public key](https://security-arts.vercel.app/api/seal/pubkey): JSON — the SecurityArts signer id (`sa:key:…`) and the SPKI PEM public key used to verify every seal signature. `GET /api/verify/<sha256-hex>` returns `{verified, signer, sealedAt, work}` for a hash.
+
+## Security studio — services
+
+- [Penetration testing](https://security-arts.vercel.app/services/penetration-testing): Adversary-style, outcome-scoped pentest (external/internal, web & API, cloud & identity, adversary simulation). Closes in a signed re-testable seal; a retest re-issues it. Mapped to OWASP, MITRE ATT&CK, NIST CSF, ISO 27001, SOC 2, CIS.
+- [Application security](https://security-arts.vercel.app/services/application-security): Threat modeling, manual code review with a reproducible path per finding, secure SDLC. Mapped to OWASP ASVS and NIST SSDF.
+- [Cloud & infrastructure security](https://security-arts.vercel.app/services/cloud-infrastructure): AWS, GCP, Azure — IAM, segmentation, infrastructure-as-code reviewed against real attack paths; CIS Benchmarks.
+- [Detection & response](https://security-arts.vercel.app/services/detection-response): Detection engineering, threat hunting, IR readiness, purple-team validation mapped to MITRE ATT&CK.
+- [Security architecture](https://security-arts.vercel.app/services/security-architecture): Design review before the build, zero-trust and boundary design; NIST 800-207.
+- [Advisory & training](https://security-arts.vercel.app/services/advisory-training): Fractional CISO, security program build, secure-by-design workshops; NIST CSF and ISO 27001.
+- [Studio home](https://security-arts.vercel.app/): Overview of the six disciplines, the seal as deliverable, standards, contact.
+
+## Optional
+
+- [Discover — the wall](https://security-arts.vercel.app/discover): Public, filterable wall of sealed human-made work (interactive app; content loads client-side).
+- [Privacy policy](https://security-arts.vercel.app/privacy.html)
+- [Terms of service](https://security-arts.vercel.app/terms.html)
+- [Full text of all pages](https://security-arts.vercel.app/llms-full.txt)
