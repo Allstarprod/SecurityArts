@@ -4,12 +4,15 @@
   "private": true,
   "type": "module",
   "description": "SecurityArts monorepo root — page build tooling (JSX precompile, vendored React). The runtime server lives in server/.",
-  "engines": { "node": "22.x" },
+  "engines": {
+    "node": "22.x"
+  },
   "scripts": {
     "build": "node scripts/build-pages.mjs",
     "build:check": "node scripts/build-pages.mjs --check"
   },
   "dependencies": {
+    "@vercel/speed-insights": "^2.0.0",
     "pg": "^8.13.0"
   },
   "devDependencies": {
