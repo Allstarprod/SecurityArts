@@ -13,3 +13,16 @@ server/test
 # large unused screenshots (not referenced by the site)
 screencapture-*.png
 Screenshot*.png
+# design studies and working folders: never published by accident
+design-studies
+marketing
+IMAGES & CODES
+**/.env.*
+# design-system: only the generated tokens.css is public (matches server/lib/static.mjs)
+design-system/tokens.json
+design-system/build-tokens.mjs
+design-system/build-tokens.test.mjs
+design-system/README.md
+design-system/page-template.html
+# the retired dark design system (its pages now redirect to the new site)
+SecurityArts Design System

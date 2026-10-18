@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Profile — SecurityArts</title>
+<meta name="description" content="An artist's sealed work on SecurityArts. Every piece has a public certificate anyone can check.">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="SecurityArts">
+<meta property="og:title" content="Profile — SecurityArts">
+<meta property="og:description" content="An artist's sealed work on SecurityArts. Every piece has a public certificate anyone can check.">
+<meta property="og:image" content="https://security-arts.vercel.app/og-image.png">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="icon" href="/assets/seal/modern-24.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Sans:wght@500;600;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/assets/site.css">
+<style>
+.profile-head .wrap { display: grid; gap: 1rem; padding-block: clamp(2.4rem, 6vw, 4.5rem); position: relative; }
+  .banner { height: clamp(8rem, 22vw, 15rem); border-radius: var(--radius-panel); background: var(--sky-2) center / cover no-repeat; }
+  .profile-name { font: 700 clamp(2.4rem, 1rem + 4vw, 4.4rem)/0.95 var(--display); letter-spacing: -0.045em; }
+  .profile-name:focus { outline: none; }
+  .profile-handle { font: 500 0.85rem var(--mono); letter-spacing: 0.08em; color: var(--ink-soft); }
+  .profile-bio { max-width: 60ch; color: var(--ink-soft); }
+  .works .wrap { padding-block: clamp(2.4rem, 5vw, 4rem); display: grid; gap: 1.4rem; }
+  .works-head { display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between; gap: 0.6rem 1.5rem; }
+  .count { font: 500 0.72rem var(--mono); text-transform: uppercase; letter-spacing: 0.14em; color: var(--ink-soft); }
+</style>
+</head>
+<body>
+<a class="skip-link" href="#main">Skip to content</a>
+
+<header class="site-head">
+  <a class="brand" href="/" aria-label="SecurityArts home">
+    <img class="brand__seal" src="/assets/seal/modern-24.svg" width="30" height="30" alt="">
+    <span class="brand__word">SecurityArts</span>
+  </a>
+  <nav class="nav" aria-label="Primary">
+    <a href="/wall"><span class="nav__idx">01</span> The wall</a>
+    <a href="/how-it-works"><span class="nav__idx">02</span> How it works</a>
+    <a href="/pricing"><span class="nav__idx">03</span> Pricing</a>
+    <a href="/#studio"><span class="nav__idx">04</span> Studio</a>
+  </nav>
+  <div class="head-auth" data-auth-slot>
+    <a href="/join">Sign in</a>
+    <a class="head-auth__join" href="/join?mode=signup">Join</a>
+  </div>
+  <a class="head-cta" href="/join?mode=signup" data-seal-cta>Seal a piece <span aria-hidden="true">→</span></a>
+  <button class="menu-btn" id="menuBtn" type="button" aria-expanded="false" aria-controls="mobileMenu" aria-label="Open menu"><span></span><span></span></button>
+</header>
+
+<div class="mobile-menu" id="mobileMenu" hidden>
+  <nav aria-label="Mobile">
+    <a href="/wall"><span>01</span> The wall</a>
+    <a href="/how-it-works"><span>02</span> How it works</a>
+    <a href="/pricing"><span>03</span> Pricing</a>
+    <a href="/#studio"><span>04</span> Studio</a>
+  </nav>
+  <div class="head-auth" data-auth-slot>
+    <a href="/join">Sign in</a>
+    <a class="head-auth__join" href="/join?mode=signup">Join</a>
+  </div>
+  <a class="btn btn--red" href="/join?mode=signup" data-seal-cta>Seal a piece</a>
+</div>
+
+<main id="main">
+  <div id="view-loading" class="band"><div class="wrap state"><img class="state__mark" src="/assets/seal/modern.svg" alt=""><p class="lede">Opening the profile…</p></div></div>
+
+  <div id="view-missing" class="band" hidden>
+    <div class="wrap state">
+      <img class="state__mark" src="/assets/seal/rubber.svg" alt="">
+      <h1 class="h2">No one here by that name.</h1>
+      <p class="lede">Check the handle, or browse everything on the wall.</p>
+      <a class="btn btn--red" href="/wall">Go to the wall</a>
+    </div>
+  </div>
+
+  <div id="view-failed" class="band" hidden>
+    <div class="wrap state">
+      <p class="notice notice--problem">We couldn't load this profile just now. Your connection or our server had a hiccup.</p>
+      <button class="btn btn--ink" id="retry" type="button">Try again</button>
+    </div>
+  </div>
+
+  <div id="view-found" hidden>
+    <section class="profile-head band--sky" aria-labelledby="name">
+      <div class="wrap">
+        <div class="banner" id="banner" hidden></div>
+        <p class="section-label"><span>Profile</span> On SecurityArts</p>
+        <h1 class="profile-name" id="name" tabindex="-1"></h1>
+        <p class="profile-handle" id="handle"></p>
+        <p class="profile-bio" id="bio" hidden></p>
+      </div>
+    </section>
+    <section class="works" aria-labelledby="works-h">
+      <div class="wrap">
+        <div class="works-head">
+          <h2 class="h2" id="works-h">Sealed work</h2>
+          <span class="count" id="count"></span>
+        </div>
+        <ul class="masonry" id="grid"></ul>
+        <div class="state" id="empty" hidden>
+          <img class="state__mark" src="/assets/seal/rubber.svg" alt="">
+          <p class="lede" id="emptyText">Nothing sealed here yet.</p>
+        </div>
+        <p class="notice notice--problem" id="worksFailed" hidden>We couldn't load this profile's work just now. Reload to try again.</p>
+      </div>
+    </section>
+  </div>
+</main>
+
+<footer class="site-foot">
+  <div class="wrap">
+    <a class="brand" href="/" aria-label="SecurityArts home">
+      <img class="brand__seal" src="/assets/seal/modern-24-dark.svg" width="30" height="30" alt="">
+      <span class="brand__word">SecurityArts</span>
+    </a>
+    <nav aria-label="Footer">
+      <a href="/wall">The wall</a>
+      <a href="/how-it-works">How it works</a>
+      <a href="/verify">Verify a seal</a>
+      <a href="/pricing">Pricing</a>
+      <a href="/faq">FAQ</a>
+      <a href="/#studio">Studio</a>
+      <a href="/privacy">Privacy</a>
+      <a href="/terms">Terms</a>
+    </nav>
+    <small>A receipt for your art. Every certificate on the wall is public. hello@securityarts.studio</small>
+  </div>
+</footer>
+
+<script src="/js/api.js"></script>
+<script type="module" src="/assets/profile.js"></script>
+</body>
+</html>

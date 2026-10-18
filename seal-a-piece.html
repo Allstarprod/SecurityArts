@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Seal a piece — SecurityArts</title>
+<meta name="description" content="Seal a finished file: we fingerprint the exact bytes, sign them, and publish a certificate anyone can check.">
+<meta name="robots" content="noindex">
+<link rel="icon" href="/assets/seal/modern-24.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Sans:wght@500;600;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/assets/site.css">
+<script type="importmap">{ "imports": { "three": "https://cdn.jsdelivr.net/npm/three@0.170.0/build/three.module.js", "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.170.0/examples/jsm/" } }</script>
+<style>
+  .bench { display: grid; grid-template-columns: minmax(0, 1.1fr) minmax(0, 0.9fr); min-height: calc(100dvh - var(--head-h)); }
+
+  /* ---------- the art side ---------- */
+  .bench__art { background: var(--sky); display: grid; place-items: center; padding: clamp(1.2rem, 4vw, 3.5rem); position: relative; }
+  .drop {
+    width: min(100%, 36rem); aspect-ratio: 4 / 5; border: 3px dashed var(--ink); border-radius: 22px; background: var(--paper);
+    display: grid; place-items: center; align-content: center; gap: 1rem; text-align: center; padding: 2rem; cursor: pointer;
+    transition: transform 0.25s var(--ease), background 0.25s var(--ease), border-color 0.25s var(--ease);
+  }
+  .drop:hover { transform: translateY(-3px) rotate(-0.4deg); }
+  .drop.is-over { background: #fff; border-style: solid; transform: scale(1.02); }
+  .drop__stamp { width: clamp(5rem, 12vw, 7.5rem); transform: rotate(-12deg); transition: transform 0.4s var(--ease); }
+  .drop:hover .drop__stamp, .drop.is-over .drop__stamp { transform: rotate(-4deg) scale(1.06); }
+  .drop__title { font: 700 clamp(1.5rem, 1rem + 1.8vw, 2.2rem)/1.05 var(--display); letter-spacing: -0.035em; max-width: 14ch; }
+  .drop__hint { color: var(--ink-soft); font-size: 0.95rem; }
+  .drop__browse { color: var(--ink); font-weight: 600; text-decoration: underline; text-decoration-color: var(--red); text-decoration-thickness: 2px; text-underline-offset: 0.2em; }
+
+  .preview { width: min(100%, 36rem); display: grid; gap: 0.8rem; }
+  .preview__frame { position: relative; background: var(--paper); border-radius: 18px; padding: clamp(0.8rem, 2vw, 1.4rem); box-shadow: 0 24px 40px -24px rgba(23, 26, 31, 0.45); }
+  .preview__frame img { width: 100%; height: auto; max-height: 70dvh; object-fit: contain; border-radius: 6px; }
+  .preview__meta { display: flex; flex-wrap: wrap; gap: 0.3rem 1rem; align-items: baseline; font: 500 0.78rem var(--mono); color: var(--ink-soft); }
+  .preview__meta b { color: var(--ink); font-weight: 500; overflow-wrap: anywhere; }
+  .linkish { font-weight: 600; color: var(--ink); text-decoration: underline; text-decoration-color: var(--red); text-decoration-thickness: 2px; text-underline-offset: 0.2em; min-height: 32px; }
+  .linkish:hover { color: var(--red-deep); }
+
+  /* the sealing moment */
+  .stage { position: relative; width: min(100%, 38rem); aspect-ratio: 4 / 5; }
+  .stage canvas { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
+  .stage__flat { position: absolute; inset: 0; background: var(--paper); border-radius: 18px; padding: 6%; display: grid; place-items: center; }
+  .stage__flat .art { max-width: 100%; max-height: 100%; object-fit: contain; border-radius: 6px; }
+  .stage__flat .wax { position: absolute; width: 30%; right: 8%; bottom: 8%; transform: rotate(-9deg); filter: drop-shadow(0 12px 16px rgba(23, 26, 31, 0.35)); animation: slam 0.72s cubic-bezier(0.34, 1.56, 0.64, 1) both; }
+  @keyframes slam { 0% { transform: rotate(-60deg) scale(2.4); opacity: 0; } 50% { opacity: 1; } 62% { transform: rotate(-9deg) scale(0.9, 0.78); } 100% { transform: rotate(-9deg) scale(1); opacity: 1; } }
+  .stage__why { margin-top: 0.8rem; text-align: center; font: 500 0.78rem var(--mono); letter-spacing: 0.04em; color: var(--ink-soft); }
+
+  /* ---------- the form side ---------- */
+  .bench__form { padding: clamp(2rem, 5vw, 4.5rem) var(--gutter); display: flex; align-items: flex-start; }
+  .bench__inner { width: 100%; max-width: 31rem; display: grid; gap: 1.3rem; }
+  .bench .display { font-size: clamp(2.4rem, 1rem + 4.4vw, 4.4rem); }
+  .bench form { display: grid; gap: 1.15rem; }
+  .fingerprint { background: var(--paper-2); border-radius: 14px; padding: 0.9rem 1rem; display: grid; gap: 0.3rem; }
+  .fingerprint dt { font: 500 0.68rem var(--mono); text-transform: uppercase; letter-spacing: 0.14em; color: var(--ink-soft); }
+  .fingerprint dd { font: 500 0.8rem/1.5 var(--mono); overflow-wrap: anywhere; }
+  .fingerprint dd.is-empty { color: var(--ink-faint); font-family: var(--body); font-size: 0.92rem; }
+
+  fieldset { border: 0; display: grid; gap: 0.5rem; }
+  legend { font: 600 0.92rem/1.2 var(--display); margin-bottom: 0.5rem; }
+  .mediums { display: flex; flex-wrap: wrap; gap: 0.45rem; }
+  .medium { position: relative; }
+  .medium input { position: absolute; opacity: 0; inset: 0; margin: 0; cursor: pointer; }
+  .medium span {
+    display: inline-flex; align-items: center; min-height: 40px; padding: 0.45rem 0.95rem; border-radius: 100px; border: 2px solid var(--ink);
+    font: 600 0.92rem/1 var(--display); background: var(--paper); transition: background 0.2s var(--ease), color 0.2s var(--ease);
+  }
+  .medium input:hover + span { background: var(--sky); }
+  .medium input:checked + span { background: var(--red); border-color: var(--red); color: var(--paper); }
+  .medium input:focus-visible + span { outline: 3px solid var(--blue); outline-offset: 3px; }
+
+  .check { display: grid; grid-template-columns: auto 1fr; gap: 0.7rem; align-items: start; font-size: 0.95rem; color: var(--ink-soft); }
+  .check input { width: 22px; height: 22px; margin-top: 2px; accent-color: var(--red); }
+  .check b { color: var(--ink); }
+  .small { font-size: 0.88rem; color: var(--ink-faint); }
+
+  .signed-out { display: grid; gap: 1.1rem; }
+  .signed-out__actions, .done__actions { display: flex; flex-wrap: wrap; gap: 0.7rem; }
+
+  /* the certificate after sealing */
+  .done { display: grid; gap: 1.2rem; }
+  .cert { border: 2px solid var(--ink); border-radius: 14px; overflow: hidden; }
+  .cert__head { display: flex; align-items: center; gap: 0.8rem; padding: 0.8rem 1rem; background: var(--sky); border-bottom: 2px solid var(--ink); }
+  .cert__head img { width: 46px; height: 46px; }
+  .cert__head b { font: 700 1.05rem/1.1 var(--display); display: block; }
+  .cert__head span { font-size: 0.85rem; color: var(--ink-soft); }
+  .cert dl > div { display: grid; grid-template-columns: 7.5rem minmax(0, 1fr); gap: 0.8rem; padding: 0.7rem 1rem; border-top: 1px solid var(--line); }
+  .cert dl > div:first-child { border-top: 0; }
+  .cert dt { font: 500 0.68rem/1.6 var(--mono); text-transform: uppercase; letter-spacing: 0.12em; color: var(--ink-soft); }
+  .cert dd { font: 500 0.8rem/1.5 var(--mono); overflow-wrap: anywhere; }
+  .copied { font-size: 0.9rem; color: var(--ink-soft); min-height: 1.4em; }
+
+  @media (max-width: 900px) {
+    .bench { grid-template-columns: 1fr; min-height: 0; }
+    .bench__art { padding-block: 1.5rem; }
+    .drop { aspect-ratio: auto; min-height: 16rem; }
+    .cert dl > div { grid-template-columns: 1fr; gap: 0.15rem; }
+  }
+  @media (prefers-reduced-motion: reduce) { .stage__flat .wax { animation: none; } }
+</style>
+</head>
+<body>
+<a class="skip-link" href="#main">Skip to content</a>
+
+<svg width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false">
+  <symbol id="saSeal" viewBox="0 0 100 100">
+    <path class="seal-scallop" d="M 50 13 A 7.22 7.22 0 0 1 64.16 15.82 A 7.22 7.22 0 0 1 76.16 23.84 A 7.22 7.22 0 0 1 84.18 35.84 A 7.22 7.22 0 0 1 87 50 A 7.22 7.22 0 0 1 84.18 64.16 A 7.22 7.22 0 0 1 76.16 76.16 A 7.22 7.22 0 0 1 64.16 84.18 A 7.22 7.22 0 0 1 50 87 A 7.22 7.22 0 0 1 35.84 84.18 A 7.22 7.22 0 0 1 23.84 76.16 A 7.22 7.22 0 0 1 15.82 64.16 A 7.22 7.22 0 0 1 13 50 A 7.22 7.22 0 0 1 15.82 35.84 A 7.22 7.22 0 0 1 23.84 23.84 A 7.22 7.22 0 0 1 35.84 15.82 A 7.22 7.22 0 0 1 50 13 Z"/>
+    <circle class="seal-ring" cx="50" cy="50" r="27"/>
+    <path class="seal-star" d="M 50 34.5 L 53.76 44.82 L 64.74 45.21 L 56.09 51.98 L 59.11 62.54 L 50 56.4 L 40.89 62.54 L 43.91 51.98 L 35.26 45.21 L 46.24 44.82 Z"/>
+  </symbol>
+</svg>
+
+<header class="site-head">
+  <a class="brand" href="/" aria-label="SecurityArts home">
+    <img class="brand__seal" src="/assets/seal/modern-24.svg" width="30" height="30" alt="">
+    <span class="brand__word">SecurityArts</span>
+  </a>
+  <nav class="nav" aria-label="Primary">
+    <a href="/wall"><span class="nav__idx">01</span> The wall</a>
+    <a href="/how-it-works"><span class="nav__idx">02</span> How it works</a>
+    <a href="/pricing"><span class="nav__idx">03</span> Pricing</a>
+    <a href="/#studio"><span class="nav__idx">04</span> Studio</a>
+  </nav>
+  <div class="head-auth" data-auth-slot>
+    <a href="/join?next=/seal-a-piece">Sign in</a>
+    <a class="head-auth__join" href="/join?mode=signup">Join</a>
+  </div>
+  <a class="head-cta" href="/seal-a-piece" aria-current="page" data-seal-cta>Seal a piece <span aria-hidden="true">→</span></a>
+  <button class="menu-btn" id="menuBtn" type="button" aria-expanded="false" aria-controls="mobileMenu" aria-label="Open menu"><span></span><span></span></button>
+</header>
+
+<div class="mobile-menu" id="mobileMenu" hidden>
+  <nav aria-label="Mobile">
+    <a href="/wall"><span>01</span> The wall</a>
+    <a href="/how-it-works"><span>02</span> How it works</a>
+    <a href="/pricing"><span>03</span> Pricing</a>
+    <a href="/#studio"><span>04</span> Studio</a>
+  </nav>
+  <div class="head-auth" data-auth-slot>
+    <a href="/join?next=/seal-a-piece">Sign in</a>
+    <a class="head-auth__join" href="/join?mode=signup">Join</a>
+  </div>
+</div>
+
+<main id="main" class="bench">
+  <section class="bench__art" aria-label="Your artwork">
+    <div class="drop" id="drop" role="button" tabindex="0" aria-describedby="dropHint">
+      <img class="drop__stamp" src="/assets/seal/rubber.svg" alt="">
+      <p class="drop__title">Drop your finished piece here</p>
+      <p class="drop__hint" id="dropHint">or <span class="drop__browse">choose a file</span> · PNG, JPG or WebP · up to 6 MB</p>
+    </div>
+    <input type="file" id="file" accept="image/png,image/jpeg,image/webp" hidden>
+
+    <figure class="preview" id="preview" hidden>
+      <div class="preview__frame"><img id="previewImg" alt=""></div>
+      <figcaption class="preview__meta"><b id="fileName"></b><span id="fileInfo"></span><button class="linkish" id="swap" type="button">Choose a different file</button></figcaption>
+    </figure>
+
+    <div id="stageWrap" hidden>
+      <div class="stage" id="stage"></div>
+      <p class="stage__why" id="stageWhy"></p>
+    </div>
+  </section>
+
+  <section class="bench__form">
+    <div class="bench__inner">
+      <div class="signed-out" id="signedOut" hidden>
+        <p class="section-label"><span>02</span> Seal a piece</p>
+        <h1 class="display">Sign in to <em>seal.</em></h1>
+        <p class="lede">A seal is tied to the account that makes it, so you'll need one. It only takes a minute.</p>
+        <div class="signed-out__actions">
+          <a class="btn btn--red" href="/join?mode=signup">Make an account</a>
+          <a class="btn btn--ghost" href="/join?next=/seal-a-piece">Sign in</a>
+        </div>
+      </div>
+
+      <form id="form" novalidate hidden>
+        <p class="section-label"><span>02</span> Seal a piece</p>
+        <h1 class="display" id="formTitle" tabindex="-1">Seal a finished <em>piece.</em></h1>
+        <p class="lede">We fingerprint the exact file you choose, sign that fingerprint, and put the piece on the wall with a certificate anyone can check.</p>
+
+        <dl class="fingerprint">
+          <dt>Fingerprint of this file (SHA-256)</dt>
+          <dd id="hash" class="is-empty">Choose a file and it appears here. It's worked out in your browser.</dd>
+        </dl>
+
+        <div class="field">
+          <label for="title">Title</label>
+          <input class="input" id="title" name="title" type="text" maxlength="80" required autocomplete="off" aria-describedby="note">
+        </div>
+
+        <fieldset>
+          <legend>Medium</legend>
+          <div class="mediums" id="mediums"></div>
+        </fieldset>
+
+        <div class="field">
+          <label for="credit">Credited to</label>
+          <input class="input" id="credit" name="credit" type="text" maxlength="60" required autocomplete="name" aria-describedby="creditHint note">
+          <span class="field__hint" id="creditHint">The name shown with the piece. Your account is recorded as the one that sealed it.</span>
+        </div>
+
+        <label class="check"><input type="checkbox" id="rights" required> <span><b>I made this, or I have the right to share it publicly.</b> Sealed work appears on the wall for anyone to see.</span></label>
+
+        <p class="notice" id="note" hidden></p>
+        <p class="visually-hidden" id="live" aria-live="polite"></p>
+        <button class="btn btn--red btn--block" id="submit" type="submit">Seal it</button>
+        <p class="small">Keep your original file. The certificate matches these exact bytes, so a resized or re-saved copy won't match it.</p>
+      </form>
+
+      <div class="done" id="done" hidden tabindex="-1">
+        <p class="section-label"><span>✓</span> Sealed</p>
+        <h1 class="display" id="doneTitle"></h1>
+        <section class="cert" aria-label="Certificate">
+          <div class="cert__head">
+            <img src="/assets/seal/ringtext.svg" alt="">
+            <div><b>Certificate</b><span id="doneWhen"></span></div>
+          </div>
+          <dl id="doneCert"></dl>
+        </section>
+        <p class="notice notice--ok" id="doneMatch" hidden></p>
+        <div class="done__actions">
+          <a class="btn btn--red" id="seeOnWall" href="/wall">See it on the wall</a>
+          <button class="btn btn--ghost" id="copyLink" type="button">Copy link</button>
+          <button class="btn btn--ghost" id="again" type="button">Seal another</button>
+        </div>
+        <p class="copied" id="copied" role="status"></p>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer class="site-foot">
+  <div class="wrap">
+    <a class="brand" href="/" aria-label="SecurityArts home">
+      <img class="brand__seal" src="/assets/seal/modern-24-dark.svg" width="30" height="30" alt="">
+      <span class="brand__word">SecurityArts</span>
+    </a>
+    <nav aria-label="Footer">
+      <a href="/wall">The wall</a>
+      <a href="/how-it-works">How it works</a>
+      <a href="/verify">Verify a seal</a>
+      <a href="/pricing">Pricing</a>
+      <a href="/faq">FAQ</a>
+      <a href="/#studio">Studio</a>
+      <a href="/privacy">Privacy</a>
+      <a href="/terms">Terms</a>
+    </nav>
+    <small>A receipt for your art. Every certificate on the wall is public. hello@securityarts.studio</small>
+  </div>
+</footer>
+
+<script src="/js/api.js"></script>
+<script type="module" src="/assets/seal-a-piece.js"></script>
+</body>
+</html>

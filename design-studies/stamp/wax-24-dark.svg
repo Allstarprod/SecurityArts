@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 240 240" width="24" height="24" role="img" aria-labelledby="wax-24d-title">
+  <title id="wax-24d-title">SecurityArts seal, wax (small)</title>
+  <!--
+    WAX at 24px / 16px: lighting, grain and die text dropped — they turn to mud below ~48px.
+    Solid wax silhouette, ring as a lighter raised band, star cut through to paper.
+  -->
+  <path fill="#FF6B1A" d="M120,31.2 A17.32,17.32 0 0 1 153.98,37.96 A17.32,17.32 0 0 1 182.79,57.21 A17.32,17.32 0 0 1 202.04,86.02 A17.32,17.32 0 0 1 208.8,120 A17.32,17.32 0 0 1 202.04,153.98 A17.32,17.32 0 0 1 182.79,182.79 A17.32,17.32 0 0 1 153.98,202.04 A17.32,17.32 0 0 1 120,208.8 A17.32,17.32 0 0 1 86.02,202.04 A17.32,17.32 0 0 1 57.21,182.79 A17.32,17.32 0 0 1 37.96,153.98 A17.32,17.32 0 0 1 31.2,120 A17.32,17.32 0 0 1 37.96,86.02 A17.32,17.32 0 0 1 57.21,57.21 A17.32,17.32 0 0 1 86.02,37.96 A17.32,17.32 0 0 1 120,31.2 Z"/>
+  <circle cx="120" cy="120" r="64.8" fill="none" stroke="#FFC9A0" stroke-width="10"/>
+  <path fill="#FFF4E6" d="M120,82.8 L129.02,107.57 L155.38,108.5 L134.62,124.75 L141.86,150.1 L120,135.36 L98.14,150.1 L105.38,124.75 L84.62,108.5 L110.98,107.57 Z"/>
+</svg>

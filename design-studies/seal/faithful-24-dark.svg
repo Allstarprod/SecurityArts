@@ -1,0 +1,37 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 240 240" width="24" height="24" role="img" aria-labelledby="faithful-24d-title">
+  <title id="faithful-24d-title">SecurityArts seal</title>
+  <!--
+    FAITHFUL at 24px (nav) and 16px (favicon). Same geometry, no grain.
+    At 1px stroke the 16 hollow lobes turn into beads, so the scalloped edge is
+    filled as a solid band (evenodd cut-out at r=80) — the ink filling in the lobes,
+    which is what a small physical stamp does. Ring stroke 9 (0.9px at 24px).
+    Star unchanged. Single ink: chop-red #D42228.
+  -->
+  <g fill="#D42228">
+    <!-- scalloped band: original outline filled, circle r=80 cut out -->
+    <path fill-rule="evenodd" d="M 120 31.2
+      A 17.33 17.33 0 0 1 153.982 37.959
+      A 17.33 17.33 0 0 1 182.791 57.209
+      A 17.33 17.33 0 0 1 202.041 86.018
+      A 17.33 17.33 0 0 1 208.8 120
+      A 17.33 17.33 0 0 1 202.041 153.982
+      A 17.33 17.33 0 0 1 182.791 182.791
+      A 17.33 17.33 0 0 1 153.982 202.041
+      A 17.33 17.33 0 0 1 120 208.8
+      A 17.33 17.33 0 0 1 86.018 202.041
+      A 17.33 17.33 0 0 1 57.209 182.791
+      A 17.33 17.33 0 0 1 37.959 153.982
+      A 17.33 17.33 0 0 1 31.2 120
+      A 17.33 17.33 0 0 1 37.959 86.018
+      A 17.33 17.33 0 0 1 57.209 57.209
+      A 17.33 17.33 0 0 1 86.018 37.959
+      A 17.33 17.33 0 0 1 120 31.2 Z
+      M 200 120 A 80 80 0 1 0 40 120 A 80 80 0 1 0 200 120 Z"/>
+    <!-- ring -->
+    <circle cx="120" cy="120" r="64.8" fill="none" stroke="#D42228" stroke-width="9"/>
+    <!-- star -->
+    <path d="M 120 82.8
+      L 129.024 107.568 L 155.376 108.504 L 134.616 124.752 L 141.864 150.096
+      L 120 135.36 L 98.136 150.096 L 105.384 124.752 L 84.624 108.504 L 110.976 107.568 Z"/>
+  </g>
+</svg>

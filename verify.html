@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Verify a seal — SecurityArts</title>
+<meta name="description" content="Check a file or a fingerprint against SecurityArts seals. The file is fingerprinted in your browser and never uploaded. No account needed.">
+<link rel="canonical" href="https://security-arts.vercel.app/verify">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="SecurityArts">
+<meta property="og:title" content="Verify a seal — SecurityArts">
+<meta property="og:description" content="Check a file or a fingerprint against SecurityArts seals. The file is fingerprinted in your browser and never uploaded. No account needed.">
+<meta property="og:url" content="https://security-arts.vercel.app/verify">
+<meta property="og:image" content="https://security-arts.vercel.app/og-image.png">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="icon" href="/assets/seal/modern-24.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Sans:wght@500;600;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/assets/site.css">
+<style>
+.verify { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: clamp(1.5rem, 4vw, 3.5rem); align-items: start; }
+  .verify .drop { aspect-ratio: 4 / 3; width: 100%; }
+  .verify-side { display: grid; gap: 1.2rem; align-content: start; }
+  .hash-form { display: grid; gap: 0.6rem; }
+  .hash-form .row { display: flex; gap: var(--space-actions); flex-wrap: wrap; }
+  .hash-form .input { flex: 1 1 18rem; font-family: var(--mono); font-size: 0.85rem; }
+  .result { display: grid; gap: 0.8rem; }
+  .result:empty { display: none; }
+  .band--sky .section-label span { color: var(--red-deep); }
+  @media (max-width: 860px) { .verify { grid-template-columns: minmax(0, 1fr); } }
+  .band--red :focus-visible { outline-color: var(--paper); }
+</style>
+</head>
+<body>
+<a class="skip-link" href="#main">Skip to content</a>
+
+<header class="site-head">
+  <a class="brand" href="/" aria-label="SecurityArts home">
+    <img class="brand__seal" src="/assets/seal/modern-24.svg" width="30" height="30" alt="">
+    <span class="brand__word">SecurityArts</span>
+  </a>
+  <nav class="nav" aria-label="Primary">
+    <a href="/wall"><span class="nav__idx">01</span> The wall</a>
+    <a href="/how-it-works"><span class="nav__idx">02</span> How it works</a>
+    <a href="/pricing"><span class="nav__idx">03</span> Pricing</a>
+    <a href="/#studio"><span class="nav__idx">04</span> Studio</a>
+  </nav>
+  <div class="head-auth" data-auth-slot>
+    <a href="/join">Sign in</a>
+    <a class="head-auth__join" href="/join?mode=signup">Join</a>
+  </div>
+  <a class="head-cta" href="/join?mode=signup" data-seal-cta>Seal a piece <span aria-hidden="true">→</span></a>
+  <button class="menu-btn" id="menuBtn" type="button" aria-expanded="false" aria-controls="mobileMenu" aria-label="Open menu"><span></span><span></span></button>
+</header>
+
+<div class="mobile-menu" id="mobileMenu" hidden>
+  <nav aria-label="Mobile">
+    <a href="/wall"><span>01</span> The wall</a>
+    <a href="/how-it-works"><span>02</span> How it works</a>
+    <a href="/pricing"><span>03</span> Pricing</a>
+    <a href="/#studio"><span>04</span> Studio</a>
+  </nav>
+  <div class="head-auth" data-auth-slot>
+    <a href="/join">Sign in</a>
+    <a class="head-auth__join" href="/join?mode=signup">Join</a>
+  </div>
+  <a class="btn btn--red" href="/join?mode=signup" data-seal-cta>Seal a piece</a>
+</div>
+
+<main id="main">
+  <section class="page-hero band--sky" aria-labelledby="page-h">
+    <div class="wrap">
+      <p class="section-label"><span>01</span> Verify</p>
+      <h1 class="display" id="page-h">Check a seal. <em>No account needed.</em></h1>
+      <p class="lede">Drop in a file, or paste its fingerprint. We'll tell you whether that exact file was sealed on SecurityArts, by which account, and when.</p>
+    </div>
+  </section>
+
+  <section class="band" aria-labelledby="check-h">
+    <div class="wrap verify">
+      <div>
+        <h2 class="visually-hidden" id="check-h">Check a file</h2>
+        <div class="drop" id="drop" role="button" tabindex="0" aria-describedby="dropHint">
+          <img class="drop__stamp" src="/assets/seal/rubber.svg" alt="">
+          <p class="drop__title">Drop the file you want to check</p>
+          <p class="drop__hint" id="dropHint">or <span class="drop__browse">choose a file</span> · it stays on your device</p>
+        </div>
+        <input type="file" id="file" hidden>
+      </div>
+      <div class="verify-side">
+        <form class="hash-form" id="hashForm" novalidate>
+          <label class="field__label" for="hash"><b>Or paste a fingerprint</b></label>
+          <div class="row">
+            <input class="input" id="hash" name="hash" autocomplete="off" spellcheck="false" maxlength="64" placeholder="64-character SHA-256">
+            <button class="btn btn--ink" type="submit">Check</button>
+          </div>
+          <p class="field__hint">A fingerprint is the SHA-256 of the exact file: 64 characters, 0–9 and a–f.</p>
+        </form>
+        <dl class="fingerprint" id="fpBox" hidden><dt>Fingerprint · SHA-256</dt><dd id="fp"></dd></dl>
+        <div class="result" id="result" aria-live="polite"></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="band band--paper-2" aria-labelledby="know-h">
+    <div class="wrap split">
+      <div class="prose">
+        <h2 id="know-h">What a check tells you</h2>
+        <p>A match means this exact file was sealed on SecurityArts: you'll see which account sealed it, when, and a link to its certificate. It doesn't tell you who made the art, or whether it's original.</p>
+        <p>No match means the file was never sealed here, or it's a copy that has been re-saved, resized, re-encoded or screenshotted. A copy has different bytes, so it never matches. Ask for the original file.</p>
+        <h2>Check it without us</h2>
+        <p>Every seal is an ECDSA P-256 signature over the file's SHA-256 fingerprint. The public key is at <a href="/api/seal/pubkey"><code>/api/seal/pubkey</code></a>, and <a href="/docs/seal-spec.md">the seal spec</a> explains how to check a signature yourself.</p>
+      </div>
+      <div class="shows">
+        <div class="shows__yes"><h3>Your file</h3><ul><li>Fingerprinted in your browser</li><li>Never uploaded</li><li>Only the fingerprint is looked up</li></ul></div>
+        <div class="shows__no"><h3>Won't match</h3><ul><li>Screenshots</li><li>Resized or re-saved copies</li><li>Files that were never sealed</li></ul></div>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer class="site-foot">
+  <div class="wrap">
+    <a class="brand" href="/" aria-label="SecurityArts home">
+      <img class="brand__seal" src="/assets/seal/modern-24-dark.svg" width="30" height="30" alt="">
+      <span class="brand__word">SecurityArts</span>
+    </a>
+    <nav aria-label="Footer">
+      <a href="/wall">The wall</a>
+      <a href="/how-it-works">How it works</a>
+      <a href="/verify">Verify a seal</a>
+      <a href="/pricing">Pricing</a>
+      <a href="/faq">FAQ</a>
+      <a href="/#studio">Studio</a>
+      <a href="/privacy">Privacy</a>
+      <a href="/terms">Terms</a>
+    </nav>
+    <small>A receipt for your art. Every certificate on the wall is public. hello@securityarts.studio</small>
+  </div>
+</footer>
+
+<script src="/js/api.js"></script>
+<script type="module" src="/assets/verify.js"></script>
+</body>
+</html>

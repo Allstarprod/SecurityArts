@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 1000" width="800" height="1000">
+  <title>Red room (placeholder artwork)</title>
+
+  <rect width="800" height="1000" fill="#C8262D"/>
+  <rect x="470" y="140" width="220" height="300" fill="#F29C9C"/>
+  <rect x="575" y="140" width="10" height="300" fill="#C8262D"/>
+  <rect x="470" y="285" width="220" height="10" fill="#C8262D"/>
+  <rect y="700" width="800" height="300" fill="#A81E24"/>
+  <path d="M120 520 H330 V700 H300 V590 H150 V700 H120Z" fill="#8E1A1F"/>
+  <rect x="120" y="440" width="40" height="150" fill="#8E1A1F"/>
+  <circle cx="250" cy="330" r="60" fill="#8E1A1F"/>
+  <rect x="380" y="620" width="260" height="30" fill="#1C1416"/>
+  <rect x="400" y="650" width="16" height="160" fill="#1C1416"/>
+  <rect x="604" y="650" width="16" height="160" fill="#1C1416"/>
+  <ellipse cx="520" cy="600" rx="40" ry="22" fill="#F29C9C"/>
+</svg>

@@ -51,7 +51,7 @@ GET  /api/orders/:id             POST /api/newsletter
 ```
 
 Static hosting is allowlisted (`lib/static.mjs`): root `*.html`, `js/`, the design-system
-`website/` tree, `og-image.png`, `robots.txt`, `sitemap.xml`, `llms*.txt`, favicons. Everything
+`website/` tree, `design-system/tokens.css`, `og-image.png`, `robots.txt`, `sitemap.xml`, `llms*.txt`, favicons. Everything
 else under the repo (`server/`, `.git/`, `.env`, docs, screenshots…) answers 404.
 
 Envelope: every response is `{ "data": ..., "error": ... }`.

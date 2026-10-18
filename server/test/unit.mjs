@@ -28,15 +28,23 @@ test("static: repo internals are outside the allowlist", () => {
   for (const p of ["/server/.env", "/server/data/seal-key.pem", "/server/data/db.json", "/.git/HEAD", "/.env", "/.github/workflows/ci.yml",
     "/.claude/project-context.md", "/api/[...path].mjs", "/supabase/migrations/x.sql", "/scripts/build-pages.mjs", "/node_modules/pg/package.json",
     "/marketing/x.md", "/IMAGES & CODES/x.png", "/SecurityArts-site/SecurityArts/HANDOFF.md", "/HANDOFF.md", "/COMPLIANCE.md", "/package.json",
-    "/SecurityArts-site.zip", "/Screenshot 2026-06-30 124346.png", "/js/../server/.env", "/js/..%5Cserver/.env", "/SecurityArts Design System/x.html"]) {
+    "/SecurityArts-site.zip", "/Screenshot 2026-06-30 124346.png", "/js/../server/.env", "/js/..%5Cserver/.env", "/SecurityArts Design System/x.html",
+    "/SecurityArts Design System/website/ui_kits/discover/", "/SecurityArts%20Design%20System/website/styles.css", "/design-studies/wall.html", "/assets/../server/.env"]) {
     assert.equal(resolvePublicPath(ROOT, p), null, p);
   }
 });
 test("static: the public site is reachable", () => {
   for (const p of ["/", "/index.html", "/faq.html", "/services-penetration-testing.html", "/js/api.js", "/og-image.png", "/robots.txt", "/sitemap.xml",
-    "/llms.txt", "/llms-full.txt", "/favicon.ico", "/favicon-32x32.png", "/SecurityArts Design System/website/ui_kits/discover/", "/SecurityArts%20Design%20System/website/styles.css"]) {
+    "/llms.txt", "/llms-full.txt", "/favicon.ico", "/favicon-32x32.png", "/wall.html", "/assets/site.css", "/assets/seal/wax.svg", "/assets/stamp3d/wax-seal.js"]) {
     const r = resolvePublicPath(ROOT, p);
     assert.ok(r && r.abs && r.abs.startsWith(ROOT + path.sep), p);
+  }
+});
+test("static: the design-system tokens stylesheet is public, its sources are not", () => {
+  const r = resolvePublicPath(ROOT, "/design-system/tokens.css");
+  assert.ok(r && r.abs === path.join(ROOT, "design-system", "tokens.css"));
+  for (const p of ["/design-system/tokens.json", "/design-system/build-tokens.mjs", "/design-system/README.md", "/design-system/", "/design-system/../server/.env"]) {
+    assert.equal(resolvePublicPath(ROOT, p), null, p);
   }
 });
 test("static: malformed percent-encoding and NUL are a 400, not a crash", () => {
@@ -167,7 +175,9 @@ test("csp: standalone and vercel.json policies are identical and scoped to the p
   const vercel = JSON.parse(fs.readFileSync(path.join(ROOT, "vercel.json"), "utf8"));
   const header = vercel.headers.flatMap((h) => h.headers).find((h) => h.key === "Content-Security-Policy");
   assert.equal(header.value, CSP);
-  assert.match(CSP, /img-src 'self' data: blob: https:\/\/ixdkfakibuctwhgwngsw\.supabase\.co(;|$)/);
+  // Our own Storage host, plus Clerk's avatar host — nothing else.
+  assert.match(CSP, /img-src 'self' data: blob: https:\/\/ixdkfakibuctwhgwngsw\.supabase\.co https:\/\/img\.clerk\.com(;|$)/);
+  assert.ok(!/script-src[^;]*\*\.clerk\.com/.test(CSP), "no Clerk-wide script wildcard beyond dev instances and fraud checks");
   assert.ok(!/connect-src[^;]*supabase/.test(CSP), "connect-src must not list Supabase");
   assert.ok(!/\*\.supabase\.co/.test(CSP), "no Supabase wildcard");
 });

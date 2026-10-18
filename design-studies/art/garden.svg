@@ -1,0 +1,26 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 1000" width="800" height="1000">
+  <title>Garden (placeholder artwork)</title>
+
+  <rect width="800" height="1000" fill="#8CBF6A"/>
+  <path d="M40 1000 C20 760 90 560 60 380" fill="none" stroke="#2E6B4F" stroke-width="18"/>
+  <path d="M160 1000 C140 760 210 560 180 440" fill="none" stroke="#2E6B4F" stroke-width="18"/>
+  <path d="M280 1000 C260 760 330 560 300 500" fill="none" stroke="#2E6B4F" stroke-width="18"/>
+  <path d="M400 1000 C380 760 450 560 420 380" fill="none" stroke="#2E6B4F" stroke-width="18"/>
+  <path d="M520 1000 C500 760 570 560 540 440" fill="none" stroke="#2E6B4F" stroke-width="18"/>
+  <path d="M640 1000 C620 760 690 560 660 500" fill="none" stroke="#2E6B4F" stroke-width="18"/>
+  <path d="M760 1000 C740 760 810 560 780 380" fill="none" stroke="#2E6B4F" stroke-width="18"/>
+  <ellipse cx="94" cy="560" rx="46" ry="18" transform="rotate(-30 94 560)" fill="#2E6B4F"/>
+  <ellipse cx="214" cy="630" rx="46" ry="18" transform="rotate(-30 214 630)" fill="#2E6B4F"/>
+  <ellipse cx="334" cy="700" rx="46" ry="18" transform="rotate(-30 334 700)" fill="#2E6B4F"/>
+  <ellipse cx="454" cy="770" rx="46" ry="18" transform="rotate(-30 454 770)" fill="#2E6B4F"/>
+  <ellipse cx="574" cy="560" rx="46" ry="18" transform="rotate(-30 574 560)" fill="#2E6B4F"/>
+  <ellipse cx="694" cy="630" rx="46" ry="18" transform="rotate(-30 694 630)" fill="#2E6B4F"/>
+  <ellipse cx="814" cy="700" rx="46" ry="18" transform="rotate(-30 814 700)" fill="#2E6B4F"/>
+  <circle cx="60" cy="380" r="40" fill="#E85D8A"/><circle cx="60" cy="380" r="14" fill="#F7D358"/>
+  <circle cx="180" cy="440" r="40" fill="#E85D8A"/><circle cx="180" cy="440" r="14" fill="#F7D358"/>
+  <circle cx="300" cy="500" r="40" fill="#E85D8A"/><circle cx="300" cy="500" r="14" fill="#F7D358"/>
+  <circle cx="420" cy="380" r="40" fill="#E85D8A"/><circle cx="420" cy="380" r="14" fill="#F7D358"/>
+  <circle cx="540" cy="440" r="40" fill="#E85D8A"/><circle cx="540" cy="440" r="14" fill="#F7D358"/>
+  <circle cx="660" cy="500" r="40" fill="#E85D8A"/><circle cx="660" cy="500" r="14" fill="#F7D358"/>
+  <circle cx="780" cy="380" r="40" fill="#E85D8A"/><circle cx="780" cy="380" r="14" fill="#F7D358"/>
+</svg>

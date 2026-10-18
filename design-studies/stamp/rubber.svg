@@ -1,0 +1,102 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 240 240" width="240" height="240" role="img" aria-labelledby="rubber-title">
+  <title id="rubber-title">SecurityArts seal, rubber-stamp impression in tangerine</title>
+  <!--
+    rubber — the seal as a hand-pressed rubber stamp on cream paper.
+
+    Die: the original seal.svg geometry scaled 2.4x, untouched otherwise —
+    16-lobe scallop (cusps r 88.8, lobe r 17.33), ring r 64.8, five-point star
+    (outer r 37.2). Strokes run heavier than the line mark because a rubber die
+    prints fatter than it is drawn (6.5 / 5 vs the mark's 5.04 / 3.6 at this scale).
+
+    Ink, in order:
+      1. edge wobble      — feDisplacementMap off low-frequency turbulence
+      2. ink squash       — broad areas print hollower than lines: a soft map of
+                            the die interior (erode + blur) lowers coverage there,
+                            so the star's centre skips more than its edges
+      3. skip pattern     — fine paper grain x broad thin-ink patches, then a HARD
+                            alpha threshold: ink is on the paper or it is not
+      4. double strike    — the bounce: same die 1.1 / 0.8 units off and 0.7deg
+                            rotated at 35%, underneath, with its own skip seed
+      5. pressure         — a radial luminance mask rolls coverage off toward the
+                            top-right: pressed hardest at the heel, lifted too soon
+  -->
+  <defs>
+    <!-- ink pools where the hand pressed hardest (lower-left) -->
+    <linearGradient id="rubber-inkGrad" gradientUnits="userSpaceOnUse" x1="44" y1="196" x2="196" y2="44">
+      <stop offset="0" stop-color="#E85A0E"/>
+      <stop offset="1" stop-color="#FF6B1A"/>
+    </linearGradient>
+
+    <!-- pressure roll-off: full coverage lower-left, thin toward top-right -->
+    <radialGradient id="rubber-pressGrad" gradientUnits="userSpaceOnUse" cx="88" cy="156" r="160">
+      <stop offset="0" stop-color="#FFFFFF" stop-opacity="1"/>
+      <stop offset="0.4" stop-color="#FFFFFF" stop-opacity="1"/>
+      <stop offset="1" stop-color="#FFFFFF" stop-opacity="0.5"/>
+    </radialGradient>
+    <mask id="rubber-press" maskUnits="userSpaceOnUse" x="0" y="0" width="240" height="240">
+      <rect x="0" y="0" width="240" height="240" fill="url(#rubber-pressGrad)"/>
+    </mask>
+
+    <!-- main strike -->
+    <filter id="rubber-ink" x="-8%" y="-8%" width="116%" height="116%" color-interpolation-filters="sRGB">
+      <!-- 1. edge wobble -->
+      <feTurbulence type="fractalNoise" baseFrequency="0.11" numOctaves="2" seed="3" result="rubber-edge"/>
+      <feDisplacementMap in="SourceGraphic" in2="rubber-edge" scale="2.4" xChannelSelector="R" yChannelSelector="G" result="rubber-rough"/>
+      <!-- 2. ink squash map: 1 outside the die interior, 0.88 at the centre of broad areas -->
+      <feMorphology in="SourceAlpha" operator="erode" radius="4" result="rubber-core"/>
+      <feGaussianBlur in="rubber-core" stdDeviation="4" result="rubber-coreSoft"/>
+      <feComponentTransfer in="rubber-coreSoft" result="rubber-squash">
+        <feFuncA type="linear" slope="-0.12" intercept="1"/>
+      </feComponentTransfer>
+      <!-- 3. skip pattern -->
+      <feTurbulence type="fractalNoise" baseFrequency="0.21" numOctaves="3" seed="11" result="rubber-grain"/>
+      <feTurbulence type="fractalNoise" baseFrequency="0.02" numOctaves="2" seed="5" result="rubber-patch"/>
+      <feComposite in="rubber-grain" in2="rubber-patch" operator="arithmetic" k1="0" k2="0.6" k3="0.4" k4="0" result="rubber-noise"/>
+      <feComposite in="rubber-noise" in2="rubber-squash" operator="arithmetic" k1="1" k2="0" k3="0" k4="0" result="rubber-noiseSq"/>
+      <feColorMatrix in="rubber-noiseSq" type="matrix" values="0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 0 0 18 -6.4" result="rubber-coverage"/>
+      <feComposite in="rubber-rough" in2="rubber-coverage" operator="in"/>
+    </filter>
+
+    <!-- ghost strike: lighter touch, own skip seed, more skips -->
+    <filter id="rubber-inkGhost" x="-8%" y="-8%" width="116%" height="116%" color-interpolation-filters="sRGB">
+      <feTurbulence type="fractalNoise" baseFrequency="0.11" numOctaves="2" seed="17" result="rubber-gEdge"/>
+      <feDisplacementMap in="SourceGraphic" in2="rubber-gEdge" scale="2.2" xChannelSelector="R" yChannelSelector="G" result="rubber-gRough"/>
+      <feTurbulence type="fractalNoise" baseFrequency="0.21" numOctaves="3" seed="23" result="rubber-gGrain"/>
+      <feTurbulence type="fractalNoise" baseFrequency="0.02" numOctaves="2" seed="29" result="rubber-gPatch"/>
+      <feComposite in="rubber-gGrain" in2="rubber-gPatch" operator="arithmetic" k1="0" k2="0.6" k3="0.4" k4="0" result="rubber-gNoise"/>
+      <feColorMatrix in="rubber-gNoise" type="matrix" values="0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 0 0 18 -7.0" result="rubber-gCoverage"/>
+      <feComposite in="rubber-gRough" in2="rubber-gCoverage" operator="in"/>
+    </filter>
+
+    <!-- ring-text baselines. Top line runs clockwise on r 72.5, glyphs growing outward.
+         Bottom line runs counter-clockwise on r 80.2, glyphs growing inward, so both
+         read upright — the rubber-stamp convention, not the coin one. Both occupy the
+         same band, r 72.5–80.2, between the ring (outer edge 67.3) and the cusps (85.5). -->
+    <path id="rubber-textArcTop" d="M47.5,120 A72.5,72.5 0 0 1 192.5,120"/>
+    <path id="rubber-textArcBottom" d="M39.8,120 A80.2,80.2 0 0 0 200.2,120"/>
+
+    <!-- the die -->
+    <g id="rubber-art" fill="url(#rubber-inkGrad)" stroke="url(#rubber-inkGrad)">
+      <!-- 16-lobe scallop, original seal.svg path x2.4 -->
+      <path fill="none" stroke-width="6.5" stroke-linejoin="round" d="M120,31.2 A17.33,17.33 0 0 1 153.98,37.96 A17.33,17.33 0 0 1 182.79,57.21 A17.33,17.33 0 0 1 202.04,86.02 A17.33,17.33 0 0 1 208.8,120 A17.33,17.33 0 0 1 202.04,153.98 A17.33,17.33 0 0 1 182.79,182.79 A17.33,17.33 0 0 1 153.98,202.04 A17.33,17.33 0 0 1 120,208.8 A17.33,17.33 0 0 1 86.02,202.04 A17.33,17.33 0 0 1 57.21,182.79 A17.33,17.33 0 0 1 37.96,153.98 A17.33,17.33 0 0 1 31.2,120 A17.33,17.33 0 0 1 37.96,86.02 A17.33,17.33 0 0 1 57.21,57.21 A17.33,17.33 0 0 1 86.02,37.96 A17.33,17.33 0 0 1 120,31.2 Z"/>
+      <!-- inner ring -->
+      <circle cx="120" cy="120" r="64.8" fill="none" stroke-width="5"/>
+      <!-- star -->
+      <path stroke="none" d="M120,82.8 L129.02,107.57 L155.38,108.5 L134.62,124.75 L141.86,150.1 L120,135.36 L98.14,150.1 L105.38,124.75 L84.62,108.5 L110.98,107.57 Z"/>
+      <!-- ring text; textLength pins the fit whatever font loads -->
+      <g stroke="none" font-family="Instrument Sans, sans-serif" font-weight="700" font-size="11">
+        <text><textPath href="#rubber-textArcTop" startOffset="11.9" textLength="204" lengthAdjust="spacing">SEALED BY SECURITYARTS</textPath></text>
+        <text><textPath href="#rubber-textArcBottom" startOffset="13.1" textLength="225.7" lengthAdjust="spacing">A RECEIPT FOR YOUR ART</textPath></text>
+        <circle cx="43.65" cy="120" r="2.4"/>
+        <circle cx="196.35" cy="120" r="2.4"/>
+      </g>
+    </g>
+  </defs>
+
+  <g mask="url(#rubber-press)">
+    <!-- the bounce: second, lighter hit a hair off and a hair turned -->
+    <use href="#rubber-art" transform="translate(1.1 0.8) rotate(-0.7 120 120)" opacity="0.35" filter="url(#rubber-inkGhost)"/>
+    <!-- the strike -->
+    <use href="#rubber-art" filter="url(#rubber-ink)"/>
+  </g>
+</svg>

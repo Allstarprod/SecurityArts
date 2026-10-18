@@ -1,21 +1,21 @@
 # SecurityArts
 
-> SecurityArts is two things under one seal. (1) A boutique security studio — penetration testing, application security, cloud hardening, detection & response, security architecture, and vCISO advisory — where every engagement ends in a signed, dated, re-testable record instead of a PDF. (2) A platform that seals human-made art: the server hashes the exact image bytes (SHA-256), signs the hash with the SecurityArts ECDSA P-256 key, and publishes a public certificate anyone can verify. A seal proves a specific account sealed a specific file at a specific time and that the bytes have not changed since. It is not an AI detector and does not prove originality or copyright.
+> SecurityArts is two things under one seal. (1) A boutique security studio — penetration testing, application security, cloud hardening, detection & response, security architecture, and vCISO advisory — where every engagement ends in a signed, dated, re-testable record instead of a PDF. (2) A platform where artists seal their finished work: the server hashes the exact image bytes (SHA-256), signs the hash with the SecurityArts ECDSA P-256 key, and publishes a public certificate anyone can verify. A seal proves a specific account sealed a specific file at a specific time and that the bytes have not changed since. It is not an AI detector and does not prove originality or copyright.
 
-Contact: hello@securityarts.studio. Company established 2026, remote-first. Studio engagements are scoped and quoted individually; platform pricing is not published here.
+Contact: hello@securityarts.studio. Company established 2026, remote-first. Studio engagements are scoped and quoted individually. Platform plans: Free, Pro $5/month, Pro+ $15/month (most features are free; paid plans open when payments go live).
 
-Preferred terms: "seal" (not watermark), "proof" or "receipt" (not score), "verify" (not detect), "engagement" (not project), "human-made".
+Preferred terms: "seal" (not watermark), "proof" or "receipt" (not score), "verify" (not detect), "engagement" (not project), "which account sealed it" (not "who made it").
 
-## Art platform — proving human authorship
+## Art platform — sealing finished work
 
-- [Prove your art is human](https://security-arts.vercel.app/verified): Landing page for artists. What a seal proves and does not, the three-step flow, links to the comparison pages.
+- [For artists](https://security-arts.vercel.app/verified): Landing page for artists. What a seal proves and does not, the three-step flow, links to the comparison pages.
 - [How the seal works](https://security-arts.vercel.app/how-it-works): Plain-English explanation of upload → SHA-256 hash → ECDSA P-256 signature → public certificate, plus what the seal proves and deliberately does not claim.
 - [FAQ](https://security-arts.vercel.app/faq): Direct answers — what a seal is, whether it is an AI detector (no), whether it can be faked or stripped, how it differs from C2PA, how to verify someone else's seal, effect on copyright (none).
 - [How to prove your art is human-made (guide)](https://security-arts.vercel.app/prove-your-art-is-human): The five options an accused artist has — process files, AI detectors, C2PA / Content Credentials, the "Not By AI" badge, and a cryptographic seal — ranked by how well each holds up to a skeptic.
 
 ## Comparisons
 
-- [Seal vs AI detectors](https://security-arts.vercel.app/compare/ai-detectors): Detectors estimate a probability from pixels and produce false positives; a seal is a signature over the exact bytes. Different tools for different questions; a detector triages, a seal proves who sealed what and when.
+- [Seal vs AI detectors](https://security-arts.vercel.app/compare/ai-detectors): Detectors estimate a probability from pixels and produce false positives; a seal is a signature over the exact bytes. Different tools for different questions; a detector triages, a seal shows which account sealed which exact file, and when.
 - [Seal vs C2PA / Content Credentials](https://security-arts.vercel.app/compare/c2pa): C2PA embeds a signed manifest in the file and is often stripped when platforms re-encode uploads; a SecurityArts certificate is hosted outside the file. Complementary, not rivals.
 - [Seal vs the "Not By AI" badge](https://security-arts.vercel.app/compare/not-by-ai): The badge is a self-declared label anyone can add; a seal is tied to a specific file and publicly verifiable.
 
@@ -36,7 +36,7 @@ Preferred terms: "seal" (not watermark), "proof" or "receipt" (not score), "veri
 
 ## Optional
 
-- [Discover — the wall](https://security-arts.vercel.app/discover): Public, filterable wall of sealed human-made work (interactive app; content loads client-side).
-- [Privacy policy](https://security-arts.vercel.app/privacy.html)
-- [Terms of service](https://security-arts.vercel.app/terms.html)
+- [The wall](https://security-arts.vercel.app/wall): Public, filterable wall of sealed work, newest first (interactive app; content loads client-side).
+- [Privacy policy](https://security-arts.vercel.app/privacy)
+- [Terms of service](https://security-arts.vercel.app/terms)
 - [Full text of all pages](https://security-arts.vercel.app/llms-full.txt)

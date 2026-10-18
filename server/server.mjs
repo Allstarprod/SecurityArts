@@ -89,7 +89,7 @@ async function handler(req, res) {
     // Vanity handle URLs: /@name → the public profile page for that handle.
     const vanity = /^\/@([a-zA-Z0-9_]{1,30})$/.exec(pathname);
     if (vanity && req.method === "GET") {
-      const dest = "/SecurityArts Design System/website/ui_kits/discover/profile.html?h=" + vanity[1].toLowerCase();
+      const dest = "/profile.html?h=" + vanity[1].toLowerCase();
       res.writeHead(302, { Location: encodeURI(dest) });
       res.end();
       return;

@@ -1,110 +1,214 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Terms of Service — SecurityArts</title>
-  <meta name="description" content="The terms that govern use of SecurityArts — verification, the seal, artist content, licenses, and purchases." />
-  <meta name="robots" content="index, follow" />
-  <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300..600&family=Geist:wght@300..600&family=Geist+Mono:wght@400;500&display=swap" rel="stylesheet" />
-  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='18' fill='%230c0c0b'/%3E%3Cg fill='none' stroke='%23f4f1e9' stroke-width='4.2'%3E%3Ccircle cx='50' cy='50' r='27'/%3E%3C/g%3E%3Cpath fill='%23f4f1e9' d='M 50 34.5 L 53.76 44.82 L 64.74 45.21 L 56.09 51.98 L 59.11 62.54 L 50 56.4 L 40.89 62.54 L 43.91 51.98 L 35.26 45.21 L 46.24 44.82 Z'/%3E%3C/svg%3E" />
-  <style>
-    :root { --ink:#0c0c0b; --ink-2:#131312; --bone:#f4f1e9; --bone-dim:#a39e92; --bone-faint:#6f6b62; --brass:#c2a14e; --line:rgba(244,241,233,0.12); --gutter:clamp(1.25rem,4vw,3rem); --serif:"Fraunces",serif; --sans:"Geist",system-ui,sans-serif; --mono:"Geist Mono",monospace; }
-    * { box-sizing:border-box; margin:0; padding:0; }
-    body { background:var(--ink); color:var(--bone); font-family:var(--sans); font-weight:360; line-height:1.65; -webkit-font-smoothing:antialiased; }
-    a { color:var(--brass); text-decoration:none; } a:hover { text-decoration:underline; }
-    .head { border-bottom:1px solid var(--line); padding:1.1rem var(--gutter); display:flex; justify-content:space-between; align-items:center; position:sticky; top:0; background:color-mix(in srgb,var(--ink) 90%,transparent); backdrop-filter:blur(12px); }
-    .brand { display:inline-flex; align-items:center; gap:0.55rem; color:var(--bone); }
-    .brand svg { width:28px; height:28px; }
-    .brand span { font-family:var(--serif); font-weight:460; font-size:1.2rem; }
-    .back { font-family:var(--mono); font-size:0.72rem; text-transform:uppercase; letter-spacing:0.12em; color:var(--bone-dim); }
-    .back:hover { color:var(--bone); text-decoration:none; }
-    main { max-width:760px; margin:0 auto; padding:clamp(3rem,7vw,5.5rem) var(--gutter) 5rem; }
-    .eyebrow { font-family:var(--mono); font-size:0.72rem; text-transform:uppercase; letter-spacing:0.2em; color:var(--brass); }
-    h1 { font-family:var(--serif); font-weight:360; font-size:clamp(2.4rem,1rem+5vw,4rem); letter-spacing:-0.03em; line-height:1; margin:1.1rem 0 0.8rem; }
-    .updated { font-family:var(--mono); font-size:0.72rem; letter-spacing:0.08em; color:var(--bone-faint); margin-bottom:2.6rem; }
-    h2 { font-family:var(--serif); font-weight:420; font-size:clamp(1.4rem,1rem+1.4vw,1.9rem); letter-spacing:-0.015em; margin:2.6rem 0 0.9rem; padding-top:1.6rem; border-top:1px solid var(--line); }
-    p, li { color:var(--bone-dim); margin-bottom:0.9rem; }
-    strong { color:var(--bone); font-weight:500; }
-    ul { padding-left:1.2rem; margin-bottom:0.9rem; } li { margin-bottom:0.5rem; }
-    .callout { background:var(--ink-2); border:1px solid var(--line); border-left:2px solid var(--brass); border-radius:10px; padding:1.1rem 1.3rem; margin:1.4rem 0; font-size:0.9rem; }
-    .foot { border-top:1px solid var(--line); padding:2rem var(--gutter); text-align:center; font-family:var(--mono); font-size:0.7rem; letter-spacing:0.12em; color:var(--bone-faint); }
-  </style>
-  <script src="js/api.js"></script>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Terms of Service — SecurityArts</title>
+<meta name="description" content="The terms for using SecurityArts: accounts, sealing your work, what a seal does and doesn't show, plans and fees, and the marketplace.">
+<link rel="canonical" href="https://security-arts.vercel.app/terms">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="SecurityArts">
+<meta property="og:title" content="Terms of Service — SecurityArts">
+<meta property="og:description" content="The terms for using SecurityArts: accounts, sealing your work, what a seal does and doesn't show, plans and fees, and the marketplace.">
+<meta property="og:url" content="https://security-arts.vercel.app/terms">
+<meta property="og:image" content="https://security-arts.vercel.app/og-image.png">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="icon" href="/assets/seal/modern-24.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Sans:wght@500;600;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/assets/site.css">
+<style>
+.legal-hero .updated { font: 500 0.75rem/1.4 var(--mono); letter-spacing: 0.08em; text-transform: uppercase; color: var(--ink-soft); }
+  .band--sky .section-label span { color: var(--red-deep); }
+  .legal { display: grid; gap: 1.05rem; max-width: 72ch; }
+  .legal > * { margin: 0; }
+  .legal h2 { font: 700 clamp(1.4rem, 1rem + 1.4vw, 2rem)/1.1 var(--display); letter-spacing: -0.03em; margin-top: 1.8rem; text-wrap: balance; }
+  .legal h2 span { font: 500 0.75rem var(--mono); color: var(--red-deep); letter-spacing: 0.1em; margin-right: 0.6rem; vertical-align: 0.25em; }
+  .legal h3 { font: 700 1.1rem/1.2 var(--display); letter-spacing: -0.02em; margin-top: 0.6rem; }
+  .legal p, .legal li { color: var(--ink-soft); }
+  .legal strong, .legal b { color: var(--ink); }
+  .legal ul, .legal ol { padding-left: 1.2rem; display: grid; gap: 0.4rem; }
+  .legal li::marker { color: var(--red); }
+  .legal a { color: var(--ink); font-weight: 600; text-decoration: underline; text-decoration-color: var(--red); text-decoration-thickness: 2px; text-underline-offset: 0.2em; overflow-wrap: anywhere; }
+  .legal .draft { background: #fffefb; border: var(--stroke-control) solid var(--ink); border-radius: var(--radius-card); padding: 1rem 1.2rem; font-size: 0.95rem; }
+  .legal .summary { background: var(--paper-2); border-radius: var(--radius-card); padding: 1.2rem 1.3rem; display: grid; gap: 0.6rem; }
+  .legal .summary h2 { margin: 0; font-size: 1.2rem; }
+  .legal .yesno { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0.8rem; }
+  .legal .yesno div { border-radius: var(--radius-card); padding: 1rem 1.1rem; }
+  .legal .yesno .yes { background: var(--sky); }
+  .legal .yesno .no { border: var(--stroke-control) dashed var(--ink); }
+  .legal .yesno b { display: block; font: 700 1rem var(--display); margin-bottom: 0.4rem; }
+  .legal .yesno ul { margin: 0; }
+  .legal .public { background: var(--sky); border-radius: var(--radius-card); padding: 1.1rem 1.2rem; display: grid; gap: 0.6rem; }
+  .legal .public p { margin: 0; }
+  .legal .table-wrap { margin-block: 0.4rem; }
+  @media (max-width: 640px) { .legal .yesno { grid-template-columns: minmax(0, 1fr); } }
+</style>
 </head>
 <body>
-  <header class="head">
-    <a class="brand" href="index.html" aria-label="SecurityArts — home">
-      <svg viewBox="0 0 100 100" aria-hidden="true"><g fill="none" stroke="#f4f1e9" stroke-width="2.1"><circle cx="50" cy="50" r="27"/></g><path fill="#f4f1e9" d="M 50 34.5 L 53.76 44.82 L 64.74 45.21 L 56.09 51.98 L 59.11 62.54 L 50 56.4 L 40.89 62.54 L 43.91 51.98 L 35.26 45.21 L 46.24 44.82 Z"/></svg>
-      <span>SecurityArts</span>
+<a class="skip-link" href="#main">Skip to content</a>
+
+<header class="site-head">
+  <a class="brand" href="/" aria-label="SecurityArts home">
+    <img class="brand__seal" src="/assets/seal/modern-24.svg" width="30" height="30" alt="">
+    <span class="brand__word">SecurityArts</span>
+  </a>
+  <nav class="nav" aria-label="Primary">
+    <a href="/wall"><span class="nav__idx">01</span> The wall</a>
+    <a href="/how-it-works"><span class="nav__idx">02</span> How it works</a>
+    <a href="/pricing"><span class="nav__idx">03</span> Pricing</a>
+    <a href="/#studio"><span class="nav__idx">04</span> Studio</a>
+  </nav>
+  <div class="head-auth" data-auth-slot>
+    <a href="/join">Sign in</a>
+    <a class="head-auth__join" href="/join?mode=signup">Join</a>
+  </div>
+  <a class="head-cta" href="/join?mode=signup" data-seal-cta>Seal a piece <span aria-hidden="true">→</span></a>
+  <button class="menu-btn" id="menuBtn" type="button" aria-expanded="false" aria-controls="mobileMenu" aria-label="Open menu"><span></span><span></span></button>
+</header>
+
+<div class="mobile-menu" id="mobileMenu" hidden>
+  <nav aria-label="Mobile">
+    <a href="/wall"><span>01</span> The wall</a>
+    <a href="/how-it-works"><span>02</span> How it works</a>
+    <a href="/pricing"><span>03</span> Pricing</a>
+    <a href="/#studio"><span>04</span> Studio</a>
+  </nav>
+  <div class="head-auth" data-auth-slot>
+    <a href="/join">Sign in</a>
+    <a class="head-auth__join" href="/join?mode=signup">Join</a>
+  </div>
+  <a class="btn btn--red" href="/join?mode=signup" data-seal-cta>Seal a piece</a>
+</div>
+
+<main id="main">
+  <section class="page-hero legal-hero band--sky" aria-labelledby="page-h">
+    <div class="wrap">
+      <p class="section-label"><span>01</span> Legal</p>
+      <h1 class="display" id="page-h">Terms of <em>Service</em></h1>
+      <p class="updated">Last updated 25 September 2026</p>
+      <div class="page-hero__actions">
+        <a class="btn btn--ghost" href="/privacy">Privacy notice</a>
+      </div>
+    </div>
+  </section>
+
+  <section class="band" aria-labelledby="page-h">
+    <div class="wrap">
+      <div class="legal">
+      <p class="draft"><strong>Draft for legal review.</strong> This version describes how SecurityArts actually works today. It still needs review by a lawyer, and the operating company and governing law (section 12) still need to be filled in, before launch.</p>
+
+      <div class="summary">
+        <h2>The short version</h2>
+        <ul>
+          <li>You keep owning your work. You give us permission to store it, show it and make its certificate public.</li>
+          <li>A seal shows <strong>which account sealed an exact file, and when</strong>. It doesn't show who made the art, or whether it's original.</li>
+          <li>Only seal work you have the right to share, and credit it honestly.</li>
+          <li>Most of SecurityArts is free. Pro is $5 a month and Pro+ is $15 a month. Sales carry a 10% fee and commissions 8%.</li>
+        </ul>
+      </div>
+
+      <p>These terms are an agreement between you and SecurityArts ("we", "us"). They apply when you browse SecurityArts, make an account, seal work, subscribe to a plan, or buy or sell through the marketplace. If you don't agree, please don't use the service.</p>
+
+      <h2><span>01</span>What SecurityArts is</h2>
+      <p>SecurityArts lets artists <strong>seal</strong> finished files and publish a public certificate for each one. It also shows sealed work on a public wall, lets anyone check a file against a certificate, and runs a marketplace where artists can sell and license work and take commissions. The security studio's services (penetration testing, reviews and similar work) are covered by a separate written agreement for each engagement, not by these terms.</p>
+
+      <h2><span>02</span>What a seal shows, and what it doesn't</h2>
+      <p>When you seal a file, we calculate a SHA-256 fingerprint of its exact bytes and sign that fingerprint with the SecurityArts key (ECDSA P-256). Current seals also sign the time of sealing and which key was used. We then publish a certificate that anyone can check.</p>
+      <div class="yesno">
+        <div class="yes"><b>A seal shows</b><ul><li>that a specific SecurityArts account sealed this exact file</li><li>when it was sealed</li><li>that the file hasn't changed by a single byte since</li></ul></div>
+        <div class="no"><b>A seal doesn't show</b><ul><li>who made the art, or whether a person or an AI made it</li><li>whether the work is original</li><li>who owns the copyright</li><li>anything about a copy that has been resized, re-saved, edited or screenshotted</li></ul></div>
+      </div>
+      <p>A seal is a receipt, not a judgement, a certification of authorship, or a legal opinion. Don't describe it as more than that. The name a piece is "credited to" is whatever the sealing account typed in. We don't check it.</p>
+
+      <h2><span>03</span>Your account</h2>
+      <ul>
+        <li>Sign-up and sign-in are provided by our account provider, <strong>Clerk</strong>. You can use an email address, or a Google account if that option is shown. If you had a SecurityArts account before we switched to Clerk, we moved it across so you keep your handle and your sealed work.</li>
+        <li>Give accurate information, keep your sign-in details to yourself, and tell us at <a href="mailto:hello@securityarts.studio">hello@securityarts.studio</a> if you think someone else has used your account. You're responsible for what happens under your account.</li>
+        <li>You must be at least 16 to have an account.</li>
+      </ul>
+
+      <h2><span>04</span>Your work and your rights</h2>
+      <ul>
+        <li><strong>You keep ownership</strong> of everything you upload.</li>
+        <li>You give us a worldwide, non-exclusive, royalty-free licence to store, copy, resize and show your work, its title and credit, and its certificate, for as long as it stays on SecurityArts. We use this only to run the service: the wall, certificates, your profile, the marketplace listings you choose, and checks that keep the service safe.</li>
+        <li><strong>Sealed work is public.</strong> The image, title, credit, medium, the sealing account's name and handle, the fingerprint and the sealing time appear on the wall and on its certificate, and anyone can view them.</li>
+        <li>By sealing a file, you confirm that you have the right to upload it and to have it shown publicly, and that its credit is honest: either you, or someone who agreed to be credited.</li>
+        <li>Sealing someone else's work without permission, crediting a piece to an artist who didn't agree, or presenting a seal as proof of something it doesn't show breaks these terms. We may remove the work and close the account.</li>
+      </ul>
+
+      <h2><span>05</span>Plans and prices</h2>
+      <p>Most of SecurityArts is free: browsing, checking any certificate, sealing your work, and buying art. Paid plans add extra features:</p>
+      <table class="table">
+        <thead><tr><th scope="col">Plan</th><th scope="col">Price</th><th scope="col">For</th></tr></thead>
+        <tbody>
+          <tr><td><strong>Free</strong></td><td>$0</td><td>Browsing, checking certificates, sealing, buying and licensing work, likes and boards.</td></tr>
+          <tr><td><strong>Pro</strong></td><td>$5 a month</td><td>Collectors: early access to new work, a deeper feed, saved searches, provenance export and priority messages.</td></tr>
+          <tr><td><strong>Pro+</strong></td><td>$15 a month</td><td>Artists who sell: unlimited seals and listings, sales and audience analytics, custom licences, direct commissions and faster payouts.</td></tr>
+        </tbody>
+      </table>
+      <ul>
+        <li>Yearly billing costs ten months' worth: two months free.</li>
+        <li>Plans run month to month (or year to year) until you cancel. You can cancel at any time, and your sealed work stays sealed. The exact renewal date and what happens to the current billing period are shown before you pay.</li>
+        <li>Prices don't include taxes, which are added where the law requires. We'll tell you before any price change takes effect.</li>
+        <li>Checking a certificate is always free, on every plan.</li>
+      </ul>
+
+      <h2><span>06</span>Marketplace, commissions and licences</h2>
+      <ul>
+        <li>When you sell a piece, SecurityArts keeps <strong>10%</strong> of the sale price and you keep 90%. On a direct commission, SecurityArts keeps <strong>8%</strong> and you keep 92%. There are no listing fees.</li>
+        <li>Once payments are live, they are processed by our payment provider. Payouts go to your linked account within two business days of a completed sale. We never store full card numbers.</li>
+        <li>Work is licensed at one of three levels, shown at checkout: <strong>Personal</strong> (non-commercial display), <strong>Commercial</strong> (products, marketing or client work), or <strong>Exclusive</strong> (the buyer takes the work off sale). Sellers set their prices and confirm they're allowed to grant the licence they sell.</li>
+        <li>Any refund policy for a sale or commission is shown at checkout, before you pay.</li>
+      </ul>
+
+      <h2><span>07</span>Fair use of the service</h2>
+      <p>Don't upload anything unlawful, infringing, hateful or sexual involving minors. Don't impersonate another artist, and don't misrepresent what a seal shows. Don't try to get around the seal or our limits, scrape at scale, probe our security without written permission, or disrupt the service for others.</p>
+
+      <h2><span>08</span>Removing work and withdrawn seals</h2>
+      <p>You can delete work you sealed. It comes off the wall, and its certificate no longer resolves. If we receive a credible rights complaint, or a piece breaks these terms, we may take it down and mark or withdraw its certificate. Copyright complaints go to <a href="mailto:legal@securityarts.studio">legal@securityarts.studio</a>.</p>
+
+      <h2><span>09</span>Our security studio work</h2>
+      <p>If you hire the SecurityArts studio, that engagement's written agreement (scope, authorisation, confidentiality and fees) governs it. Where it conflicts with these terms, the engagement agreement wins.</p>
+
+      <h2><span>10</span>Disclaimers and limits</h2>
+      <p>We work hard to keep SecurityArts running and secure, but the service is provided "as is". As far as the law allows, we disclaim implied warranties, and we aren't liable for indirect or consequential losses. None of this limits liability that the law doesn't allow to be limited.</p>
+
+      <h2><span>11</span>Ending things, and changes</h2>
+      <p>You can close your account at any time. We may suspend or close accounts that break these terms. If we make a material change to these terms, we'll post it here with a new date and, where it affects you, tell you by email before it takes effect.</p>
+
+      <h2><span>12</span>Who we are, governing law, contact</h2>
+      <p>SecurityArts is operated by <strong>[legal entity name and address, to be filled in]</strong>. These terms are governed by the laws of <strong>[jurisdiction, to be filled in]</strong>. Questions: <a href="mailto:legal@securityarts.studio">legal@securityarts.studio</a>.</p>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer class="site-foot">
+  <div class="wrap">
+    <a class="brand" href="/" aria-label="SecurityArts home">
+      <img class="brand__seal" src="/assets/seal/modern-24-dark.svg" width="30" height="30" alt="">
+      <span class="brand__word">SecurityArts</span>
     </a>
-    <a class="back" href="index.html">← Back</a>
-  </header>
+    <nav aria-label="Footer">
+      <a href="/wall">The wall</a>
+      <a href="/how-it-works">How it works</a>
+      <a href="/verify">Verify a seal</a>
+      <a href="/pricing">Pricing</a>
+      <a href="/faq">FAQ</a>
+      <a href="/#studio">Studio</a>
+      <a href="/privacy">Privacy</a>
+      <a href="/terms">Terms</a>
+    </nav>
+    <small>A receipt for your art. Every certificate on the wall is public. hello@securityarts.studio</small>
+  </div>
+</footer>
 
-  <main>
-    <p class="eyebrow">Legal</p>
-    <h1>Terms of Service</h1>
-    <p class="updated">Last updated: 1 July 2026 · Effective immediately</p>
-
-    <p>These terms govern your use of SecurityArts. By creating an account, submitting work for
-      verification, or buying through the marketplace, you agree to them.</p>
-
-    <div class="callout"><strong>Template notice.</strong> A working draft reflecting how the product
-      behaves. Have qualified counsel review and adapt it before launch.</div>
-
-    <h2>1. The service</h2>
-    <p>SecurityArts verifies human-made artwork by generating a cryptographic <strong>seal</strong>
-      (a content hash signed with our key), lets you organize verified work into boards, and operates
-      a marketplace where verified artists sell and license their work.</p>
-
-    <h2>2. Accounts</h2>
-    <p>You're responsible for keeping your credentials secure and for activity under your account.
-      Provide accurate information and notify us of any unauthorized use.</p>
-
-    <h2>3. Your content &amp; the human-made warranty</h2>
-    <ul>
-      <li>You retain all ownership of work you upload. You grant us a limited license to store,
-        process, display, and (where you list it) help sell it.</li>
-      <li>By submitting work as "human-made," you <strong>warrant that a human created it</strong> and
-        that you hold the rights to it. Passing off AI-generated work as human-made, or uploading work
-        you don't own, is a material breach and grounds for removal and account termination.</li>
-    </ul>
-
-    <h2>4. What the seal means (and doesn't)</h2>
-    <p>The seal is a <strong>cryptographic attestation</strong>: it proves the sealed file has not
-      changed since sealing and ties it to the submitting account and a timestamp. It is strong
-      evidence of provenance, but it is not, by itself, a legal determination of authorship or a
-      guarantee against all disputes. We may revoke a seal if a submission is found to breach these
-      terms.</p>
-
-    <h2>5. Marketplace &amp; licenses</h2>
-    <ul>
-      <li><strong>Personal</strong> — personal, non-commercial display.</li>
-      <li><strong>Commercial</strong> — use in products, marketing, or client work.</li>
-      <li><strong>Exclusive</strong> — the buyer acquires the original and it is removed from sale.</li>
-    </ul>
-    <p>Exact rights are shown at purchase. Sellers set price and warrant they may license the work.
-      Payments and payouts (once live) are handled by our payment provider; fees and any refund policy
-      will be disclosed at checkout.</p>
-
-    <h2>6. Acceptable use</h2>
-    <p>Don't upload unlawful, infringing, or misrepresented content; don't attempt to bypass the seal,
-      scrape at scale, probe our security without authorization, or disrupt the service.</p>
-
-    <h2>7. Disclaimers &amp; liability</h2>
-    <p>The service is provided "as is." To the extent permitted by law, we disclaim implied warranties
-      and limit our liability for indirect or consequential damages. Nothing here limits liability that
-      cannot be limited by law.</p>
-
-    <h2>8. Termination, changes, contact</h2>
-    <p>You may close your account anytime; we may suspend accounts that breach these terms. We'll post
-      material changes here with a new date. Governing law and venue will be specified for your
-      operating entity. Questions:
-      <a href="mailto:legal@securityarts.studio">legal@securityarts.studio</a>.</p>
-  </main>
-
-  <footer class="foot">© 2026 SecurityArts · <a href="privacy.html">Privacy Policy</a></footer>
+<script src="/js/api.js"></script>
+<script type="module">
+  import { initSite } from "/assets/site.js";
+  initSite();
+</script>
 </body>
 </html>

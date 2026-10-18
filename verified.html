@@ -1,190 +1,317 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Prove your art is human — SecurityArts</title>
-  <meta name="description" content="When someone says your work is AI, show the receipt. SecurityArts seals a piece with a public cryptographic certificate anyone can verify — who sealed which file, and when. Free." />
-
-  <link rel="canonical" href="https://security-arts.vercel.app/verified" />
-  <meta property="og:type" content="website" />
-  <meta property="og:site_name" content="SecurityArts" />
-  <meta property="og:title" content="Prove your art is human — show the receipt" />
-  <meta property="og:description" content="A public cryptographic certificate anyone can verify. When they say it's AI, point at the seal instead of arguing. Free." />
-  <meta property="og:url" content="https://security-arts.vercel.app/verified" />
-  <meta property="og:image" content="https://security-arts.vercel.app/og-image.png" />
-  <meta name="twitter:card" content="summary_large_image" />
-  <meta name="twitter:title" content="Prove your art is human — SecurityArts" />
-  <meta name="twitter:description" content="When they say it's AI, show the receipt." />
-  <meta name="twitter:image" content="https://security-arts.vercel.app/og-image.png" />
-
-  <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300..600;1,9..144,300..500&family=Geist:wght@300..600&family=Geist+Mono:wght@400;500&display=swap" rel="stylesheet" />
-  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='18' fill='%230c0c0b'/%3E%3Cg fill='none' stroke='%23f4f1e9' stroke-width='4.2'%3E%3Ccircle cx='50' cy='50' r='27'/%3E%3C/g%3E%3Cpath fill='%23f4f1e9' d='M 50 34.5 L 53.76 44.82 L 64.74 45.21 L 56.09 51.98 L 59.11 62.54 L 50 56.4 L 40.89 62.54 L 43.91 51.98 L 35.26 45.21 L 46.24 44.82 Z'/%3E%3C/svg%3E" />
-
-  <script type="application/ld+json">
-  {
-    "@context":"https://schema.org",
-    "@type":["WebPage","FAQPage"],
-    "@id":"https://security-arts.vercel.app/verified#webpage",
-    "url":"https://security-arts.vercel.app/verified",
-    "name":"Prove your art is human — SecurityArts",
-    "description":"SecurityArts seals a finished piece — a SHA-256 hash of the exact bytes, signed with an ECDSA P-256 key — and gives the artist a public certificate anyone can verify: who sealed which file, and when.",
-    "inLanguage":"en-US",
-    "datePublished":"2026-08-07",
-    "dateModified":"2026-09-20",
-    "image":"https://security-arts.vercel.app/og-image.png",
-    "publisher":{"@id":"https://security-arts.vercel.app/#organization"},
-    "about":{"@type":"Thing","name":"Human-made art verification"},
-    "mainEntity":[
-      {"@type":"Question","name":"What does the seal prove?","acceptedAnswer":{"@type":"Answer","text":"A specific file was sealed by your account. It was sealed at a specific, recorded moment. The exact bytes haven't changed since — and anyone can check that."}},
-      {"@type":"Question","name":"What doesn't the seal claim?","acceptedAnswer":{"@type":"Answer","text":"It's not an AI detector and never guesses. It doesn't prove a human made the work, prove originality, or resolve copyright. It doesn't judge the art — it only records who sealed what, and when."}}
-    ]
-  }
-  </script>
-
-  <style>
-    :root{--ink:#0c0c0b;--ink-2:#131312;--ink-3:#1b1a18;--bone:#f4f1e9;--bone-dim:#a39e92;--bone-faint:#6f6b62;--brass:#c2a14e;--line:rgba(244,241,233,0.12);--line-strong:rgba(244,241,233,0.22);--gutter:clamp(1.25rem,4vw,5rem);--maxw:1040px;--serif:"Fraunces","Times New Roman",serif;--sans:"Geist",-apple-system,system-ui,sans-serif;--mono:"Geist Mono",ui-monospace,monospace;--ease:cubic-bezier(0.16,1,0.3,1)}
-    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
-    body{background:var(--ink);color:var(--bone);font-family:var(--sans);font-weight:360;font-size:clamp(1rem,0.95rem+0.25vw,1.125rem);line-height:1.62;-webkit-font-smoothing:antialiased;overflow-x:hidden}
-    a{color:inherit;text-decoration:none}svg{display:block}::selection{background:var(--brass);color:var(--ink)}
-    :focus-visible{outline:2px solid var(--brass);outline-offset:3px;border-radius:2px}
-    .head{position:sticky;top:0;z-index:20;display:flex;align-items:center;gap:1.2rem;padding:1rem var(--gutter);background:color-mix(in srgb,var(--ink) 85%,transparent);backdrop-filter:blur(14px);border-bottom:1px solid var(--line)}
-    .brand{display:inline-flex;align-items:center;gap:0.6rem}.brand svg{width:28px;height:28px}
-    .brand__word{font-family:var(--serif);font-weight:460;font-size:1.28rem;letter-spacing:-0.01em}
-    .head__spacer{margin-left:auto}
-    .head a.nav{font-family:var(--mono);font-size:0.74rem;text-transform:uppercase;letter-spacing:0.12em;color:var(--bone-dim);transition:color 0.25s var(--ease)}
-    .head a.nav:hover{color:var(--bone)}
-    .head .cta{font-family:var(--mono);font-size:0.74rem;text-transform:uppercase;letter-spacing:0.12em;color:var(--ink);background:var(--bone);padding:0.55rem 0.9rem;border-radius:100px;transition:background 0.25s var(--ease)}
-    .head .cta:hover{background:var(--brass)}
-    /* Mobile header: drop the text nav, keep the logo + primary CTA on one line */
-    @media (max-width:720px){
-      .head{gap:0.6rem;padding:0.85rem 1rem}
-      .head a.nav,.head__spacer{display:none}
-      .brand{flex:0 0 auto;gap:0.5rem}
-      .brand svg{width:24px;height:24px}
-      .brand__word{font-size:1.1rem;white-space:nowrap}
-      .head .cta{margin-left:auto;flex:0 0 auto;white-space:nowrap;font-size:0.66rem;letter-spacing:0.08em;padding:0.5rem 0.75rem}
-    }
-    @media (max-width:359px){
-      .brand__word{display:none}
-    }
-    main{max-width:var(--maxw);margin-inline:auto;padding:clamp(3rem,7vw,5.5rem) var(--gutter) 4rem}
-    .eyebrow{font-family:var(--mono);font-size:0.72rem;text-transform:uppercase;letter-spacing:0.2em;color:var(--brass);display:inline-flex;align-items:center;gap:0.6rem;margin-bottom:1.4rem}
-    .eyebrow::before{content:"";width:7px;height:7px;border-radius:50%;background:var(--brass);box-shadow:0 0 0 4px rgba(194,161,78,0.16)}
-    h1{font-family:var(--serif);font-weight:330;font-size:clamp(2.8rem,1rem+7vw,5.6rem);line-height:0.96;letter-spacing:-0.035em;margin-bottom:1.4rem}h1 em{color:var(--brass);font-style:italic}
-    .lede{color:var(--bone-dim);font-size:clamp(1.08rem,0.95rem+0.55vw,1.35rem);max-width:60ch;margin-bottom:2.4rem}
-    .actions{display:flex;flex-wrap:wrap;gap:0.9rem;margin-bottom:3.5rem}
-    .btn{font-family:var(--mono);font-size:0.78rem;text-transform:uppercase;letter-spacing:0.1em;padding:0.95rem 1.6rem;border-radius:100px;border:1px solid transparent;transition:all 0.3s var(--ease);display:inline-flex;align-items:center;gap:0.5rem}
-    .btn--solid{background:var(--bone);color:var(--ink)}.btn--solid:hover{background:var(--brass);transform:translateY(-2px)}
-    .btn--ghost{border-color:var(--line-strong);color:var(--bone)}.btn--ghost:hover{border-color:var(--bone);transform:translateY(-2px)}
-    .h2{font-family:var(--serif);font-weight:380;font-size:clamp(1.7rem,1rem+2.4vw,2.8rem);letter-spacing:-0.02em;line-height:1.05;margin:0 0 1.6rem}
-    section.block{padding:clamp(2.5rem,5vw,4rem) 0;border-top:1px solid var(--line)}
-    .steps{list-style:none;counter-reset:s;display:grid;gap:1px;background:var(--line);border:1px solid var(--line);border-radius:14px;overflow:hidden}
-    @media(min-width:720px){.steps{grid-template-columns:repeat(3,1fr)}}
-    .steps li{background:var(--ink);padding:clamp(1.5rem,3vw,2.2rem)}
-    .steps li::before{counter-increment:s;content:counter(s,decimal-leading-zero);font-family:var(--mono);font-size:0.8rem;color:var(--brass);display:block;margin-bottom:0.7rem}
-    .steps b{font-family:var(--serif);font-weight:440;font-size:1.2rem;display:block;margin-bottom:0.4rem}.steps span{color:var(--bone-dim);font-size:0.95rem}
-    .split{display:grid;grid-template-columns:1fr;gap:1px;background:var(--line);border:1px solid var(--line);border-radius:14px;overflow:hidden}
-    @media(min-width:720px){.split{grid-template-columns:1fr 1fr}}
-    .panel{background:var(--ink);padding:clamp(1.6rem,3vw,2.4rem)}
-    .panel h3{font-family:var(--serif);font-weight:420;font-size:1.4rem;letter-spacing:-0.015em;margin-bottom:1.1rem}
-    .panel ul{list-style:none;display:flex;flex-direction:column;gap:0.9rem}
-    .panel li{color:var(--bone-dim);padding-left:1.5rem;position:relative}
-    .panel.proves li::before{content:"✓";position:absolute;left:0;color:var(--brass)}
-    .panel.not li::before{content:"—";position:absolute;left:0;color:var(--bone-faint)}
-    .panel.not h3{color:var(--bone-dim)}
-    .compare-links{display:flex;flex-wrap:wrap;gap:0.7rem;margin-top:0.6rem}
-    .compare-links a{font-family:var(--mono);font-size:0.72rem;text-transform:uppercase;letter-spacing:0.08em;color:var(--bone-dim);border:1px solid var(--line-strong);padding:0.5rem 0.9rem;border-radius:100px;transition:all 0.25s var(--ease)}
-    .compare-links a:hover{color:var(--bone);border-color:var(--bone)}
-    .cta-band{border-top:1px solid var(--line);padding-top:clamp(2.5rem,5vw,3.5rem);margin-top:1rem;display:flex;flex-wrap:wrap;gap:1rem;align-items:center}
-    .cta-band p{font-family:var(--serif);font-weight:360;font-size:clamp(1.6rem,1rem+2.2vw,2.6rem);letter-spacing:-0.02em;flex:1 1 320px}
-    footer{border-top:1px solid var(--line);max-width:var(--maxw);margin:0 auto;padding:2.5rem var(--gutter);display:flex;flex-wrap:wrap;gap:1rem;justify-content:space-between}
-    footer a,footer span{font-family:var(--mono);font-size:0.72rem;text-transform:uppercase;letter-spacing:0.12em;color:var(--bone-faint)}footer a:hover{color:var(--bone-dim)}
-  </style>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>For artists: put your work on the record — SecurityArts</title>
+<meta name="description" content="Seal a finished piece and SecurityArts publishes a certificate anyone can check: which account sealed that exact file, and when. It isn't an AI detector. Sealing and checking are free.">
+<link rel="canonical" href="https://security-arts.vercel.app/verified">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="SecurityArts">
+<meta property="og:title" content="For artists: put your work on the record — SecurityArts">
+<meta property="og:description" content="Seal a finished piece and get a public certificate: which account sealed that exact file, and when. Anyone can check it.">
+<meta property="og:url" content="https://security-arts.vercel.app/verified">
+<meta property="og:image" content="https://security-arts.vercel.app/og-image.png">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="icon" href="/assets/seal/modern-24.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Sans:wght@500;600;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/assets/site.css">
+<style>
+  /* Page-only. Small red text on sky uses red-deep for contrast; the red band gets a paper focus ring and a paper ghost button. */
+  .band--sky .section-label span { color: var(--red-deep); }
+  .section-head { display: grid; gap: 0.9rem; max-width: 48rem; margin-bottom: clamp(1.8rem, 3.5vw, 2.6rem); }
+  .actions-row { display: flex; flex-wrap: wrap; gap: var(--space-actions); margin-top: clamp(1.8rem, 3.5vw, 2.6rem); }
+  .small-print { margin-top: var(--space-stack); max-width: 62ch; font-size: 0.92rem; color: var(--text-soft); }
+  .cards > li { display: grid; }
+  .band--red :focus-visible { outline-color: var(--paper); }
+  .cta-band .btn--ghost { border-color: var(--paper); color: var(--paper); }
+  .cta-band .btn--ghost:hover { background: var(--paper); color: var(--red-deep); }
+</style>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": ["WebPage", "FAQPage"],
+  "@id": "https://security-arts.vercel.app/verified#webpage",
+  "url": "https://security-arts.vercel.app/verified",
+  "name": "For artists: put your work on the record — SecurityArts",
+  "description": "SecurityArts seals a finished file: a SHA-256 fingerprint of the exact bytes, signed with an ECDSA P-256 key along with the time of sealing. The artist gets a public certificate anyone can check: which account sealed that file, and when. It does not show who made the work.",
+  "inLanguage": "en-US",
+  "datePublished": "2026-08-07",
+  "dateModified": "2026-10-10",
+  "image": "https://security-arts.vercel.app/og-image.png",
+  "publisher": { "@id": "https://security-arts.vercel.app/#organization" },
+  "about": { "@type": "Thing", "name": "Sealing finished artwork files" },
+  "mainEntity": [
+    { "@type": "Question", "name": "What does a seal show?", "acceptedAnswer": { "@type": "Answer", "text": "Which SecurityArts account sealed this exact file. When it was sealed, at a time recorded and signed by SecurityArts. That the file hasn't changed by a single byte since, which anyone can check." } },
+    { "@type": "Question", "name": "What doesn't a seal show?", "acceptedAnswer": { "@type": "Answer", "text": "Who made the art, or whether a person or an AI made it: it isn't an AI detector and it never guesses. Whether the work is original, or who owns the copyright. Anything about a copy that has been re-saved, resized, re-encoded or screenshotted. It doesn't judge the art; it records which account sealed what, and when." } },
+    { "@type": "Question", "name": "Will a seal stop people saying my work is AI?", "acceptedAnswer": { "@type": "Answer", "text": "Not on its own, and we won't pretend it will. A seal can't show whether a person or an AI made something. It shows that your account had this exact file at a recorded time and that it hasn't changed since. Alongside your source files and early versions, that is a public, dated point a stranger can check for themselves." } },
+    { "@type": "Question", "name": "Does the certificate say who made the art?", "acceptedAnswer": { "@type": "Answer", "text": "It names the account that sealed the file. The credit line is whatever that account typed in, and SecurityArts doesn't check it. That's why a seal says which account sealed a file, not who made it." } },
+    { "@type": "Question", "name": "What if I re-save, resize or crop the file?", "acceptedAnswer": { "@type": "Answer", "text": "Then it's a different file with different bytes, and it won't match the seal. The original still matches its certificate, so keep it safe. If you seal the new version, it gets a certificate of its own." } },
+    { "@type": "Question", "name": "Who can see what I seal?", "acceptedAnswer": { "@type": "Answer", "text": "Everyone. Sealed work is public: the image, title, credit, medium, the sealing account's name and handle, the fingerprint and the time of sealing appear on the wall and on the certificate. Only seal work you have the right to share, and credit it honestly." } },
+    { "@type": "Question", "name": "Is it free?", "acceptedAnswer": { "@type": "Answer", "text": "Sealing your work and checking any seal are free, and so is most of SecurityArts. Pro ($5 a month) and Pro+ ($15 a month) add extras for collectors and for artists who sell, with two months free if you pay yearly. Payments aren't live yet, so there is nothing to buy today." } }
+  ]
+}
+</script>
 </head>
 <body>
-  <header class="head">
+<a class="skip-link" href="#main">Skip to content</a>
+
+<header class="site-head">
+  <a class="brand" href="/" aria-label="SecurityArts home">
+    <img class="brand__seal" src="/assets/seal/modern-24.svg" width="30" height="30" alt="">
+    <span class="brand__word">SecurityArts</span>
+  </a>
+  <nav class="nav" aria-label="Primary">
+    <a href="/wall"><span class="nav__idx">01</span> The wall</a>
+    <a href="/how-it-works"><span class="nav__idx">02</span> How it works</a>
+    <a href="/pricing"><span class="nav__idx">03</span> Pricing</a>
+    <a href="/#studio"><span class="nav__idx">04</span> Studio</a>
+  </nav>
+  <div class="head-auth" data-auth-slot>
+    <a href="/join">Sign in</a>
+    <a class="head-auth__join" href="/join?mode=signup">Join</a>
+  </div>
+  <a class="head-cta" href="/join?mode=signup" data-seal-cta>Seal a piece <span aria-hidden="true">→</span></a>
+  <button class="menu-btn" id="menuBtn" type="button" aria-expanded="false" aria-controls="mobileMenu" aria-label="Open menu"><span></span><span></span></button>
+</header>
+
+<div class="mobile-menu" id="mobileMenu" hidden>
+  <nav aria-label="Mobile">
+    <a href="/wall"><span>01</span> The wall</a>
+    <a href="/how-it-works"><span>02</span> How it works</a>
+    <a href="/pricing"><span>03</span> Pricing</a>
+    <a href="/#studio"><span>04</span> Studio</a>
+  </nav>
+  <div class="head-auth" data-auth-slot>
+    <a href="/join">Sign in</a>
+    <a class="head-auth__join" href="/join?mode=signup">Join</a>
+  </div>
+  <a class="btn btn--red" href="/join?mode=signup" data-seal-cta>Seal a piece</a>
+</div>
+
+<main id="main">
+  <section class="page-hero band--sky" aria-labelledby="page-h">
+    <div class="wrap">
+      <p class="section-label"><span>01</span> For artists</p>
+      <h1 class="display" id="page-h">Put your finished piece <em>on the record.</em></h1>
+      <p class="lede">Seal a file and SecurityArts publishes a certificate: which account sealed those exact bytes, and when. Anyone can check it, no account needed. Not a probability. A receipt.</p>
+      <div class="page-hero__actions">
+        <a class="btn btn--red" href="/join?mode=signup" data-seal-cta>Seal a piece <span class="btn__arrow" aria-hidden="true">→</span></a>
+        <a class="btn btn--ghost" href="/wall">See the wall</a>
+      </div>
+      <img class="page-hero__seal" src="/assets/seal/wax.svg" alt="">
+    </div>
+  </section>
+
+  <section class="band" aria-labelledby="shows-h">
+    <div class="wrap">
+      <div class="section-head">
+        <p class="section-label"><span>02</span> The honest part</p>
+        <h2 class="h2" id="shows-h">What a seal is, and what it isn't</h2>
+        <p class="lede">A seal is a receipt, not a judgement. Here is exactly what one can and can't tell a stranger.</p>
+      </div>
+      <div class="shows">
+        <div class="shows__yes">
+          <h3>What does a seal show?</h3>
+          <ul>
+            <li>Which SecurityArts account sealed this exact file.</li>
+            <li>When it was sealed, at a time recorded and signed by SecurityArts.</li>
+            <li>That the file hasn't changed by a single byte since. Anyone can check that.</li>
+          </ul>
+        </div>
+        <div class="shows__no">
+          <h3>What doesn't a seal show?</h3>
+          <ul>
+            <li>Who made the art, or whether a person or an AI made it. It isn't an AI detector, and it never guesses.</li>
+            <li>Whether the work is original, or who owns the copyright.</li>
+            <li>Anything about a copy that has been re-saved, resized, re-encoded or screenshotted. Those are different bytes.</li>
+            <li>Whether the art is any good. It records which account sealed what, and when.</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="band band--sky" aria-labelledby="steps-h">
+    <div class="wrap">
+      <div class="section-head">
+        <p class="section-label"><span>03</span> How sealing works</p>
+        <h2 class="h2" id="steps-h">Three steps, one receipt</h2>
+      </div>
+      <ol class="steps">
+        <li>
+          <h3>Upload the finished file</h3>
+          <p>Drop in the finished piece. We read the exact bytes and don't alter them.</p>
+        </li>
+        <li>
+          <h3>We fingerprint and sign it</h3>
+          <p>A SHA-256 fingerprint of the file, signed with the SecurityArts ECDSA P-256 key along with the time of sealing. Change one pixel and it stops matching.</p>
+        </li>
+        <li>
+          <h3>Share the certificate</h3>
+          <p>A public page with the algorithm, fingerprint, signature and time. Anyone can check a file against it.</p>
+        </li>
+      </ol>
+      <div class="actions-row">
+        <a class="btn btn--ink" href="/how-it-works">Read how it works</a>
+        <a class="btn btn--ghost" href="/seal-a-piece">Signed in? Seal a piece</a>
+      </div>
+      <p class="small-print">Sealed work is public. The image, title, credit and certificate appear on the wall, and anyone can view them.</p>
+    </div>
+  </section>
+
+  <section class="band" aria-labelledby="why-h">
+    <div class="wrap">
+      <div class="section-head">
+        <p class="section-label"><span>04</span> Why seal</p>
+        <h2 class="h2" id="why-h">When someone says it's AI</h2>
+      </div>
+      <div class="split">
+        <div class="prose">
+          <p>Getting wrongly accused of using AI is exhausting, and arguing in the replies rarely wins. A seal won't settle that argument on its own. Nothing honest can show how a piece was made.</p>
+          <p>What a seal gives you is a fixed point a stranger can check without taking your word for it: your account had this exact file at this recorded time, and it hasn't changed since.</p>
+          <p>Keep your layered source files and early versions too. Together they tell a fuller story than a seal can alone.</p>
+          <p>And do it before anyone asks. Seal each finished piece as you post it, and the link is there when you need it. <a href="/prove-your-art-is-human">Read the guide to answering an AI accusation</a>.</p>
+        </div>
+        <dl class="facts">
+          <dt>Fingerprint</dt>
+          <dd>SHA-256 of the exact file bytes</dd>
+          <dt>Signature</dt>
+          <dd>ECDSA P-256, by the SecurityArts key</dd>
+          <dt>Also signed</dt>
+          <dd>The time of sealing and which key was used</dd>
+          <dt>Checking</dt>
+          <dd>Free, in any browser, no account needed. <a class="link" href="/verify">Check a seal</a></dd>
+          <dt>Price</dt>
+          <dd>Sealing is free. Paid plans add extras and aren't on sale yet. <a class="link" href="/pricing">Pricing</a></dd>
+          <dt>It isn't</dt>
+          <dd>An AI detector, a copyright record or a judgement of the art</dd>
+        </dl>
+      </div>
+    </div>
+  </section>
+
+  <section class="band band--paper-2" aria-labelledby="compare-h">
+    <div class="wrap">
+      <div class="section-head">
+        <p class="section-label"><span>05</span> How it compares</p>
+        <h2 class="h2" id="compare-h">Other ways artists answer the question</h2>
+        <p class="lede">Detectors guess. Embedded metadata can be stripped. A badge is a statement. Each does something real, and none of them is the same thing as a seal.</p>
+      </div>
+      <ul class="cards">
+        <li>
+          <a class="card" href="/compare/ai-detectors">
+            <span class="card__label">Compare</span>
+            <h3>A seal vs AI detectors</h3>
+            <p>A detector estimates something about any image. A seal records one file: which account sealed it, and when.</p>
+          </a>
+        </li>
+        <li>
+          <a class="card" href="/compare/c2pa">
+            <span class="card__label">Compare</span>
+            <h3>A seal vs C2PA</h3>
+            <p>Content Credentials travel inside the file, where they can be stripped. A seal's certificate lives outside it.</p>
+          </a>
+        </li>
+        <li>
+          <a class="card" href="/compare/not-by-ai">
+            <span class="card__label">Compare</span>
+            <h3>A seal vs the Not By AI badge</h3>
+            <p>A badge is a statement anyone can add. A seal is a record anyone can check.</p>
+          </a>
+        </li>
+        <li>
+          <a class="card" href="/prove-your-art-is-human">
+            <span class="card__label">Guide</span>
+            <h3>When you're accused of using AI</h3>
+            <p>The options artists reach for, and what each one can and can't show.</p>
+          </a>
+        </li>
+      </ul>
+    </div>
+  </section>
+
+  <section class="band" aria-labelledby="faq-h">
+    <div class="wrap">
+      <div class="section-head">
+        <p class="section-label"><span>06</span> Questions</p>
+        <h2 class="h2" id="faq-h">Before you seal</h2>
+      </div>
+      <div class="faq">
+        <details>
+          <summary>Will a seal stop people saying my work is AI?</summary>
+          <div class="answer">
+            <p>Not on its own, and we won't pretend it will. A seal can't show whether a person or an AI made something.</p>
+            <p>It shows that your account had this exact file at a recorded time and that it hasn't changed since. Alongside your source files and early versions, that's a public, dated point a stranger can check for themselves.</p>
+          </div>
+        </details>
+        <details>
+          <summary>Does the certificate say who made the art?</summary>
+          <div class="answer">
+            <p>It names the account that sealed the file. The credit line is whatever that account typed in, and SecurityArts doesn't check it. That's why a seal says which account sealed a file, not who made it.</p>
+          </div>
+        </details>
+        <details>
+          <summary>What if I re-save, resize or crop the file?</summary>
+          <div class="answer">
+            <p>Then it's a different file with different bytes, and it won't match the seal. The original still matches its certificate, so keep it safe. If you seal the new version, it gets a certificate of its own.</p>
+          </div>
+        </details>
+        <details>
+          <summary>Who can see what I seal?</summary>
+          <div class="answer">
+            <p>Everyone. Sealed work is public: the image, title, credit, medium, the sealing account's name and handle, the fingerprint and the time of sealing appear on the wall and on the certificate.</p>
+            <p>Only seal work you have the right to share, and credit it honestly.</p>
+          </div>
+        </details>
+        <details>
+          <summary>Is it free?</summary>
+          <div class="answer">
+            <p>Sealing your work and checking any seal are free, and so is most of SecurityArts. Pro ($5 a month) and Pro+ ($15 a month) add extras for collectors and for artists who sell, with two months free if you pay yearly.</p>
+            <p>Payments aren't live yet, so there's nothing to buy today. <a class="link" href="/pricing">See what each plan includes</a>.</p>
+          </div>
+        </details>
+      </div>
+    </div>
+  </section>
+
+  <section class="cta-band band--red" aria-labelledby="cta-h">
+    <div class="wrap">
+      <h2 id="cta-h">Seal your next piece and keep the receipt.</h2>
+      <div class="actions">
+        <a class="btn btn--paper" href="/join?mode=signup" data-seal-cta>Seal a piece <span class="btn__arrow" aria-hidden="true">→</span></a>
+        <a class="btn btn--ghost" href="/faq">Read the FAQ</a>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer class="site-foot">
+  <div class="wrap">
     <a class="brand" href="/" aria-label="SecurityArts home">
-      <svg viewBox="0 0 100 100" aria-hidden="true"><g fill="none" stroke="currentColor" stroke-width="4.2"><circle cx="50" cy="50" r="27"/></g><path fill="currentColor" d="M 50 34.5 L 53.76 44.82 L 64.74 45.21 L 56.09 51.98 L 59.11 62.54 L 50 56.4 L 40.89 62.54 L 43.91 51.98 L 35.26 45.21 L 46.24 44.82 Z"/></svg>
+      <img class="brand__seal" src="/assets/seal/modern-24-dark.svg" width="30" height="30" alt="">
       <span class="brand__word">SecurityArts</span>
     </a>
-    <span class="head__spacer"></span>
-    <a class="nav" href="/how-it-works">How it works</a>
-    <a class="nav" href="/verified">Verified art</a>
-    <a class="cta" href="/join">Get verified</a>
-  </header>
+    <nav aria-label="Footer">
+      <a href="/wall">The wall</a>
+      <a href="/how-it-works">How it works</a>
+      <a href="/verify">Verify a seal</a>
+      <a href="/pricing">Pricing</a>
+      <a href="/faq">FAQ</a>
+      <a href="/#studio">Studio</a>
+      <a href="/privacy">Privacy</a>
+      <a href="/terms">Terms</a>
+    </nav>
+    <small>A receipt for your art. Every certificate on the wall is public. hello@securityarts.studio</small>
+  </div>
+</footer>
 
-  <main>
-    <p class="eyebrow">Verified human art</p>
-    <h1>When they say it's AI,<br /><em>show the receipt.</em></h1>
-    <p class="lede">
-      SecurityArts seals a finished piece — a SHA-256 hash of the exact bytes, signed with
-      our ECDSA P-256 key — and gives you a public certificate anyone can verify. Getting
-      wrongly accused of using AI is exhausting, and arguing in the replies never wins.
-      Point at the seal instead. Not a probability. A receipt. Free.
-    </p>
-    <div class="actions">
-      <a class="btn btn--solid" href="/join">Seal your work →</a>
-      <a class="btn btn--ghost" href="/discover">See the wall</a>
-    </div>
-
-    <section class="block">
-      <h2 class="h2">Three steps to proof</h2>
-      <ol class="steps">
-        <li><b>Upload</b><span>Drop in the finished piece you made by hand. We read the exact bytes — nothing altered.</span></li>
-        <li><b>We sign it</b><span>A SHA-256 fingerprint of the file, signed with our ECDSA key. Tamper-evident by design.</span></li>
-        <li><b>Show the receipt</b><span>A public certificate — algorithm, hash, signature, timestamp — anyone can verify.</span></li>
-      </ol>
-      <p style="margin-top:1.2rem"><a href="/how-it-works" style="color:var(--brass);font-family:var(--mono);font-size:0.78rem;letter-spacing:0.08em;text-transform:uppercase">Read the full how-it-works →</a></p>
-    </section>
-
-    <section class="block">
-      <h2 class="h2">What the seal is — and isn't</h2>
-      <div class="split">
-        <div class="panel proves">
-          <h3>What does the seal prove?</h3>
-          <ul>
-            <li>A specific file was sealed by your account.</li>
-            <li>It was sealed at a specific, recorded moment.</li>
-            <li>The exact bytes haven't changed since — and anyone can check that.</li>
-          </ul>
-        </div>
-        <div class="panel not">
-          <h3>What doesn't the seal claim?</h3>
-          <ul>
-            <li>It's not an AI detector and never guesses.</li>
-            <li>It doesn't prove a human made the work, prove originality, or resolve copyright.</li>
-            <li>It doesn't judge the art — it only records who sealed what, and when.</li>
-          </ul>
-        </div>
-      </div>
-    </section>
-
-    <section class="block">
-      <h2 class="h2">How it compares</h2>
-      <p class="lede" style="margin-bottom:0.8rem">Detectors guess. Metadata gets stripped. A badge is just a claim. See the honest breakdown:</p>
-      <div class="compare-links">
-        <a href="/compare/ai-detectors">vs AI detectors</a>
-        <a href="/compare/c2pa">vs C2PA / Content Credentials</a>
-        <a href="/compare/not-by-ai">vs the "Not By AI" badge</a>
-      </div>
-    </section>
-
-    <div class="cta-band">
-      <p>Seal your next piece and keep the receipt.</p>
-      <a class="btn btn--solid" href="/join">Get your work verified →</a>
-      <a class="btn btn--ghost" href="/faq">Read the FAQ</a>
-    </div>
-  </main>
-
-  <footer>
-    <a href="/">← SecurityArts</a>
-    <a href="/how-it-works">How it works</a>
-    <a href="/faq">FAQ</a>
-    <span>Updated <time datetime="2026-09-20">20 Sep 2026</time></span>
-    <span>Authentic · Verified · Human</span>
-  </footer>
+<script src="/js/api.js"></script>
+<script type="module">
+  import { initSite } from "/assets/site.js";
+  initSite();
+</script>
 </body>
 </html>

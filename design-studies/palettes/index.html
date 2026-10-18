@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Palette contact sheet — SecurityArts</title>
+<meta name="robots" content="noindex">
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Sans:wght@500;600;700&family=Inter:wght@400;500&family=JetBrains+Mono:wght@500&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing:border-box; }
+  body { margin:0; background:#DCD8D2; font-family:Inter, system-ui, sans-serif; color:#17121F; }
+  header { padding:1.1rem 1.4rem; background:#fff; border-bottom:2px solid #17121F; }
+  header h1 { margin:0 0 0.2rem; font-family:"Instrument Sans",sans-serif; font-size:1.1rem; letter-spacing:-0.02em; }
+  header p { margin:0; font-size:0.88rem; opacity:0.7; }
+  .sheet { display:grid; grid-template-columns:repeat(2,1fr); gap:1rem; padding:1rem; }
+  .card { border:2px solid #17121F; border-radius:12px; overflow:hidden; background:#fff; }
+  .bar { display:flex; align-items:center; justify-content:space-between; gap:0.6rem; padding:0.45rem 0.7rem; border-bottom:2px solid #17121F; background:#fff; }
+  .bar h2 { margin:0; font-family:"Instrument Sans",sans-serif; font-size:0.85rem; letter-spacing:-0.01em; }
+  .bar .id { font-family:"JetBrains Mono",monospace; font-size:0.62rem; opacity:0.5; }
+  .chips { display:flex; gap:2px; }
+  .chip { width:15px; height:15px; border-radius:3px; border:1px solid rgba(0,0,0,0.22); }
+
+  /* Each palette scopes its own vars on .p */
+  .p { background:var(--bg); color:var(--ink); }
+  .hero { display:grid; grid-template-columns:1.25fr 0.75fr; gap:0.8rem; align-items:center; padding:1.1rem 1.1rem 0.9rem; }
+  .hero h3 { margin:0; font-family:"Instrument Sans",sans-serif; font-weight:700; font-size:1.85rem; line-height:0.92; letter-spacing:-0.045em; }
+  .hero h3 em { font-style:normal; color:var(--act); }
+  .hero p { margin:0.5rem 0 0; font-size:0.66rem; line-height:1.4; opacity:0.85; }
+  .btns { display:flex; gap:0.35rem; margin-top:0.7rem; }
+  .btn { padding:0.34rem 0.7rem; border-radius:999px; font-family:"Instrument Sans",sans-serif; font-weight:600; font-size:0.6rem; border:1.5px solid transparent; }
+  .btn--act { background:var(--act); color:var(--btntext); }
+  .btn--ghost { border-color:var(--ink); color:var(--ink); }
+  .seal { width:84px; height:84px; justify-self:end; color:var(--act); transform:rotate(-9deg); filter:drop-shadow(0 5px 9px rgba(0,0,0,0.18)); }
+  .tiles { display:grid; grid-template-columns:repeat(6,1fr); gap:0.3rem; padding:0 1.1rem 0.9rem; }
+  .tile { aspect-ratio:4/5; border-radius:5px; position:relative; overflow:hidden; background:var(--bg-2); }
+  .tile .badge { position:absolute; right:2px; bottom:2px; width:19px; height:19px; color:var(--act); transform:rotate(-12deg); }
+  .band { background:var(--bg-2); padding:0.6rem 1.1rem; display:flex; gap:1.2rem; font-size:0.6rem; }
+  .band .n { font-family:"Instrument Sans",sans-serif; font-weight:700; font-size:1.2rem; color:var(--pop); letter-spacing:-0.04em; line-height:1; }
+  .band b { font-family:"Instrument Sans",sans-serif; display:block; font-size:0.62rem; }
+  .studio { background:var(--studio); color:var(--bg); padding:0.9rem 1.1rem; display:grid; grid-template-columns:1fr auto; gap:0.8rem; align-items:center; }
+  .studio h4 { margin:0; font-family:"Instrument Sans",sans-serif; font-weight:700; font-size:0.95rem; letter-spacing:-0.03em; }
+  .studio h4 em { font-style:normal; color:var(--act); }
+  .studio p { margin:0.25rem 0 0; font-size:0.58rem; opacity:0.8; }
+  .studio .seal { width:46px; height:46px; }
+  .note { padding:0.5rem 0.7rem; background:#fff; font-size:0.62rem; line-height:1.45; border-top:2px solid #17121F; }
+  .note code { font-family:"JetBrains Mono",monospace; font-size:0.58rem; opacity:0.7; }
+  @media (max-width:900px){ .sheet { grid-template-columns:1fr; } }
+</style>
+</head>
+<body>
+<header>
+  <h1>Palette contact sheet — 10 candidates</h1>
+  <p>Identical layout and the real seal mark in every card. Only the six colour roles change. Orange + purple excluded; no gradient blends between the two brights.</p>
+</header>
+<div class="sheet" id="sheet"></div>
+
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <symbol id="sealMark" viewBox="0 0 100 100">
+    <path fill="none" stroke="currentColor" stroke-width="2.6" d="M 50.00 13.00 A 7.22 7.22 0 0 1 64.16 15.82 A 7.22 7.22 0 0 1 76.16 23.84 A 7.22 7.22 0 0 1 84.18 35.84 A 7.22 7.22 0 0 1 87.00 50.00 A 7.22 7.22 0 0 1 84.18 64.16 A 7.22 7.22 0 0 1 76.16 76.16 A 7.22 7.22 0 0 1 64.16 84.18 A 7.22 7.22 0 0 1 50.00 87.00 A 7.22 7.22 0 0 1 35.84 84.18 A 7.22 7.22 0 0 1 23.84 76.16 A 7.22 7.22 0 0 1 15.82 64.16 A 7.22 7.22 0 0 1 13.00 50.00 A 7.22 7.22 0 0 1 15.82 35.84 A 7.22 7.22 0 0 1 23.84 23.84 A 7.22 7.22 0 0 1 35.84 15.82 A 7.22 7.22 0 0 1 50.00 13.00 Z"/>
+    <circle fill="none" stroke="currentColor" stroke-width="1.9" cx="50" cy="50" r="27"/>
+    <path fill="currentColor" d="M 50.00 34.50 L 53.76 44.82 L 64.74 45.21 L 56.09 51.98 L 59.11 62.54 L 50.00 56.40 L 40.89 62.54 L 43.91 51.98 L 35.26 45.21 L 46.24 44.82 Z"/>
+  </symbol>
+</svg>
+
+<script>
+const P = [
+ ['riso','Riso two-ink — fluorescent pink + process blue','#F4F4F1','#E3EBF3','#121A2B','#F2309A','#0072BA','#131C33','Zine-table native: two real Riso drum inks on uncoated stock. Button text must be ink, not paper.'],
+ ['klein','Gallery poster — Klein blue + lemon','#F7F7F4','#E1E7F4','#0B1130','#215BEE','#F4E63C','#11172F','Museum-poster confidence. The lemon does the shouting so the blue can stay sober.'],
+ ['letterpress','Letterpress chop — signal red','#F5F4EF','#D8E9F3','#171A1F','#D42228','#1585CF','#241F21','The seal metaphor taken literally: chop red is what a stamp actually is.'],
+ ['forest','Forest + peach — raspberry act','#F3F7F0','#FFD4BF','#0F4030','#D41C5A','#1A78D4','#0D211A','Green type is the surprise; peach warms the second surface. Warm/cool without the rejected pair.'],
+ ['sky','Sky + butter','#FBFBF8','#FFF3D1','#10233F','#0A6FD8','#F5C518','#0C1A2E','Optimistic and legible. The friendliest option in the set.'],
+ ['chartreuse','Petrol + chartreuse','#FBFBF6','#EDF4DC','#12211F','#0C8C82','#C6E62E','#091917','One teal ink covers both products; chartreuse carries the energy.'],
+ ['mint','Mint-teal + plum','#F4FAF6','#FCE9F2','#3B0F2E','#006F63','#E0457B','#2C0A22','Plum type instead of black. On the dark studio the seal should stamp in plum-pink, not teal.'],
+ ['cmyk','Process inks — cyan + magenta','#F2F1ED','#FFFFFF','#111111','#0093D0','#EC008C','#16181A','Literally about printing and proofs, which is what a receipt is.'],
+ ['lilac','Moss + lilac','#FAF8F4','#EDE8F5','#1E2416','#4F7A1E','#D4426B','#1A1F14','Softest option. Caution: lilac is purple-adjacent — kept to a whisper-quiet second surface only.'],
+ ['artfirst','Art-first neutral + emerald','#F0EFEC','#E5E3DE','#16181C','#0E7A52','#BFBCB4','#191B1A','One emerald for the seal and the action; every other colour comes from the artwork.'],
+];
+const lum = h => { const c = h.slice(1).match(/../g).map(x=>{const v=parseInt(x,16)/255; return v<=0.03928?v/12.92:Math.pow((v+0.055)/1.055,2.4);}); return 0.2126*c[0]+0.7152*c[1]+0.0722*c[2]; };
+const ratio = (a,b) => { const [x,y]=[lum(a),lum(b)].sort((m,n)=>n-m); return Math.round(((x+0.05)/(y+0.05))*100)/100; };
+const sealSvg = '<svg class="seal" viewBox="0 0 100 100" aria-hidden="true"><use href="#sealMark"/></svg>';
+const badge = '<svg class="badge" viewBox="0 0 100 100" aria-hidden="true"><use href="#sealMark"/></svg>';
+const sheet = document.getElementById('sheet');
+for (const [id,name,bg,bg2,ink,act,pop,studio,why] of P) {
+  const btntext = ratio(bg,act) >= 4.5 ? bg : ink;
+  const vars = `--bg:${bg};--bg-2:${bg2};--ink:${ink};--act:${act};--pop:${pop};--studio:${studio};--btntext:${btntext}`;
+  const tiles = [
+    `linear-gradient(160deg,${act} 0 58%,${ink} 58%)`,
+    `radial-gradient(circle at 30% 30%,${pop} 0 25%,${bg2} 26%)`,
+    `linear-gradient(${ink},${ink}) 0 0/100% 40% no-repeat, ${bg2}`,
+    `repeating-linear-gradient(-30deg,${bg} 0 9px,${act} 9px 12px)`,
+    `conic-gradient(from 20deg,${bg2} 0 25%,${pop} 25% 50%,${act} 50% 75%,${ink} 75%)`,
+    `radial-gradient(circle at 70% 70%,${ink} 0 30%,${pop} 31%)`,
+  ].map(b=>`<div class="tile" style="background:${b}">${badge}</div>`).join('');
+  const el = document.createElement('section');
+  el.className = 'card';
+  el.innerHTML =
+   `<div class="bar"><h2>${name}</h2><div class="chips">${[bg,bg2,ink,act,pop,studio].map(c=>`<span class="chip" style="background:${c}"></span>`).join('')}</div><span class="id">${id}</span></div>
+    <div class="p" style="${vars}">
+      <div class="hero"><div><h3>A receipt for <em>your art.</em></h3><p>Seal a finished piece and get a public certificate anyone can check. Not a guess about whether it's AI — a signed record that this exact file was sealed under your name.</p><div class="btns"><span class="btn btn--act">Seal a piece</span><span class="btn btn--ghost">See the wall</span></div></div>${sealSvg}</div>
+      <div class="tiles">${tiles}</div>
+      <div class="band"><div><span class="n">1</span><b>Upload the piece</b>We read the exact bytes.</div><div><span class="n">2</span><b>We sign it</b>SHA-256, signed with our key.</div><div><span class="n">3</span><b>You get the receipt</b>A public certificate.</div></div>
+      <div class="studio"><div><h4>Same seal. <em>Different work.</em></h4><p>Also a security studio — pentests and hardening that end in a sealed, re-testable record.</p></div>${sealSvg}</div>
+    </div>
+    <div class="note">${why}<br><code>ink/bg ${ratio(ink,bg)} · act/bg ${ratio(act,bg)} · btn ${ratio(btntext,act)} · bg/studio ${ratio(bg,studio)} · act/studio ${ratio(act,studio)}</code></div>`;
+  sheet.appendChild(el);
+}
+</script>
+</body>
+</html>

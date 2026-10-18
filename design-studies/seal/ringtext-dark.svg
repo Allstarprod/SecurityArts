@@ -1,0 +1,46 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 240 240" width="240" height="240" role="img" aria-labelledby="ringtext-dark-title">
+  <title id="ringtext-dark-title">SecurityArts seal</title>
+  <!--
+    RINGTEXT for the charcoal studio surface (#241F21). Identical geometry, weights, legend,
+    start angle and spin to ringtext.svg.
+
+    Colour: the mark stays chop-red (5.9:1 on charcoal); the legend swaps ink for cream
+    #F5F4EF (15.6:1) — the type is always the surface colour's opposite, so light and dark
+    are exact inverses. Light-on-dark edges read heavier and rougher (irradiation), so the
+    grain displacement drops from 2 to 1.6 and the ink-density floor rises from 0.55 to
+    0.62 to keep the perceived texture equal.
+
+    Transparent: expects charcoal behind it. Every id, class and keyframe is prefixed
+    "ringtext-dark-".
+  -->
+  <style>
+    .ringtext-dark-spin { transform-box: view-box; transform-origin: 0 0; animation: ringtext-dark-spin 28s linear infinite; }
+    @keyframes ringtext-dark-spin { to { transform: rotate(-360deg); } }
+    @media (prefers-reduced-motion: reduce) { .ringtext-dark-spin { animation: none; } }
+  </style>
+  <defs>
+    <path id="ringtext-dark-path" d="M-71.77,-5.77 A72,72 0 1 1 71.77,5.77 A72,72 0 1 1 -71.77,-5.77"/>
+    <filter id="ringtext-dark-grain" x="-6%" y="-6%" width="112%" height="112%" color-interpolation-filters="sRGB">
+      <feTurbulence type="fractalNoise" baseFrequency="0.85" numOctaves="2" seed="11" result="ringtext-dark-edge"/>
+      <feDisplacementMap in="SourceGraphic" in2="ringtext-dark-edge" scale="1.6" xChannelSelector="R" yChannelSelector="G" result="ringtext-dark-rough"/>
+      <feTurbulence type="fractalNoise" baseFrequency="0.045" numOctaves="3" seed="4" result="ringtext-dark-press"/>
+      <feComponentTransfer in="ringtext-dark-press" result="ringtext-dark-density">
+        <feFuncA type="table" tableValues="0.62 0.84 1 1 1"/>
+      </feComponentTransfer>
+      <feComposite in="ringtext-dark-rough" in2="ringtext-dark-density" operator="in"/>
+    </filter>
+  </defs>
+  <g transform="translate(120 120)">
+    <g filter="url(#ringtext-dark-grain)" fill="none" stroke="#D42228" stroke-linejoin="round">
+      <!-- scalloped edge -->
+      <path stroke-width="6" d="M0,-88.8 A17.33,17.33 0 0 1 33.98,-82.04 A17.33,17.33 0 0 1 62.79,-62.79 A17.33,17.33 0 0 1 82.04,-33.98 A17.33,17.33 0 0 1 88.8,0 A17.33,17.33 0 0 1 82.04,33.98 A17.33,17.33 0 0 1 62.79,62.79 A17.33,17.33 0 0 1 33.98,82.04 A17.33,17.33 0 0 1 0,88.8 A17.33,17.33 0 0 1 -33.98,82.04 A17.33,17.33 0 0 1 -62.79,62.79 A17.33,17.33 0 0 1 -82.04,33.98 A17.33,17.33 0 0 1 -88.8,0 A17.33,17.33 0 0 1 -82.04,-33.98 A17.33,17.33 0 0 1 -62.79,-62.79 A17.33,17.33 0 0 1 -33.98,-82.04 A17.33,17.33 0 0 1 0,-88.8 Z"/>
+      <!-- ring -->
+      <circle r="64.8" stroke-width="4.4"/>
+      <!-- star -->
+      <path fill="#D42228" stroke="none" d="M0,-37.2 L9.02,-12.43 L35.38,-11.5 L14.62,4.75 L21.86,30.1 L0,15.36 L-21.86,30.1 L-14.62,4.75 L-35.38,-11.5 L-9.02,-12.43 Z"/>
+    </g>
+    <g class="ringtext-dark-spin">
+      <text font-family="Instrument Sans, Inter, system-ui, sans-serif" font-weight="700" font-size="13" letter-spacing="1.8" fill="#F5F4EF" textLength="452" lengthAdjust="spacing"><textPath href="#ringtext-dark-path">SEALED BY SECURITYARTS · A RECEIPT FOR YOUR ART ·&#160;</textPath></text>
+    </g>
+  </g>
+</svg>

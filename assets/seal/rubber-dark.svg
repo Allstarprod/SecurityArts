@@ -1,0 +1,66 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 240 240" width="240" height="240" role="img" aria-labelledby="rubberDark-title">
+  <title id="rubberDark-title">SecurityArts seal, rubber stamp impression in chop-red on charcoal</title>
+  <!--
+    rubber, charcoal cut. Same die and same ink effects as rubber.svg, recolored for
+    the studio surface (#241F21). On dark paper heavy pressure reads as MORE chop-red
+    (opaque), thin pressure as the deeper, duller chop-red with the surface showing
+    through — so the ink gradient runs the other way, the ghost strike is a touch
+    stronger, and the pressure roll-off bottoms out higher so nothing sinks into the
+    charcoal.
+  -->
+  <defs>
+    <linearGradient id="rubberDark-inkGrad" gradientUnits="userSpaceOnUse" x1="44" y1="196" x2="196" y2="44">
+      <stop offset="0" stop-color="#D42228"/>
+      <stop offset="1" stop-color="#A8161C"/>
+    </linearGradient>
+
+    <radialGradient id="rubberDark-pressGrad" gradientUnits="userSpaceOnUse" cx="92" cy="150" r="150">
+      <stop offset="0" stop-color="#FFFFFF" stop-opacity="1"/>
+      <stop offset="0.35" stop-color="#FFFFFF" stop-opacity="1"/>
+      <stop offset="1" stop-color="#FFFFFF" stop-opacity="0.58"/>
+    </radialGradient>
+    <mask id="rubberDark-press" maskUnits="userSpaceOnUse" x="0" y="0" width="240" height="240">
+      <rect x="0" y="0" width="240" height="240" fill="url(#rubberDark-pressGrad)"/>
+    </mask>
+
+    <filter id="rubberDark-ink" x="-8%" y="-8%" width="116%" height="116%" color-interpolation-filters="sRGB">
+      <feTurbulence type="fractalNoise" baseFrequency="0.11" numOctaves="2" seed="3" result="rubberDark-edge"/>
+      <feDisplacementMap in="SourceGraphic" in2="rubberDark-edge" scale="2.6" xChannelSelector="R" yChannelSelector="G" result="rubberDark-rough"/>
+      <feTurbulence type="fractalNoise" baseFrequency="0.085" numOctaves="3" seed="11" result="rubberDark-fine"/>
+      <feTurbulence type="fractalNoise" baseFrequency="0.018" numOctaves="2" seed="5" result="rubberDark-broad"/>
+      <feComposite in="rubberDark-fine" in2="rubberDark-broad" operator="arithmetic" k1="0" k2="0.55" k3="0.45" k4="0" result="rubberDark-noise"/>
+      <feColorMatrix in="rubberDark-noise" type="matrix" values="0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 0 0 9 -2.9" result="rubberDark-mask"/>
+      <feComposite in="rubberDark-rough" in2="rubberDark-mask" operator="in"/>
+    </filter>
+
+    <filter id="rubberDark-inkGhost" x="-8%" y="-8%" width="116%" height="116%" color-interpolation-filters="sRGB">
+      <feTurbulence type="fractalNoise" baseFrequency="0.11" numOctaves="2" seed="17" result="rubberDark-gEdge"/>
+      <feDisplacementMap in="SourceGraphic" in2="rubberDark-gEdge" scale="2.2" xChannelSelector="R" yChannelSelector="G" result="rubberDark-gRough"/>
+      <feTurbulence type="fractalNoise" baseFrequency="0.085" numOctaves="3" seed="23" result="rubberDark-gFine"/>
+      <feTurbulence type="fractalNoise" baseFrequency="0.018" numOctaves="2" seed="29" result="rubberDark-gBroad"/>
+      <feComposite in="rubberDark-gFine" in2="rubberDark-gBroad" operator="arithmetic" k1="0" k2="0.55" k3="0.45" k4="0" result="rubberDark-gNoise"/>
+      <feColorMatrix in="rubberDark-gNoise" type="matrix" values="0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 0 0 9 -3.4" result="rubberDark-gMask"/>
+      <feComposite in="rubberDark-gRough" in2="rubberDark-gMask" operator="in"/>
+    </filter>
+
+    <path id="rubberDark-textArcTop" d="M47.5,120 A72.5,72.5 0 0 1 192.5,120"/>
+    <path id="rubberDark-textArcBottom" d="M39.8,120 A80.2,80.2 0 0 0 200.2,120"/>
+
+    <g id="rubberDark-art" fill="url(#rubberDark-inkGrad)" stroke="url(#rubberDark-inkGrad)">
+      <path fill="none" stroke-width="6.5" stroke-linejoin="round" d="M120,31.2 A17.33,17.33 0 0 1 153.98,37.96 A17.33,17.33 0 0 1 182.79,57.21 A17.33,17.33 0 0 1 202.04,86.02 A17.33,17.33 0 0 1 208.8,120 A17.33,17.33 0 0 1 202.04,153.98 A17.33,17.33 0 0 1 182.79,182.79 A17.33,17.33 0 0 1 153.98,202.04 A17.33,17.33 0 0 1 120,208.8 A17.33,17.33 0 0 1 86.02,202.04 A17.33,17.33 0 0 1 57.21,182.79 A17.33,17.33 0 0 1 37.96,153.98 A17.33,17.33 0 0 1 31.2,120 A17.33,17.33 0 0 1 37.96,86.02 A17.33,17.33 0 0 1 57.21,57.21 A17.33,17.33 0 0 1 86.02,37.96 A17.33,17.33 0 0 1 120,31.2 Z"/>
+      <circle cx="120" cy="120" r="64.8" fill="none" stroke-width="4.5"/>
+      <path stroke="none" d="M120,82.8 L129.02,107.57 L155.38,108.5 L134.62,124.75 L141.86,150.1 L120,135.36 L98.14,150.1 L105.38,124.75 L84.62,108.5 L110.98,107.57 Z"/>
+      <g stroke="none" font-family="Instrument Sans, sans-serif" font-weight="700" font-size="11">
+        <text><textPath href="#rubberDark-textArcTop" startOffset="11.9" textLength="204" lengthAdjust="spacing">SEALED BY SECURITYARTS</textPath></text>
+        <text><textPath href="#rubberDark-textArcBottom" startOffset="13.1" textLength="225.7" lengthAdjust="spacing">A RECEIPT FOR YOUR ART</textPath></text>
+        <circle cx="43.7" cy="120" r="2.4"/>
+        <circle cx="196.3" cy="120" r="2.4"/>
+      </g>
+    </g>
+  </defs>
+
+  <g mask="url(#rubberDark-press)">
+    <use href="#rubberDark-art" transform="translate(1.7 1.2) rotate(-0.45 120 120)" opacity="0.4" filter="url(#rubberDark-inkGhost)"/>
+    <use href="#rubberDark-art" filter="url(#rubberDark-ink)"/>
+  </g>
+</svg>

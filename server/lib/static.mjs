@@ -17,11 +17,16 @@ const ROOT_FILES = new Set(["og-image.png", "robots.txt", "sitemap.xml", "llms.t
 const ROOT_HTML = /^[A-Za-z0-9_-][A-Za-z0-9._-]*\.html$/;           // index.html, faq.html, services-*.html …
 const ROOT_FAVICON = /^favicon[A-Za-z0-9_.-]*\.(ico|png|svg|webp)$/i; // favicon.ico, favicon-32.png …
 
-// Directory trees allowed in full (the public site's assets + the design-system UI
-// kits that vercel.json rewrites point at). Segment arrays, matched as a prefix.
+// Single files allowed below the root (relative paths). design-system/ holds the token
+// source and its build script too; only the generated stylesheet is public.
+const PUBLIC_FILES = new Set(["design-system/tokens.css"]);
+
+// Directory trees allowed in full (the public site's scripts, styles and seal art).
+// Segment arrays, matched as a prefix. The retired "SecurityArts Design System" UI kits
+// are no longer served; vercel.json redirects their old URLs to the new pages.
 const ROOT_DIRS = [
   ["js"],
-  ["SecurityArts Design System", "website"],
+  ["assets"],
   ["docs"], // /docs/seal-spec.md — linked from /api/seal/pubkey
 ];
 
@@ -44,6 +49,7 @@ export function resolvePublicPath(root, pathname) {
 
   const allowed =
     (segs.length === 1 && (ROOT_FILES.has(segs[0]) || ROOT_HTML.test(segs[0]) || ROOT_FAVICON.test(segs[0]))) ||
+    PUBLIC_FILES.has(segs.join("/")) ||
     ROOT_DIRS.some((dir) => dir.length < segs.length && dir.every((d, i) => segs[i] === d));
   if (!allowed) return null;
 

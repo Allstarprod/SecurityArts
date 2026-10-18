@@ -80,6 +80,11 @@ Disallow: /login
 Disallow: /join
 Disallow: /market.html
 Disallow: /SecurityArts%20Design%20System/
+Disallow: /wall
+Disallow: /certificate.html
+Disallow: /profile.html
+Disallow: /me.html
+Disallow: /seal-a-piece
 
 # ---------------------------------------------------------------------------
 # Aggressive / non-compliant scrapers — BLOCK

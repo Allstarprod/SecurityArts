@@ -1,0 +1,68 @@
+/* SecurityArts Letterpress — generated from tokens.json. Edit tokens.json, then run `npm run tokens`. */
+/* Themes: paper, studio (default paper). Set data-theme="studio" on any element to switch. */
+
+:root, [data-theme="paper"] {
+  --red: #d42228;
+  --red-deep: #a8161c;
+  --blue: #1585cf;
+  --blue-deep: #0f6daa;
+  --paper: #f5f4ef;
+  --paper-2: #eceae3;
+  --sky: #d8e9f3;
+  --sky-2: #c7ddeb;
+  --ink: #171a1f;
+  --ink-soft: #3e4450;
+  --ink-faint: #5f646c;
+  --studio: #241f21;
+  --studio-2: #322b2d;
+  --surface: var(--paper);
+  --surface-raised: var(--paper-2);
+  --text: var(--ink);
+  --text-soft: var(--ink-soft);
+  --text-faint: var(--ink-faint);
+  --line: rgba(23, 26, 31, 0.12);
+  --line-strong: rgba(23, 26, 31, 0.26);
+  --action: var(--red);
+  --on-action: var(--paper);
+  --focus: var(--blue);
+  color-scheme: light;
+}
+
+[data-theme="studio"] {
+  --surface: var(--studio);
+  --surface-raised: var(--studio-2);
+  --text: var(--paper);
+  --text-soft: #cbc9c6;
+  --text-faint: #b6b4b1;
+  --line: rgba(245, 244, 239, 0.14);
+  --line-strong: rgba(245, 244, 239, 0.4);
+  color-scheme: dark;
+}
+
+:root {
+  --font-display: "Instrument Sans", system-ui, sans-serif;
+  --font-body: Inter, -apple-system, system-ui, sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, monospace;
+  --space-chips: 0.45rem;
+  --space-actions: 0.7rem;
+  --space-stack: 1.3rem;
+  --space-gutter: 5rem;
+  --space-gutter-min: 1rem;
+  --size-max: 1320px;
+  --size-head: 68px;
+  --size-control: 48px;
+  --size-input: 52px;
+  --size-chip: 40px;
+  --radius-field: 12px;
+  --radius-card: 14px;
+  --radius-panel: 18px;
+  --radius-dialog: 20px;
+  --radius-drop: 22px;
+  --radius-pill: 100px;
+  --shadow-lift: 0 18px 30px -12px rgba(23, 26, 31, 0.35);
+  --shadow-frame: 0 24px 40px -24px rgba(23, 26, 31, 0.45);
+  --shadow-field-focus: 0 0 0 4px rgba(21, 133, 207, 0.28);
+  --stroke-control: 2px;
+  --stroke-drop: 3px;
+  --stroke-focus: 3px;
+}

@@ -1,178 +1,313 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>SecurityArts vs the "Not By AI" badge — a claim vs a receipt</title>
-  <meta name="description" content="The 'Not By AI' badge is a self-declared label anyone can add. A SecurityArts seal is a verifiable cryptographic certificate tied to the specific file. An honest comparison." />
-
-  <link rel="canonical" href="https://security-arts.vercel.app/compare/not-by-ai" />
-  <meta property="og:type" content="article" />
-  <meta property="og:site_name" content="SecurityArts" />
-  <meta property="og:title" content="SecurityArts vs the Not By AI badge — a claim vs a receipt" />
-  <meta property="og:description" content="A badge is a self-declared claim. A seal is verifiable proof tied to the file. Honest comparison." />
-  <meta property="og:url" content="https://security-arts.vercel.app/compare/not-by-ai" />
-  <meta property="og:image" content="https://security-arts.vercel.app/og-image.png" />
-  <meta name="twitter:card" content="summary_large_image" />
-  <meta name="twitter:title" content="SecurityArts vs the Not By AI badge" />
-  <meta name="twitter:description" content="A claim vs a receipt." />
-  <meta name="twitter:image" content="https://security-arts.vercel.app/og-image.png" />
-
-  <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300..600;1,9..144,300..500&family=Geist:wght@300..600&family=Geist+Mono:wght@400;500&display=swap" rel="stylesheet" />
-  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='18' fill='%230c0c0b'/%3E%3Cg fill='none' stroke='%23f4f1e9' stroke-width='4.2'%3E%3Ccircle cx='50' cy='50' r='27'/%3E%3C/g%3E%3Cpath fill='%23f4f1e9' d='M 50 34.5 L 53.76 44.82 L 64.74 45.21 L 56.09 51.98 L 59.11 62.54 L 50 56.4 L 40.89 62.54 L 43.91 51.98 L 35.26 45.21 L 46.24 44.82 Z'/%3E%3C/svg%3E" />
-
-  <script type="application/ld+json">
-  {
-    "@context":"https://schema.org",
-    "@graph":[
-      {
-        "@type":"Article",
-        "@id":"https://security-arts.vercel.app/compare/not-by-ai#article",
-        "headline":"SecurityArts vs the \"Not By AI\" badge — a claim vs a receipt",
-        "description":"The 'Not By AI' badge is a self-declared label anyone can add. A SecurityArts seal is a verifiable cryptographic certificate tied to the specific file. An honest comparison.",
-        "url":"https://security-arts.vercel.app/compare/not-by-ai",
-        "mainEntityOfPage":"https://security-arts.vercel.app/compare/not-by-ai",
-        "image":"https://security-arts.vercel.app/og-image.png",
-        "inLanguage":"en-US",
-        "datePublished":"2026-08-07",
-        "dateModified":"2026-09-20",
-        "author":{"@id":"https://security-arts.vercel.app/#organization"},
-        "publisher":{"@id":"https://security-arts.vercel.app/#organization"},
-        "about":[
-          {"@type":"Thing","name":"SecurityArts seal"},
-          {"@type":"Thing","name":"Not By AI badge"}
-        ]
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>A seal vs the Not By AI badge — SecurityArts</title>
+<meta name="description" content="The Not By AI badge is a self-declared label anyone can add. A SecurityArts seal is a public certificate tied to one exact file: which account sealed it, and when. A fair comparison.">
+<link rel="canonical" href="https://security-arts.vercel.app/compare/not-by-ai">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="SecurityArts">
+<meta property="og:title" content="A seal vs the Not By AI badge — SecurityArts">
+<meta property="og:description" content="The Not By AI badge is a self-declared label anyone can add. A SecurityArts seal is a public certificate tied to one exact file: which account sealed it, and when. A fair comparison.">
+<meta property="og:url" content="https://security-arts.vercel.app/compare/not-by-ai">
+<meta property="og:image" content="https://security-arts.vercel.app/og-image.png">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="icon" href="/assets/seal/modern-24.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Sans:wght@500;600;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/assets/site.css">
+<style>
+  /* Page-only. Small red text on sky uses red-deep for contrast; the seal column reads in full text colour;
+     the red band gets a paper focus ring and a paper ghost button. */
+  .band--sky .section-label span { color: var(--red-deep); }
+  .section-head { display: grid; gap: 0.9rem; max-width: 48rem; margin-bottom: clamp(1.8rem, 3.5vw, 2.6rem); }
+  .table tbody th { width: 24%; }
+  .table td:first-of-type { color: var(--text); }
+  .prose .updated { font-size: 0.92rem; color: var(--text-faint); }
+  .cards > li { display: grid; }
+  .band--red :focus-visible { outline-color: var(--paper); }
+  .cta-band .btn--ghost { border-color: var(--paper); color: var(--paper); }
+  .cta-band .btn--ghost:hover { background: var(--paper); color: var(--red-deep); }
+</style>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "Article",
+      "@id": "https://security-arts.vercel.app/compare/not-by-ai#article",
+      "headline": "A seal vs the Not By AI badge",
+      "description": "The Not By AI badge is a self-declared label anyone can add. A SecurityArts seal is a public certificate tied to one exact file: which account sealed it, and when. A fair comparison.",
+      "url": "https://security-arts.vercel.app/compare/not-by-ai",
+      "mainEntityOfPage": "https://security-arts.vercel.app/compare/not-by-ai",
+      "image": "https://security-arts.vercel.app/og-image.png",
+      "inLanguage": "en-US",
+      "datePublished": "2026-08-07",
+      "dateModified": "2026-10-16",
+      "author": {
+        "@id": "https://security-arts.vercel.app/#organization"
       },
-      {
-        "@type":"FAQPage",
-        "@id":"https://security-arts.vercel.app/compare/not-by-ai#faq",
-        "url":"https://security-arts.vercel.app/compare/not-by-ai",
-        "dateModified":"2026-09-20",
-        "publisher":{"@id":"https://security-arts.vercel.app/#organization"},
-        "mainEntity":[
-          {"@type":"Question","name":"Is the Not By AI badge useless?","acceptedAnswer":{"@type":"Answer","text":"No — it raised awareness and lets an artist signal intent, which has real value. Its limit is that it's a self-declared label: anyone can add the badge to any image, and there's nothing to verify. It's a statement, not proof."}},
-          {"@type":"Question","name":"Can I use a badge and a seal together?","acceptedAnswer":{"@type":"Answer","text":"Yes. Display the badge to signal your stance, and back it with a seal so there's something a stranger can actually check: who sealed this exact file, and when."}}
-        ]
-      }
-    ]
-  }
-  </script>
-
-  <style>
-    :root{--ink:#0c0c0b;--ink-2:#131312;--ink-3:#1b1a18;--bone:#f4f1e9;--bone-dim:#a39e92;--bone-faint:#6f6b62;--brass:#c2a14e;--line:rgba(244,241,233,0.12);--line-strong:rgba(244,241,233,0.22);--gutter:clamp(1.25rem,4vw,5rem);--maxw:960px;--serif:"Fraunces","Times New Roman",serif;--sans:"Geist",-apple-system,system-ui,sans-serif;--mono:"Geist Mono",ui-monospace,monospace;--ease:cubic-bezier(0.16,1,0.3,1)}
-    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
-    body{background:var(--ink);color:var(--bone);font-family:var(--sans);font-weight:360;font-size:clamp(1rem,0.95rem+0.25vw,1.125rem);line-height:1.62;-webkit-font-smoothing:antialiased;overflow-x:hidden}
-    a{color:inherit;text-decoration:none}svg{display:block}::selection{background:var(--brass);color:var(--ink)}
-    :focus-visible{outline:2px solid var(--brass);outline-offset:3px;border-radius:2px}
-    .head{position:sticky;top:0;z-index:20;display:flex;align-items:center;gap:1.2rem;padding:1rem var(--gutter);background:color-mix(in srgb,var(--ink) 85%,transparent);backdrop-filter:blur(14px);border-bottom:1px solid var(--line)}
-    .brand{display:inline-flex;align-items:center;gap:0.6rem}.brand svg{width:28px;height:28px}
-    .brand__word{font-family:var(--serif);font-weight:460;font-size:1.28rem;letter-spacing:-0.01em}
-    .head__spacer{margin-left:auto}
-    .head a.nav{font-family:var(--mono);font-size:0.74rem;text-transform:uppercase;letter-spacing:0.12em;color:var(--bone-dim);transition:color 0.25s var(--ease)}.head a.nav:hover{color:var(--bone)}
-    .head .cta{font-family:var(--mono);font-size:0.74rem;text-transform:uppercase;letter-spacing:0.12em;color:var(--ink);background:var(--bone);padding:0.55rem 0.9rem;border-radius:100px;transition:background 0.25s var(--ease)}.head .cta:hover{background:var(--brass)}
-    /* Mobile header: drop the text nav, keep the logo + primary CTA on one line */
-    @media (max-width:720px){
-      .head{gap:0.6rem;padding:0.85rem 1rem}
-      .head a.nav,.head__spacer{display:none}
-      .brand{flex:0 0 auto;gap:0.5rem}
-      .brand svg{width:24px;height:24px}
-      .brand__word{font-size:1.1rem;white-space:nowrap}
-      .head .cta{margin-left:auto;flex:0 0 auto;white-space:nowrap;font-size:0.66rem;letter-spacing:0.08em;padding:0.5rem 0.75rem}
+      "publisher": {
+        "@id": "https://security-arts.vercel.app/#organization"
+      },
+      "about": [
+        {
+          "@type": "Thing",
+          "name": "SecurityArts seal"
+        },
+        {
+          "@type": "Thing",
+          "name": "Not By AI badge"
+        }
+      ]
+    },
+    {
+      "@type": "FAQPage",
+      "@id": "https://security-arts.vercel.app/compare/not-by-ai#faq",
+      "url": "https://security-arts.vercel.app/compare/not-by-ai",
+      "dateModified": "2026-10-16",
+      "publisher": {
+        "@id": "https://security-arts.vercel.app/#organization"
+      },
+      "mainEntity": [
+        {
+          "@type": "Question",
+          "name": "Is the Not By AI badge useless?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "No. It raised awareness and lets an artist signal intent, which has real value. Its limit is that it's self-declared: anyone can add the badge to any image, and there's nothing to check. It's a statement, not a record."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "Can I use a badge and a seal together?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Yes. Show the badge to signal your stance, and seal the piece so there's something a stranger can actually check: which account sealed this exact file, and when."
+          }
+        }
+      ]
     }
-    @media (max-width:359px){
-      .brand__word{display:none}
-    }
-    .sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}
-    main{max-width:var(--maxw);margin-inline:auto;padding:clamp(3rem,7vw,5.5rem) var(--gutter) 4rem}
-    .crumb{font-family:var(--mono);font-size:0.66rem;text-transform:uppercase;letter-spacing:0.14em;color:var(--bone-faint);margin-bottom:1.6rem}.crumb a:hover{color:var(--bone-dim)}
-    .eyebrow{font-family:var(--mono);font-size:0.72rem;text-transform:uppercase;letter-spacing:0.2em;color:var(--brass);display:inline-flex;align-items:center;gap:0.6rem;margin-bottom:1.4rem}
-    .eyebrow::before{content:"";width:7px;height:7px;border-radius:50%;background:var(--brass);box-shadow:0 0 0 4px rgba(194,161,78,0.16)}
-    h1{font-family:var(--serif);font-weight:340;font-size:clamp(2.6rem,1rem+6vw,4.8rem);line-height:0.98;letter-spacing:-0.03em;margin-bottom:1.2rem}h1 em{color:var(--brass);font-style:italic}
-    .lede{color:var(--bone-dim);font-size:clamp(1.05rem,0.95rem+0.5vw,1.28rem);max-width:62ch;margin-bottom:2.6rem}
-    .ctable-wrap{overflow-x:auto;border:1px solid var(--line);border-radius:14px;margin-bottom:2.4rem}
-    table.ctable{border-collapse:collapse;width:100%;min-width:560px}
-    .ctable th,.ctable td{text-align:left;padding:1rem 1.1rem;border-bottom:1px solid var(--line);vertical-align:top;font-size:0.95rem}
-    .ctable thead th{font-family:var(--mono);font-size:0.68rem;text-transform:uppercase;letter-spacing:0.1em;color:var(--bone-dim);background:var(--ink-2)}
-    .ctable thead th.own{color:var(--brass)}
-    .ctable tbody th{font-family:var(--mono);font-size:0.7rem;text-transform:uppercase;letter-spacing:0.08em;color:var(--bone-faint);font-weight:500;width:26%}
-    .ctable td{color:var(--bone-dim)}
-    .ctable td.own{color:var(--bone);background:linear-gradient(160deg,rgba(194,161,78,0.07),transparent);border-left:1px solid rgba(194,161,78,0.3)}
-    .ctable tr:last-child th,.ctable tr:last-child td{border-bottom:0}
-    .note{border-left:2px solid var(--brass);padding:0.4rem 0 0.4rem 1.3rem;margin:0 0 3rem;color:var(--bone-dim)}.note b{color:var(--bone)}
-    .h2{font-family:var(--serif);font-weight:400;font-size:clamp(1.4rem,1rem+1.4vw,2rem);letter-spacing:-0.015em;margin:0 0 1.2rem}
-    .qa{list-style:none;border-top:1px solid var(--line);margin-bottom:2.5rem}
-    .qa li{border-bottom:1px solid var(--line);padding:1.2rem 0}
-    .qa h3{font-family:var(--serif);font-weight:440;font-size:1.1rem;letter-spacing:-0.01em;display:block;margin-bottom:0.4rem}.qa p{color:var(--bone-dim)}
-    .cta-band{border-top:1px solid var(--line);padding-top:clamp(2.5rem,5vw,3.5rem);display:flex;flex-wrap:wrap;gap:1rem;align-items:center}
-    .cta-band p{font-family:var(--serif);font-weight:360;font-size:clamp(1.5rem,1rem+2vw,2.4rem);letter-spacing:-0.02em;flex:1 1 300px}
-    .btn{font-family:var(--mono);font-size:0.78rem;text-transform:uppercase;letter-spacing:0.1em;padding:0.9rem 1.5rem;border-radius:100px;border:1px solid transparent;transition:all 0.3s var(--ease);display:inline-flex;align-items:center;gap:0.5rem}
-    .btn--solid{background:var(--bone);color:var(--ink)}.btn--solid:hover{background:var(--brass);transform:translateY(-2px)}
-    .btn--ghost{border-color:var(--line-strong);color:var(--bone)}.btn--ghost:hover{border-color:var(--bone);transform:translateY(-2px)}
-    footer{border-top:1px solid var(--line);max-width:var(--maxw);margin:0 auto;padding:2.5rem var(--gutter);display:flex;flex-wrap:wrap;gap:1rem;justify-content:space-between}
-    footer a,footer span{font-family:var(--mono);font-size:0.72rem;text-transform:uppercase;letter-spacing:0.12em;color:var(--bone-faint)}footer a:hover{color:var(--bone-dim)}
-  </style>
+  ]
+}
+</script>
 </head>
 <body>
-  <header class="head">
+<a class="skip-link" href="#main">Skip to content</a>
+
+<header class="site-head">
+  <a class="brand" href="/" aria-label="SecurityArts home">
+    <img class="brand__seal" src="/assets/seal/modern-24.svg" width="30" height="30" alt="">
+    <span class="brand__word">SecurityArts</span>
+  </a>
+  <nav class="nav" aria-label="Primary">
+    <a href="/wall"><span class="nav__idx">01</span> The wall</a>
+    <a href="/how-it-works"><span class="nav__idx">02</span> How it works</a>
+    <a href="/pricing"><span class="nav__idx">03</span> Pricing</a>
+    <a href="/#studio"><span class="nav__idx">04</span> Studio</a>
+  </nav>
+  <div class="head-auth" data-auth-slot>
+    <a href="/join">Sign in</a>
+    <a class="head-auth__join" href="/join?mode=signup">Join</a>
+  </div>
+  <a class="head-cta" href="/join?mode=signup" data-seal-cta>Seal a piece <span aria-hidden="true">→</span></a>
+  <button class="menu-btn" id="menuBtn" type="button" aria-expanded="false" aria-controls="mobileMenu" aria-label="Open menu"><span></span><span></span></button>
+</header>
+
+<div class="mobile-menu" id="mobileMenu" hidden>
+  <nav aria-label="Mobile">
+    <a href="/wall"><span>01</span> The wall</a>
+    <a href="/how-it-works"><span>02</span> How it works</a>
+    <a href="/pricing"><span>03</span> Pricing</a>
+    <a href="/#studio"><span>04</span> Studio</a>
+  </nav>
+  <div class="head-auth" data-auth-slot>
+    <a href="/join">Sign in</a>
+    <a class="head-auth__join" href="/join?mode=signup">Join</a>
+  </div>
+  <a class="btn btn--red" href="/join?mode=signup" data-seal-cta>Seal a piece</a>
+</div>
+
+<main id="main">
+  <section class="page-hero band--sky" aria-labelledby="page-h">
+    <div class="wrap">
+      <p class="section-label"><span>01</span> Compare · Not By AI</p>
+      <h1 class="display" id="page-h">A statement vs <em>a receipt.</em></h1>
+      <p class="lede">The Not By AI badge is a label you add to your work to say a person made it. It raised real awareness, but it's self-declared: anyone can put the badge on any image, and there's nothing to check. A seal is a different kind of record: signed, dated, tied to the exact file, and checkable by anyone.</p>
+      <div class="page-hero__actions">
+        <a class="btn btn--red" href="/join?mode=signup" data-seal-cta>Seal a piece <span class="btn__arrow" aria-hidden="true">→</span></a>
+        <a class="btn btn--ghost" href="/how-it-works">How the seal works</a>
+      </div>
+      <img class="page-hero__seal" src="/assets/seal/wax.svg" alt="">
+    </div>
+  </section>
+
+  <section class="band" aria-labelledby="table-h">
+    <div class="wrap">
+      <div class="section-head">
+        <p class="section-label"><span>02</span> Side by side</p>
+        <h2 class="h2" id="table-h">Two tools, two different jobs</h2>
+        <p class="lede">One is a statement about how a piece was made. The other is a record of which account had the file, and when.</p>
+      </div>
+      <div class="table-wrap">
+        <table class="table">
+          <caption>A SecurityArts seal and the Not By AI badge, point by point</caption>
+          <thead>
+            <tr>
+              <th scope="col"><span class="visually-hidden">Point</span></th>
+              <th scope="col">SecurityArts seal</th>
+              <th scope="col">Not By AI badge</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <th scope="row">What it is</th>
+              <td>A signed, public certificate for one file</td>
+              <td>A self-declared badge or pledge</td>
+            </tr>
+            <tr>
+              <th scope="row">Can anyone check it?</th>
+              <td>Yes, in any browser, no account needed</td>
+              <td>No. It's an assertion</td>
+            </tr>
+            <tr>
+              <th scope="row">Tied to the specific file?</th>
+              <td>Yes. It's signed over the exact bytes</td>
+              <td>No. It's a general label</td>
+            </tr>
+            <tr>
+              <th scope="row">Can anyone add it to any image?</th>
+              <td>Anyone with an account can seal a file, but the seal is bound to those exact bytes and records which account sealed it, and when. It can't be moved onto a different image</td>
+              <td>Yes, and nothing records who added it</td>
+            </tr>
+            <tr>
+              <th scope="row">Public record?</th>
+              <td>Yes</td>
+              <td>No</td>
+            </tr>
+            <tr>
+              <th scope="row">Shows a person made it?</th>
+              <td>No. It records which account sealed the file, not who made it</td>
+              <td>It says so, but nothing backs the statement</td>
+            </tr>
+            <tr>
+              <th scope="row">Cost</th>
+              <td>Free</td>
+              <td>Free for non-commercial use; paid options for commercial use</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <section class="band band--sky" aria-labelledby="fair-h">
+    <div class="wrap">
+      <div class="section-head">
+        <p class="section-label"><span>03</span> The fair take</p>
+        <h2 class="h2" id="fair-h">Complementary, not rivals</h2>
+      </div>
+      <div class="prose">
+        <p>The badge did something useful: it gave artists a way to plant a flag and pushed the conversation about AI-made work forward.</p>
+        <p>But a flag isn't evidence, and a seal doesn't settle the question either: it can't show that a person made the work. What it adds is a record a stranger can actually check: that your account had this exact file at a recorded time, and that it hasn't changed since.</p>
+        <p>Show the badge if it says what you stand for, and seal the piece so there's something to check.</p>
+        <p class="updated">Updated <time datetime="2026-10-16">16 October 2026</time>. Tools change. If something here is out of date or unfair, tell us at <a href="mailto:hello@securityarts.studio">hello@securityarts.studio</a>.</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="band" aria-labelledby="faq-h">
+    <div class="wrap">
+      <div class="section-head">
+        <p class="section-label"><span>04</span> Questions</p>
+        <h2 class="h2" id="faq-h">Questions</h2>
+      </div>
+      <div class="faq">
+        <details>
+          <summary>Is the Not By AI badge useless?</summary>
+          <div class="answer">
+            <p>No. It raised awareness and lets an artist signal intent, which has real value. Its limit is that it's self-declared: anyone can add the badge to any image, and there's nothing to check. It's a statement, not a record.</p>
+          </div>
+        </details>
+        <details>
+          <summary>Can I use a badge and a seal together?</summary>
+          <div class="answer">
+            <p>Yes. Show the badge to signal your stance, and seal the piece so there's something a stranger can actually check: which account sealed this exact file, and when.</p>
+          </div>
+        </details>
+      </div>
+    </div>
+  </section>
+
+  <section class="band band--paper-2" aria-labelledby="more-h">
+    <div class="wrap">
+      <div class="section-head">
+        <p class="section-label"><span>05</span> More comparisons</p>
+        <h2 class="h2" id="more-h">The other options, compared fairly</h2>
+      </div>
+      <ul class="cards">
+        <li>
+          <a class="card" href="/compare/ai-detectors">
+            <span class="card__label">Compare</span>
+            <h3>A seal vs AI detectors</h3>
+            <p>A detector estimates how machine-made any image looks. A seal records which account sealed one exact file.</p>
+          </a>
+        </li>
+        <li>
+          <a class="card" href="/compare/c2pa">
+            <span class="card__label">Compare</span>
+            <h3>A seal vs C2PA</h3>
+            <p>Content Credentials travel inside the file, where they can be stripped. A seal's certificate lives outside it.</p>
+          </a>
+        </li>
+        <li>
+          <a class="card" href="/verified">
+            <span class="card__label">For artists</span>
+            <h3>Why seal a piece</h3>
+            <p>What a seal shows, what it doesn't, and how to keep a receipt for every finished piece.</p>
+          </a>
+        </li>
+      </ul>
+    </div>
+  </section>
+
+  <section class="cta-band band--red" aria-labelledby="cta-h">
+    <div class="wrap">
+      <h2 id="cta-h">Back the badge with a record.</h2>
+      <div class="actions">
+        <a class="btn btn--paper" href="/join?mode=signup" data-seal-cta>Seal a piece <span class="btn__arrow" aria-hidden="true">→</span></a>
+        <a class="btn btn--ghost" href="/verified">Why seal a piece</a>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer class="site-foot">
+  <div class="wrap">
     <a class="brand" href="/" aria-label="SecurityArts home">
-      <svg viewBox="0 0 100 100" aria-hidden="true"><g fill="none" stroke="currentColor" stroke-width="4.2"><circle cx="50" cy="50" r="27"/></g><path fill="currentColor" d="M 50 34.5 L 53.76 44.82 L 64.74 45.21 L 56.09 51.98 L 59.11 62.54 L 50 56.4 L 40.89 62.54 L 43.91 51.98 L 35.26 45.21 L 46.24 44.82 Z"/></svg>
+      <img class="brand__seal" src="/assets/seal/modern-24-dark.svg" width="30" height="30" alt="">
       <span class="brand__word">SecurityArts</span>
     </a>
-    <span class="head__spacer"></span>
-    <a class="nav" href="/how-it-works">How it works</a>
-    <a class="nav" href="/verified">Verified art</a>
-    <a class="cta" href="/join">Get verified</a>
-  </header>
+    <nav aria-label="Footer">
+      <a href="/wall">The wall</a>
+      <a href="/how-it-works">How it works</a>
+      <a href="/verify">Verify a seal</a>
+      <a href="/pricing">Pricing</a>
+      <a href="/faq">FAQ</a>
+      <a href="/#studio">Studio</a>
+      <a href="/privacy">Privacy</a>
+      <a href="/terms">Terms</a>
+    </nav>
+    <small>A receipt for your art. Every certificate on the wall is public. hello@securityarts.studio</small>
+  </div>
+</footer>
 
-  <main>
-    <p class="crumb"><a href="/verified">Verified art</a> / Compare / Not By AI</p>
-    <p class="eyebrow">SecurityArts vs the "Not By AI" badge</p>
-    <h1>A claim vs<br />a <em>receipt.</em></h1>
-    <p class="lede">
-      The "Not By AI" badge is a label you add to your work to signal a human made it.
-      It raised real awareness — but it's self-declared: anyone can put the badge on any
-      image, and there's nothing to check. A seal is a different kind of statement: signed,
-      dated, tied to the exact file, and checkable by anyone.
-    </p>
-
-    <div class="ctable-wrap">
-      <table class="ctable">
-        <caption class="sr-only">SecurityArts seal compared with the "Not By AI" badge</caption>
-        <thead><tr><th></th><th class="own">SecurityArts seal</th><th>"Not By AI" badge</th></tr></thead>
-        <tbody>
-          <tr><th scope="row">What it is</th><td class="own">A cryptographic certificate</td><td>A self-declared badge / pledge</td></tr>
-          <tr><th scope="row">Verifiable</th><td class="own">Yes — anyone can check it</td><td>No — it's an assertion</td></tr>
-          <tr><th scope="row">Tied to the specific file</th><td class="own">Yes — signed over the bytes</td><td>No — it's a generic label</td></tr>
-          <tr><th scope="row">Anyone can add it to any image</th><td class="own">Anyone with an account can seal a file — but the seal is bound to those exact bytes and records who sealed it and when; it can't be moved onto a different image</td><td>Yes — and nothing records who added it</td></tr>
-          <tr><th scope="row">Public record</th><td class="own">Yes</td><td>No</td></tr>
-          <tr><th scope="row">Cost</th><td class="own">Free</td><td>Free for non-commercial use; paid options for commercial use</td></tr>
-        </tbody>
-      </table>
-    </div>
-
-    <p class="note"><b>Fair take:</b> the badge did something useful — it gave artists a way to plant a flag and pushed the "human-made" conversation forward. But a flag isn't evidence. When you're actually accused, "I added a badge" doesn't settle it; "here's a signed certificate you can verify" does.</p>
-
-    <h2 class="h2">Questions</h2>
-    <ul class="qa">
-      <li><h3>Is the Not By AI badge useless?</h3><p>No — it raised awareness and lets an artist signal intent, which has real value. Its limit is that it's a self-declared label: anyone can add the badge to any image, and there's nothing to verify. It's a statement, not proof.</p></li>
-      <li><h3>Can I use a badge and a seal together?</h3><p>Yes. Display the badge to signal your stance, and back it with a seal so there's something a stranger can actually check: who sealed this exact file, and when.</p></li>
-    </ul>
-
-    <div class="cta-band">
-      <p>Back the claim with proof.</p>
-      <a class="btn btn--solid" href="/join">Get your work verified →</a>
-      <a class="btn btn--ghost" href="/verified">Why a seal</a>
-    </div>
-  </main>
-
-  <footer>
-    <a href="/verified">← Verified art</a>
-    <a href="/compare/ai-detectors">vs AI detectors</a>
-    <a href="/compare/c2pa">vs C2PA</a>
-    <span>Updated <time datetime="2026-09-20">20 Sep 2026</time></span>
-    <span>A claim · vs · a receipt</span>
-  </footer>
+<script src="/js/api.js"></script>
+<script type="module">
+  import { initSite } from "/assets/site.js";
+  initSite();
+</script>
 </body>
 </html>

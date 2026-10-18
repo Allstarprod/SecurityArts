@@ -1,0 +1,52 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 1000" width="800" height="1000">
+  <title>Woodcut (placeholder artwork)</title>
+
+  <rect width="800" height="1000" fill="#F4F1EA"/>
+  <path d="M0 8 Q400 -26 800 8" stroke="#151515" stroke-width="6" fill="none"/>
+  <path d="M0 38 Q400 14 800 38" stroke="#151515" stroke-width="9" fill="none"/>
+  <path d="M0 68 Q400 54 800 68" stroke="#151515" stroke-width="12" fill="none"/>
+  <path d="M0 98 Q400 94 800 98" stroke="#151515" stroke-width="15" fill="none"/>
+  <path d="M0 128 Q400 134 800 128" stroke="#151515" stroke-width="6" fill="none"/>
+  <path d="M0 158 Q400 124 800 158" stroke="#151515" stroke-width="9" fill="none"/>
+  <path d="M0 188 Q400 164 800 188" stroke="#151515" stroke-width="12" fill="none"/>
+  <path d="M0 218 Q400 204 800 218" stroke="#151515" stroke-width="15" fill="none"/>
+  <path d="M0 248 Q400 244 800 248" stroke="#151515" stroke-width="6" fill="none"/>
+  <path d="M0 278 Q400 284 800 278" stroke="#151515" stroke-width="9" fill="none"/>
+  <path d="M0 308 Q400 274 800 308" stroke="#151515" stroke-width="12" fill="none"/>
+  <path d="M0 338 Q400 314 800 338" stroke="#151515" stroke-width="15" fill="none"/>
+  <path d="M0 368 Q400 354 800 368" stroke="#151515" stroke-width="6" fill="none"/>
+  <path d="M0 398 Q400 394 800 398" stroke="#151515" stroke-width="9" fill="none"/>
+  <path d="M0 428 Q400 434 800 428" stroke="#151515" stroke-width="12" fill="none"/>
+  <path d="M0 458 Q400 424 800 458" stroke="#151515" stroke-width="15" fill="none"/>
+  <path d="M0 488 Q400 464 800 488" stroke="#151515" stroke-width="6" fill="none"/>
+  <path d="M0 518 Q400 504 800 518" stroke="#151515" stroke-width="9" fill="none"/>
+  <path d="M0 548 Q400 544 800 548" stroke="#151515" stroke-width="12" fill="none"/>
+  <path d="M0 578 Q400 584 800 578" stroke="#151515" stroke-width="15" fill="none"/>
+  <path d="M0 608 Q400 574 800 608" stroke="#151515" stroke-width="6" fill="none"/>
+  <path d="M0 638 Q400 614 800 638" stroke="#151515" stroke-width="9" fill="none"/>
+  <path d="M0 668 Q400 654 800 668" stroke="#151515" stroke-width="12" fill="none"/>
+  <path d="M0 698 Q400 694 800 698" stroke="#151515" stroke-width="15" fill="none"/>
+  <path d="M0 728 Q400 734 800 728" stroke="#151515" stroke-width="6" fill="none"/>
+  <path d="M0 758 Q400 724 800 758" stroke="#151515" stroke-width="9" fill="none"/>
+  <path d="M0 788 Q400 764 800 788" stroke="#151515" stroke-width="12" fill="none"/>
+  <path d="M0 818 Q400 804 800 818" stroke="#151515" stroke-width="15" fill="none"/>
+  <path d="M0 848 Q400 844 800 848" stroke="#151515" stroke-width="6" fill="none"/>
+  <path d="M0 878 Q400 884 800 878" stroke="#151515" stroke-width="9" fill="none"/>
+  <path d="M0 908 Q400 874 800 908" stroke="#151515" stroke-width="12" fill="none"/>
+  <path d="M0 938 Q400 914 800 938" stroke="#151515" stroke-width="15" fill="none"/>
+  <path d="M0 968 Q400 954 800 968" stroke="#151515" stroke-width="6" fill="none"/>
+  <path d="M0 998 Q400 994 800 998" stroke="#151515" stroke-width="9" fill="none"/>
+  <circle cx="400" cy="380" r="170" fill="#151515"/>
+  <path d="M400 380 L550 380" stroke="#F4F1EA" stroke-width="7"/>
+  <path d="M400 380 L529.9038105676658 455" stroke="#F4F1EA" stroke-width="7"/>
+  <path d="M400 380 L475 509.9038105676658" stroke="#F4F1EA" stroke-width="7"/>
+  <path d="M400 380 L400 530" stroke="#F4F1EA" stroke-width="7"/>
+  <path d="M400 380 L325 509.9038105676658" stroke="#F4F1EA" stroke-width="7"/>
+  <path d="M400 380 L270.0961894323342 455" stroke="#F4F1EA" stroke-width="7"/>
+  <path d="M400 380 L250 380" stroke="#F4F1EA" stroke-width="7"/>
+  <path d="M400 380 L270.0961894323342 305.00000000000006" stroke="#F4F1EA" stroke-width="7"/>
+  <path d="M400 380 L324.99999999999994 250.09618943233423" stroke="#F4F1EA" stroke-width="7"/>
+  <path d="M400 380 L400 230" stroke="#F4F1EA" stroke-width="7"/>
+  <path d="M400 380 L475 250.0961894323342" stroke="#F4F1EA" stroke-width="7"/>
+  <path d="M400 380 L529.9038105676657 304.99999999999994" stroke="#F4F1EA" stroke-width="7"/>
+</svg>

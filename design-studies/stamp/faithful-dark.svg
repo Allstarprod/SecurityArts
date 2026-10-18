@@ -1,0 +1,44 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 240 240" width="240" height="240" role="img" aria-labelledby="faithful-dark-title">
+  <title id="faithful-dark-title">SecurityArts seal</title>
+  <!--
+    FAITHFUL for the charcoal studio surface (#1F1B26).
+    The brief keeps the seal tangerine on charcoal ("same tangerine, cooler"), and
+    #FF6B1A measures 5.9:1 against charcoal (vs 2.6:1 on cream), so the ink stays.
+    What changes: light-on-dark edges read heavier and rougher (irradiation), so the
+    grain amplitude drops from 2.4 to 1.8 to keep the perceived texture equal.
+    Geometry and weights identical to faithful.svg.
+  -->
+  <defs>
+    <filter id="faithful-dark-grain" x="-6%" y="-6%" width="112%" height="112%" color-interpolation-filters="sRGB">
+      <feTurbulence type="fractalNoise" baseFrequency="0.72" numOctaves="2" seed="7" result="faithful-dark-noise"/>
+      <feDisplacementMap in="SourceGraphic" in2="faithful-dark-noise" scale="1.8" xChannelSelector="R" yChannelSelector="G"/>
+    </filter>
+  </defs>
+
+  <g filter="url(#faithful-dark-grain)" fill="none" stroke="#FF6B1A" stroke-linejoin="round">
+    <!-- scalloped edge -->
+    <path stroke-width="6" d="M 120 31.2
+      A 17.33 17.33 0 0 1 153.982 37.959
+      A 17.33 17.33 0 0 1 182.791 57.209
+      A 17.33 17.33 0 0 1 202.041 86.018
+      A 17.33 17.33 0 0 1 208.8 120
+      A 17.33 17.33 0 0 1 202.041 153.982
+      A 17.33 17.33 0 0 1 182.791 182.791
+      A 17.33 17.33 0 0 1 153.982 202.041
+      A 17.33 17.33 0 0 1 120 208.8
+      A 17.33 17.33 0 0 1 86.018 202.041
+      A 17.33 17.33 0 0 1 57.209 182.791
+      A 17.33 17.33 0 0 1 37.959 153.982
+      A 17.33 17.33 0 0 1 31.2 120
+      A 17.33 17.33 0 0 1 37.959 86.018
+      A 17.33 17.33 0 0 1 57.209 57.209
+      A 17.33 17.33 0 0 1 86.018 37.959
+      A 17.33 17.33 0 0 1 120 31.2 Z"/>
+    <!-- ring -->
+    <circle cx="120" cy="120" r="64.8" stroke-width="4.4"/>
+    <!-- star -->
+    <path fill="#FF6B1A" stroke="none" d="M 120 82.8
+      L 129.024 107.568 L 155.376 108.504 L 134.616 124.752 L 141.864 150.096
+      L 120 135.36 L 98.136 150.096 L 105.384 124.752 L 84.624 108.504 L 110.976 107.568 Z"/>
+  </g>
+</svg>

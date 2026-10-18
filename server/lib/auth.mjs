@@ -5,6 +5,7 @@ import fs from "node:fs";
 import path from "node:path";
 import { DATA_DIR, ensureDataDir } from "./paths.mjs";
 import { repo } from "./repo.mjs";
+import { clerkEnabled, currentClerkUser } from "./clerk.mjs";
 
 const SECRET_FILE = path.join(DATA_DIR, "session.secret");
 const SESSION_TTL = 1000 * 60 * 60 * 24 * 7; // 7 days
@@ -141,7 +142,10 @@ export function parseCookies(req) {
   return out;
 }
 export async function currentUser(req, { https = false } = {}) {
-  const s = readSession(parseCookies(req)[cookieName({ https })]);
+  const cookies = parseCookies(req);
+  // With Clerk on, Clerk's session is the only way in; the legacy cookie is ignored.
+  if (clerkEnabled) return currentClerkUser(req, cookies);
+  const s = readSession(cookies[cookieName({ https })]);
   if (!s) return null;
   const user = await repo.users.findById(s.uid);
   if (!user || sessionVersionOf(user) !== s.sv) return null; // revoked (reset / logout-all / merge)

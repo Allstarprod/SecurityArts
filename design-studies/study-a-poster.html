@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Study A — Poster · SecurityArts</title>
+<meta name="robots" content="noindex">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Sans:wght@500;600;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="tokens.css">
+<style>
+  /* A — Poster. Color lives in full-bleed section fields. The hero field is pale blue; the red seal sits on it. */
+  .hero { background: var(--paper-2); color: var(--ink); overflow: hidden; }
+  .hero .nav__cta { background: var(--ink); color: var(--paper); }
+  .hero__grid {
+    display: grid; grid-template-columns: 1.15fr 0.85fr; align-items: end; gap: 2rem;
+    padding: clamp(2rem, 6vw, 5rem) var(--gutter) clamp(3rem, 7vw, 6rem);
+    min-height: 78vh;
+  }
+  .hero h1 { font-size: var(--text-hero); max-width: 9ch; }
+  .hero h1 em { font-style: normal; color: var(--red); }
+  .hero .lead { margin-top: 1.5rem; max-width: 40ch; }
+  .hero__ctas { display: flex; flex-wrap: wrap; gap: 0.8rem; margin-top: 2rem; }
+  .hero__stamp { justify-self: end; align-self: center; --stamp-size: clamp(220px, 28vw, 400px); }
+  @media (max-width: 860px) {
+    .hero__grid { grid-template-columns: 1fr; min-height: auto; }
+    .hero__stamp { justify-self: start; --stamp-size: 200px; margin-top: 1rem; }
+  }
+
+  .techline {
+    background: var(--ink); color: var(--paper);
+    padding: 0.8rem var(--gutter);
+    display: flex; flex-wrap: wrap; gap: 0.5rem 2rem; align-items: center;
+  }
+  .techline span::before { content: "·"; margin-right: 0.6rem; opacity: 0.5; }
+  .techline span:first-child::before { content: none; }
+
+  /* Wall — paper, masonry via columns */
+  .wall__head { display: flex; flex-wrap: wrap; align-items: end; justify-content: space-between; gap: 1rem; margin-bottom: 2rem; }
+  .wall__note { font-size: 0.9rem; color: var(--ink-soft); max-width: 40ch; }
+  .masonry { columns: 4 240px; column-gap: 1rem; }
+  .masonry .tile { break-inside: avoid; margin-bottom: 1rem; }
+
+  /* Steps — red field */
+  .steps { background: var(--red); color: var(--paper); }
+  .steps__grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 2rem; margin-top: 3rem; }
+  .step__n { font-family: var(--font-display); font-weight: 700; font-size: clamp(3rem, 6vw, 6rem); line-height: 0.9; color: var(--ink); letter-spacing: -0.04em; }
+  .step h3 { font-family: var(--font-display); font-weight: 700; font-size: 1.5rem; margin: 1rem 0 0.5rem; letter-spacing: -0.02em; }
+  .step p { color: var(--paper); max-width: 30ch; }
+  @media (max-width: 760px) { .steps__grid { grid-template-columns: 1fr; gap: 2.5rem; } }
+
+  /* Studio band — charcoal, same red, cooler */
+  .studio { background: var(--studio); color: var(--paper-on-dark); }
+  .studio__grid { display: grid; grid-template-columns: 1.2fr 0.8fr; gap: 3rem; align-items: center; }
+  .studio h2 { max-width: 12ch; }
+  .studio h2 em { font-style: normal; color: var(--red); }
+  .studio p { color: rgba(246,238,226,0.8); max-width: 44ch; margin-top: 1.25rem; }
+  .studio .lines { display: grid; gap: 0.6rem; }
+  .studio .lines div { padding: 0.9rem 1.1rem; border: 1px solid rgba(246,238,226,0.16); border-radius: var(--radius-sm); font-family: var(--font-display); font-weight: 600; }
+  @media (max-width: 860px) { .studio__grid { grid-template-columns: 1fr; } }
+</style>
+</head>
+<body>
+
+<header class="hero">
+  <nav class="nav" aria-label="Main">
+    <a class="nav__brand" href="#">
+      <img src="seal/modern-24.svg" width="26" height="26" alt="">
+      SecurityArts
+    </a>
+    <div class="nav__links">
+      <a href="#wall">The wall</a>
+      <a href="#how">How it works</a>
+      <a href="#studio">Studio</a>
+      <a class="btn nav__cta" href="#">Seal a piece</a>
+    </div>
+  </nav>
+
+  <div class="hero__grid">
+    <div>
+      <p class="eyebrow">For artists · free to seal</p>
+      <h1 class="display" style="margin-top:1rem">A receipt<br>for <em>your art.</em></h1>
+      <p class="lead">Seal a finished piece and get a public certificate anyone can check. Not a guess about whether it's AI — a signed record that this exact file was sealed under your name, at this moment.</p>
+      <div class="hero__ctas">
+        <a class="btn btn--ink" href="#">Seal a piece</a>
+        <a class="btn btn--outline" href="#wall">See the wall</a>
+      </div>
+    </div>
+    <img class="stamp slam hero__stamp" src="seal/wax.svg" alt="">
+  </div>
+</header>
+
+<div class="techline mono" aria-label="How a seal is made">
+  <span>SHA-256 over the exact bytes</span>
+  <span>Signed with ECDSA P-256</span>
+  <span>Public certificate</span>
+  <span>Anyone can verify, no account needed</span>
+</div>
+
+<section class="section" id="wall">
+  <div class="wrap">
+    <div class="wall__head">
+      <h2 class="h2">The wall.</h2>
+      <p class="wall__note">These tiles are placeholders. The launch wall is seeded with real sealed work from real artists — nothing here is invented.</p>
+    </div>
+    <div class="masonry">
+      <div class="tile"><div class="tile__art art-1" style="aspect-ratio:4/5"></div><img class="badge" src="seal/modern.svg" alt="Sealed"></div>
+      <div class="tile"><div class="tile__art art-2" style="aspect-ratio:1"></div><img class="badge" src="seal/modern.svg" alt="Sealed"></div>
+      <div class="tile"><div class="tile__art art-3" style="aspect-ratio:3/4"></div><img class="badge" src="seal/modern.svg" alt="Sealed"></div>
+      <div class="tile"><div class="tile__art art-4" style="aspect-ratio:4/6"></div><img class="badge" src="seal/modern.svg" alt="Sealed"></div>
+      <div class="tile"><div class="tile__art art-5" style="aspect-ratio:1"></div><img class="badge" src="seal/modern.svg" alt="Sealed"></div>
+      <div class="tile"><div class="tile__art art-6" style="aspect-ratio:5/4"></div><img class="badge" src="seal/modern.svg" alt="Sealed"></div>
+      <div class="tile"><div class="tile__art art-7" style="aspect-ratio:3/4"></div><img class="badge" src="seal/modern.svg" alt="Sealed"></div>
+      <div class="tile"><div class="tile__art art-8" style="aspect-ratio:1"></div><img class="badge" src="seal/modern.svg" alt="Sealed"></div>
+      <div class="tile"><div class="tile__art art-9" style="aspect-ratio:4/5"></div><img class="badge" src="seal/modern.svg" alt="Sealed"></div>
+      <div class="tile"><div class="tile__art art-10" style="aspect-ratio:1"></div><img class="badge" src="seal/modern.svg" alt="Sealed"></div>
+      <div class="tile"><div class="tile__art art-11" style="aspect-ratio:3/2"></div><img class="badge" src="seal/modern.svg" alt="Sealed"></div>
+      <div class="tile"><div class="tile__art art-12" style="aspect-ratio:4/5"></div><img class="badge" src="seal/modern.svg" alt="Sealed"></div>
+    </div>
+  </div>
+</section>
+
+<section class="section steps" id="how">
+  <div class="wrap">
+    <h2 class="h2">Three steps. One receipt.</h2>
+    <div class="steps__grid">
+      <div class="step"><div class="step__n">1</div><h3>Upload the finished piece</h3><p>Drop in the file you made. We read the exact bytes — nothing is altered, nothing is added on top.</p></div>
+      <div class="step"><div class="step__n">2</div><h3>We sign it</h3><p>A SHA-256 fingerprint of those bytes, signed with our ECDSA key. Change one pixel and it no longer matches.</p></div>
+      <div class="step"><div class="step__n">3</div><h3>You get the receipt</h3><p>A public certificate — hash, signature, timestamp. When someone says "that's AI," point at it instead of arguing.</p></div>
+    </div>
+  </div>
+</section>
+
+<section class="section studio" id="studio">
+  <div class="wrap studio__grid">
+    <div>
+      <p class="eyebrow" style="color:var(--red)">Also a security studio</p>
+      <h2 class="h2" style="margin-top:1rem">Same seal. <em>Different work.</em></h2>
+      <p>SecurityArts started as a security studio that signs what it finds — pentests, code review, cloud hardening, ending in a sealed, re-testable record instead of a PDF. The art platform runs on the same key.</p>
+      <div style="margin-top:2rem"><a class="btn btn--paper" href="#">See the studio</a></div>
+    </div>
+    <div class="lines" aria-label="Studio practices">
+      <div>Penetration testing</div>
+      <div>Application security</div>
+      <div>Cloud &amp; infrastructure</div>
+      <div>Detection &amp; response</div>
+    </div>
+  </div>
+</section>
+
+<footer class="foot">
+  <span><strong>SecurityArts</strong> · A receipt for your art.</span>
+  <span><a href="#">How it works</a> · <a href="#">Verify a seal</a> · <a href="#">Studio</a> · <a href="mailto:hello@securityarts.studio">hello@securityarts.studio</a></span>
+</footer>
+
+<nav class="switch" aria-label="Direction studies">
+  <a href="study-a-poster.html" aria-current="page">A · Poster</a>
+  <a href="study-b-wall.html">B · Wall first</a>
+  <a href="study-c-cover.html">C · Cover</a>
+</nav>
+
+</body>
+</html>

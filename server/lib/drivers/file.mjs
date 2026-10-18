@@ -55,6 +55,7 @@ export async function createRepo() {
     if (u.sessionVersion === undefined) u.sessionVersion = 1;
     if (u.emailVerified === undefined) u.emailVerified = false;
     if (u.googleSub === undefined) u.googleSub = null;
+    if (u.clerkId === undefined) u.clerkId = null;
     idx.userById.set(u.id, u); idx.userByEmail.set(u.email, u);
   }
   for (const w of db.works) { idx.workById.set(w.id, w); if (w.cert?.hash) idx.workByHash.set(w.cert.hash, w); }
@@ -104,10 +105,18 @@ export async function createRepo() {
         if (!sub) return null;
         return clone(db.users.find((u) => u.googleSub && u.googleSub === sub) || null);
       },
+      async findByClerkId(id) {
+        if (!id) return null;
+        return clone(db.users.find((u) => u.clerkId === id) || null);
+      },
+      async listAll({ limit = 500, offset = 0 } = {}) {
+        return clone([...db.users].sort((a, b) => String(a.createdAt).localeCompare(String(b.createdAt))).slice(offset, offset + limit));
+      },
       async create(user) {
-        const u = { sessionVersion: 1, emailVerified: false, googleSub: null, ...user };
-        // Mirror the postgres UNIQUE index on google_sub.
+        const u = { sessionVersion: 1, emailVerified: false, googleSub: null, clerkId: null, ...user };
+        // Mirror the postgres UNIQUE indexes on google_sub and clerk_id.
         if (u.googleSub && db.users.some((x) => x.googleSub === u.googleSub)) throw Object.assign(new Error("google sub taken"), { code: "GOOGLE_SUB_TAKEN" });
+        if (u.clerkId && db.users.some((x) => x.clerkId === u.clerkId)) throw Object.assign(new Error("clerk id taken"), { code: "CLERK_ID_TAKEN" });
         db.users.push(u);
         idx.userById.set(u.id, u); idx.userByEmail.set(u.email, u);
         schedule(); return clone(u);
@@ -126,6 +135,9 @@ export async function createRepo() {
         }
         if (patch.googleSub && db.users.some((x) => x.id !== id && x.googleSub === patch.googleSub)) {
           throw Object.assign(new Error("google sub taken"), { code: "GOOGLE_SUB_TAKEN" });
+        }
+        if (patch.clerkId && db.users.some((x) => x.id !== id && x.clerkId === patch.clerkId)) {
+          throw Object.assign(new Error("clerk id taken"), { code: "CLERK_ID_TAKEN" });
         }
         Object.assign(u, patch);
         schedule(); return clone(u);

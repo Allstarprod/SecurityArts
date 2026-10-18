@@ -1,0 +1,218 @@
+/* SecurityArts redesign — shared tokens for the direction studies (letterpress palette, 2026-09-22).
+   Palette + type are fixed by the brief (.claude/redesign-brief.md);
+   each study varies composition and where the color sits. */
+
+:root {
+  /* Color — letterpress: chop red on paper, process-blue pop, warm charcoal studio */
+  --paper: #F5F4EF;
+  --paper-2: #D8E9F3;
+  --red: #D42228;        /* the seal + primary action */
+  --red-deep: #A8161C;
+  --blue: #1585CF;       /* pop — decorative / large type only */
+  --blue-deep: #0F6DAA;  /* blue when it carries text (AA on paper and under white) */
+  --ink: #171A1F;
+  --ink-soft: #3E4450;
+  --studio: #241F21;     /* studio surface — warm charcoal, never pure black */
+  --studio-2: #322B2D;
+  --paper-on-dark: #F5F4EF;
+
+  /* Type — Instrument Sans stands in for the licensed grotesk; Inter for body; mono for hashes */
+  --font-display: "Instrument Sans", "Inter", system-ui, sans-serif;
+  --font-body: "Inter", system-ui, sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, Menlo, monospace;
+
+  --text-body: clamp(1rem, 0.95rem + 0.3vw, 1.125rem);
+  --text-lead: clamp(1.15rem, 1rem + 0.7vw, 1.5rem);
+  --text-h2: clamp(2rem, 1.2rem + 3.2vw, 4rem);
+  --text-hero: clamp(3rem, 1rem + 9vw, 9.5rem);
+
+  --track-tight: -0.045em;
+  --track-display: -0.03em;
+
+  /* Rhythm */
+  --gutter: clamp(1rem, 4vw, 3.5rem);
+  --section: clamp(4rem, 3rem + 6vw, 9rem);
+  --radius: 22px;
+  --radius-sm: 12px;
+
+  /* Motion */
+  --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-slam: cubic-bezier(0.34, 1.56, 0.64, 1);
+  --dur: 480ms;
+}
+
+*, *::before, *::after { box-sizing: border-box; }
+html { -webkit-text-size-adjust: 100%; }
+body {
+  margin: 0;
+  background: var(--paper);
+  color: var(--ink);
+  font-family: var(--font-body);
+  font-size: var(--text-body);
+  line-height: 1.55;
+  -webkit-font-smoothing: antialiased;
+}
+img { display: block; max-width: 100%; }
+a { color: inherit; }
+h1, h2, h3, p { margin: 0; }
+button { font: inherit; }
+
+:focus-visible { outline: 3px solid var(--blue-deep); outline-offset: 3px; border-radius: 4px; }
+
+/* Display type */
+.display {
+  font-family: var(--font-display);
+  font-weight: 700;
+  letter-spacing: var(--track-tight);
+  line-height: 0.92;
+}
+.h2 {
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: var(--text-h2);
+  letter-spacing: var(--track-display);
+  line-height: 1.0;
+}
+.lead { font-size: var(--text-lead); line-height: 1.4; max-width: 34ch; }
+.eyebrow {
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-size: 0.8rem;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+}
+.mono { font-family: var(--font-mono); font-size: 0.78rem; letter-spacing: 0; }
+
+/* Buttons */
+.btn {
+  display: inline-flex; align-items: center; gap: 0.6rem;
+  padding: 0.95rem 1.5rem;
+  border-radius: 999px;
+  border: 2px solid transparent;
+  font-family: var(--font-display); font-weight: 600; font-size: 1rem;
+  text-decoration: none; cursor: pointer;
+  transition: transform 160ms var(--ease-out), background 160ms, color 160ms, border-color 160ms;
+}
+.btn:hover { transform: translateY(-2px); }
+.btn:active { transform: translateY(0) scale(0.98); }
+.btn--red { background: var(--red); color: var(--paper); }
+.btn--red:hover { background: var(--red-deep); }
+.btn--blue { background: var(--blue-deep); color: #fff; }
+.btn--blue:hover { background: #0B5A8C; }
+.btn--ink { background: var(--ink); color: var(--paper); }
+.btn--outline { border-color: currentColor; background: transparent; }
+.btn--outline:hover { background: rgba(23,18,31,0.06); }
+.btn--paper { background: var(--paper-on-dark); color: var(--ink); }
+
+/* Nav */
+.nav {
+  display: flex; align-items: center; justify-content: space-between; gap: 1rem;
+  padding: 1.1rem var(--gutter);
+}
+.nav__brand {
+  display: inline-flex; align-items: center; gap: 0.55rem;
+  font-family: var(--font-display); font-weight: 700; font-size: 1.25rem; letter-spacing: -0.02em;
+  text-decoration: none;
+}
+.nav__links { display: flex; gap: 1.6rem; align-items: center; }
+.nav__links a { text-decoration: none; font-weight: 500; }
+.nav__links a:hover { text-decoration: underline; text-underline-offset: 4px; }
+.nav__cta { padding: 0.7rem 1.15rem; font-size: 0.95rem; }
+@media (max-width: 720px) {
+  .nav__links a:not(.nav__cta) { display: none; }
+}
+
+/* ---- The stamp — the shared signature object ----
+   SVG ring text rotates slowly; ink grain via feTurbulence; slam-in on load. */
+.stamp {
+  --stamp-size: 240px;
+  --stamp-ink: var(--red);
+  --stamp-tilt: -9deg;
+  width: var(--stamp-size); height: var(--stamp-size);
+  position: relative;
+  transform: rotate(var(--stamp-tilt));
+  filter: drop-shadow(0 18px 30px rgba(23,18,31,0.22));
+}
+.stamp svg { width: 100%; height: 100%; overflow: visible; }
+.stamp .ring { transform-origin: 50% 50%; animation: stamp-spin 28s linear infinite; }
+.stamp .ring text { font-family: var(--font-display); font-weight: 700; font-size: 11.5px; letter-spacing: 0.22em; fill: var(--stamp-ink); }
+.stamp .disc { fill: var(--stamp-ink); }
+.stamp .glyph { fill: var(--paper); }
+.stamp.slam { animation: stamp-slam 620ms var(--ease-slam) both; }
+.stamp.slam .ring { animation-delay: 620ms; }
+
+@keyframes stamp-spin { to { transform: rotate(360deg); } }
+@keyframes stamp-slam {
+  0%   { transform: rotate(calc(var(--stamp-tilt) - 14deg)) scale(1.7); opacity: 0; filter: drop-shadow(0 60px 50px rgba(23,18,31,0)); }
+  60%  { opacity: 1; }
+  100% { transform: rotate(var(--stamp-tilt)) scale(1); opacity: 1; filter: drop-shadow(0 18px 30px rgba(23,18,31,0.22)); }
+}
+
+/* Sealed badge — the modernised seal at 58px on a tile */
+.badge {
+  position: absolute; right: 0.6rem; bottom: 0.6rem;
+  width: 58px; height: 58px; padding: 5px;
+  background: var(--paper); border-radius: 50%;   /* paper sticker: the red mark holds on any artwork */
+  transform: rotate(-12deg);
+  filter: drop-shadow(0 3px 6px rgba(23,26,31,0.3));
+}
+
+/* ---- Placeholder art tiles — abstract, clearly not real work ----
+   No fake artists, no fake dates. One note above the wall says so. */
+.tile {
+  position: relative; border-radius: var(--radius-sm); overflow: hidden;
+  background: var(--paper-2);
+  transition: transform var(--dur) var(--ease-out), box-shadow var(--dur) var(--ease-out);
+}
+.tile:hover { transform: translateY(-4px) rotate(-0.4deg); box-shadow: 0 22px 40px rgba(23,18,31,0.18); }
+.tile__art { width: 100%; display: block; background-size: cover; background-position: center; }
+.tile__cap {
+  position: absolute; left: 0.8rem; bottom: 0.8rem;
+  font-family: var(--font-display); font-weight: 600; font-size: 0.85rem;
+  padding: 0.3rem 0.65rem; border-radius: 999px; background: var(--paper); color: var(--ink);
+}
+/* generated "art" — gradients and shapes, deliberately abstract */
+.art-1 { background: radial-gradient(circle at 30% 30%, #EFA6A1 0 22%, transparent 23%), radial-gradient(circle at 70% 65%, #1585CF 0 30%, transparent 31%), linear-gradient(160deg, #F6DCD9 0 55%, #E0484D 55%); }
+.art-2 { background: linear-gradient(135deg, #171A1F 0 50%, #1585CF 50% 75%, #D42228 75%); }
+.art-3 { background: repeating-linear-gradient(-30deg, #F5F4EF 0 14px, #171A1F 14px 18px), linear-gradient(#EFA6A1, #EFA6A1); background-blend-mode: multiply; }
+.art-4 { background: radial-gradient(ellipse at 50% 100%, #D42228 0 40%, #1585CF 41% 70%, #171A1F 71%); }
+.art-5 { background: conic-gradient(from 20deg, #D8E9F3 0 25%, #1585CF 25% 50%, #D42228 50% 75%, #F5F4EF 75%); }
+.art-6 { background: linear-gradient(#D8E9F3, #D8E9F3), radial-gradient(circle at 20% 80%, #171A1F 0 18%, transparent 19%), radial-gradient(circle at 75% 25%, #D42228 0 26%, transparent 27%); background-blend-mode: normal, normal, normal; background-color: #D8E9F3; }
+.art-7 { background: repeating-radial-gradient(circle at 50% 50%, #1585CF 0 10px, #171A1F 10px 20px); }
+.art-8 { background: linear-gradient(90deg, #D42228 0 35%, #F5F4EF 35% 40%, #171A1F 40%); }
+.art-9 { background: radial-gradient(circle at 50% 40%, #F5F4EF 0 18%, #D42228 19% 40%, #1585CF 41% 60%, #171A1F 61%); }
+.art-10 { background: radial-gradient(circle at 80% 20%, #EFA6A1 0 25%, transparent 26%), linear-gradient(200deg, #1585CF 0 45%, #171A1F 45%); }
+.art-11 { background: repeating-linear-gradient(90deg, #D42228 0 22px, #D8E9F3 22px 44px); }
+.art-12 { background: radial-gradient(circle at 25% 25%, #171A1F 0 30%, transparent 31%), radial-gradient(circle at 75% 75%, #1585CF 0 30%, transparent 31%), #EFA6A1; }
+
+/* Section rhythm */
+.section { padding: var(--section) var(--gutter); }
+.wrap { max-width: 1320px; margin: 0 auto; }
+
+/* Footer */
+.foot {
+  padding: 2rem var(--gutter) 3rem;
+  display: flex; flex-wrap: wrap; gap: 1rem 2rem; align-items: center; justify-content: space-between;
+  font-size: 0.9rem;
+}
+.foot a { text-decoration: none; }
+.foot a:hover { text-decoration: underline; }
+
+/* Study switcher (for review only) */
+.switch {
+  position: fixed; left: 50%; bottom: 14px; transform: translateX(-50%); z-index: 50;
+  display: flex; gap: 4px; padding: 4px; border-radius: 999px;
+  background: rgba(23,18,31,0.9); backdrop-filter: blur(8px);
+  box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+}
+.switch a {
+  padding: 0.5rem 0.9rem; border-radius: 999px; text-decoration: none;
+  color: var(--paper-on-dark); font-family: var(--font-display); font-weight: 600; font-size: 0.85rem;
+}
+.switch a[aria-current="page"] { background: var(--red); color: var(--paper); }
+
+@media (prefers-reduced-motion: reduce) {
+  .stamp .ring { animation: none; }
+  .stamp.slam { animation: none; }
+  .tile, .btn { transition: none; }
+}

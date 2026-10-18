@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Certificate — SecurityArts</title>
+<meta name="description" content="The public certificate for a sealed piece: which account sealed this exact file, and when. Anyone can check it, no account needed.">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="SecurityArts">
+<meta property="og:title" content="Certificate — SecurityArts">
+<meta property="og:description" content="The public certificate for a sealed piece: which account sealed this exact file, and when. Anyone can check it, no account needed.">
+<meta property="og:image" content="https://security-arts.vercel.app/og-image.png">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="icon" href="/assets/seal/modern-24.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Sans:wght@500;600;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/assets/site.css">
+<style>
+.cert-page { display: grid; grid-template-columns: minmax(0, 1.2fr) minmax(0, 1fr); gap: clamp(1.5rem, 4vw, 3.5rem); align-items: start; }
+  .art-panel { background: var(--studio); border-radius: var(--radius-dialog); padding: clamp(1rem, 3vw, 2rem); display: grid; place-items: center; min-height: 20rem; position: sticky; top: calc(var(--head-h) + 1rem); }
+  .art-panel img { max-height: calc(100dvh - var(--head-h) - 6rem); width: auto; max-width: 100%; object-fit: contain; border-radius: 6px; }
+  .cert-info { display: grid; gap: 1.3rem; align-content: start; }
+  .cert-title { font: 700 clamp(2rem, 1rem + 3vw, 3.4rem)/1 var(--display); letter-spacing: -0.04em; text-wrap: balance; }
+  .cert-title:focus { outline: none; }
+  .cert-credit { color: var(--ink-soft); margin-top: 0.4rem; }
+  .actions-row { display: flex; flex-wrap: wrap; gap: var(--space-actions); align-items: center; }
+  .likes { display: flex; gap: 0.8rem; align-items: center; }
+  .likes span { font: 500 0.8rem var(--mono); color: var(--ink-soft); }
+  .status-view { padding-block: clamp(3rem, 8vw, 6rem); }
+  @media (max-width: 860px) { .cert-page { grid-template-columns: minmax(0, 1fr); } .art-panel { position: static; min-height: 0; } .art-panel img { max-height: 70dvh; } }
+</style>
+</head>
+<body>
+<a class="skip-link" href="#main">Skip to content</a>
+
+<header class="site-head">
+  <a class="brand" href="/" aria-label="SecurityArts home">
+    <img class="brand__seal" src="/assets/seal/modern-24.svg" width="30" height="30" alt="">
+    <span class="brand__word">SecurityArts</span>
+  </a>
+  <nav class="nav" aria-label="Primary">
+    <a href="/wall"><span class="nav__idx">01</span> The wall</a>
+    <a href="/how-it-works"><span class="nav__idx">02</span> How it works</a>
+    <a href="/pricing"><span class="nav__idx">03</span> Pricing</a>
+    <a href="/#studio"><span class="nav__idx">04</span> Studio</a>
+  </nav>
+  <div class="head-auth" data-auth-slot>
+    <a href="/join">Sign in</a>
+    <a class="head-auth__join" href="/join?mode=signup">Join</a>
+  </div>
+  <a class="head-cta" href="/join?mode=signup" data-seal-cta>Seal a piece <span aria-hidden="true">→</span></a>
+  <button class="menu-btn" id="menuBtn" type="button" aria-expanded="false" aria-controls="mobileMenu" aria-label="Open menu"><span></span><span></span></button>
+</header>
+
+<div class="mobile-menu" id="mobileMenu" hidden>
+  <nav aria-label="Mobile">
+    <a href="/wall"><span>01</span> The wall</a>
+    <a href="/how-it-works"><span>02</span> How it works</a>
+    <a href="/pricing"><span>03</span> Pricing</a>
+    <a href="/#studio"><span>04</span> Studio</a>
+  </nav>
+  <div class="head-auth" data-auth-slot>
+    <a href="/join">Sign in</a>
+    <a class="head-auth__join" href="/join?mode=signup">Join</a>
+  </div>
+  <a class="btn btn--red" href="/join?mode=signup" data-seal-cta>Seal a piece</a>
+</div>
+
+<main id="main">
+  <section class="band" aria-live="polite">
+    <div class="wrap">
+      <div id="view-loading" class="state status-view">
+        <img class="state__mark" src="/assets/seal/ringtext.svg" alt="">
+        <p class="lede">Opening the certificate…</p>
+      </div>
+
+      <div id="view-missing" class="state status-view" hidden>
+        <img class="state__mark" src="/assets/seal/rubber.svg" alt="">
+        <h1 class="h2">No certificate at this address.</h1>
+        <p class="lede">The link may be mistyped, or the piece was removed by the account that sealed it.</p>
+        <div class="actions-row">
+          <a class="btn btn--red" href="/wall">Go to the wall</a>
+          <a class="btn btn--ghost" href="/verify">Check a file instead</a>
+        </div>
+      </div>
+
+      <div id="view-failed" class="state status-view" hidden>
+        <p class="notice notice--problem">We couldn't load this certificate just now. Your connection or our server had a hiccup.</p>
+        <button class="btn btn--ink" id="retry" type="button">Try again</button>
+      </div>
+
+      <div id="view-found" class="cert-page" hidden>
+        <div class="art-panel" id="artPanel"><img id="art" alt=""></div>
+        <div class="cert-info">
+          <div>
+            <p class="section-label"><span>Certificate</span> Sealed on SecurityArts</p>
+            <h1 class="cert-title" id="title" tabindex="-1"></h1>
+            <p class="cert-credit" id="credit"></p>
+          </div>
+          <section class="cert" aria-label="Certificate">
+            <div class="cert__head">
+              <img src="/assets/seal/ringtext.svg" alt="">
+              <div><b>Certificate</b><span id="sealedDate"></span></div>
+            </div>
+            <p class="cert__record cert__record--pending" id="record" role="status">Checking the public record…</p>
+            <dl id="certRows"></dl>
+            <div class="cert__check">
+              <button class="btn btn--ghost" id="checkBtn" type="button">Check a file against this</button>
+              <input type="file" id="checkFile" hidden>
+              <p class="cert__check-result" id="checkResult" role="status" aria-live="polite"></p>
+              <p class="cert__check-note">Your file is fingerprinted in this browser. It isn't uploaded.</p>
+            </div>
+          </section>
+          <div class="shows">
+            <div class="shows__yes">
+              <h2>What this shows</h2>
+              <ul>
+                <li>The account named above sealed this exact file at the time shown.</li>
+                <li>The file hasn't changed since. Change one pixel and the fingerprint stops matching.</li>
+              </ul>
+            </div>
+            <div class="shows__no">
+              <h2>What it can't show</h2>
+              <ul>
+                <li>Who made the art, or that a person made it.</li>
+                <li>Whether it's original, or who owns it. The credit is whatever that account typed in.</li>
+                <li>A match for a re-saved, resized or screenshotted copy.</li>
+              </ul>
+            </div>
+          </div>
+          <div class="actions-row">
+            <button class="btn btn--ink" id="copyLink" type="button">Copy link</button>
+            <button class="btn btn--ghost" id="copyHash" type="button">Copy fingerprint</button>
+            <a class="btn btn--ghost" id="onWall" href="/wall">See it on the wall</a>
+          </div>
+          <div class="likes">
+            <button class="btn btn--ghost" id="likeBtn" type="button" aria-pressed="false">Like</button>
+            <span id="likeCount"></span>
+          </div>
+          <p class="copied" id="copied" role="status"></p>
+        </div>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer class="site-foot">
+  <div class="wrap">
+    <a class="brand" href="/" aria-label="SecurityArts home">
+      <img class="brand__seal" src="/assets/seal/modern-24-dark.svg" width="30" height="30" alt="">
+      <span class="brand__word">SecurityArts</span>
+    </a>
+    <nav aria-label="Footer">
+      <a href="/wall">The wall</a>
+      <a href="/how-it-works">How it works</a>
+      <a href="/verify">Verify a seal</a>
+      <a href="/pricing">Pricing</a>
+      <a href="/faq">FAQ</a>
+      <a href="/#studio">Studio</a>
+      <a href="/privacy">Privacy</a>
+      <a href="/terms">Terms</a>
+    </nav>
+    <small>A receipt for your art. Every certificate on the wall is public. hello@securityarts.studio</small>
+  </div>
+</footer>
+
+<script src="/js/api.js"></script>
+<script type="module" src="/assets/certificate.js"></script>
+</body>
+</html>
