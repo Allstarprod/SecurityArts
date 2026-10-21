@@ -11,28 +11,27 @@ const PLANS = [
     feats: ["Unlimited browsing & search", "One-click seal verification", "Buy & license any work", "Save likes and boards"]
   },
   {
-    name: "Collector+",
+    name: "Pro",
     price: { mo: 5, yr: 50 },
     who: "For serious collectors \u2014 early access to drops and a sharper, deeper feed.",
-    cta: "Go Collector+",
+    cta: "Go Pro",
     variant: "solid",
     href: "login.html?mode=signup",
     feat: true,
-    tag: "Most popular",
     feats: ["Everything in Free", "24h early access to new drops", "Advanced For You & saved searches", "Collection provenance export", "Priority message requests"]
   },
   {
-    name: "Artist Studio",
+    name: "Pro+",
     price: { mo: 15, yr: 150 },
     who: "For artists selling their work \u2014 unlimited sealing, analytics, and payouts.",
-    cta: "Open your studio",
+    cta: "Go Pro+",
     variant: "brass",
     href: "dashboard.html",
     feats: ["Unlimited seals & listings", "Sales & audience analytics", "Custom license tiers", "Direct commissions & DMs", "Fast payouts to your account"]
   }
 ];
 const FEES = [
-  { n: "$5\u201315", per: "/mo", t: "Subscription", b: "Collector+ is $5/mo; Artist Studio is $15/mo. Collecting on the Free plan is always $0." },
+  { n: "$5\u201315", per: "/mo", t: "Subscription", b: "Pro is $5/mo; Pro+ is $15/mo. Most of SecurityArts, including sealing and checking seals, is free." },
   { n: /* @__PURE__ */ React.createElement(React.Fragment, null, /* @__PURE__ */ React.createElement("em", null, "8%")), t: "Per commission", b: "When a collector commissions an artist directly, SecurityArts takes 8%. The artist keeps 92%." },
   { n: /* @__PURE__ */ React.createElement(React.Fragment, null, /* @__PURE__ */ React.createElement("em", null, "10%")), t: "On purchases", b: "A flat 10% marketplace fee on every sale \u2014 no listing fees, no surprises. The artist keeps 90%." }
 ];

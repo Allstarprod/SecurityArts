@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Page not found — SecurityArts</title>
+<meta name="description" content="This page isn't here. The wall, the seal and the studio are a click away.">
+<meta name="robots" content="noindex">
+<link rel="icon" href="/assets/seal/modern-24.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Sans:wght@500;600;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/assets/site.css">
+</head>
+<body>
+<a class="skip-link" href="#main">Skip to content</a>
+
+<header class="site-head">
+  <a class="brand" href="/" aria-label="SecurityArts home">
+    <img class="brand__seal" src="/assets/seal/modern-24.svg" width="30" height="30" alt="">
+    <span class="brand__word">SecurityArts</span>
+  </a>
+  <nav class="nav" aria-label="Primary">
+    <a href="/wall"><span class="nav__idx">01</span> The wall</a>
+    <a href="/how-it-works"><span class="nav__idx">02</span> How it works</a>
+    <a href="/pricing"><span class="nav__idx">03</span> Pricing</a>
+    <a href="/#studio"><span class="nav__idx">04</span> Studio</a>
+  </nav>
+  <div class="head-auth" data-auth-slot>
+    <a href="/join">Sign in</a>
+    <a class="head-auth__join" href="/join?mode=signup">Join</a>
+  </div>
+  <a class="head-cta" href="/join?mode=signup" data-seal-cta>Seal a piece <span aria-hidden="true">→</span></a>
+  <button class="menu-btn" id="menuBtn" type="button" aria-expanded="false" aria-controls="mobileMenu" aria-label="Open menu"><span></span><span></span></button>
+</header>
+
+<div class="mobile-menu" id="mobileMenu" hidden>
+  <nav aria-label="Mobile">
+    <a href="/wall"><span>01</span> The wall</a>
+    <a href="/how-it-works"><span>02</span> How it works</a>
+    <a href="/pricing"><span>03</span> Pricing</a>
+    <a href="/#studio"><span>04</span> Studio</a>
+  </nav>
+  <div class="head-auth" data-auth-slot>
+    <a href="/join">Sign in</a>
+    <a class="head-auth__join" href="/join?mode=signup">Join</a>
+  </div>
+  <a class="btn btn--red" href="/join?mode=signup" data-seal-cta>Seal a piece</a>
+</div>
+
+<main id="main">
+  <section class="page-hero band--sky" aria-labelledby="page-h">
+    <div class="wrap">
+      <p class="section-label"><span>404</span> Not found</p>
+      <h1 class="display" id="page-h">Nothing sealed <em>at this address.</em></h1>
+      <p class="lede">The page may have moved, or the link has a typo. Everything else is still here.</p>
+      <div class="page-hero__actions">
+        <a class="btn btn--red" href="/wall">Go to the wall <span class="btn__arrow" aria-hidden="true">→</span></a>
+        <a class="btn btn--ghost" href="/">Home</a>
+        <a class="btn btn--ghost" href="/verify">Verify a seal</a>
+      </div>
+      <img class="page-hero__seal" src="/assets/seal/rubber.svg" alt="">
+    </div>
+  </section>
+</main>
+
+<footer class="site-foot">
+  <div class="wrap">
+    <a class="brand" href="/" aria-label="SecurityArts home">
+      <img class="brand__seal" src="/assets/seal/modern-24-dark.svg" width="30" height="30" alt="">
+      <span class="brand__word">SecurityArts</span>
+    </a>
+    <nav aria-label="Footer">
+      <a href="/wall">The wall</a>
+      <a href="/how-it-works">How it works</a>
+      <a href="/verify">Verify a seal</a>
+      <a href="/pricing">Pricing</a>
+      <a href="/faq">FAQ</a>
+      <a href="/#studio">Studio</a>
+      <a href="/privacy">Privacy</a>
+      <a href="/terms">Terms</a>
+    </nav>
+    <small>A receipt for your art. Every certificate on the wall is public. hello@securityarts.studio</small>
+  </div>
+</footer>
+
+<script src="/js/api.js"></script>
+<script type="module">
+  import { initSite } from "/assets/site.js";
+  initSite();
+</script>
+</body>
+</html>

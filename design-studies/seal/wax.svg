@@ -1,0 +1,151 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 240 240" width="240" height="240" role="img" aria-labelledby="wax-title">
+  <title id="wax-title">SecurityArts seal, pressed in chop-red wax with the star cut through</title>
+  <!--
+    wax — the seal as a physical wax seal on cream paper, lit from the upper left.
+
+    Geometry is the original seal.svg x2.4, unchanged: 16 semicircular lobes (r 17.33)
+    on a notch radius of 88.8, ring r 64.8, five-point star (outer r 37.2).
+    Reading of the mark: the RING is the edge of the die. Inside it the wax is pressed
+    flat (the field), the die's text is pressed into that field, and the STAR is pressed
+    all the way through to the cream paper. Outside the ring the wax oozed out into the
+    16 LOBES, which taper toward their tips like a real blob of sealing wax.
+
+    How it is built: the group under #wax-lit is a HEIGHT MAP painted in opaque grays
+    (white = high). The filter reads gray as alpha, blurs it into bevels, adds a fine
+    turbulence grain, and lights it with feDiffuseLighting + two feSpecularLighting
+    passes (a tight gloss and a soft sheen). The wax color is an feFlood, so the file
+    renders standalone in literal hex. Cast shadow, cream star floor with an inset
+    shadow, and the debossed die text are ordinary layered paths on top.
+  -->
+  <defs>
+    <!-- silhouette: original seal.svg scallop x2.4 -->
+    <path id="wax-silhouette" d="M120,31.2 A17.33,17.33 0 0 1 153.98,37.96 A17.33,17.33 0 0 1 182.79,57.21 A17.33,17.33 0 0 1 202.04,86.02 A17.33,17.33 0 0 1 208.8,120 A17.33,17.33 0 0 1 202.04,153.98 A17.33,17.33 0 0 1 182.79,182.79 A17.33,17.33 0 0 1 153.98,202.04 A17.33,17.33 0 0 1 120,208.8 A17.33,17.33 0 0 1 86.02,202.04 A17.33,17.33 0 0 1 57.21,182.79 A17.33,17.33 0 0 1 37.96,153.98 A17.33,17.33 0 0 1 31.2,120 A17.33,17.33 0 0 1 37.96,86.02 A17.33,17.33 0 0 1 57.21,57.21 A17.33,17.33 0 0 1 86.02,37.96 A17.33,17.33 0 0 1 120,31.2 Z"/>
+    <!-- star: original seal.svg star x2.4 -->
+    <path id="wax-star" d="M120,82.8 L129.02,107.57 L155.38,108.5 L134.62,124.75 L141.86,150.1 L120,135.36 L98.14,150.1 L105.38,124.75 L84.62,108.5 L110.98,107.57 Z"/>
+
+    <!-- one lobe of the height map: a dome that tapers toward the tip of the lobe.
+         Its center sits on the chord midpoint (r 87.09), so the visible outer half is
+         exactly the original semicircular lobe. -->
+    <radialGradient id="wax-lobeDome">
+      <stop offset="0" stop-color="#D9D9D9"/>
+      <stop offset="1" stop-color="#9A9A9A"/>
+    </radialGradient>
+    <circle id="wax-lobe" cx="120" cy="32.91" r="17.33" fill="url(#wax-lobeDome)"/>
+
+    <!-- LIGHTING: gray height map in, lit chop-red wax out -->
+    <filter id="wax-lit" filterUnits="userSpaceOnUse" x="0" y="0" width="240" height="240" color-interpolation-filters="sRGB">
+      <!-- gray (R channel) becomes height; keep the antialiased silhouette edge -->
+      <feColorMatrix in="SourceGraphic" type="matrix" values="0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  1 0 0 0 0" result="wax-h"/>
+      <feComposite in="wax-h" in2="SourceAlpha" operator="in" result="wax-hClip"/>
+      <feGaussianBlur in="wax-hClip" stdDeviation="2.1" result="wax-bevel"/>
+      <!-- fine grain: poured wax is never perfectly smooth -->
+      <feTurbulence type="fractalNoise" baseFrequency="0.055" numOctaves="2" seed="7" result="wax-grain"/>
+      <feComposite in="wax-bevel" in2="wax-grain" operator="arithmetic" k1="0" k2="1" k3="0.07" k4="0" result="wax-bump"/>
+      <!-- diffuse, raking light from the upper left -->
+      <feDiffuseLighting in="wax-bump" surfaceScale="11" diffuseConstant="1.45" lighting-color="#FFFFFF" result="wax-diff">
+        <feDistantLight azimuth="225" elevation="40"/>
+      </feDiffuseLighting>
+      <!-- base wax color, with a little ambient so shadows stay chop-red, not black -->
+      <feFlood flood-color="#D42228" result="wax-base"/>
+      <feComposite in="wax-base" in2="wax-diff" operator="arithmetic" k1="0.72" k2="0.28" k3="0" k4="0" result="wax-shade"/>
+      <!-- tight gloss on the bevels -->
+      <feSpecularLighting in="wax-bump" surfaceScale="11" specularConstant="0.9" specularExponent="48" lighting-color="#FFF4F2" result="wax-gloss">
+        <feDistantLight azimuth="225" elevation="40"/>
+      </feSpecularLighting>
+      <!-- soft sheen across the lit slopes -->
+      <feSpecularLighting in="wax-bump" surfaceScale="11" specularConstant="0.3" specularExponent="9" lighting-color="#FF9A92" result="wax-sheen">
+        <feDistantLight azimuth="225" elevation="40"/>
+      </feSpecularLighting>
+      <feComposite in="wax-gloss" in2="wax-sheen" operator="arithmetic" k1="0" k2="1" k3="1" k4="0" result="wax-spec"/>
+      <feComposite in="wax-spec" in2="SourceAlpha" operator="in" result="wax-specIn"/>
+      <feComposite in="wax-shade" in2="wax-specIn" operator="arithmetic" k1="0" k2="1" k3="1" k4="0" result="wax-litWax"/>
+      <!-- clip to the wax silhouette -->
+      <feComposite in="wax-litWax" in2="SourceAlpha" operator="in"/>
+    </filter>
+
+    <!-- shadows -->
+    <filter id="wax-shadowSoft" x="-25%" y="-25%" width="150%" height="150%">
+      <feGaussianBlur stdDeviation="5"/>
+    </filter>
+    <filter id="wax-shadowTight" x="-15%" y="-15%" width="130%" height="130%">
+      <feGaussianBlur stdDeviation="1.4"/>
+    </filter>
+
+    <!-- star floor: the paper under the wax, a little cooler in the shadowed corner -->
+    <linearGradient id="wax-floor" gradientUnits="userSpaceOnUse" x1="90" y1="86" x2="150" y2="150">
+      <stop offset="0" stop-color="#E4E1D8"/>
+      <stop offset="1" stop-color="#FAF9F5"/>
+    </linearGradient>
+    <clipPath id="wax-starClip"><use href="#wax-star"/></clipPath>
+
+    <!-- one broad softbox reflection so the blob reads as one object -->
+    <radialGradient id="wax-softbox" gradientUnits="userSpaceOnUse" cx="80" cy="74" r="120">
+      <stop offset="0" stop-color="#FFFFFF" stop-opacity="0.16"/>
+      <stop offset="0.55" stop-color="#FFFFFF" stop-opacity="0"/>
+    </radialGradient>
+
+    <!-- die text: top line clockwise on r 46.5, bottom line counter-clockwise on r 52.3
+         so both read upright; textLength pins the fit whatever font loads -->
+    <path id="wax-arcTop" d="M73.5,120 A46.5,46.5 0 1 1 166.5,120 A46.5,46.5 0 1 1 73.5,120"/>
+    <path id="wax-arcBottom" d="M67.7,120 A52.3,52.3 0 0 0 172.3,120"/>
+    <g id="wax-dieText" font-family="Instrument Sans, sans-serif" font-weight="700" font-size="8">
+      <text><textPath href="#wax-arcTop" startOffset="11" textLength="124" lengthAdjust="spacing">SEALED BY SECURITYARTS</textPath></text>
+      <text><textPath href="#wax-arcBottom" startOffset="23" textLength="118" lengthAdjust="spacing">SHA-256 · ECDSA P-256</textPath></text>
+      <circle cx="70.6" cy="120" r="1.7"/>
+      <circle cx="169.4" cy="120" r="1.7"/>
+    </g>
+    <!-- the star is cut clean through the wax: whatever the seal sits on shows in it -->
+    <mask id="wax-cut" maskUnits="userSpaceOnUse" x="0" y="0" width="240" height="240">
+      <rect x="0" y="0" width="240" height="240" fill="#fff"/>
+      <use href="#wax-star" fill="#000"/>
+    </mask>
+  </defs>
+
+  <!-- cast shadow on the paper, light from the upper left -->
+  <use href="#wax-silhouette" fill="#171A1F" opacity="0.24" filter="url(#wax-shadowSoft)" transform="translate(4 7)" mask="url(#wax-cut)"/>
+  <use href="#wax-silhouette" fill="#171A1F" opacity="0.3" filter="url(#wax-shadowTight)" transform="translate(0.8 1.6)" mask="url(#wax-cut)"/>
+
+  <!-- THE WAX. This group is the height map (gray = height); #wax-lit renders it as lit wax. -->
+  <g mask="url(#wax-cut)"><g filter="url(#wax-lit)">
+    <!-- 16 tapering lobes -->
+    <use href="#wax-lobe" transform="rotate(11.25 120 120)"/>
+    <use href="#wax-lobe" transform="rotate(33.75 120 120)"/>
+    <use href="#wax-lobe" transform="rotate(56.25 120 120)"/>
+    <use href="#wax-lobe" transform="rotate(78.75 120 120)"/>
+    <use href="#wax-lobe" transform="rotate(101.25 120 120)"/>
+    <use href="#wax-lobe" transform="rotate(123.75 120 120)"/>
+    <use href="#wax-lobe" transform="rotate(146.25 120 120)"/>
+    <use href="#wax-lobe" transform="rotate(168.75 120 120)"/>
+    <use href="#wax-lobe" transform="rotate(191.25 120 120)"/>
+    <use href="#wax-lobe" transform="rotate(213.75 120 120)"/>
+    <use href="#wax-lobe" transform="rotate(236.25 120 120)"/>
+    <use href="#wax-lobe" transform="rotate(258.75 120 120)"/>
+    <use href="#wax-lobe" transform="rotate(281.25 120 120)"/>
+    <use href="#wax-lobe" transform="rotate(303.75 120 120)"/>
+    <use href="#wax-lobe" transform="rotate(326.25 120 120)"/>
+    <use href="#wax-lobe" transform="rotate(348.75 120 120)"/>
+    <!-- body of the wax out to the notches -->
+    <circle cx="120" cy="120" r="88.8" fill="#CCCCCC"/>
+    <!-- the ring: wax squeezed up around the edge of the die -->
+    <circle cx="120" cy="120" r="64.8" fill="none" stroke="#FFFFFF" stroke-width="6"/>
+    <!-- the field: pressed flat inside the die -->
+    <circle cx="120" cy="120" r="61.8" fill="#B8B8B8"/>
+    <!-- the star: pressed deepest -->
+    <use href="#wax-star" fill="#5C5C5C"/>
+  </g></g>
+
+  <!-- softbox reflection -->
+  <use href="#wax-silhouette" fill="url(#wax-softbox)" mask="url(#wax-cut)"/>
+
+  <!-- the star floor: cream paper showing through, shadowed under its upper-left walls -->
+  <g clip-path="url(#wax-starClip)">
+    <!-- floor left transparent: the star is cut through the wax, so the surface behind shows -->
+    <path fill-rule="evenodd" fill="#171A1F" opacity="0.42" filter="url(#wax-shadowTight)" transform="translate(1.7 2)"
+          d="M0,0 H240 V240 H0 Z M120,82.8 L129.02,107.57 L155.38,108.5 L134.62,124.75 L141.86,150.1 L120,135.36 L98.14,150.1 L105.38,124.75 L84.62,108.5 L110.98,107.57 Z"/>
+  </g>
+
+  <!-- the die's text, pressed into the field: shadowed upper-left wall, lit lower-right lip, darker floor -->
+  <use href="#wax-dieText" fill="#171A1F" opacity="0.5" transform="translate(-0.55 -0.55)"/>
+  <use href="#wax-dieText" fill="#FFC2BC" opacity="0.9" transform="translate(0.55 0.55)"/>
+  <use href="#wax-dieText" fill="#A8161C"/>
+</svg>

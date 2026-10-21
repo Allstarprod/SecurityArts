@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Study B — Wall first · SecurityArts</title>
+<meta name="robots" content="noindex">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Sans:wght@500;600;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="tokens.css">
+<style>
+  /* B — Wall first. The art is the hero; chrome stays paper and quiet; color arrives as stickers. */
+  .nav { border-bottom: 2px solid var(--ink); }
+  .nav__cta { background: var(--red); color: var(--paper); }
+
+  .intro {
+    display: grid; grid-template-columns: auto 1fr; gap: 2rem; align-items: center;
+    padding: clamp(2rem, 4vw, 3.5rem) var(--gutter) 1.5rem;
+  }
+  .intro__stamp { --stamp-size: clamp(130px, 15vw, 190px); --stamp-tilt: -14deg; }
+  .intro h1 { font-size: clamp(2.4rem, 1rem + 5.2vw, 5.6rem); max-width: 14ch; }
+  .intro h1 em { font-style: normal; color: var(--red); }
+  .intro__row { display: flex; flex-wrap: wrap; gap: 1rem 2rem; align-items: center; margin-top: 1.2rem; }
+  .intro .lead { max-width: 46ch; font-size: clamp(1rem, 0.9rem + 0.5vw, 1.25rem); }
+  @media (max-width: 720px) { .intro { grid-template-columns: 1fr; } .intro__stamp { --stamp-size: 110px; } }
+
+  /* Wall — bigger tiles, tighter gutters, stickers */
+  .wallbar {
+    display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 0.75rem 1.5rem;
+    padding: 0.9rem var(--gutter);
+    border-top: 2px solid var(--ink); border-bottom: 2px solid var(--ink);
+    position: sticky; top: 0; background: var(--paper); z-index: 5;
+  }
+  .wallbar__note { color: var(--ink-soft); font-size: 0.9rem; }
+  .wall { padding: 1rem var(--gutter) var(--section); }
+  .masonry { columns: 3 280px; column-gap: 0.9rem; }
+  .masonry .tile { break-inside: avoid; margin-bottom: 0.9rem; }
+  .sticker {
+    position: absolute; left: 0.7rem; top: 0.7rem;
+    padding: 0.35rem 0.7rem; border-radius: 999px;
+    background: var(--blue-deep); color: #fff;
+    font-family: var(--font-display); font-weight: 700; font-size: 0.72rem; letter-spacing: 0.04em; text-transform: uppercase;
+    transform: rotate(-4deg);
+  }
+  .sticker--tang { background: var(--red); color: var(--paper); }
+
+  /* A wide "sticker strip" tile inside the wall carrying the how-it-works */
+  .strip {
+    column-span: all; break-inside: avoid; margin: 0.4rem 0 1.3rem;
+    background: var(--blue-deep); color: #fff; border-radius: var(--radius);
+    padding: clamp(1.5rem, 3vw, 2.5rem);
+    display: grid; grid-template-columns: 1.1fr 1fr 1fr 1fr; gap: 1.5rem; align-items: center;
+  }
+  .strip h2 { font-family: var(--font-display); font-weight: 700; font-size: clamp(1.6rem, 1rem + 2vw, 2.6rem); letter-spacing: -0.03em; line-height: 1; }
+  .strip .s { border-left: 2px solid rgba(255,255,255,0.35); padding-left: 1rem; }
+  .strip .s b { display: block; font-family: var(--font-display); font-size: 1.05rem; margin-bottom: 0.25rem; }
+  .strip .s span { color: rgba(255,255,255,0.85); font-size: 0.95rem; }
+  .strip .s b::before { content: attr(data-n); display: inline-block; margin-right: 0.5rem; color: var(--paper-2); }
+  @media (max-width: 860px) { .strip { grid-template-columns: 1fr; } }
+
+  /* Studio — compact charcoal band */
+  .studio { background: var(--studio); color: var(--paper-on-dark); padding: clamp(2.5rem, 5vw, 4.5rem) var(--gutter); }
+  .studio .wrap { display: grid; grid-template-columns: 1fr auto; gap: 2rem; align-items: center; }
+  .studio h2 { font-family: var(--font-display); font-weight: 700; font-size: clamp(1.6rem, 1rem + 2.4vw, 3rem); letter-spacing: -0.03em; line-height: 1; max-width: 22ch; }
+  .studio h2 em { font-style: normal; color: var(--red); }
+  .studio p { color: rgba(246,238,226,0.75); margin-top: 0.75rem; max-width: 52ch; }
+  @media (max-width: 720px) { .studio .wrap { grid-template-columns: 1fr; } }
+</style>
+</head>
+<body>
+
+<nav class="nav" aria-label="Main">
+  <a class="nav__brand" href="#">
+    <img src="seal/modern-24.svg" width="26" height="26" alt="">
+    SecurityArts
+  </a>
+  <div class="nav__links">
+    <a href="#how">How it works</a>
+    <a href="#">Verify a seal</a>
+    <a href="#studio">Studio</a>
+    <a class="btn nav__cta" href="#">Seal a piece</a>
+  </div>
+</nav>
+
+<header class="intro">
+  <img class="stamp slam intro__stamp" src="seal/wax.svg" alt="">
+  <div>
+    <h1 class="display">A receipt for <em>your art.</em></h1>
+    <div class="intro__row">
+      <p class="lead">Seal a finished piece, get a public certificate anyone can check. Free. This is the wall of work that's been sealed so far — newest first.</p>
+      <a class="btn btn--red" href="#">Seal a piece</a>
+    </div>
+  </div>
+</header>
+
+<div class="wallbar">
+  <span class="eyebrow">The wall · newest first</span>
+  <span class="wallbar__note">Placeholder tiles — the launch wall is seeded with real sealed work. Nothing here is invented.</span>
+</div>
+
+<section class="wall" id="wall">
+  <div class="masonry">
+    <div class="tile"><div class="tile__art art-4" style="aspect-ratio:4/5"></div><span class="sticker sticker--tang">Sealed</span></div>
+    <div class="tile"><div class="tile__art art-1" style="aspect-ratio:1"></div><img class="badge" src="seal/modern.svg" alt="Sealed"></div>
+    <div class="tile"><div class="tile__art art-7" style="aspect-ratio:3/4"></div><span class="sticker">Verify →</span></div>
+    <div class="tile"><div class="tile__art art-11" style="aspect-ratio:3/2"></div><img class="badge" src="seal/modern.svg" alt="Sealed"></div>
+    <div class="tile"><div class="tile__art art-2" style="aspect-ratio:4/5"></div><img class="badge" src="seal/modern.svg" alt="Sealed"></div>
+    <div class="tile"><div class="tile__art art-9" style="aspect-ratio:1"></div><span class="sticker sticker--tang">Sealed</span></div>
+
+    <div class="strip" id="how">
+      <h2>How a seal works</h2>
+      <div class="s"><b data-n="1">Upload the finished piece</b><span>We read the exact bytes. Nothing is altered.</span></div>
+      <div class="s"><b data-n="2">We sign it</b><span>SHA-256 of those bytes, signed with our ECDSA key.</span></div>
+      <div class="s"><b data-n="3">You get the receipt</b><span>A public certificate — hash, signature, timestamp.</span></div>
+    </div>
+
+    <div class="tile"><div class="tile__art art-5" style="aspect-ratio:4/5"></div><img class="badge" src="seal/modern.svg" alt="Sealed"></div>
+    <div class="tile"><div class="tile__art art-12" style="aspect-ratio:1"></div><span class="sticker">Verify →</span></div>
+    <div class="tile"><div class="tile__art art-3" style="aspect-ratio:3/4"></div><img class="badge" src="seal/modern.svg" alt="Sealed"></div>
+    <div class="tile"><div class="tile__art art-8" style="aspect-ratio:5/4"></div><img class="badge" src="seal/modern.svg" alt="Sealed"></div>
+    <div class="tile"><div class="tile__art art-6" style="aspect-ratio:1"></div><span class="sticker sticker--tang">Sealed</span></div>
+    <div class="tile"><div class="tile__art art-10" style="aspect-ratio:4/5"></div><img class="badge" src="seal/modern.svg" alt="Sealed"></div>
+  </div>
+</section>
+
+<section class="studio" id="studio">
+  <div class="wrap">
+    <div>
+      <h2>SecurityArts is also a security studio. <em>Same seal, different work.</em></h2>
+      <p>Pentests, code review and cloud hardening that end in a sealed, re-testable record instead of a PDF. The art platform signs with the same key.</p>
+    </div>
+    <a class="btn btn--paper" href="#">See the studio</a>
+  </div>
+</section>
+
+<footer class="foot">
+  <span><strong>SecurityArts</strong> · A receipt for your art.</span>
+  <span><a href="#">How it works</a> · <a href="#">Verify a seal</a> · <a href="#">Studio</a> · <a href="mailto:hello@securityarts.studio">hello@securityarts.studio</a></span>
+</footer>
+
+<nav class="switch" aria-label="Direction studies">
+  <a href="study-a-poster.html">A · Poster</a>
+  <a href="study-b-wall.html" aria-current="page">B · Wall first</a>
+  <a href="study-c-cover.html">C · Cover</a>
+</nav>
+
+</body>
+</html>

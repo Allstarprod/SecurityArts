@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<!-- Every page of the site starts from this file. Keep the head, header, mobile menu,
+     footer and scripts exactly as they are; change the title, description, canonical,
+     the nav item marked aria-current, and everything inside <main>.
+     Building blocks for <main> are in /assets/site.css (bands, page-hero, prose, split,
+     cards, shows, facts, faq, table, steps, cta-band) and the components in the design
+     system (buttons, chips, fields, notices, certificate). -->
+<title>Page title — SecurityArts</title>
+<meta name="description" content="One or two plain sentences about this page.">
+<link rel="canonical" href="https://security-arts.vercel.app/PATH">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="SecurityArts">
+<meta property="og:title" content="Page title — SecurityArts">
+<meta property="og:description" content="One or two plain sentences about this page.">
+<meta property="og:url" content="https://security-arts.vercel.app/PATH">
+<meta property="og:image" content="https://security-arts.vercel.app/og-image.png">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="icon" href="/assets/seal/modern-24.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Sans:wght@500;600;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/assets/site.css">
+<!-- Page-only styles, if any, go in one <style> here. Use tokens (var(--red), var(--space-stack) …), never new hex values. -->
+</head>
+<body>
+<a class="skip-link" href="#main">Skip to content</a>
+
+<header class="site-head">
+  <a class="brand" href="/" aria-label="SecurityArts home">
+    <img class="brand__seal" src="/assets/seal/modern-24.svg" width="30" height="30" alt="">
+    <span class="brand__word">SecurityArts</span>
+  </a>
+  <nav class="nav" aria-label="Primary">
+    <a href="/wall"><span class="nav__idx">01</span> The wall</a>
+    <a href="/how-it-works"><span class="nav__idx">02</span> How it works</a>
+    <a href="/pricing"><span class="nav__idx">03</span> Pricing</a>
+    <a href="/#studio"><span class="nav__idx">04</span> Studio</a>
+  </nav>
+  <div class="head-auth" data-auth-slot>
+    <a href="/join">Sign in</a>
+    <a class="head-auth__join" href="/join?mode=signup">Join</a>
+  </div>
+  <a class="head-cta" href="/join?mode=signup" data-seal-cta>Seal a piece <span aria-hidden="true">→</span></a>
+  <button class="menu-btn" id="menuBtn" type="button" aria-expanded="false" aria-controls="mobileMenu" aria-label="Open menu"><span></span><span></span></button>
+</header>
+
+<div class="mobile-menu" id="mobileMenu" hidden>
+  <nav aria-label="Mobile">
+    <a href="/wall"><span>01</span> The wall</a>
+    <a href="/how-it-works"><span>02</span> How it works</a>
+    <a href="/pricing"><span>03</span> Pricing</a>
+    <a href="/#studio"><span>04</span> Studio</a>
+  </nav>
+  <div class="head-auth" data-auth-slot>
+    <a href="/join">Sign in</a>
+    <a class="head-auth__join" href="/join?mode=signup">Join</a>
+  </div>
+  <a class="btn btn--red" href="/join?mode=signup" data-seal-cta>Seal a piece</a>
+</div>
+
+<main id="main">
+  <section class="page-hero band--sky" aria-labelledby="page-h">
+    <div class="wrap">
+      <p class="section-label"><span>01</span> Section name</p>
+      <h1 class="display" id="page-h">A plain headline with <em>the payoff in red.</em></h1>
+      <p class="lede">One or two sentences that say what this page is for.</p>
+      <div class="page-hero__actions">
+        <a class="btn btn--red" href="/join?mode=signup" data-seal-cta>Seal a piece <span class="btn__arrow" aria-hidden="true">→</span></a>
+        <a class="btn btn--ghost" href="/how-it-works">How the seal works</a>
+      </div>
+      <img class="page-hero__seal" src="/assets/seal/wax.svg" alt="">
+    </div>
+  </section>
+
+  <section class="band" aria-labelledby="s2-h">
+    <div class="wrap">
+      <div class="prose">
+        <h2 id="s2-h">A section heading</h2>
+        <p>Body copy.</p>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer class="site-foot">
+  <div class="wrap">
+    <a class="brand" href="/" aria-label="SecurityArts home">
+      <img class="brand__seal" src="/assets/seal/modern-24-dark.svg" width="30" height="30" alt="">
+      <span class="brand__word">SecurityArts</span>
+    </a>
+    <nav aria-label="Footer">
+      <a href="/wall">The wall</a>
+      <a href="/how-it-works">How it works</a>
+      <a href="/verify">Verify a seal</a>
+      <a href="/pricing">Pricing</a>
+      <a href="/faq">FAQ</a>
+      <a href="/#studio">Studio</a>
+      <a href="/privacy">Privacy</a>
+      <a href="/terms">Terms</a>
+    </nav>
+    <small>A receipt for your art. Every certificate on the wall is public. hello@securityarts.studio</small>
+  </div>
+</footer>
+
+<script src="/js/api.js"></script>
+<script type="module">
+  import { initSite } from "/assets/site.js";
+  initSite();
+</script>
+</body>
+</html>

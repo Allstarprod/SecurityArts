@@ -1,117 +1,214 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Privacy Policy — SecurityArts</title>
-  <meta name="description" content="How SecurityArts collects, uses, and protects your data — newsletter, accounts, uploaded artwork, and orders." />
-  <meta name="robots" content="index, follow" />
-  <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300..600&family=Geist:wght@300..600&family=Geist+Mono:wght@400;500&display=swap" rel="stylesheet" />
-  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='18' fill='%230c0c0b'/%3E%3Cg fill='none' stroke='%23f4f1e9' stroke-width='4.2'%3E%3Ccircle cx='50' cy='50' r='27'/%3E%3C/g%3E%3Cpath fill='%23f4f1e9' d='M 50 34.5 L 53.76 44.82 L 64.74 45.21 L 56.09 51.98 L 59.11 62.54 L 50 56.4 L 40.89 62.54 L 43.91 51.98 L 35.26 45.21 L 46.24 44.82 Z'/%3E%3C/svg%3E" />
-  <style>
-    :root { --ink:#0c0c0b; --ink-2:#131312; --bone:#f4f1e9; --bone-dim:#a39e92; --bone-faint:#6f6b62; --brass:#c2a14e; --line:rgba(244,241,233,0.12); --gutter:clamp(1.25rem,4vw,3rem); --serif:"Fraunces",serif; --sans:"Geist",system-ui,sans-serif; --mono:"Geist Mono",monospace; }
-    * { box-sizing:border-box; margin:0; padding:0; }
-    body { background:var(--ink); color:var(--bone); font-family:var(--sans); font-weight:360; line-height:1.65; -webkit-font-smoothing:antialiased; }
-    a { color:var(--brass); text-decoration:none; } a:hover { text-decoration:underline; }
-    .head { border-bottom:1px solid var(--line); padding:1.1rem var(--gutter); display:flex; justify-content:space-between; align-items:center; position:sticky; top:0; background:color-mix(in srgb,var(--ink) 90%,transparent); backdrop-filter:blur(12px); }
-    .brand { display:inline-flex; align-items:center; gap:0.55rem; color:var(--bone); }
-    .brand svg { width:28px; height:28px; }
-    .brand span { font-family:var(--serif); font-weight:460; font-size:1.2rem; }
-    .back { font-family:var(--mono); font-size:0.72rem; text-transform:uppercase; letter-spacing:0.12em; color:var(--bone-dim); }
-    .back:hover { color:var(--bone); text-decoration:none; }
-    main { max-width:760px; margin:0 auto; padding:clamp(3rem,7vw,5.5rem) var(--gutter) 5rem; }
-    .eyebrow { font-family:var(--mono); font-size:0.72rem; text-transform:uppercase; letter-spacing:0.2em; color:var(--brass); }
-    h1 { font-family:var(--serif); font-weight:360; font-size:clamp(2.4rem,1rem+5vw,4rem); letter-spacing:-0.03em; line-height:1; margin:1.1rem 0 0.8rem; }
-    .updated { font-family:var(--mono); font-size:0.72rem; letter-spacing:0.08em; color:var(--bone-faint); margin-bottom:2.6rem; }
-    h2 { font-family:var(--serif); font-weight:420; font-size:clamp(1.4rem,1rem+1.4vw,1.9rem); letter-spacing:-0.015em; margin:2.6rem 0 0.9rem; padding-top:1.6rem; border-top:1px solid var(--line); }
-    p, li { color:var(--bone-dim); margin-bottom:0.9rem; }
-    strong { color:var(--bone); font-weight:500; }
-    ul { padding-left:1.2rem; margin-bottom:0.9rem; }
-    li { margin-bottom:0.5rem; }
-    .callout { background:var(--ink-2); border:1px solid var(--line); border-left:2px solid var(--brass); border-radius:10px; padding:1.1rem 1.3rem; margin:1.4rem 0; font-size:0.9rem; }
-    .foot { border-top:1px solid var(--line); padding:2rem var(--gutter); text-align:center; font-family:var(--mono); font-size:0.7rem; letter-spacing:0.12em; color:var(--bone-faint); }
-  </style>
-  <script src="js/api.js"></script>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Privacy notice — SecurityArts</title>
+<meta name="description" content="What SecurityArts collects, why, who helps us process it, what's public by design, and the rights you have.">
+<link rel="canonical" href="https://security-arts.vercel.app/privacy">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="SecurityArts">
+<meta property="og:title" content="Privacy notice — SecurityArts">
+<meta property="og:description" content="What SecurityArts collects, why, who helps us process it, what's public by design, and the rights you have.">
+<meta property="og:url" content="https://security-arts.vercel.app/privacy">
+<meta property="og:image" content="https://security-arts.vercel.app/og-image.png">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="icon" href="/assets/seal/modern-24.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Sans:wght@500;600;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/assets/site.css">
+<style>
+.legal-hero .updated { font: 500 0.75rem/1.4 var(--mono); letter-spacing: 0.08em; text-transform: uppercase; color: var(--ink-soft); }
+  .band--sky .section-label span { color: var(--red-deep); }
+  .legal { display: grid; gap: 1.05rem; max-width: 72ch; }
+  .legal > * { margin: 0; }
+  .legal h2 { font: 700 clamp(1.4rem, 1rem + 1.4vw, 2rem)/1.1 var(--display); letter-spacing: -0.03em; margin-top: 1.8rem; text-wrap: balance; }
+  .legal h2 span { font: 500 0.75rem var(--mono); color: var(--red-deep); letter-spacing: 0.1em; margin-right: 0.6rem; vertical-align: 0.25em; }
+  .legal h3 { font: 700 1.1rem/1.2 var(--display); letter-spacing: -0.02em; margin-top: 0.6rem; }
+  .legal p, .legal li { color: var(--ink-soft); }
+  .legal strong, .legal b { color: var(--ink); }
+  .legal ul, .legal ol { padding-left: 1.2rem; display: grid; gap: 0.4rem; }
+  .legal li::marker { color: var(--red); }
+  .legal a { color: var(--ink); font-weight: 600; text-decoration: underline; text-decoration-color: var(--red); text-decoration-thickness: 2px; text-underline-offset: 0.2em; overflow-wrap: anywhere; }
+  .legal .draft { background: #fffefb; border: var(--stroke-control) solid var(--ink); border-radius: var(--radius-card); padding: 1rem 1.2rem; font-size: 0.95rem; }
+  .legal .summary { background: var(--paper-2); border-radius: var(--radius-card); padding: 1.2rem 1.3rem; display: grid; gap: 0.6rem; }
+  .legal .summary h2 { margin: 0; font-size: 1.2rem; }
+  .legal .yesno { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0.8rem; }
+  .legal .yesno div { border-radius: var(--radius-card); padding: 1rem 1.1rem; }
+  .legal .yesno .yes { background: var(--sky); }
+  .legal .yesno .no { border: var(--stroke-control) dashed var(--ink); }
+  .legal .yesno b { display: block; font: 700 1rem var(--display); margin-bottom: 0.4rem; }
+  .legal .yesno ul { margin: 0; }
+  .legal .public { background: var(--sky); border-radius: var(--radius-card); padding: 1.1rem 1.2rem; display: grid; gap: 0.6rem; }
+  .legal .public p { margin: 0; }
+  .legal .table-wrap { margin-block: 0.4rem; }
+  @media (max-width: 640px) { .legal .yesno { grid-template-columns: minmax(0, 1fr); } }
+</style>
 </head>
 <body>
-  <header class="head">
-    <a class="brand" href="index.html" aria-label="SecurityArts — home">
-      <svg viewBox="0 0 100 100" aria-hidden="true"><g fill="none" stroke="#f4f1e9" stroke-width="2.1"><circle cx="50" cy="50" r="27"/></g><path fill="#f4f1e9" d="M 50 34.5 L 53.76 44.82 L 64.74 45.21 L 56.09 51.98 L 59.11 62.54 L 50 56.4 L 40.89 62.54 L 43.91 51.98 L 35.26 45.21 L 46.24 44.82 Z"/></svg>
-      <span>SecurityArts</span>
+<a class="skip-link" href="#main">Skip to content</a>
+
+<header class="site-head">
+  <a class="brand" href="/" aria-label="SecurityArts home">
+    <img class="brand__seal" src="/assets/seal/modern-24.svg" width="30" height="30" alt="">
+    <span class="brand__word">SecurityArts</span>
+  </a>
+  <nav class="nav" aria-label="Primary">
+    <a href="/wall"><span class="nav__idx">01</span> The wall</a>
+    <a href="/how-it-works"><span class="nav__idx">02</span> How it works</a>
+    <a href="/pricing"><span class="nav__idx">03</span> Pricing</a>
+    <a href="/#studio"><span class="nav__idx">04</span> Studio</a>
+  </nav>
+  <div class="head-auth" data-auth-slot>
+    <a href="/join">Sign in</a>
+    <a class="head-auth__join" href="/join?mode=signup">Join</a>
+  </div>
+  <a class="head-cta" href="/join?mode=signup" data-seal-cta>Seal a piece <span aria-hidden="true">→</span></a>
+  <button class="menu-btn" id="menuBtn" type="button" aria-expanded="false" aria-controls="mobileMenu" aria-label="Open menu"><span></span><span></span></button>
+</header>
+
+<div class="mobile-menu" id="mobileMenu" hidden>
+  <nav aria-label="Mobile">
+    <a href="/wall"><span>01</span> The wall</a>
+    <a href="/how-it-works"><span>02</span> How it works</a>
+    <a href="/pricing"><span>03</span> Pricing</a>
+    <a href="/#studio"><span>04</span> Studio</a>
+  </nav>
+  <div class="head-auth" data-auth-slot>
+    <a href="/join">Sign in</a>
+    <a class="head-auth__join" href="/join?mode=signup">Join</a>
+  </div>
+  <a class="btn btn--red" href="/join?mode=signup" data-seal-cta>Seal a piece</a>
+</div>
+
+<main id="main">
+  <section class="page-hero legal-hero band--sky" aria-labelledby="page-h">
+    <div class="wrap">
+      <p class="section-label"><span>01</span> Legal</p>
+      <h1 class="display" id="page-h">Privacy <em>notice</em></h1>
+      <p class="updated">Last updated 25 September 2026</p>
+      <div class="page-hero__actions">
+        <a class="btn btn--ghost" href="/terms">Terms of Service</a>
+      </div>
+    </div>
+  </section>
+
+  <section class="band" aria-labelledby="page-h">
+    <div class="wrap">
+      <div class="legal">
+      <p class="draft"><strong>Draft for legal review.</strong> This version describes the data SecurityArts actually handles today. It still needs review by a lawyer, and the operating company (section 01) still needs to be filled in, before launch.</p>
+
+      <div class="summary">
+        <h2>The short version</h2>
+        <ul>
+          <li>We collect what we need to run your account, seal your work and run the marketplace. We don't sell your data, and we don't use your work to train AI.</li>
+          <li><strong>Sealed work is public by design</strong>: the image, its credit, the sealing account and the certificate.</li>
+          <li>Sign-up and sign-in are handled by Clerk. We never see your password.</li>
+          <li>You can see, correct, export or delete your data by emailing <a href="mailto:privacy@securityarts.studio">privacy@securityarts.studio</a>.</li>
+        </ul>
+      </div>
+
+      <h2><span>01</span>Who we are</h2>
+      <p>SecurityArts is operated by <strong>[legal entity name and address, to be filled in]</strong>, which decides how your data is used (the "controller"). Contact: <a href="mailto:privacy@securityarts.studio">privacy@securityarts.studio</a>.</p>
+
+      <h2><span>02</span>What we collect, and why</h2>
+      <div class="table-wrap"><table class="table">
+        <thead><tr><th scope="col">What</th><th scope="col">When</th><th scope="col">Why (legal basis)</th></tr></thead>
+        <tbody>
+          <tr><td>Account details: email, name, sign-in method</td><td>When you sign up. Clerk holds your password (as a one-way hash), or your Google account link if you sign in with Google.</td><td>To give you an account (contract).</td></tr>
+          <tr><td>Profile: handle, bio, pronouns, banner image, and whether your profile is public or private</td><td>When you fill it in.</td><td>To show your profile the way you choose (contract).</td></tr>
+          <tr><td>Sealed work: the image file, title, credit, medium, fingerprint, signature, sealing time and the sealing account</td><td>When you seal a piece.</td><td>To seal it and publish its certificate (contract).</td></tr>
+          <tr><td>Comments, likes and boards</td><td>When you use them. Comments are public.</td><td>To provide those features (contract).</td></tr>
+          <tr><td>Orders, subscriptions and payouts: name, email, what you bought or sold, licence, plan</td><td>When payments are live and you buy, sell or subscribe. Card details go to our payment provider; we never store full card numbers.</td><td>To complete the purchase (contract) and keep tax records (legal obligation).</td></tr>
+          <tr><td>Newsletter email</td><td>Only if you subscribe.</td><td>Your consent. Unsubscribe at any time.</td></tr>
+          <tr><td>Security data: IP address, browser details and request logs</td><td>Whenever you use the site.</td><td>To stop abuse and keep the service secure (legitimate interest).</td></tr>
+          <tr><td>Usage and error data: pages viewed, actions taken, crash reports</td><td>Only where analytics or error reporting is switched on.</td><td>To fix bugs and improve the product (legitimate interest, or consent where the law requires it).</td></tr>
+        </tbody>
+      </table></div>
+
+      <h2><span>03</span>Public by design</h2>
+      <div class="public">
+        <p>SecurityArts exists to publish certificates. When you seal a piece, its <strong>image, title, credit, medium, fingerprint and sealing time, and the sealing account's name and handle</strong>, appear on the wall and on its certificate page. Anyone can see them, and anyone can check a file against them. Your email address is never shown. If your profile is set to private, only your name and handle are shown on it.</p>
+      </div>
+
+      <h2><span>04</span>Who helps us process it</h2>
+      <p>We use these providers to run SecurityArts. Each one gets only what it needs for its job:</p>
+      <div class="table-wrap"><table class="table">
+        <thead><tr><th scope="col">Provider</th><th scope="col">What they do for us</th></tr></thead>
+        <tbody>
+          <tr><td>Clerk</td><td>Sign-up, sign-in, email verification codes, sessions, and Google sign-in if you choose it.</td></tr>
+          <tr><td>Supabase</td><td>Our database and image storage.</td></tr>
+          <tr><td>Vercel</td><td>Hosting the website and our server code.</td></tr>
+          <tr><td>Resend</td><td>Sending account email, and the newsletter once it starts.</td></tr>
+          <tr><td>Stripe</td><td>Payments and payouts, once they're live.</td></tr>
+          <tr><td>PostHog</td><td>Product analytics (page views and actions), only when switched on.</td></tr>
+          <tr><td>Sentry</td><td>Crash and error reports, only when switched on.</td></tr>
+          <tr><td>Google</td><td>Google sign-in, if you choose it. Our pages also load fonts from Google Fonts, which shares your IP address with Google.</td></tr>
+        </tbody>
+      </table></div>
+      <p>Several of these providers are based in the United States. Where your data leaves your country, we rely on the providers' standard data-protection terms, such as Standard Contractual Clauses. We may also disclose information when the law requires it. We never sell or rent your data.</p>
+
+      <h2><span>05</span>Cookies and browser storage</h2>
+      <ul>
+        <li><strong>Sign-in cookies</strong> (set by Clerk, and our own session cookie) keep you signed in. They're essential, so they can't be switched off while you're signed in.</li>
+        <li><strong>Analytics</strong> (PostHog) may store an identifier in your browser, but only where analytics is switched on. Where the law requires it, we ask first.</li>
+        <li>Small preferences, such as light or dark mode, are kept in your own browser.</li>
+        <li>No advertising cookies. No selling or sharing your data for ads.</li>
+      </ul>
+
+      <h2><span>06</span>Your work and AI</h2>
+      <p>We don't use your uploaded work, or anything else you give us, to train AI models, and we don't license it to anyone who does.</p>
+
+      <h2><span>07</span>How long we keep it</h2>
+      <ul>
+        <li>Account and profile data: while your account is open.</li>
+        <li>Sealed work: until you or we delete it. Once deleted, it comes off the wall and its certificate stops resolving.</li>
+        <li>Newsletter: until you unsubscribe.</li>
+        <li>Order and payout records: as long as tax and accounting law requires.</li>
+        <li>Security logs: a short rolling window, unless they're needed to investigate abuse.</li>
+      </ul>
+
+      <h2><span>08</span>Your rights</h2>
+      <p>Depending on where you live (for example under the GDPR, the UK GDPR or the CCPA/CPRA), you can ask to see, correct, export or delete your data, restrict or object to how we use it, and withdraw consent at any time. Email <a href="mailto:privacy@securityarts.studio">privacy@securityarts.studio</a> and we'll respond within the time the law sets. You can also complain to your local data-protection authority. When you delete your account, we remove it from Clerk and from our records and take your sealed work down. We can't recall copies other people have already saved.</p>
+
+      <h2><span>09</span>Security</h2>
+      <p>Everything travels over HTTPS. Clerk handles passwords, so we never see them. Seals are signed with a key kept on our servers, and we use rate limiting, request checks, a strict Content-Security-Policy and audit logs. No system is perfectly secure; if something goes wrong that affects you, we'll tell you as the law requires.</p>
+
+      <h2><span>10</span>Children</h2>
+      <p>SecurityArts isn't for anyone under 16, and we don't knowingly collect their data. If you think a child has signed up, email us and we'll delete the account.</p>
+
+      <h2><span>11</span>Changes</h2>
+      <p>If we change how we handle data in a way that matters, we'll update this page with a new date and, where it affects you, tell you before it takes effect.</p>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer class="site-foot">
+  <div class="wrap">
+    <a class="brand" href="/" aria-label="SecurityArts home">
+      <img class="brand__seal" src="/assets/seal/modern-24-dark.svg" width="30" height="30" alt="">
+      <span class="brand__word">SecurityArts</span>
     </a>
-    <a class="back" href="index.html">← Back</a>
-  </header>
+    <nav aria-label="Footer">
+      <a href="/wall">The wall</a>
+      <a href="/how-it-works">How it works</a>
+      <a href="/verify">Verify a seal</a>
+      <a href="/pricing">Pricing</a>
+      <a href="/faq">FAQ</a>
+      <a href="/#studio">Studio</a>
+      <a href="/privacy">Privacy</a>
+      <a href="/terms">Terms</a>
+    </nav>
+    <small>A receipt for your art. Every certificate on the wall is public. hello@securityarts.studio</small>
+  </div>
+</footer>
 
-  <main>
-    <p class="eyebrow">Legal</p>
-    <h1>Privacy Policy</h1>
-    <p class="updated">Last updated: 1 July 2026 · Effective immediately</p>
-
-    <p>SecurityArts ("we", "us") builds tools that verify human-made art. This policy explains
-      what we collect, why, and the rights you have. It covers the marketing site, the discovery
-      app, and the marketplace. If you only browse, we collect very little; the sections below note
-      exactly when more is collected.</p>
-
-    <div class="callout"><strong>Template notice.</strong> This document is a working draft written
-      to reflect the product's actual data flows. Have it reviewed by qualified counsel before
-      public launch, and localize for the jurisdictions you operate in.</div>
-
-    <h2>1. What we collect</h2>
-    <ul>
-      <li><strong>Newsletter email</strong> — only if you subscribe. Basis: your consent.</li>
-      <li><strong>Account details</strong> — email, display name, and a password (stored only as a
-        salted <strong>scrypt</strong> hash; we never see the plaintext). Basis: to provide the service.</li>
-      <li><strong>Uploaded artwork &amp; its seal</strong> — the image you submit for verification,
-        plus the cryptographic certificate (content hash, signature, timestamp) we generate from it.
-        Basis: to perform verification you request.</li>
-      <li><strong>Order details</strong> — email, name, items, and (when payments launch) processing
-        handled by our payment provider. We do not store full card numbers.</li>
-      <li><strong>Technical &amp; security data</strong> — IP address and request metadata, used for
-        rate-limiting, fraud prevention, and audit logging. Basis: our legitimate interest in
-        keeping the service secure.</li>
-      <li><strong>Cookies</strong> — a single <strong>HttpOnly, SameSite</strong> session cookie when
-        you sign in. No third-party advertising or tracking cookies.</li>
-    </ul>
-
-    <h2>2. How we use it</h2>
-    <p>To operate the service (accounts, verification, boards, orders), to send the newsletter you
-      opted into, to secure the platform against abuse, and to meet legal obligations. We do not sell
-      your personal data, and we do not use it to train AI models.</p>
-
-    <h2>3. Who we share it with</h2>
-    <p>Only service providers needed to run the platform — e.g. a payment processor and an email
-      delivery provider — under contract and only for those purposes. We may disclose information if
-      required by law. We never sell or rent your data.</p>
-
-    <h2>4. Your rights</h2>
-    <p>Depending on where you live (GDPR / UK GDPR, CCPA/CPRA, PIPEDA and others), you may have the
-      right to access, correct, delete, export, or restrict processing of your data, to withdraw
-      consent, and to opt out of sale/sharing (we do neither). Exercise any of these by emailing
-      <a href="mailto:privacy@securityarts.studio">privacy@securityarts.studio</a>. We respond within
-      the timeframes required by applicable law.</p>
-
-    <h2>5. Retention</h2>
-    <p>We keep data only as long as needed for the purpose collected: newsletter data until you
-      unsubscribe; account and verification data while your account is active; order records as
-      required for tax and accounting; security logs on a rolling short-term window.</p>
-
-    <h2>6. Security</h2>
-    <p>Data is transmitted over HTTPS. Passwords are salted and hashed with scrypt. Sessions use
-      signed, HttpOnly cookies. We apply a Content-Security-Policy, security headers, rate limiting,
-      same-origin request checks, and audit logging. No system is perfectly secure, but our controls
-      are designed against the OWASP Top 10 and mapped to NIST CSF, ISO 27001, SOC 2, and CIS
-      Benchmarks (see our security documentation).</p>
-
-    <h2>7. Children</h2>
-    <p>The service is not directed to children under 16, and we do not knowingly collect their data.</p>
-
-    <h2>8. Changes &amp; contact</h2>
-    <p>We'll post any material changes here with a new effective date. Questions or requests:
-      <a href="mailto:privacy@securityarts.studio">privacy@securityarts.studio</a>.</p>
-  </main>
-
-  <footer class="foot">© 2026 SecurityArts · <a href="terms.html">Terms of Service</a></footer>
+<script src="/js/api.js"></script>
+<script type="module">
+  import { initSite } from "/assets/site.js";
+  initSite();
+</script>
 </body>
 </html>

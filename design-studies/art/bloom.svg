@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 1000" width="800" height="1000">
+  <title>Bloom (placeholder artwork)</title>
+
+  <rect width="800" height="1000" fill="#F7B6C8"/>
+  <ellipse cx="400" cy="420" rx="70" ry="210" transform="rotate(0 400 420)" fill="#D6336C" opacity="0.8"/>
+  <ellipse cx="400" cy="420" rx="70" ry="210" transform="rotate(22.5 400 420)" fill="#D6336C" opacity="0.8"/>
+  <ellipse cx="400" cy="420" rx="70" ry="210" transform="rotate(45 400 420)" fill="#D6336C" opacity="0.8"/>
+  <ellipse cx="400" cy="420" rx="70" ry="210" transform="rotate(67.5 400 420)" fill="#D6336C" opacity="0.8"/>
+  <ellipse cx="400" cy="420" rx="70" ry="210" transform="rotate(90 400 420)" fill="#D6336C" opacity="0.8"/>
+  <ellipse cx="400" cy="420" rx="70" ry="210" transform="rotate(112.5 400 420)" fill="#D6336C" opacity="0.8"/>
+  <ellipse cx="400" cy="420" rx="70" ry="210" transform="rotate(135 400 420)" fill="#D6336C" opacity="0.8"/>
+  <ellipse cx="400" cy="420" rx="70" ry="210" transform="rotate(157.5 400 420)" fill="#D6336C" opacity="0.8"/>
+  <circle cx="400" cy="420" r="70" fill="#7A1E48"/>
+  <path d="M400 630 C390 760 420 860 380 1000" stroke="#4E7D3B" stroke-width="16" fill="none"/>
+  <ellipse cx="470" cy="820" rx="80" ry="26" transform="rotate(-25 470 820)" fill="#4E7D3B"/>
+</svg>

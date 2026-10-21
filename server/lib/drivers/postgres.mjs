@@ -16,7 +16,16 @@ import { fileURLToPath } from "node:url";
 const rowToUser = (r) => (r ? {
   id: r.id, email: r.email, name: r.name, pass: r.pass, createdAt: r.created_at, profile: r.profile || {}, handle: r.handle || null,
   sessionVersion: Number(r.session_version ?? 1), emailVerified: r.email_verified === true, googleSub: r.google_sub || null,
+  clerkId: r.clerk_id || null,
 } : null);
+// Unique-violation → typed error, so routes answer 409 and linking can retry (matches the file driver).
+function uniqueError(e) {
+  if (!e || e.code !== "23505") return null;
+  const c = e.constraint || "";
+  if (/google_sub/.test(c)) return Object.assign(new Error("google sub taken"), { code: "GOOGLE_SUB_TAKEN" });
+  if (/clerk_id/.test(c)) return Object.assign(new Error("clerk id taken"), { code: "CLERK_ID_TAKEN" });
+  return null;
+}
 const rowToWork = (r) => (r ? {
   id: r.id, own: r.own, title: r.title, artist: r.artist, cat: r.cat, medium: r.medium,
   price: r.price ?? undefined, // NULL = not for sale; omitted from JSON like the file driver
@@ -78,17 +87,21 @@ export async function createRepo() {
       async findById(id) { return rowToUser((await q("SELECT * FROM users WHERE id=$1", [id])).rows[0]); },
       async findByHandle(handle) { return rowToUser((await q("SELECT * FROM users WHERE lower(handle)=lower($1) LIMIT 1", [handle])).rows[0]); },
       async findByGoogleSub(sub) { return sub ? rowToUser((await q("SELECT * FROM users WHERE google_sub=$1", [sub])).rows[0]) : null; },
+      async findByClerkId(id) { return id ? rowToUser((await q("SELECT * FROM users WHERE clerk_id=$1", [id])).rows[0]) : null; },
+      // Every account, oldest first, in pages (the Clerk import walks this).
+      async listAll({ limit = 500, offset = 0 } = {}) {
+        return (await q("SELECT * FROM users ORDER BY created_at ASC, id ASC LIMIT $1 OFFSET $2", [limit, offset])).rows.map(rowToUser);
+      },
       async create(u) {
         try {
           await q(
-            "INSERT INTO users (id,email,name,pass,created_at,session_version,email_verified,google_sub) VALUES ($1,$2,$3,$4,$5,$6,$7,$8)",
-            [u.id, u.email, u.name, u.pass, u.createdAt, u.sessionVersion ?? 1, u.emailVerified === true, u.googleSub || null]
+            "INSERT INTO users (id,email,name,pass,created_at,session_version,email_verified,google_sub,clerk_id) VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9)",
+            [u.id, u.email, u.name, u.pass, u.createdAt, u.sessionVersion ?? 1, u.emailVerified === true, u.googleSub || null, u.clerkId || null]
           );
         } catch (e) {
-          if (e && e.code === "23505" && /google_sub/.test(e.constraint || "")) throw Object.assign(new Error("google sub taken"), { code: "GOOGLE_SUB_TAKEN" });
-          throw e;
+          throw uniqueError(e) || e;
         }
-        return { sessionVersion: 1, emailVerified: false, googleSub: null, ...u };
+        return { sessionVersion: 1, emailVerified: false, googleSub: null, clerkId: null, ...u };
       },
       // Patch a user (name / handle / pass / profile / session + verification state).
       // Builds the SET clause from provided keys only.
@@ -100,7 +113,8 @@ export async function createRepo() {
         if (patch.profile !== undefined) { vals.push(JSON.stringify(patch.profile)); sets.push(`profile=$${vals.length}::jsonb`); }
         if (patch.sessionVersion !== undefined) { vals.push(Number(patch.sessionVersion)); sets.push(`session_version=$${vals.length}`); }
         if (patch.emailVerified !== undefined) { vals.push(patch.emailVerified === true); sets.push(`email_verified=$${vals.length}`); }
-        if (patch.googleSub !== undefined) { vals.push(patch.googleSub || null); sets.push(`google_sub=$${vals.length}`); }
+        if (patch.googleSub !== undefined) { vals.push(patch.googleSub || null); sets.push(`google_sub=${vals.length}`); }
+        if (patch.clerkId !== undefined) { vals.push(patch.clerkId || null); sets.push(`clerk_id=${vals.length}`); }
         if (!sets.length) return rowToUser((await q("SELECT * FROM users WHERE id=$1", [id])).rows[0]);
         vals.push(id);
         let r;
@@ -110,10 +124,7 @@ export async function createRepo() {
           // unique_violation → a concurrent claim won (handle, or a Google identity already
           // linked elsewhere). Surface typed errors so routes answer 409, not 500 (matches
           // the file driver).
-          if (e && e.code === "23505") {
-            if (/google_sub/.test(e.constraint || "")) throw Object.assign(new Error("google sub taken"), { code: "GOOGLE_SUB_TAKEN" });
-            throw Object.assign(new Error("handle taken"), { code: "HANDLE_TAKEN" });
-          }
+          if (e && e.code === "23505") throw uniqueError(e) || Object.assign(new Error("handle taken"), { code: "HANDLE_TAKEN" });
           throw e;
         }
         return rowToUser(r.rows[0]);

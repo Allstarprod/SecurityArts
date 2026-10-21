@@ -1,0 +1,60 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 1000" width="800" height="1000">
+  <title>Blueprint (placeholder artwork)</title>
+
+  <rect width="800" height="1000" fill="#1F6FB2"/>
+  <g stroke="#FFFFFF" fill="none">
+    <path d="M0 0 V1000" stroke-width="1" opacity="0.18"/>
+    <path d="M40 0 V1000" stroke-width="1" opacity="0.18"/>
+    <path d="M80 0 V1000" stroke-width="1" opacity="0.18"/>
+    <path d="M120 0 V1000" stroke-width="1" opacity="0.18"/>
+    <path d="M160 0 V1000" stroke-width="1" opacity="0.18"/>
+    <path d="M200 0 V1000" stroke-width="1" opacity="0.18"/>
+    <path d="M240 0 V1000" stroke-width="1" opacity="0.18"/>
+    <path d="M280 0 V1000" stroke-width="1" opacity="0.18"/>
+    <path d="M320 0 V1000" stroke-width="1" opacity="0.18"/>
+    <path d="M360 0 V1000" stroke-width="1" opacity="0.18"/>
+    <path d="M400 0 V1000" stroke-width="1" opacity="0.18"/>
+    <path d="M440 0 V1000" stroke-width="1" opacity="0.18"/>
+    <path d="M480 0 V1000" stroke-width="1" opacity="0.18"/>
+    <path d="M520 0 V1000" stroke-width="1" opacity="0.18"/>
+    <path d="M560 0 V1000" stroke-width="1" opacity="0.18"/>
+    <path d="M600 0 V1000" stroke-width="1" opacity="0.18"/>
+    <path d="M640 0 V1000" stroke-width="1" opacity="0.18"/>
+    <path d="M680 0 V1000" stroke-width="1" opacity="0.18"/>
+    <path d="M720 0 V1000" stroke-width="1" opacity="0.18"/>
+    <path d="M760 0 V1000" stroke-width="1" opacity="0.18"/>
+    <path d="M800 0 V1000" stroke-width="1" opacity="0.18"/>
+    <path d="M0 0 H800" stroke-width="1" opacity="0.18"/>
+    <path d="M0 40 H800" stroke-width="1" opacity="0.18"/>
+    <path d="M0 80 H800" stroke-width="1" opacity="0.18"/>
+    <path d="M0 120 H800" stroke-width="1" opacity="0.18"/>
+    <path d="M0 160 H800" stroke-width="1" opacity="0.18"/>
+    <path d="M0 200 H800" stroke-width="1" opacity="0.18"/>
+    <path d="M0 240 H800" stroke-width="1" opacity="0.18"/>
+    <path d="M0 280 H800" stroke-width="1" opacity="0.18"/>
+    <path d="M0 320 H800" stroke-width="1" opacity="0.18"/>
+    <path d="M0 360 H800" stroke-width="1" opacity="0.18"/>
+    <path d="M0 400 H800" stroke-width="1" opacity="0.18"/>
+    <path d="M0 440 H800" stroke-width="1" opacity="0.18"/>
+    <path d="M0 480 H800" stroke-width="1" opacity="0.18"/>
+    <path d="M0 520 H800" stroke-width="1" opacity="0.18"/>
+    <path d="M0 560 H800" stroke-width="1" opacity="0.18"/>
+    <path d="M0 600 H800" stroke-width="1" opacity="0.18"/>
+    <path d="M0 640 H800" stroke-width="1" opacity="0.18"/>
+    <path d="M0 680 H800" stroke-width="1" opacity="0.18"/>
+    <path d="M0 720 H800" stroke-width="1" opacity="0.18"/>
+    <path d="M0 760 H800" stroke-width="1" opacity="0.18"/>
+    <path d="M0 800 H800" stroke-width="1" opacity="0.18"/>
+    <path d="M0 840 H800" stroke-width="1" opacity="0.18"/>
+    <path d="M0 880 H800" stroke-width="1" opacity="0.18"/>
+    <path d="M0 920 H800" stroke-width="1" opacity="0.18"/>
+    <path d="M0 960 H800" stroke-width="1" opacity="0.18"/>
+    <path d="M0 1000 H800" stroke-width="1" opacity="0.18"/>
+    <rect x="160" y="200" width="480" height="560" stroke-width="5"/>
+    <path d="M160 440 H640 M400 200 V760" stroke-width="3"/>
+    <circle cx="400" cy="440" r="120" stroke-width="4"/>
+    <path d="M160 820 H640" stroke-width="2"/>
+    <path d="M160 805 V835 M640 805 V835" stroke-width="2"/>
+  </g>
+  <text x="330" y="870" font-family="monospace" font-size="24" fill="#FFFFFF">4800 mm</text>
+</svg>

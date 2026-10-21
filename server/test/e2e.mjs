@@ -76,7 +76,7 @@ const main = async () => {
     const text = await r.text();
     check(`static denied: ${p} → 404`, r.status === 404 && !/DATABASE_URL|PRIVATE KEY|ref: refs/.test(text), `HTTP ${r.status}`);
   }
-  for (const p of ["/", "/index.html", "/js/api.js", "/robots.txt", "/SecurityArts%20Design%20System/website/ui_kits/discover/"]) {
+  for (const p of ["/", "/index.html", "/js/api.js", "/robots.txt", "/wall.html", "/assets/site.css"]) {
     const r = await fetch(`${O}${p}`);
     check(`static allowed: ${p} → 200`, r.status === 200, `HTTP ${r.status}`);
   }
@@ -141,6 +141,13 @@ const main = async () => {
   const list = await api("/api/works?cat=painting&q=e2e");
   const inList = (list.j?.data || []).find((w) => w.id === id);
   check("list (filtered): blob stripped + hasImage", !!inList && inList.img === undefined && inList.hasImage === true);
+  const owned = await api(`/api/users/${reg.j?.data?.id}/works`, { noCookie: true });
+  const ownedOne = (owned.j?.data || []).find((w) => w.id === id);
+  check("profile works: public list of a user's seals, blob stripped", owned.status === 200 && !!ownedOne && ownedOne.img === undefined, `HTTP ${owned.status}`);
+  const pubUser = await api(`/api/users/${reg.j?.data?.id}`, { noCookie: true });
+  check("public profile: says whether the handle is claimed (unclaimed → false)", pubUser.j?.data?.handleClaimed === false && /^user_/.test(pubUser.j?.data?.handle || ""));
+  const noUser = await api("/api/users/no-such-user/works", { noCookie: true });
+  check("profile works: unknown user → 404", noUser.status === 404, `HTTP ${noUser.status}`);
   const one = await api(`/api/works/${id}`);
   const img = one.j?.data?.img || "";
   check("detail serves image (data: or CDN url)", one.status === 200 && (img.startsWith("data:image/png;base64,") || img.startsWith("http")), img.slice(0, 40));

@@ -1,0 +1,19 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 240 240" width="24" height="24" role="img" aria-labelledby="ringtext-24d-title">
+  <title id="ringtext-24d-title">SecurityArts seal</title>
+  <!--
+    RINGTEXT at nav size (24px) and favicon size (16px). Same geometry; no legend, no grain,
+    no <style>. The legend is the one thing that cannot survive here, so the icon is simply
+    the seal — which is the point: with the type gone it must still be the same mark.
+    Strokes go from 6 / 4.4 to 14 / 11 so they hold at 1.4px / 1.1px in a 24px box, and the
+    cream channel between the scallop cusps and the ring stays ~1.15px wide.
+    Flat tangerine only, so one file serves the cream nav and the charcoal studio nav.
+  -->
+  <g transform="translate(120 120)" fill="none" stroke="#FF6B1A" stroke-linejoin="round">
+    <!-- scalloped edge -->
+    <path stroke-width="14" d="M0,-88.8 A17.33,17.33 0 0 1 33.98,-82.04 A17.33,17.33 0 0 1 62.79,-62.79 A17.33,17.33 0 0 1 82.04,-33.98 A17.33,17.33 0 0 1 88.8,0 A17.33,17.33 0 0 1 82.04,33.98 A17.33,17.33 0 0 1 62.79,62.79 A17.33,17.33 0 0 1 33.98,82.04 A17.33,17.33 0 0 1 0,88.8 A17.33,17.33 0 0 1 -33.98,82.04 A17.33,17.33 0 0 1 -62.79,62.79 A17.33,17.33 0 0 1 -82.04,33.98 A17.33,17.33 0 0 1 -88.8,0 A17.33,17.33 0 0 1 -82.04,-33.98 A17.33,17.33 0 0 1 -62.79,-62.79 A17.33,17.33 0 0 1 -33.98,-82.04 A17.33,17.33 0 0 1 0,-88.8 Z"/>
+    <!-- ring -->
+    <circle r="64.8" stroke-width="11"/>
+    <!-- star -->
+    <path fill="#FF6B1A" stroke="none" d="M0,-37.2 L9.02,-12.43 L35.38,-11.5 L14.62,4.75 L21.86,30.1 L0,15.36 L-21.86,30.1 L-14.62,4.75 L-35.38,-11.5 L-9.02,-12.43 Z"/>
+  </g>
+</svg>

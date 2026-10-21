@@ -30,13 +30,22 @@ const SENTRY = "https://*.ingest.sentry.io https://*.ingest.us.sentry.io https:/
 // browser loads <img> from here; it never fetch()es Supabase directly (all writes go
 // through /api with the service key server-side), so connect-src does NOT list it.
 const SUPABASE_CDN = "https://ixdkfakibuctwhgwngsw.supabase.co";
+// Clerk (sign-in): its Frontend API serves clerk-js + the UI bundle and answers the
+// session calls; Cloudflare's challenge and Clerk's fraud checks run in frames/scripts.
+// Development instances live on *.clerk.accounts.dev. A production instance uses
+// clerk.<your-domain> — add that host here and in vercel.json when it's set up (CLERK.md).
+const CLERK_FAPI = "https://*.clerk.accounts.dev";
+const CLERK_PROTECT = "https://*.protect.clerk.com";
+const CLOUDFLARE_CHALLENGE = "https://challenges.cloudflare.com";
 export const CSP = [
   "default-src 'self'",
-  `script-src 'self' 'unsafe-inline' ${POSTHOG}`,
+  `script-src 'self' 'unsafe-inline' ${POSTHOG} ${CLERK_FAPI} ${CLOUDFLARE_CHALLENGE} ${CLERK_PROTECT}`,
   "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
   "font-src 'self' https://fonts.gstatic.com",
-  `img-src 'self' data: blob: ${SUPABASE_CDN}`,
-  `connect-src 'self' ${POSTHOG} ${SENTRY}`,
+  `img-src 'self' data: blob: ${SUPABASE_CDN} https://img.clerk.com`,
+  `connect-src 'self' ${POSTHOG} ${SENTRY} ${CLERK_FAPI} ${CLERK_PROTECT}:*`,
+  "worker-src 'self' blob:",
+  `frame-src ${CLOUDFLARE_CHALLENGE} ${CLERK_PROTECT}`,
   "frame-ancestors 'none'",
   "base-uri 'self'",
   "form-action 'self'",

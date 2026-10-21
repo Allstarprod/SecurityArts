@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Seal treatments — contact sheet</title>
+<meta name="robots" content="noindex">
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Sans:wght@500;600;700&family=JetBrains+Mono:wght@500&display=swap" rel="stylesheet">
+<style>
+  :root { --cream:#FFF4E6; --ink:#17121F; --charcoal:#1F1B26; --paper:#F6EEE2; }
+  * { box-sizing: border-box; }
+  body { margin:0; background:#E9E3DA; color:var(--ink); font-family:"Instrument Sans", system-ui, sans-serif; }
+  header { display:flex; flex-wrap:wrap; align-items:center; justify-content:space-between; gap:1rem; padding:1rem 1.5rem; background:#fff; border-bottom:2px solid var(--ink); position:sticky; top:0; z-index:5; }
+  header h1 { margin:0; font-size:1.1rem; letter-spacing:-0.02em; }
+  header label { display:inline-flex; align-items:center; gap:0.5rem; font-weight:600; cursor:pointer; }
+  .grid { display:grid; grid-template-columns:repeat(auto-fill, minmax(700px, 1fr)); gap:1.25rem; padding:1.5rem; }
+  .card { background:#fff; border:2px solid var(--ink); border-radius:16px; overflow:hidden; }
+  .card h2 { margin:0; padding:0.75rem 1rem; font-size:1rem; border-bottom:2px solid var(--ink); display:flex; justify-content:space-between; align-items:baseline; }
+  .card h2 span { font-family:"JetBrains Mono", monospace; font-size:0.72rem; font-weight:500; opacity:0.6; }
+  .row { display:grid; grid-template-columns:1fr 1fr; }
+  .surf { padding:1.25rem; display:flex; align-items:center; justify-content:center; gap:1.5rem; min-height: 300px; }
+  .surf--cream { background:var(--cream); }
+  .surf--dark { background:var(--charcoal); }
+  .surf img { display:block; }
+  .s240 { width:240px; height:240px; }
+  .s58 { width:58px; height:58px; }
+  .s24 { width:24px; height:24px; }
+  .sizes { display:flex; flex-direction:column; align-items:center; gap:1rem; }
+  .missing { padding:2rem; text-align:center; opacity:0.5; }
+  /* Hue-neutral toggle: grayscale + darken so every treatment reads as ink */
+  body.neutral .surf--cream img { filter: grayscale(1) brightness(0.35) contrast(1.4); }
+  body.neutral .surf--dark img  { filter: grayscale(1) brightness(1.6) contrast(1.2); }
+  .note { padding:0 1.5rem 1.5rem; font-size:0.9rem; opacity:0.75; max-width:70ch; }
+</style>
+</head>
+<body class="neutral">
+<header>
+  <h1>Seal treatments — shape &amp; texture only</h1>
+  <label><input type="checkbox" id="neutral" checked> Neutralise hue (judge the form, not the rejected orange/purple)</label>
+</header>
+<p class="note">Each card: 240px hero, 58px tile badge, 24px nav — on cream and on charcoal. Toggle the checkbox to see the raw files. Color is decided separately.</p>
+<div class="grid" id="grid"></div>
+<script>
+  const IDS = [
+    ['faithful','Faithful — original geometry + ink grain'],
+    ['rubber','Rubber stamp — uneven ink, double strike'],
+    ['wax','Wax seal — filled, lit, debossed star'],
+    ['ringtext','Ring text — rotating "SEALED BY SECURITYARTS"'],
+    ['duotone','Solid knockout — filled disc, ring + star cut out'],
+    ['modern','Modernised — 12 lobes, heavier, bigger star'],
+  ];
+  const grid = document.getElementById('grid');
+  for (const [id, name] of IDS) {
+    const card = document.createElement('section'); card.className = 'card';
+    card.innerHTML = `<h2>${name}<span>${id}.svg</span></h2>
+      <div class="row">
+        <div class="surf surf--cream"><img class="s240" src="${id}.svg" alt=""><div class="sizes"><img class="s58" src="${id}.svg" alt=""><img class="s24" src="${id}-24.svg" alt=""></div></div>
+        <div class="surf surf--dark"><img class="s240" src="${id}-dark.svg" alt=""><div class="sizes"><img class="s58" src="${id}-dark.svg" alt=""><img class="s24" src="${id}-24-dark.svg" alt=""></div></div>
+      </div>`;
+    card.querySelectorAll('img').forEach(img => img.addEventListener('error', () => { img.replaceWith(Object.assign(document.createElement('div'), {className:'missing', textContent:'not generated'})); }));
+    grid.appendChild(card);
+  }
+  document.getElementById('neutral').addEventListener('change', e => document.body.classList.toggle('neutral', e.target.checked));
+</script>
+</body>
+</html>

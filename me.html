@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Your account — SecurityArts</title>
+<meta name="description" content="Your SecurityArts account: your profile, your sealed work and its numbers.">
+<meta name="robots" content="noindex">
+<link rel="canonical" href="https://security-arts.vercel.app/me">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="SecurityArts">
+<meta property="og:title" content="Your account — SecurityArts">
+<meta property="og:description" content="Your SecurityArts account: your profile, your sealed work and its numbers.">
+<meta property="og:url" content="https://security-arts.vercel.app/me">
+<meta property="og:image" content="https://security-arts.vercel.app/og-image.png">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="icon" href="/assets/seal/modern-24.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Sans:wght@500;600;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/assets/site.css">
+<style>
+.me-head .wrap { display: grid; gap: 1rem; padding-block: clamp(2.4rem, 6vw, 4.5rem); }
+  .me-name { font: 700 clamp(2.4rem, 1rem + 4vw, 4.4rem)/0.95 var(--display); letter-spacing: -0.045em; }
+  .me-name:focus { outline: none; }
+  .me-meta { color: var(--ink-soft); }
+  .me-actions { display: flex; flex-wrap: wrap; gap: var(--space-actions); }
+  .totals { margin: 0; display: grid; grid-template-columns: repeat(auto-fit, minmax(9rem, 1fr)); gap: 1rem; }
+  .totals div { border-top: var(--stroke-control) solid var(--ink); padding-top: 0.8rem; }
+  .totals dt { font: 500 0.7rem var(--mono); text-transform: uppercase; letter-spacing: 0.14em; color: var(--ink-soft); }
+  .totals dd { margin: 0.2rem 0 0; font: 700 2.4rem/1 var(--display); letter-spacing: -0.04em; font-variant-numeric: tabular-nums; }
+  .edit { display: grid; gap: var(--space-stack); max-width: 30rem; }
+  .works-head { display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between; gap: 0.6rem 1.5rem; margin-bottom: 1.4rem; }
+  #deletedNote { margin-bottom: 1.2rem; max-width: 40rem; }
+  .works-hint { margin: -0.6rem 0 1.4rem; font-size: 0.9rem; color: var(--ink-soft); }
+  .signed-out .wrap { padding-block: clamp(3rem, 8vw, 6rem); }
+</style>
+</head>
+<body>
+<a class="skip-link" href="#main">Skip to content</a>
+
+<header class="site-head">
+  <a class="brand" href="/" aria-label="SecurityArts home">
+    <img class="brand__seal" src="/assets/seal/modern-24.svg" width="30" height="30" alt="">
+    <span class="brand__word">SecurityArts</span>
+  </a>
+  <nav class="nav" aria-label="Primary">
+    <a href="/wall"><span class="nav__idx">01</span> The wall</a>
+    <a href="/how-it-works"><span class="nav__idx">02</span> How it works</a>
+    <a href="/pricing"><span class="nav__idx">03</span> Pricing</a>
+    <a href="/#studio"><span class="nav__idx">04</span> Studio</a>
+  </nav>
+  <div class="head-auth" data-auth-slot>
+    <a href="/join">Sign in</a>
+    <a class="head-auth__join" href="/join?mode=signup">Join</a>
+  </div>
+  <a class="head-cta" href="/join?mode=signup" data-seal-cta>Seal a piece <span aria-hidden="true">→</span></a>
+  <button class="menu-btn" id="menuBtn" type="button" aria-expanded="false" aria-controls="mobileMenu" aria-label="Open menu"><span></span><span></span></button>
+</header>
+
+<div class="mobile-menu" id="mobileMenu" hidden>
+  <nav aria-label="Mobile">
+    <a href="/wall"><span>01</span> The wall</a>
+    <a href="/how-it-works"><span>02</span> How it works</a>
+    <a href="/pricing"><span>03</span> Pricing</a>
+    <a href="/#studio"><span>04</span> Studio</a>
+  </nav>
+  <div class="head-auth" data-auth-slot>
+    <a href="/join">Sign in</a>
+    <a class="head-auth__join" href="/join?mode=signup">Join</a>
+  </div>
+  <a class="btn btn--red" href="/join?mode=signup" data-seal-cta>Seal a piece</a>
+</div>
+
+<main id="main">
+  <div id="view-loading" class="band"><div class="wrap state"><img class="state__mark" src="/assets/seal/modern.svg" alt=""><p class="lede">Opening your account…</p></div></div>
+
+  <section id="view-out" class="signed-out band--sky" aria-labelledby="out-h" hidden>
+    <div class="wrap state">
+      <img class="state__mark" src="/assets/seal/wax.svg" alt="">
+      <h1 class="h2" id="out-h">Sign in to see your account.</h1>
+      <p class="lede">Your profile, your sealed work and its numbers live here.</p>
+      <div class="me-actions">
+        <a class="btn btn--red" href="/join?next=/me">Sign in</a>
+        <a class="btn btn--ghost" href="/join?mode=signup&amp;next=/me">Create an account</a>
+      </div>
+    </div>
+  </section>
+
+  <div id="view-in" hidden>
+    <section class="me-head band--sky" aria-labelledby="name">
+      <div class="wrap">
+        <p class="section-label"><span>You</span> Your account</p>
+        <h1 class="me-name" id="name" tabindex="-1"></h1>
+        <p class="me-meta" id="meta"></p>
+        <div class="me-actions">
+          <a class="btn btn--red" href="/seal-a-piece">Seal a piece <span class="btn__arrow" aria-hidden="true">→</span></a>
+          <a class="btn btn--ghost" id="profileLink" href="/wall">Your public profile</a>
+          <button class="btn btn--ghost" id="signOut" type="button">Sign out</button>
+        </div>
+      </div>
+    </section>
+
+    <section class="band" aria-labelledby="totals-h">
+      <div class="wrap">
+        <h2 class="h2" id="totals-h" style="margin-bottom:1.4rem">Your numbers</h2>
+        <dl class="totals" id="totals">
+          <div><dt>Sealed</dt><dd id="t-works">–</dd></div>
+          <div><dt>Views</dt><dd id="t-views">–</dd></div>
+          <div><dt>Likes</dt><dd id="t-likes">–</dd></div>
+        </dl>
+        <p class="notice notice--problem" id="totalsFailed" hidden>We couldn't load your numbers just now.</p>
+      </div>
+    </section>
+
+    <section class="band band--paper-2" aria-labelledby="works-h">
+      <div class="wrap">
+        <div class="works-head"><h2 class="h2" id="works-h">Your sealed work</h2></div>
+        <p class="notice notice--ok" id="deletedNote" role="status" hidden>Piece deleted. It's off the wall and its certificate no longer resolves.</p>
+        <p class="works-hint" id="worksHint" hidden>To delete a piece, open its certificate. The delete button is at the bottom, and only you see it.</p>
+        <ul class="masonry" id="grid"></ul>
+        <div class="state" id="empty" hidden>
+          <img class="state__mark" src="/assets/seal/rubber.svg" alt="">
+          <p class="lede">Nothing sealed yet. Your first piece goes up on the wall with its certificate.</p>
+          <a class="btn btn--red" href="/seal-a-piece">Seal your first piece</a>
+        </div>
+        <p class="notice notice--problem" id="worksFailed" hidden>We couldn't load your work just now. Reload to try again.</p>
+      </div>
+    </section>
+
+    <section class="band" aria-labelledby="edit-h">
+      <div class="wrap">
+        <h2 class="h2" id="edit-h" style="margin-bottom:1.4rem">Your name and handle</h2>
+        <form class="edit" id="editForm" novalidate>
+          <div class="field"><label for="f-name">Name</label><input class="input" id="f-name" name="name" maxlength="80" autocomplete="name" required></div>
+          <div class="field"><label for="f-handle">Handle</label><input class="input" id="f-handle" name="handle" maxlength="30" autocomplete="username" spellcheck="false" required><p class="field__hint">3–30 characters: lowercase letters, numbers and underscores. Your public profile lives at /@your-handle.</p></div>
+          <p class="notice" id="editNote" hidden></p>
+          <div class="me-actions"><button class="btn btn--ink" type="submit" id="save">Save changes</button></div>
+        </form>
+      </div>
+    </section>
+  </div>
+</main>
+
+<footer class="site-foot">
+  <div class="wrap">
+    <a class="brand" href="/" aria-label="SecurityArts home">
+      <img class="brand__seal" src="/assets/seal/modern-24-dark.svg" width="30" height="30" alt="">
+      <span class="brand__word">SecurityArts</span>
+    </a>
+    <nav aria-label="Footer">
+      <a href="/wall">The wall</a>
+      <a href="/how-it-works">How it works</a>
+      <a href="/verify">Verify a seal</a>
+      <a href="/pricing">Pricing</a>
+      <a href="/faq">FAQ</a>
+      <a href="/#studio">Studio</a>
+      <a href="/privacy">Privacy</a>
+      <a href="/terms">Terms</a>
+    </nav>
+    <small>A receipt for your art. Every certificate on the wall is public. hello@securityarts.studio</small>
+  </div>
+</footer>
+
+<script src="/js/api.js"></script>
+<script type="module" src="/assets/me.js"></script>
+</body>
+</html>

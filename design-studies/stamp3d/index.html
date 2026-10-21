@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Wax seal 3D — SecurityArts</title>
+<meta name="robots" content="noindex">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Sans:wght@500;600;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@500&display=swap" rel="stylesheet">
+<script type="importmap">
+{ "imports": {
+  "three": "https://cdn.jsdelivr.net/npm/three@0.170.0/build/three.module.js",
+  "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.170.0/examples/jsm/"
+} }
+</script>
+<style>
+  :root {
+    --paper:#F5F4EF; --paper-2:#D8E9F3; --ink:#171A1F; --ink-soft:#3E4450;
+    --red:#D42228; --red-deep:#A8161C; --blue:#1585CF; --studio:#241F21;
+    --display:"Instrument Sans", system-ui, sans-serif; --body:Inter, system-ui, sans-serif; --mono:"JetBrains Mono", ui-monospace, monospace;
+  }
+  * { box-sizing:border-box; }
+  body { margin:0; background:var(--paper); color:var(--ink); font-family:var(--body); line-height:1.5; }
+  h1, h2, p { margin:0; }
+  :focus-visible { outline:3px solid var(--blue); outline-offset:3px; border-radius:6px; }
+
+  .head { padding:clamp(1.5rem,4vw,3rem) clamp(1rem,4vw,3.5rem) 1.5rem; display:flex; flex-wrap:wrap; justify-content:space-between; align-items:end; gap:1rem 2rem; border-bottom:3px solid var(--ink); }
+  .head h1 { font-family:var(--display); font-weight:700; font-size:clamp(2.2rem,1rem + 4vw,4.4rem); letter-spacing:-0.045em; line-height:0.92; }
+  .head h1 em { font-style:normal; color:var(--red); }
+  .head p { max-width:54ch; margin-top:0.8rem; }
+  .toggles { display:flex; flex-wrap:wrap; gap:0.6rem; align-items:center; }
+  .toggle { display:inline-flex; align-items:center; gap:0.5rem; padding:0.55rem 0.9rem; border:2px solid var(--ink); border-radius:999px; font-family:var(--display); font-weight:600; font-size:0.9rem; cursor:pointer; background:var(--paper); }
+
+  .panels { display:grid; grid-template-columns:1.1fr 0.9fr; }
+  .panel { position:relative; }
+  .panel--hero { background:var(--paper-2); }
+  .panel--slam { background:var(--paper); border-left:3px solid var(--ink); }
+  .panel__label { position:absolute; left:clamp(1rem,3vw,2rem); top:clamp(1rem,3vw,1.6rem); z-index:2; }
+  .panel__label h2 { font-family:var(--display); font-weight:700; font-size:1.4rem; letter-spacing:-0.03em; }
+  .panel__label p { font-size:0.9rem; color:var(--ink-soft); max-width:34ch; }
+  .stage { position:relative; height:min(78vh,640px); touch-action:pan-y; }
+  .stage canvas { position:absolute; inset:0; width:100%; height:100%; display:block; }
+
+  .fallback { position:absolute; inset:0; display:grid; place-items:center; }
+  .fallback[hidden] { display:none; }
+  .fallback img { width:min(56%,340px); transform:rotate(-8deg); filter:drop-shadow(0 18px 26px rgba(23,26,31,0.28)); }
+  .panel--hero .fallback img { animation:turntable 26s linear infinite; }
+  .panel--slam .fallback { place-items:end end; padding:0 12% 10% 0; }
+  .panel--slam .fallback .art { position:absolute; left:14%; right:14%; top:12%; bottom:8%; border-radius:6px;
+    background: linear-gradient(115deg, transparent 0 58%, var(--red) 58% 66%, transparent 66%),
+                radial-gradient(circle at 42% 40%, var(--blue) 0 30%, transparent 31%),
+                linear-gradient(var(--paper-2) 0 62%, var(--ink) 62%); }
+  .panel--slam .fallback img { position:relative; width:min(36%,200px); }
+  .fallback.slam img { animation:slam 720ms cubic-bezier(0.34,1.56,0.64,1) both; }
+  .panel--slam .fallback::after { content:""; position:absolute; right:12%; bottom:10%; width:min(36%,200px); aspect-ratio:1; border-radius:50%; border:8px solid var(--red); opacity:0; pointer-events:none; }
+  .fallback.slam::after { animation:splat 420ms 380ms ease-out both; }
+  @keyframes turntable { to { transform:rotate(352deg); } }
+  @keyframes slam { 0% { transform:rotate(-60deg) scale(2.4); opacity:0; } 50% { opacity:1; } 62% { transform:rotate(-8deg) scale(0.9, 0.78); } 100% { transform:rotate(-8deg) scale(1); opacity:1; } }
+  @keyframes splat { 0% { transform:scale(0.95); opacity:0.55; } 100% { transform:scale(1.9); opacity:0; } }
+  @media (prefers-reduced-motion: reduce) {
+    .panel--hero .fallback img { animation:none; }
+    .fallback.slam img, .fallback.slam::after { animation:none; }
+  }
+
+  .actions { position:absolute; left:clamp(1rem,3vw,2rem); bottom:clamp(1rem,3vw,1.6rem); z-index:2; display:flex; gap:0.6rem; }
+  .btn { padding:0.85rem 1.3rem; border-radius:999px; border:0; background:var(--red); color:var(--paper); font-family:var(--display); font-weight:600; font-size:1rem; cursor:pointer; transition:transform 150ms, background 150ms; }
+  .btn:hover { background:var(--red-deep); transform:translateY(-2px); }
+  .btn:active { transform:scale(0.97); }
+
+  .stats { position:absolute; right:clamp(1rem,3vw,2rem); bottom:clamp(1rem,3vw,1.6rem); z-index:2; font-family:var(--mono); font-size:0.72rem; color:var(--ink-soft); background:rgba(245,244,239,0.8); padding:0.3rem 0.55rem; border-radius:6px; }
+  .is-fallback .stats { display:none; }
+
+  .notes { display:grid; grid-template-columns:repeat(3,1fr); gap:2rem; padding:clamp(1.5rem,4vw,3rem) clamp(1rem,4vw,3.5rem); background:var(--studio); color:var(--paper); }
+  .notes h3 { margin:0 0 0.35rem; font-family:var(--display); font-size:1.05rem; letter-spacing:-0.02em; }
+  .notes p { font-size:0.9rem; opacity:0.82; }
+  .notes code { font-family:var(--mono); font-size:0.8rem; }
+
+  @media (max-width: 900px) {
+    .panels { grid-template-columns:1fr; }
+    .panel--slam { border-left:0; border-top:3px solid var(--ink); }
+    .stage { height:70vh; }
+    .notes { grid-template-columns:1fr; }
+  }
+</style>
+</head>
+<body>
+
+<header class="head">
+  <div>
+    <h1>The seal, <em>in wax.</em></h1>
+    <p>Built in code from your mark's exact geometry: sixteen lobes, the die ring, and the star pressed through to whatever it sits on. Move your pointer over it. Phones get a pre-rendered version.</p>
+  </div>
+  <div class="toggles">
+    <button class="toggle" id="fbToggle" type="button" aria-pressed="false">Preview the phone version</button>
+  </div>
+</header>
+
+<main class="panels">
+  <section class="panel panel--hero" aria-label="Homepage hero seal">
+    <div class="panel__label"><h2>Homepage hero</h2><p>Slow turntable. Tilts toward your pointer.</p></div>
+    <div class="stage" id="heroStage">
+      <canvas aria-hidden="true"></canvas>
+      <div class="fallback" hidden><img src="../seal/wax.svg" alt="SecurityArts wax seal"></div>
+    </div>
+    <div class="stats" id="heroStats"></div>
+  </section>
+
+  <section class="panel panel--slam" aria-label="Sealing a piece">
+    <div class="panel__label"><h2>Sealing a piece</h2><p>The moment an artwork gets its seal. Placeholder art.</p></div>
+    <div class="stage" id="slamStage">
+      <canvas aria-hidden="true"></canvas>
+      <div class="fallback" hidden><div class="art"></div><img src="../seal/wax.svg" alt="SecurityArts wax seal"></div>
+    </div>
+    <div class="actions"><button class="btn" id="slamBtn" type="button">Seal it</button></div>
+    <div class="stats" id="slamStats"></div>
+  </section>
+</main>
+
+<section class="notes">
+  <div><h3>What's real</h3><p>Rim, ring, field and star come from the mark's geometry (16 lobes on a notch circle, ring at 62%, star at 36%). About 256k triangles, one draw call. Die text and wax grain are a bump map.</p></div>
+  <div><h3>Phones &amp; reduced motion</h3><p>Phones, reduced-motion users and browsers without WebGL get <code>wax.svg</code> on a slow CSS turntable. Next step: swap that for a frame sequence rendered from this scene.</p></div>
+  <div><h3>Next.js</h3><p><code>wax-seal.js</code> exports <code>mountWaxSeal(el, &#123;mode&#125;)</code> with <code>slam()</code> and <code>dispose()</code>. It drops into a client component as-is, and Three.js loads only on pages that show the seal.</p></div>
+</section>
+
+<script type="module">
+  import { mountWaxSeal, shouldUseFallback } from "./wax-seal.js";
+
+  const fmt = (el) => (s) => { el.textContent = `${s.fps} fps · ${(s.tris / 1000).toFixed(0)}k tris`; };
+  const hero = await mountWaxSeal(document.getElementById("heroStage"), { mode: "hero", onStats: fmt(document.getElementById("heroStats")) });
+  const slam = await mountWaxSeal(document.getElementById("slamStage"), { mode: "slam", onStats: fmt(document.getElementById("slamStats")) });
+
+  document.getElementById("slamBtn").addEventListener("click", () => slam.slam());
+
+  const tog = document.getElementById("fbToggle");
+  let fb = shouldUseFallback();
+  const sync = () => { tog.setAttribute("aria-pressed", String(fb)); tog.textContent = fb ? "Show the 3D version" : "Preview the phone version"; };
+  sync();
+  tog.addEventListener("click", () => { fb = !fb; hero.setFallback(fb); slam.setFallback(fb); sync(); if (fb) slam.slam(); });
+</script>
+</body>
+</html>

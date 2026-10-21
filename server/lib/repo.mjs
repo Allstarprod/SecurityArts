@@ -55,6 +55,8 @@ export const repo = {
     findById: (id) => must().users.findById(id),
     findByHandle: (h) => must().users.findByHandle(h),
     findByGoogleSub: (sub) => must().users.findByGoogleSub(sub),
+    findByClerkId: (id) => must().users.findByClerkId(id),
+    listAll: (opts) => must().users.listAll(opts || {}),
     create: (u) => must().users.create(u),
     update: (id, patch) => must().users.update(id, patch),
   },

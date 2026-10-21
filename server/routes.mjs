@@ -14,8 +14,9 @@ import {
 import { rateLimit, rateLimitPeek, rateLimitHit, audit, emailKey } from "./lib/security.mjs";
 import { sendMail } from "./lib/mailer.mjs";
 import { googleConfigured, redirectUri, authUrl, exchangeCode, pkcePair } from "./lib/oauth.mjs";
+import { clerkEnabled, clerkPublishableKey, WELCOME_TEXT } from "./lib/clerk.mjs";
 
-const LOGIN_PATH = "/SecurityArts Design System/website/ui_kits/discover/";
+const SIGN_IN_PAGE = "/join.html"; // the new-design sign-in page (handles ?verified= and ?token=)
 
 // Per-account login lockout (audit HIGH #5): after LOGIN_FAIL_LIMIT failed attempts
 // the account is refused for LOGIN_FAIL_WINDOW, independent of source IP — a
@@ -111,7 +112,8 @@ function publicProfile(u) {
   // (and any unclaimed account) would otherwise leak the email local-part. Use a
   // neutral id-based slug until the owner claims a real handle.
   const fallbackHandle = "user_" + String(u.id || "").replace(/[^a-z0-9]/gi, "").slice(-6);
-  const base = { id: u.id, name: u.name, handle: u.handle || fallbackHandle, visibility: VISIBILITY.includes(p.visibility) ? p.visibility : "public" };
+  // handleClaimed: only a claimed handle resolves at /@handle, so pages link only those.
+  const base = { id: u.id, name: u.name, handle: u.handle || fallbackHandle, handleClaimed: !!u.handle, visibility: VISIBILITY.includes(p.visibility) ? p.visibility : "public" };
   if (base.visibility === "private") return base;
   return { ...base, pronouns: p.pronouns || "", gender: p.gender || "", bio: p.bio || "", likes: Array.isArray(p.likes) ? p.likes : [], accent: ACCENTS.includes(p.accent) ? p.accent : "brass", bannerUrl: p.bannerUrl || "" };
 }
@@ -166,7 +168,13 @@ router.get("/api/seal/pubkey", ({ res }) => ok(res, {
 }));
 
 /* ---- auth ----------------------------------------------------------- */
+// With Clerk on, Clerk owns sign-up, sign-in, passwords, email verification and Google.
+// The legacy routes close so there's exactly one way in.
+function legacyAuthClosed(res) {
+  return fail(res, 410, "Sign-in has moved. Use the Sign in page.");
+}
 router.post("/api/auth/register", async ({ res, req, body, ip, https }) => {
+  if (clerkEnabled) return legacyAuthClosed(res);
   if (!(await rateLimit(`reg:${ip}`, 5, 60000, CRITICAL))) return fail(res, 429, "Too many attempts. Try again shortly.");
   const email = isEmail(body.email) ? body.email.trim().toLowerCase() : null;
   const password = str(body.password, { min: 8, max: 200 });
@@ -189,6 +197,7 @@ router.post("/api/auth/register", async ({ res, req, body, ip, https }) => {
 });
 
 router.post("/api/auth/login", async ({ res, body, ip, https }) => {
+  if (clerkEnabled) return legacyAuthClosed(res);
   const email = String(body.email || "").trim().toLowerCase();
   const password = String(body.password || "");
   // Account lockout is keyed by a hash of the submitted email — real or not — so the
@@ -221,6 +230,7 @@ router.post("/api/auth/logout", ({ res, https }) => { res.setHeader("Set-Cookie"
 // Sign out EVERY device: bump the session version so every outstanding cookie —
 // including ones on a lost laptop or leaked in a log — stops verifying.
 router.post("/api/auth/logout-all", async ({ res, user, ip, https }) => {
+  if (clerkEnabled) return legacyAuthClosed(res);
   if (!user) return fail(res, 401, "Sign in first.");
   await repo.users.update(user.id, { sessionVersion: sessionVersionOf(user) + 1 });
   audit("auth.logout.all", { userId: user.id, ip });
@@ -231,7 +241,8 @@ router.get("/api/auth/me", ({ res, user }) => ok(res, publicUser(user)));
 
 // What optional sign-in methods are wired (so the login page shows the right buttons).
 router.get("/api/auth/config", ({ res }) => ok(res, {
-  google: googleConfigured,
+  clerk: clerkPublishableKey,
+  google: !clerkEnabled && googleConfigured,
   // Public client-side keys (safe to expose): PostHog project key + host for analytics.
   posthog: process.env.POSTHOG_KEY || null,
   posthogHost: process.env.POSTHOG_HOST || "https://us.i.posthog.com",
@@ -243,7 +254,8 @@ router.get("/api/auth/config", ({ res }) => ok(res, {
 // Deliberately does NOT sign the visitor in: a GET reached from an inbox should flip
 // one flag and nothing more.
 router.get("/api/auth/verify-email", async ({ res, url, ip }) => {
-  const redirect = (verified) => { res.writeHead(302, { Location: encodeURI(LOGIN_PATH + "login.html") + `?verified=${verified ? 1 : 0}` }); res.end(); };
+  if (clerkEnabled) return legacyAuthClosed(res);
+  const redirect = (verified) => { res.writeHead(302, { Location: SIGN_IN_PAGE + `?verified=${verified ? 1 : 0}` }); res.end(); };
   if (!(await rateLimit(`verify:${ip}`, 20, 60000, CRITICAL))) return fail(res, 429, "Too many attempts. Try again shortly.");
   const token = str(url.searchParams.get("token") || "", { min: 32, max: 200 });
   const rec = token ? await repo.passwordResets.findByHash(hashToken(token)) : null;
@@ -259,7 +271,7 @@ router.get("/api/auth/verify-email", async ({ res, url, ip }) => {
     // Welcome mail — only now, to an address we KNOW the account holder controls.
     await sendMail({
       to: user.email, subject: "Welcome to SecurityArts",
-      text: `Hi ${user.name},\n\nYour SecurityArts account is ready — seal your work to prove it's yours, collect verified human art, and carry provenance with every piece.\n\n— SecurityArts`,
+      text: WELCOME_TEXT(user.name),
     }).catch(() => {});
   }
   return redirect(true);
@@ -267,6 +279,7 @@ router.get("/api/auth/verify-email", async ({ res, url, ip }) => {
 
 // Ask for a fresh verification link (signed-in, unverified accounts only).
 router.post("/api/auth/resend-verification", async ({ res, req, user, ip, https }) => {
+  if (clerkEnabled) return legacyAuthClosed(res);
   if (!user) return fail(res, 401, "Sign in first.");
   if (user.emailVerified) return ok(res, { verified: true, sent: false });
   if (!(await rateLimit(`resend:${user.id}`, 3, 10 * 60000, CRITICAL))) return fail(res, 429, "A link was sent recently. Check your inbox (and spam) before asking again.");
@@ -280,13 +293,14 @@ router.post("/api/auth/resend-verification", async ({ res, req, user, ip, https 
 // account exists (no user enumeration). Delivery is via the mailer (or, unconfigured,
 // the link is logged server-side so the flow is usable in dev).
 router.post("/api/auth/forgot", async ({ res, req, body, ip, https }) => {
+  if (clerkEnabled) return legacyAuthClosed(res);
   if (!(await rateLimit(`forgot:${ip}`, 5, 60000, CRITICAL))) return fail(res, 429, "Too many attempts. Try again shortly.");
   const email = isEmail(body.email) ? body.email.trim().toLowerCase() : null;
   if (email) {
     const user = await repo.users.findByEmail(email);
     if (user) {
       const token = await issueToken(user.id, "reset", RESET_TTL); // one active token at a time
-      const link = publicOrigin(req, https) + encodeURI(LOGIN_PATH + "login.html") + "?token=" + token;
+      const link = publicOrigin(req, https) + SIGN_IN_PAGE + "?token=" + token;
       await sendMail({ to: email, subject: "Reset your SecurityArts password", text: `Reset your SecurityArts password:\n\n${link}\n\nThis link expires in 1 hour. If you didn't request it, you can ignore this email.` });
       audit("auth.forgot", { userId: user.id, ip });
     } else {
@@ -300,6 +314,7 @@ router.post("/api/auth/forgot", async ({ res, req, body, ip, https }) => {
 // Every other session for the account is revoked in the same step (audit HIGH #5) —
 // a reset is exactly when a user most needs an attacker's cookie to stop working.
 router.post("/api/auth/reset", async ({ res, body, ip, https }) => {
+  if (clerkEnabled) return legacyAuthClosed(res);
   if (!(await rateLimit(`reset:${ip}`, 10, 60000, CRITICAL))) return fail(res, 429, "Too many attempts. Try again shortly.");
   const token = str(body.token, { min: 32, max: 200 });
   const password = str(body.password, { min: 8, max: 200 });
@@ -329,6 +344,7 @@ const timingEqual = (a, b) => { const x = Buffer.from(String(a)), y = Buffer.fro
 
 // Kick off the flow: set a signed-state cookie (CSRF) and bounce to Google.
 router.get("/api/auth/google", ({ res, req, https }) => {
+  if (clerkEnabled) return legacyAuthClosed(res);
   if (!googleConfigured) return fail(res, 503, "Google sign-in isn't configured.");
   const state = crypto.randomBytes(16).toString("hex");
   const { verifier, challenge } = pkcePair();
@@ -347,6 +363,7 @@ router.get("/api/auth/google", ({ res, req, https }) => {
 // the Google user instead of merged: password replaced with an unusable random value,
 // every existing session revoked, google_sub recorded.
 router.get("/api/auth/google/callback", async ({ res, req, url, ip, https }) => {
+  if (clerkEnabled) return legacyAuthClosed(res);
   if (!googleConfigured) return fail(res, 503, "Google sign-in isn't configured.");
   if (!(await rateLimit(`google:${ip}`, 20, 60000, CRITICAL))) return fail(res, 429, "Too many attempts. Try again shortly.");
   const code = url.searchParams.get("code");
@@ -401,8 +418,8 @@ router.get("/api/auth/google/callback", async ({ res, req, url, ip, https }) => 
     throw e;
   }
   res.setHeader("Set-Cookie", [sessionCookie(createSession(user), { https }), oauthCookie("", https, 0)]);
-  const dest = LOGIN_PATH + (isNew ? "onboarding.html" : "me.html");
-  res.writeHead(302, { Location: encodeURI(dest) });
+  const dest = isNew ? SIGN_IN_PAGE + "?mode=welcome" : "/me.html";
+  res.writeHead(302, { Location: dest });
   res.end();
 });
 
@@ -476,6 +493,17 @@ router.get("/api/users/:id", async ({ res, params }) => {
   const u = await repo.users.findById(params.id);
   if (!u) return fail(res, 404, "No such profile.");
   return ok(res, publicProfile(u));
+});
+
+// A profile's sealed works (newest first, no image bytes). Sealed work is public on the
+// wall anyway; a private profile lists none here so its page shows nothing beyond the name.
+const PROFILE_WORKS_MAX = 200;
+router.get("/api/users/:id/works", async ({ res, params }) => {
+  const u = await repo.users.findById(params.id);
+  if (!u) return fail(res, 404, "No such profile.");
+  if (publicProfile(u).visibility === "private") return ok(res, []);
+  const works = await repo.works.listByOwner(u.id);
+  return ok(res, works.slice(0, PROFILE_WORKS_MAX));
 });
 
 /* ---- works + verification ------------------------------------------ */

@@ -1,0 +1,27 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 1000" width="800" height="1000">
+  <title>Paper study (placeholder artwork)</title>
+
+  <rect width="800" height="1000" fill="#F2EFE6"/>
+  <g fill="none" stroke="#2A2A2A" stroke-linecap="round">
+    <path d="M160 760 C190 520 300 330 420 300 C540 270 620 420 590 560 C560 700 430 760 300 740" stroke-width="7"/>
+    <path d="M420 300 C400 250 430 200 470 190" stroke-width="5"/>
+    <path d="M250 560 C300 520 360 520 400 560" stroke-width="4"/>
+    <path d="M190 650 l40 -60" stroke-width="2.5" opacity="0.7"/>
+    <path d="M212 658 l40 -60" stroke-width="2.5" opacity="0.7"/>
+    <path d="M234 666 l40 -60" stroke-width="2.5" opacity="0.7"/>
+    <path d="M256 650 l40 -60" stroke-width="2.5" opacity="0.7"/>
+    <path d="M278 658 l40 -60" stroke-width="2.5" opacity="0.7"/>
+    <path d="M300 666 l40 -60" stroke-width="2.5" opacity="0.7"/>
+    <path d="M322 650 l40 -60" stroke-width="2.5" opacity="0.7"/>
+    <path d="M344 658 l40 -60" stroke-width="2.5" opacity="0.7"/>
+    <path d="M366 666 l40 -60" stroke-width="2.5" opacity="0.7"/>
+    <path d="M388 650 l40 -60" stroke-width="2.5" opacity="0.7"/>
+    <path d="M410 658 l40 -60" stroke-width="2.5" opacity="0.7"/>
+    <path d="M432 666 l40 -60" stroke-width="2.5" opacity="0.7"/>
+    <path d="M454 650 l40 -60" stroke-width="2.5" opacity="0.7"/>
+    <path d="M476 658 l40 -60" stroke-width="2.5" opacity="0.7"/>
+    <path d="M90 880 H710" stroke-width="3" opacity="0.5"/>
+  </g>
+  <circle cx="470" cy="190" r="14" fill="#2A2A2A"/>
+  <text x="90" y="930" font-family="Georgia, serif" font-size="26" fill="#2A2A2A" opacity="0.7">study no. 4</text>
+</svg>

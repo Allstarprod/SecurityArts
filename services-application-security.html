@@ -1,174 +1,351 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Application Security — code review &amp; threat modeling · SecurityArts</title>
-  <meta name="description" content="Application security done by hand: threat modeling, deep manual code review, and a secure SDLC your engineers keep using. Mapped to OWASP ASVS and sealed with a re-testable record." />
-
-  <link rel="canonical" href="https://security-arts.vercel.app/services/application-security" />
-  <meta property="og:type" content="website" />
-  <meta property="og:site_name" content="SecurityArts" />
-  <meta property="og:title" content="Application Security — SecurityArts" />
-  <meta property="og:description" content="Threat modeling, deep code review, and a secure SDLC that survives after we leave — sealed and re-testable." />
-  <meta property="og:url" content="https://security-arts.vercel.app/services/application-security" />
-  <meta property="og:image" content="https://security-arts.vercel.app/og-image.png" />
-  <meta name="twitter:card" content="summary_large_image" />
-  <meta name="twitter:title" content="Application Security — SecurityArts" />
-  <meta name="twitter:description" content="Find the flaw in the code, not the incident report." />
-  <meta name="twitter:image" content="https://security-arts.vercel.app/og-image.png" />
-
-  <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300..600;1,9..144,300..500&family=Geist:wght@300..600&family=Geist+Mono:wght@400;500&display=swap" rel="stylesheet" />
-  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='18' fill='%230c0c0b'/%3E%3Cg fill='none' stroke='%23f4f1e9' stroke-width='4.2'%3E%3Ccircle cx='50' cy='50' r='27'/%3E%3C/g%3E%3Cpath fill='%23f4f1e9' d='M 50 34.5 L 53.76 44.82 L 64.74 45.21 L 56.09 51.98 L 59.11 62.54 L 50 56.4 L 40.89 62.54 L 43.91 51.98 L 35.26 45.21 L 46.24 44.82 Z'/%3E%3C/svg%3E" />
-
-  <script type="application/ld+json">
-  {"@context":"https://schema.org","@type":"Service","@id":"https://security-arts.vercel.app/services/application-security#service","url":"https://security-arts.vercel.app/services/application-security","serviceType":"Application Security","name":"SecurityArts Application Security","description":"Threat modeling, deep manual code review, and secure SDLC uplift mapped to OWASP ASVS and NIST SSDF, closed with a verifiable re-testable seal.","provider":{"@id":"https://security-arts.vercel.app/#organization"},"areaServed":"Worldwide"}
-  </script>
-  <script type="application/ld+json">
-  {"@context":"https://schema.org","@type":"FAQPage","url":"https://security-arts.vercel.app/services/application-security","dateModified":"2026-09-20","about":{"@id":"https://security-arts.vercel.app/services/application-security#service"},"mainEntity":[
-    {"@type":"Question","name":"How is this different from running a SAST scanner?","acceptedAnswer":{"@type":"Answer","text":"Scanners flag patterns; we review logic. A human reads the auth flows, trust boundaries, and business logic a scanner can't reason about, and the findings come with a reproducible path — not a wall of low-signal alerts."}},
-    {"@type":"Question","name":"Do you review the whole codebase or a slice?","acceptedAnswer":{"@type":"Answer","text":"We scope to the highest-risk surface first — auth, payments, data access, and anything internet-facing — then widen as budget allows. The seal records exactly what was reviewed and what was not."}},
-    {"@type":"Question","name":"Will our engineers actually keep the secure SDLC?","acceptedAnswer":{"@type":"Answer","text":"That's the point. We build guardrails into the flow your team already uses rather than handing over a policy PDF, and we coach the team so the next feature starts already secured."}}
-  ]}
-  </script>
-
-  <style>
-    :root{--ink:#0c0c0b;--ink-2:#131312;--ink-3:#1b1a18;--bone:#f4f1e9;--bone-dim:#a39e92;--bone-faint:#6f6b62;--brass:#c2a14e;--line:rgba(244,241,233,0.12);--line-strong:rgba(244,241,233,0.22);--gutter:clamp(1.25rem,4vw,5rem);--maxw:1040px;--serif:"Fraunces","Times New Roman",serif;--sans:"Geist",-apple-system,system-ui,sans-serif;--mono:"Geist Mono",ui-monospace,monospace;--ease:cubic-bezier(0.16,1,0.3,1)}
-    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
-    body{background:var(--ink);color:var(--bone);font-family:var(--sans);font-weight:360;font-size:clamp(1rem,0.95rem+0.25vw,1.125rem);line-height:1.62;-webkit-font-smoothing:antialiased;overflow-x:hidden}
-    a{color:inherit;text-decoration:none}svg{display:block}::selection{background:var(--brass);color:var(--ink)}
-    :focus-visible{outline:2px solid var(--brass);outline-offset:3px;border-radius:2px}
-    .head{position:sticky;top:0;z-index:20;display:flex;align-items:center;gap:1.2rem;padding:1rem var(--gutter);background:color-mix(in srgb,var(--ink) 85%,transparent);backdrop-filter:blur(14px);border-bottom:1px solid var(--line)}
-    .brand{display:inline-flex;align-items:center;gap:0.6rem}.brand svg{width:28px;height:28px}
-    .brand__word{font-family:var(--serif);font-weight:460;font-size:1.28rem;letter-spacing:-0.01em}
-    .head__spacer{margin-left:auto}
-    .head a.nav{font-family:var(--mono);font-size:0.74rem;text-transform:uppercase;letter-spacing:0.12em;color:var(--bone-dim);transition:color 0.25s var(--ease)}
-    .head a.nav:hover{color:var(--bone)}
-    .head .cta{font-family:var(--mono);font-size:0.74rem;text-transform:uppercase;letter-spacing:0.12em;color:var(--ink);background:var(--bone);padding:0.55rem 0.9rem;border-radius:100px;transition:background 0.25s var(--ease)}
-    .head .cta:hover{background:var(--brass)}
-    /* Mobile header: drop the text nav, keep the logo + primary CTA on one line */
-    @media (max-width:720px){
-      .head{gap:0.6rem;padding:0.85rem 1rem}
-      .head a.nav,.head__spacer{display:none}
-      .brand{flex:0 0 auto;gap:0.5rem}
-      .brand svg{width:24px;height:24px}
-      .brand__word{font-size:1.1rem;white-space:nowrap}
-      .head .cta{margin-left:auto;flex:0 0 auto;white-space:nowrap;font-size:0.66rem;letter-spacing:0.08em;padding:0.5rem 0.75rem}
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Application security — SecurityArts</title>
+<meta name="description" content="Application security done by hand: threat modeling, deep manual code review and a secure SDLC your engineers keep using. Mapped to OWASP ASVS and NIST SSDF; every engagement ends in a sealed report.">
+<link rel="canonical" href="https://security-arts.vercel.app/services/application-security">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="SecurityArts">
+<meta property="og:title" content="Application security — SecurityArts">
+<meta property="og:description" content="Application security done by hand: threat modeling, deep manual code review and a secure SDLC your engineers keep using. Mapped to OWASP ASVS and NIST SSDF; every engagement ends in a sealed report.">
+<meta property="og:url" content="https://security-arts.vercel.app/services/application-security">
+<meta property="og:image" content="https://security-arts.vercel.app/og-image.png">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="icon" href="/assets/seal/modern-24.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Sans:wght@500;600;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/assets/site.css">
+<style>
+  /* Studio pages: the same system run cooler. Tokens only; shared by all six service pages. */
+  .page-hero[data-theme="studio"] { background: var(--surface); color: var(--text); }
+  [data-theme="studio"] + [data-theme="studio"] { border-top: 1px solid var(--line); }
+  [data-theme="studio"] .section-label span { color: var(--text); }
+  .band--sky .section-label span, .band--sky .steps li::before { color: var(--red-deep); }
+  .stack { display: grid; gap: clamp(1.8rem, 4vw, 2.8rem); }
+  .band-head { display: grid; gap: 0.9rem; max-width: 62ch; }
+  .frameworks { list-style: none; display: flex; flex-wrap: wrap; gap: var(--space-chips); }
+  .frameworks li {
+    display: inline-flex; align-items: center; min-height: var(--size-chip); padding: 0.45rem 0.95rem;
+    border: var(--stroke-control) solid var(--text); border-radius: var(--radius-pill);
+    font: 600 0.92rem/1.1 var(--display); letter-spacing: -0.01em;
+  }
+  .fine { font-size: 0.9rem; color: var(--text-faint); max-width: 60ch; }
+  .facts a { text-decoration-color: var(--red); text-decoration-thickness: 2px; text-underline-offset: 0.2em; overflow-wrap: anywhere; }
+  .disciplines li { display: grid; }
+  .disciplines .card[aria-current="page"] { background: var(--surface-raised); border-style: dashed; }
+  .band-actions { display: flex; flex-wrap: wrap; gap: var(--space-actions); }
+</style>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "Service",
+  "@id": "https://security-arts.vercel.app/services/application-security#service",
+  "url": "https://security-arts.vercel.app/services/application-security",
+  "serviceType": "Application Security",
+  "name": "SecurityArts Application security",
+  "description": "Threat modeling, deep manual code review and secure SDLC uplift mapped to OWASP ASVS and NIST SSDF. Every engagement ends in a sealed report, and each retest is sealed as a new report.",
+  "provider": {
+    "@id": "https://security-arts.vercel.app/#organization"
+  },
+  "areaServed": "Worldwide",
+  "audience": {
+    "@type": "Audience",
+    "audienceType": "Startups and scaleups shipping software"
+  }
+}
+</script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "url": "https://security-arts.vercel.app/services/application-security",
+  "dateModified": "2026-10-16",
+  "about": {
+    "@id": "https://security-arts.vercel.app/services/application-security#service"
+  },
+  "mainEntity": [
+    {
+      "@type": "Question",
+      "name": "How is this different from running a SAST scanner?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Scanners flag patterns; we review logic. A person reads the auth flows, trust boundaries and business logic a scanner can't reason about, and every finding comes with a reproducible path, not a wall of low-signal alerts."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Do you review the whole codebase or a slice?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "We scope to the highest-risk surface first: auth, payments, data access and anything internet-facing. Then we widen as budget allows. The sealed report records exactly what was reviewed and what wasn't."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Will our engineers actually keep the secure SDLC?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "That's the point. We build guardrails into the flow your team already uses rather than handing over a policy PDF, and we coach the team so the next feature starts secure."
+      }
     }
-    @media (max-width:359px){
-      .brand__word{display:none}
-    }
-    main{max-width:var(--maxw);margin-inline:auto;padding:clamp(3rem,7vw,6rem) var(--gutter) 4rem}
-    .crumb{font-family:var(--mono);font-size:0.66rem;text-transform:uppercase;letter-spacing:0.14em;color:var(--bone-faint);margin-bottom:1.6rem}.crumb a:hover{color:var(--bone-dim)}
-    .eyebrow{font-family:var(--mono);font-size:0.72rem;text-transform:uppercase;letter-spacing:0.2em;color:var(--brass);display:inline-flex;align-items:center;gap:0.6rem;margin-bottom:1.4rem}
-    .eyebrow::before{content:"";width:7px;height:7px;border-radius:50%;background:var(--brass);box-shadow:0 0 0 4px rgba(194,161,78,0.16)}
-    h1{font-family:var(--serif);font-weight:340;font-size:clamp(2.6rem,1rem+6vw,5rem);line-height:0.98;letter-spacing:-0.03em;margin-bottom:1.3rem}h1 em{color:var(--brass);font-style:italic}
-    .lede{color:var(--bone-dim);font-size:clamp(1.05rem,0.95rem+0.5vw,1.3rem);max-width:62ch;margin-bottom:2.4rem}
-    .actions{display:flex;flex-wrap:wrap;gap:0.9rem;margin-bottom:3.5rem}
-    .btn{font-family:var(--mono);font-size:0.78rem;text-transform:uppercase;letter-spacing:0.1em;padding:0.9rem 1.5rem;border-radius:100px;border:1px solid transparent;transition:all 0.3s var(--ease);display:inline-flex;align-items:center;gap:0.5rem}
-    .btn--solid{background:var(--bone);color:var(--ink)}.btn--solid:hover{background:var(--brass);transform:translateY(-2px)}
-    .btn--ghost{border-color:var(--line-strong);color:var(--bone)}.btn--ghost:hover{border-color:var(--bone);transform:translateY(-2px)}
-    .h2{font-family:var(--serif);font-weight:380;font-size:clamp(1.7rem,1rem+2.4vw,2.8rem);letter-spacing:-0.02em;line-height:1.05;margin:0 0 1.6rem}
-    section.block{padding:clamp(2.5rem,5vw,4rem) 0;border-top:1px solid var(--line)}
-    .cols{display:grid;grid-template-columns:1fr;gap:1px;background:var(--line);border:1px solid var(--line);border-radius:14px;overflow:hidden}
-    @media(min-width:720px){.cols{grid-template-columns:1fr 1fr}}
-    .cell{background:var(--ink);padding:clamp(1.5rem,3vw,2.2rem)}
-    .cell h3{font-family:var(--serif);font-weight:420;font-size:1.3rem;letter-spacing:-0.015em;margin-bottom:0.7rem}.cell p{color:var(--bone-dim);font-size:0.97rem}
-    .steps{list-style:none;counter-reset:s;display:grid;gap:1.2rem}
-    .steps li{display:grid;grid-template-columns:auto 1fr;gap:1.2rem;align-items:baseline}
-    .steps li::before{counter-increment:s;content:counter(s,decimal-leading-zero);font-family:var(--mono);font-size:0.8rem;color:var(--brass)}
-    .steps b{font-family:var(--serif);font-weight:440;font-size:1.1rem}.steps span{color:var(--bone-dim)}
-    .frameworks{list-style:none;display:flex;flex-wrap:wrap;gap:0.6rem;margin-top:0.4rem}
-    .frameworks li{font-family:var(--mono);font-size:0.72rem;text-transform:uppercase;letter-spacing:0.08em;color:var(--bone-dim);border:1px solid var(--line-strong);padding:0.4rem 0.8rem;border-radius:100px}
-    .seal-note{border:1px solid var(--brass);border-radius:14px;background:linear-gradient(160deg,#19150d,var(--ink-2) 70%);padding:clamp(1.6rem,3vw,2.4rem);margin-top:1.5rem}
-    .seal-note b{color:var(--bone)}.seal-note p{color:var(--bone-dim)}
-    .qa{max-width:72ch}
-    .qa h3{font-family:var(--serif);font-weight:420;font-size:1.3rem;letter-spacing:-0.015em;margin:1.6rem 0 0.5rem}.qa h3:first-child{margin-top:0}
-    .qa p{color:var(--bone-dim)}
-    .cta-band{border-top:1px solid var(--line);padding-top:clamp(2.5rem,5vw,3.5rem);margin-top:1rem;display:flex;flex-wrap:wrap;gap:1rem;align-items:center}
-    .cta-band p{font-family:var(--serif);font-weight:360;font-size:clamp(1.5rem,1rem+2vw,2.4rem);letter-spacing:-0.02em;flex:1 1 320px}
-    footer{border-top:1px solid var(--line);max-width:var(--maxw);margin:0 auto;padding:2.5rem var(--gutter);display:flex;flex-wrap:wrap;gap:1rem;justify-content:space-between}
-    footer a,footer span{font-family:var(--mono);font-size:0.72rem;text-transform:uppercase;letter-spacing:0.12em;color:var(--bone-faint)}footer a:hover{color:var(--bone-dim)}
-  </style>
+  ]
+}
+</script>
 </head>
 <body>
-  <header class="head">
+<a class="skip-link" href="#main">Skip to content</a>
+
+<header class="site-head">
+  <a class="brand" href="/" aria-label="SecurityArts home">
+    <img class="brand__seal" src="/assets/seal/modern-24.svg" width="30" height="30" alt="">
+    <span class="brand__word">SecurityArts</span>
+  </a>
+  <nav class="nav" aria-label="Primary">
+    <a href="/wall"><span class="nav__idx">01</span> The wall</a>
+    <a href="/how-it-works"><span class="nav__idx">02</span> How it works</a>
+    <a href="/pricing"><span class="nav__idx">03</span> Pricing</a>
+    <a href="/#studio"><span class="nav__idx">04</span> Studio</a>
+  </nav>
+  <div class="head-auth" data-auth-slot>
+    <a href="/join">Sign in</a>
+    <a class="head-auth__join" href="/join?mode=signup">Join</a>
+  </div>
+  <a class="head-cta" href="/join?mode=signup" data-seal-cta>Seal a piece <span aria-hidden="true">→</span></a>
+  <button class="menu-btn" id="menuBtn" type="button" aria-expanded="false" aria-controls="mobileMenu" aria-label="Open menu"><span></span><span></span></button>
+</header>
+
+<div class="mobile-menu" id="mobileMenu" hidden>
+  <nav aria-label="Mobile">
+    <a href="/wall"><span>01</span> The wall</a>
+    <a href="/how-it-works"><span>02</span> How it works</a>
+    <a href="/pricing"><span>03</span> Pricing</a>
+    <a href="/#studio"><span>04</span> Studio</a>
+  </nav>
+  <div class="head-auth" data-auth-slot>
+    <a href="/join">Sign in</a>
+    <a class="head-auth__join" href="/join?mode=signup">Join</a>
+  </div>
+  <a class="btn btn--red" href="/join?mode=signup" data-seal-cta>Seal a piece</a>
+</div>
+
+<main id="main">
+  <section class="page-hero" data-theme="studio" aria-labelledby="page-h">
+    <div class="wrap">
+      <p class="section-label"><span>01</span> Studio · Application security</p>
+      <h1 class="display" id="page-h">Find the flaw in the code, not the <em>incident report.</em></h1>
+      <p class="lede">Threat modeling, deep manual code review, and a secure SDLC your engineers will actually keep using after we leave. We read the auth flows and business logic a scanner can't reason about, and every engagement ends in a sealed report.</p>
+      <div class="page-hero__actions">
+        <a class="btn btn--red" href="mailto:hello@securityarts.studio?subject=Application%20security">Request an engagement <span class="btn__arrow" aria-hidden="true">→</span></a>
+        <a class="btn btn--ghost" href="/#studio">All six disciplines</a>
+      </div>
+      <img class="page-hero__seal" src="/assets/seal/faithful-dark.svg" alt="">
+    </div>
+  </section>
+
+  <section class="band" data-theme="studio" aria-labelledby="covers-h">
+    <div class="wrap stack">
+      <div class="band-head">
+        <p class="section-label"><span>02</span> Scope</p>
+        <h2 class="h2" id="covers-h">What the engagement covers</h2>
+      </div>
+      <ul class="cards">
+        <li class="card">
+          <p class="card__label">01</p>
+          <h3>Threat modeling</h3>
+          <p>Map the trust boundaries and abuse cases before the review, so testing targets what actually matters.</p>
+        </li>
+        <li class="card">
+          <p class="card__label">02</p>
+          <h3>Deep code review</h3>
+          <p>Manual review of auth, access control, injection surfaces and business logic, with a reproducible path per finding.</p>
+        </li>
+        <li class="card">
+          <p class="card__label">03</p>
+          <h3>Secure SDLC</h3>
+          <p>Guardrails built into the pipeline your team already uses, not a policy nobody reads.</p>
+        </li>
+        <li class="card">
+          <p class="card__label">04</p>
+          <h3>Dependencies and supply chain</h3>
+          <p>Third-party and build-chain risk reviewed against real exploitation, not just CVE noise.</p>
+        </li>
+      </ul>
+    </div>
+  </section>
+
+  <section class="band band--sky" aria-labelledby="steps-h">
+    <div class="wrap stack">
+      <div class="band-head">
+        <p class="section-label"><span>03</span> Method</p>
+        <h2 class="h2" id="steps-h">How the engagement runs</h2>
+      </div>
+      <ol class="steps">
+        <li>
+          <h3>Scope to an outcome</h3>
+          <p>We agree what “secure enough” means for this surface: a named goal, not a bundle of hours.</p>
+        </li>
+        <li>
+          <h3>Model and review</h3>
+          <p>Threat-model first, then read the code by hand, with the path written down as we go.</p>
+        </li>
+        <li>
+          <h3>Seal the report</h3>
+          <p>A signed, dated report: what we reviewed, what held up, and what is still open. Sealed, so anyone you share it with can check it hasn't changed.</p>
+        </li>
+        <li>
+          <h3>Retest</h3>
+          <p>Fix the findings and we test them again. The retest gets its own sealed report, so you can show the fix was checked, and when.</p>
+        </li>
+      </ol>
+    </div>
+  </section>
+
+  <section class="band" data-theme="studio" aria-labelledby="std-h">
+    <div class="wrap">
+      <div class="split">
+        <div class="band-head">
+          <p class="section-label"><span>04</span> Standards</p>
+          <h2 class="h2" id="std-h">Mapped to the frameworks your auditors already use</h2>
+          <p class="lede">Testing and reporting line up with the standards an auditor or an enterprise buyer recognizes.</p>
+          <ul class="frameworks" aria-label="Frameworks">
+            <li>OWASP ASVS</li>
+            <li>OWASP Top 10</li>
+            <li>MITRE ATT&amp;CK</li>
+            <li>NIST SSDF</li>
+            <li>SOC 2 readiness</li>
+            <li>CIS Benchmarks</li>
+          </ul>
+          <p class="fine">Mapping isn't certification. A SOC 2 report or an ISO 27001 certificate comes from an independent auditor; our work helps you get ready for one.</p>
+        </div>
+        <dl class="facts" aria-label="At a glance">
+          <dt>Discipline</dt><dd>Application security</dd>
+          <dt>Scope</dt><dd>The highest-risk surface first, widened as budget allows</dd>
+          <dt>Method</dt><dd>Threat modeling, then manual code review with a reproducible path per finding</dd>
+          <dt>You get</dt><dd>A sealed report: what we reviewed, what held up, what is still open</dd>
+          <dt>Follow-up</dt><dd>A retest, sealed as a new report</dd>
+          <dt>Ask</dt><dd><a href="mailto:hello@securityarts.studio?subject=Application%20security">hello@securityarts.studio</a></dd>
+        </dl>
+      </div>
+    </div>
+  </section>
+
+  <div class="band">
+    <div class="wrap stack">
+      <section class="stack" aria-labelledby="seal-h">
+        <div class="band-head">
+          <p class="section-label"><span>05</span> The seal</p>
+          <h2 class="h2" id="seal-h">The report is the deliverable</h2>
+          <p class="lede">We seal the report with the studio's SecurityArts account. Anyone you share it with can check that it's the exact file we sealed, and when we sealed it.</p>
+        </div>
+        <div class="shows">
+          <div class="shows__yes">
+            <h3>What the seal shows</h3>
+            <ul>
+              <li>Which account sealed the report: the studio's.</li>
+              <li>When it was sealed, as recorded by SecurityArts.</li>
+              <li>That the file hasn't changed since. Change one character and it stops matching.</li>
+            </ul>
+          </div>
+          <div class="shows__no">
+            <h3>What it can't show</h3>
+            <ul>
+              <li>That your systems are secure. It covers the report, not the systems it describes.</li>
+              <li>Anything outside the scope we agreed, or anything found after the seal date.</li>
+              <li>An audit opinion or a certification.</li>
+              <li>A copy that has been edited, re-saved, re-exported or screenshotted. Only the exact file matches.</li>
+            </ul>
+          </div>
+        </div>
+        <p><a class="link" href="/how-it-works">How the seal works</a></p>
+      </section>
+
+      <section class="stack" aria-labelledby="faq-h">
+        <div class="band-head">
+          <p class="section-label"><span>06</span> Questions</p>
+          <h2 class="h2" id="faq-h">Questions</h2>
+        </div>
+        <div class="faq">
+          <details>
+            <summary>How is this different from running a SAST scanner?</summary>
+            <div class="answer">
+              <p>Scanners flag patterns; we review logic. A person reads the auth flows, trust boundaries and business logic a scanner can't reason about, and every finding comes with a reproducible path, not a wall of low-signal alerts.</p>
+            </div>
+          </details>
+          <details>
+            <summary>Do you review the whole codebase or a slice?</summary>
+            <div class="answer">
+              <p>We scope to the highest-risk surface first: auth, payments, data access and anything internet-facing. Then we widen as budget allows. The sealed report records exactly what was reviewed and what wasn't.</p>
+            </div>
+          </details>
+          <details>
+            <summary>Will our engineers actually keep the secure SDLC?</summary>
+            <div class="answer">
+              <p>That's the point. We build guardrails into the flow your team already uses rather than handing over a policy PDF, and we coach the team so the next feature starts secure.</p>
+            </div>
+          </details>
+        </div>
+      </section>
+    </div>
+  </div>
+
+  <nav class="band disciplines" data-theme="studio" aria-labelledby="studio-h">
+    <div class="wrap stack">
+      <div class="band-head">
+        <p class="section-label"><span>07</span> The studio</p>
+        <h2 class="h2" id="studio-h">Six disciplines, one studio</h2>
+        <p class="lede">SecurityArts is also a security studio. Each engagement is scoped to a named outcome, not a fixed bundle of hours.</p>
+      </div>
+      <ul class="cards">
+        <li><a class="card" href="/services/penetration-testing"><span class="card__label">01</span><h3>Penetration testing</h3><p>Goal-oriented testing that ends at the crown jewels, with the path written down.</p></a></li>
+        <li><a class="card" href="/services/application-security" aria-current="page"><span class="card__label">02 · You're here</span><h3>Application security</h3><p>Threat modeling, deep code review and a secure SDLC your engineers keep.</p></a></li>
+        <li><a class="card" href="/services/cloud-infrastructure"><span class="card__label">03</span><h3>Cloud and infrastructure</h3><p>AWS, GCP and Azure hardened against real attack paths.</p></a></li>
+        <li><a class="card" href="/services/detection-response"><span class="card__label">04</span><h3>Detection and response</h3><p>Detection engineering, threat hunting and runbooks for the night it matters.</p></a></li>
+        <li><a class="card" href="/services/security-architecture"><span class="card__label">05</span><h3>Security architecture</h3><p>Design review before the build, not after the incident.</p></a></li>
+        <li><a class="card" href="/services/advisory-training"><span class="card__label">06</span><h3>Advisory and training</h3><p>Fractional CISO guidance and secure-by-design coaching.</p></a></li>
+      </ul>
+      <div class="band-actions">
+        <a class="btn btn--ghost" href="/#studio">Back to the studio</a>
+      </div>
+    </div>
+  </nav>
+
+  <section class="cta-band band--red" aria-labelledby="cta-h">
+    <div class="wrap">
+      <h2 id="cta-h">Tell us what you're shipping.</h2>
+      <div class="actions">
+        <a class="btn btn--paper" href="mailto:hello@securityarts.studio?subject=Application%20security">hello@securityarts.studio</a>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer class="site-foot">
+  <div class="wrap">
     <a class="brand" href="/" aria-label="SecurityArts home">
-      <svg viewBox="0 0 100 100" aria-hidden="true"><g fill="none" stroke="currentColor" stroke-width="4.2"><circle cx="50" cy="50" r="27"/></g><path fill="currentColor" d="M 50 34.5 L 53.76 44.82 L 64.74 45.21 L 56.09 51.98 L 59.11 62.54 L 50 56.4 L 40.89 62.54 L 43.91 51.98 L 35.26 45.21 L 46.24 44.82 Z"/></svg>
+      <img class="brand__seal" src="/assets/seal/modern-24-dark.svg" width="30" height="30" alt="">
       <span class="brand__word">SecurityArts</span>
     </a>
-    <span class="head__spacer"></span>
-    <a class="nav" href="/#practice">Practice</a>
-    <a class="nav" href="/#seal">The Seal</a>
-    <a class="cta" href="/#contact">Request an engagement</a>
-  </header>
+    <nav aria-label="Footer">
+      <a href="/wall">The wall</a>
+      <a href="/how-it-works">How it works</a>
+      <a href="/verify">Verify a seal</a>
+      <a href="/pricing">Pricing</a>
+      <a href="/faq">FAQ</a>
+      <a href="/#studio">Studio</a>
+      <a href="/privacy">Privacy</a>
+      <a href="/terms">Terms</a>
+    </nav>
+    <small>A receipt for your art. Every certificate on the wall is public. hello@securityarts.studio</small>
+  </div>
+</footer>
 
-  <main>
-    <p class="crumb"><a href="/">SecurityArts</a> / Practice / Application Security</p>
-    <p class="eyebrow">Application Security</p>
-    <h1>Find the flaw in the code,<br />not the <em>incident report.</em></h1>
-    <p class="lede">
-      Threat modeling, deep manual code review, and a secure SDLC your engineers will
-      actually keep using after we leave. We read the auth flows and business logic a
-      scanner can't reason about — and close in a re-testable seal.
-    </p>
-    <div class="actions">
-      <a class="btn btn--solid" href="/#contact">Request an engagement →</a>
-      <a class="btn btn--ghost" href="/#seal">What the seal is</a>
-    </div>
-
-    <section class="block">
-      <h2 class="h2">What the engagement covers</h2>
-      <div class="cols">
-        <div class="cell"><h3>Threat modeling</h3><p>Map the trust boundaries and abuse cases before the review — so testing targets what actually matters.</p></div>
-        <div class="cell"><h3>Deep code review</h3><p>Manual review of auth, access control, injection surfaces, and business logic, with a reproducible path per finding.</p></div>
-        <div class="cell"><h3>Secure SDLC</h3><p>Guardrails built into the pipeline your team already uses — not a policy nobody reads.</p></div>
-        <div class="cell"><h3>Dependencies &amp; supply chain</h3><p>Third-party and build-chain risk reviewed against real exploitation, not just CVE noise.</p></div>
-      </div>
-    </section>
-
-    <section class="block">
-      <h2 class="h2">How the engagement runs</h2>
-      <ol class="steps">
-        <li><span><b>Scope to an outcome.</b> We agree what "secure enough" means for this surface — a named goal, not a bundle of hours.</span></li>
-        <li><span><b>Model &amp; review.</b> Threat-model first, then read the code by hand with the path written down as we go.</span></li>
-        <li><span><b>Seal.</b> A signed, dated record: what was reviewed, what was proven safe, what is still open.</span></li>
-        <li><span><b>Re-test.</b> Fix the findings and we re-issue the seal — proof the fix held.</span></li>
-      </ol>
-    </section>
-
-    <section class="block">
-      <h2 class="h2">Mapped to the standards your auditors trust</h2>
-      <p class="lede" style="margin-bottom:1rem">Testing and reporting align to the standards an auditor or enterprise buyer recognizes.</p>
-      <ul class="frameworks"><li>OWASP ASVS</li><li>OWASP Top 10</li><li>MITRE ATT&amp;CK</li><li>NIST SSDF</li><li>SOC 2</li><li>CIS Benchmarks</li></ul>
-      <div class="seal-note"><p><b>The seal is the deliverable.</b> Verifiable, honest about what's still open, and durable across re-tests — evidence you can hand an auditor or an enterprise customer.</p></div>
-    </section>
-
-    <section class="block" id="questions">
-      <h2 class="h2">Questions</h2>
-      <div class="qa">
-        <h3>How is this different from running a SAST scanner?</h3>
-        <p>Scanners flag patterns; we review logic. A human reads the auth flows, trust boundaries, and business logic a scanner can't reason about, and the findings come with a reproducible path — not a wall of low-signal alerts.</p>
-        <h3>Do you review the whole codebase or a slice?</h3>
-        <p>We scope to the highest-risk surface first — auth, payments, data access, and anything internet-facing — then widen as budget allows. The seal records exactly what was reviewed and what was not.</p>
-        <h3>Will our engineers actually keep the secure SDLC?</h3>
-        <p>That's the point. We build guardrails into the flow your team already uses rather than handing over a policy PDF, and we coach the team so the next feature starts already secured.</p>
-      </div>
-    </section>
-
-    <div class="cta-band">
-      <p>Tell us what you're shipping.</p>
-      <a class="btn btn--solid" href="/#contact">Request an engagement →</a>
-      <a class="btn btn--ghost" href="/#practice">All disciplines</a>
-    </div>
-  </main>
-
-  <footer>
-    <a href="/">← SecurityArts</a>
-    <a href="/#practice">All disciplines</a>
-    <span>Verifiable · Honest · Durable</span>
-  </footer>
+<script src="/js/api.js"></script>
+<script type="module">
+  import { initSite } from "/assets/site.js";
+  initSite();
+</script>
 </body>
 </html>

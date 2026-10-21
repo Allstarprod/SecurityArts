@@ -3,58 +3,59 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>SecurityArts — A security studio that signs its work</title>
+  <title>SecurityArts — A receipt for your art</title>
   <meta name="description" content="SecurityArts is a security studio. We break systems before adversaries do, harden what matters, and leave a verifiable mark behind — offensive security, application security, cloud, and detection & response." />
   <link rel="canonical" href="https://security-arts.vercel.app/" />
 
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300..600;1,9..144,300..500&family=Geist:wght@300..600&family=Geist+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Instrument+Sans:wght@500;600;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  <script type="importmap">{ "imports": { "three": "https://cdn.jsdelivr.net/npm/three@0.170.0/build/three.module.js", "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.170.0/examples/jsm/" } }</script>
 
-  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='18' fill='%230c0c0b'/%3E%3Cg fill='none' stroke='%23f4f1e9' stroke-width='4.2'%3E%3Cpath d='M 50 13 A 7.22 7.22 0 0 1 64.16 15.82 A 7.22 7.22 0 0 1 76.16 23.84 A 7.22 7.22 0 0 1 84.18 35.84 A 7.22 7.22 0 0 1 87 50 A 7.22 7.22 0 0 1 84.18 64.16 A 7.22 7.22 0 0 1 76.16 76.16 A 7.22 7.22 0 0 1 64.16 84.18 A 7.22 7.22 0 0 1 50 87 A 7.22 7.22 0 0 1 35.84 84.18 A 7.22 7.22 0 0 1 23.84 76.16 A 7.22 7.22 0 0 1 15.82 64.16 A 7.22 7.22 0 0 1 13 50 A 7.22 7.22 0 0 1 15.82 35.84 A 7.22 7.22 0 0 1 23.84 23.84 A 7.22 7.22 0 0 1 35.84 15.82 A 7.22 7.22 0 0 1 50 13 Z'/%3E%3Ccircle cx='50' cy='50' r='27'/%3E%3C/g%3E%3Cpath fill='%23f4f1e9' d='M 50 34.5 L 53.76 44.82 L 64.74 45.21 L 56.09 51.98 L 59.11 62.54 L 50 56.4 L 40.89 62.54 L 43.91 51.98 L 35.26 45.21 L 46.24 44.82 Z'/%3E%3C/svg%3E" />
+  <link rel="icon" href="/assets/seal/modern-24.svg" type="image/svg+xml" />
 
   <style>
   /* ============================================================
      SecurityArts — a security studio that signs its work
-     Type:  Fraunces (display serif) · Geist (body) · Geist Mono (data)
+     Type:  Instrument Sans (display) · Inter (body) · JetBrains Mono (data) — letterpress study
      ============================================================ */
 
   :root {
     /* surfaces */
-    --ink:        #0c0c0b;   /* warm near-black base               */
-    --ink-2:      #131312;   /* raised panels                      */
-    --ink-3:      #1b1a18;   /* hover panels                       */
-    --cream:      #e8e4d8;   /* brand "light surface"              */
-    --jet:        #100f0e;   /* logo ink on cream                  */
+    --ink:        #F5F4EF;   /* warm near-black base               */
+    --ink-2:      #ECEAE3;   /* raised panels                      */
+    --ink-3:      #E3E0D7;   /* hover panels                       */
+    --cream:      #D8E9F3;   /* brand "light surface"              */
+    --jet:        #171A1F;   /* logo ink on cream                  */
 
     /* ink */
-    --bone:       #f4f1e9;   /* brand "Pale White" — primary text  */
-    --bone-dim:   #a39e92;   /* secondary text                     */
-    --bone-faint: #6f6b62;   /* tertiary / captions                */
+    --bone:       #171A1F;   /* brand "Pale White" — primary text  */
+    --bone-dim:   #3E4450;   /* secondary text                     */
+    --bone-faint: #666B73;   /* tertiary / captions                */
 
     /* accent — the wax-seal note, used sparingly */
-    --brass:      #c2a14e;
-    --brass-deep: #9c7e34;
+    --brass:      #D42228;
+    --brass-deep: #A8161C;
 
     /* brand surface swatches (identity section) */
-    --sw-green:   #1f7a55;
-    --sw-red:     #b23a2c;
-    --sw-blue:    #3667cf;
-    --sw-gold:    #a8862a;
-    --sw-taupe:   #7c7468;
+    --sw-green:   #1585CF;
+    --sw-red:     #D42228;
+    --sw-blue:    #0F6DAA;
+    --sw-gold:    #241F21;
+    --sw-taupe:   #A8161C;
 
     /* lines */
-    --line:        rgba(244, 241, 233, 0.12);
-    --line-strong: rgba(244, 241, 233, 0.22);
+    --line:        rgba(23, 26, 31, 0.12);
+    --line-strong: rgba(23, 26, 31, 0.24);
 
     /* layout */
     --gutter: clamp(1.25rem, 4vw, 5rem);
     --maxw: 1320px;
 
     /* type */
-    --serif: "Fraunces", "Times New Roman", serif;
-    --sans:  "Geist", -apple-system, system-ui, sans-serif;
-    --mono:  "Geist Mono", ui-monospace, "SFMono-Regular", monospace;
+    --serif: "Instrument Sans", system-ui, sans-serif;
+    --sans:  "Inter", -apple-system, system-ui, sans-serif;
+    --mono:  "JetBrains Mono", ui-monospace, "SFMono-Regular", monospace;
 
     --ease: cubic-bezier(0.16, 1, 0.3, 1);
   }
@@ -207,6 +208,11 @@
   }
   .head-auth a:hover { color: var(--bone); }
   .head-auth__join { color: var(--bone); }
+  .head-auth button {
+    font-family: var(--mono); font-size: 0.74rem; text-transform: uppercase; letter-spacing: 0.12em;
+    color: var(--bone-dim); background: none; border: 0; cursor: pointer; padding: 0;
+  }
+  .head-auth button:hover { color: var(--bone); }
   .head-auth__join:hover { color: var(--brass); }
 
   .menu-btn { display: none; }
@@ -255,7 +261,7 @@
   .hero__inner { position: relative; margin-top: auto; max-width: 1100px; }
 
   .eyebrow { display: inline-flex; align-items: center; gap: 0.6rem; margin-bottom: clamp(1.4rem, 3vw, 2.4rem); }
-  .eyebrow__dot { width: 7px; height: 7px; border-radius: 50%; background: var(--brass); box-shadow: 0 0 0 4px rgba(194,161,78,0.16); }
+  .eyebrow__dot { width: 7px; height: 7px; border-radius: 50%; background: var(--brass); box-shadow: 0 0 0 4px rgba(212,34,40,0.16); }
 
   .hero__title {
     font-family: var(--serif); font-optical-sizing: auto;
@@ -285,7 +291,7 @@
   .btn--solid { background: var(--bone); color: var(--ink); }
   .btn--solid:hover { background: var(--brass); transform: translateY(-2px); }
   .btn--ghost { border-color: var(--line-strong); color: var(--bone); }
-  .btn--ghost:hover { border-color: var(--bone); background: rgba(244,241,233,0.04); transform: translateY(-2px); }
+  .btn--ghost:hover { border-color: var(--bone); background: rgba(23,26,31,0.05); transform: translateY(-2px); }
 
   .hero__foot {
     display: flex; flex-wrap: wrap; gap: 2.5rem; margin-top: clamp(2.5rem, 5vw, 4rem);
@@ -384,23 +390,34 @@
 
   /* ───────────────── identity (light flip) ───────────────── */
   .identity {
-    background: var(--cream); color: var(--jet);
+    background: var(--lp-paper); color: var(--lp-ink);
     padding: clamp(4.5rem, 10vw, 9rem) var(--gutter);
   }
   .identity > * { max-width: var(--maxw); margin-inline: auto; }
-  .identity .section-label { color: #6a6356; }
+  .identity .section-label { color: #3E4450; }
   .identity .section-label span { color: var(--brass-deep); border-right-color: rgba(16,15,14,0.18); }
   .identity__head { display: grid; gap: 1.4rem; margin-bottom: clamp(2.5rem, 5vw, 4rem); }
   .identity__title {
     font-family: var(--serif); font-weight: 380; font-optical-sizing: auto;
     font-size: clamp(2.4rem, 1rem + 6vw, 5.6rem); line-height: 0.98; letter-spacing: -0.03em;
   }
-  .identity__intro { color: #4a4439; max-width: 56ch; font-size: clamp(1.02rem, 0.95rem + 0.4vw, 1.18rem); }
+  .identity__intro { color: #3E4450; max-width: 56ch; font-size: clamp(1.02rem, 0.95rem + 0.4vw, 1.18rem); }
 
-  .surfaces { display: grid; grid-template-columns: repeat(4, 1fr); gap: clamp(0.5rem, 1.2vw, 0.9rem); margin-bottom: clamp(2.5rem, 5vw, 4rem); }
+  .treatments { list-style: none; margin: 0 0 clamp(2.5rem, 5vw, 4rem); padding: 0; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: clamp(1rem, 2vw, 1.6rem); }
+  .treatment__stage { aspect-ratio: 1; border-radius: 14px; display: grid; place-items: center; padding: 16%; }
+  .treatment__stage img { width: 100%; height: auto; transform: rotate(-8deg); }
+  .treatment__stage--wax { background: var(--lp-paper); box-shadow: inset 0 0 0 1px rgba(23, 26, 31, 0.12); }
+  .treatment__stage--modern { background: var(--cream); }
+  .treatment__stage--rubber { background: #ECEAE3; }
+  .treatment__stage--ringtext { background: #FFFEFB; box-shadow: inset 0 0 0 1px rgba(23, 26, 31, 0.12); }
+  .treatment__stage--knockout { background: radial-gradient(circle at 30% 30%, #1585CF 0 30%, #171A1F 31% 58%, #F5F4EF 59%); }
+  .treatment__stage--faithful { background: var(--lp-studio); }
+  .treatment__name { margin: 0.8rem 0 0.15rem; font: 700 1.15rem/1.1 var(--serif); letter-spacing: -0.02em; color: var(--lp-ink); }
+  .treatment__job { margin: 0; font-size: 0.92rem; color: #3E4450; max-width: 30ch; }
+  .surfaces { display: none; }
   .surface { aspect-ratio: 1; border-radius: 12px; display: grid; place-items: center; }
   .surface svg { width: 46%; height: 46%; }
-  .surface[data-light] { color: var(--bone); }            /* white seal */
+  .surface[data-light] { color: var(--lp-paper); }        /* paper seal on dark surfaces */
   .surface:not([data-light]) { color: var(--jet); }       /* dark seal  */
   .surface--green { background: var(--sw-green); }
   .surface--red   { background: var(--sw-red); }
@@ -408,14 +425,15 @@
   .surface--gold  { background: var(--sw-gold); }
   .surface--cream { background: #f3efe6; border: 1px solid rgba(16,15,14,0.1); }
   .surface--taupe { background: var(--sw-taupe); }
-  .surface--ink   { background: var(--ink); }
-  .surface--bone  { background: var(--bone); }
+  .surface--ink   { background: var(--lp-studio); }
+  .surface--bone  { background: var(--lp-paper-2); }
 
   .identity__pair { display: grid; grid-template-columns: 1fr; gap: clamp(0.5rem, 1.2vw, 0.9rem); }
   @media (min-width: 640px) { .identity__pair { grid-template-columns: 1fr 1fr; } }
   .lockup { border-radius: 12px; padding: clamp(1.6rem, 3vw, 2.4rem); display: flex; flex-direction: column; justify-content: space-between; gap: 2.5rem; min-height: 190px; }
   .lockup--light { background: #f3efe6; border: 1px solid rgba(16,15,14,0.1); color: var(--jet); }
-  .lockup--dark { background: var(--ink); color: var(--bone); }
+  .lockup--dark { background: var(--lp-studio); color: var(--lp-paper); }
+  .lockup--light .lockup__mark svg { color: var(--lp-red); }
   .lockup__mark { display: flex; align-items: center; gap: 0.7rem; }
   .lockup__mark svg { width: 42px; height: 42px; flex: 0 0 auto; }
   .lockup__word { font-family: var(--serif); font-weight: 470; font-size: clamp(1.5rem, 1rem + 1.6vw, 2.1rem); letter-spacing: -0.015em; }
@@ -423,9 +441,9 @@
   .lockup figcaption > span:first-child { font-family: var(--serif); font-style: italic; font-size: 1.05rem; }
   .lockup .mono { font-size: 0.68rem; letter-spacing: 0.12em; }
   .lockup--light figcaption { border-top-color: rgba(16,15,14,0.18); }
-  .lockup--light .mono { color: #6a6356; }
-  .lockup--dark figcaption { border-top-color: var(--line-strong); }
-  .lockup--dark .mono { color: var(--bone-dim); }
+  .lockup--light .mono { color: #3E4450; }
+  .lockup--dark figcaption { border-top-color: rgba(245,244,239,0.3); }
+  .lockup--dark .mono { color: rgba(245,244,239,0.72); }
 
   /* ───────────────── standards ───────────────── */
   .standards { max-width: var(--maxw); margin-inline: auto; padding: clamp(5rem, 11vw, 9rem) var(--gutter); }
@@ -488,11 +506,11 @@
   .discover-cta__tiles { display: grid; grid-template-columns: repeat(3, 1fr); grid-auto-rows: 1fr; gap: clamp(0.5rem, 1.2vw, 0.85rem); }
   .discover-cta__tiles .dt { aspect-ratio: 3 / 4; border-radius: 12px; position: relative; overflow: hidden; display: grid; place-items: center; border: 1px solid var(--line); }
   .discover-cta__tiles .dt svg { width: 38%; height: 38%; }
-  .discover-cta__tiles .dt:nth-child(1) { background: linear-gradient(150deg, #1f7a55, #15302a); color: var(--bone); grid-row: span 2; aspect-ratio: 3 / 5; }
-  .discover-cta__tiles .dt:nth-child(2) { background: linear-gradient(150deg, #b23a2c, #6e2018); color: var(--bone); }
-  .discover-cta__tiles .dt:nth-child(3) { background: var(--cream); color: var(--jet); }
-  .discover-cta__tiles .dt:nth-child(4) { background: linear-gradient(150deg, #3667cf, #1a2740); color: var(--bone); }
-  .discover-cta__tiles .dt:nth-child(5) { background: linear-gradient(150deg, #a8862a, #5e4b16); color: var(--jet); grid-column: span 2; aspect-ratio: auto; }
+  .discover-cta__tiles .dt:nth-child(1) { background: radial-gradient(circle at 38% 36%, #1585CF 0 30%, transparent 31%), linear-gradient(#D8E9F3 0 62%, #171A1F 62%); color: #F5F4EF; grid-row: span 2; aspect-ratio: 3 / 5; }
+  .discover-cta__tiles .dt:nth-child(2) { background: linear-gradient(160deg, #D42228 0 58%, #171A1F 58%); color: #F5F4EF; }
+  .discover-cta__tiles .dt:nth-child(3) { background: repeating-linear-gradient(-30deg, #F5F4EF 0 12px, #171A1F 12px 15px); color: #D42228; }
+  .discover-cta__tiles .dt:nth-child(4) { background: conic-gradient(from 20deg, #D8E9F3 0 25%, #1585CF 25% 50%, #D42228 50% 75%, #171A1F 75%); color: #F5F4EF; }
+  .discover-cta__tiles .dt:nth-child(5) { background: linear-gradient(90deg, #D42228 0 35%, #F5F4EF 35% 40%, #171A1F 40%); color: #F5F4EF; grid-column: span 2; aspect-ratio: auto; }
   .discover-cta__tiles .dt:nth-child(5) svg { width: 16%; height: 60%; }
   @media (max-width: 520px) { .discover-cta__tiles .dt:nth-child(1) { aspect-ratio: 3/4; grid-row: auto; } }
 
@@ -503,7 +521,7 @@
   .newsletter { max-width: var(--maxw); margin-inline: auto; padding: clamp(4rem,9vw,7rem) var(--gutter); border-top: 1px solid var(--line); }
   .newsletter__inner { max-width: 760px; }
   .newsletter__eyebrow { font-family: var(--mono); font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.2em; color: var(--brass); margin-bottom: 1.2rem; display: inline-flex; align-items: center; gap: 0.6rem; }
-  .newsletter__eyebrow::before { content: ""; width: 7px; height: 7px; border-radius: 50%; background: var(--brass); box-shadow: 0 0 0 4px rgba(194,161,78,0.16); }
+  .newsletter__eyebrow::before { content: ""; width: 7px; height: 7px; border-radius: 50%; background: var(--brass); box-shadow: 0 0 0 4px rgba(212,34,40,0.16); }
   .newsletter__title { font-family: var(--serif); font-weight: 360; font-optical-sizing: auto; font-size: clamp(2rem,1rem+4vw,3.6rem); line-height: 1.0; letter-spacing: -0.025em; margin-bottom: 1.2rem; }
   .newsletter__lede { color: var(--bone-dim); max-width: 50ch; margin-bottom: 2rem; font-size: clamp(1rem,0.95rem+0.3vw,1.15rem); }
   .newsletter__form { display: flex; flex-wrap: wrap; gap: 0.7rem; max-width: 520px; }
@@ -544,13 +562,72 @@
     .hero__aside { margin-left: 0; }
     .hero__meta--end { margin-left: 0; text-align: left; }
     .manifesto { grid-template-columns: 1fr; }
-    .surfaces { grid-template-columns: repeat(2, 1fr); }
+    .treatments { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   }
 
   @media (max-width: 460px) {
     .hero__foot { gap: 1.5rem 2rem; }
-    .surfaces { grid-template-columns: repeat(2, 1fr); }
+    .treatments { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   }
+  /* ═════════ Letterpress re-skin (study) ═════════ */
+  :root { --lp-paper:#F5F4EF; --lp-paper-2:#D8E9F3; --lp-ink:#171A1F; --lp-red:#D42228; --lp-red-deep:#A8161C; --lp-blue:#1585CF; --lp-blue-deep:#0F6DAA; --lp-studio:#241F21; }
+  body { background: var(--lp-paper); color: var(--lp-ink); }
+
+  /* grotesk display: the serif was the luxury tell */
+  .hero__title, .h-section, .manifesto__text, .identity__title, .contact__title, .newsletter__title, .card__title, .marquee__track span {
+    font-family: "Instrument Sans", system-ui, sans-serif; font-variation-settings: normal; font-optical-sizing: auto;
+  }
+  .hero__title, .h-section, .identity__title, .contact__title, .newsletter__title { font-weight: 700; letter-spacing: -0.045em; line-height: 0.95; }
+  .manifesto__text { font-weight: 600; letter-spacing: -0.03em; line-height: 1.12; }
+  .marquee__track span { font-weight: 700; letter-spacing: -0.02em; }
+  .card__title { font-weight: 700; letter-spacing: -0.02em; }
+  .hero__title em, .h-section em, .identity__title em, .contact__title em { font-style: normal; color: var(--lp-red); }
+  .seal-section__lede em { font-style: normal; font-weight: 600; }
+
+  /* full-bleed bands without touching the max-width layout */
+  .band { box-shadow: 0 0 0 100vmax var(--band); clip-path: inset(0 -100vmax); background: var(--band); }
+  .band--light { --band: var(--lp-paper); }
+  .band--sky   { --band: var(--lp-paper-2); --ink: var(--lp-paper-2); --ink-2: #CBDDEA; --ink-3: #BFD3E2; }
+  .band--red, .band--blue, .band--dark {
+    --bone: var(--lp-paper); --bone-dim: rgba(245,244,239,0.84); --bone-faint: rgba(245,244,239,0.62);
+    --line: rgba(245,244,239,0.2); --line-strong: rgba(245,244,239,0.34); color: var(--lp-paper);
+  }
+  .band--red  { --band: var(--lp-red);       --ink: var(--lp-red);       --ink-2: #C01D24; --ink-3: #B01A21; --brass: var(--lp-paper); --brass-deep: var(--lp-paper-2); }
+  .band--blue { --band: var(--lp-blue-deep); --ink: var(--lp-blue-deep); --ink-2: #0D629A; --ink-3: #0B578A; --brass: var(--lp-paper); }
+  .band--dark { --band: var(--lp-studio);    --ink: var(--lp-studio);    --ink-2: #2E2829; --ink-3: #382F31; --brass: #E8484E; }
+  .band--red em, .band--blue em { color: var(--lp-paper) !important; text-decoration: underline; text-decoration-thickness: 0.06em; text-underline-offset: 0.12em; }
+  .band--dark .h-section em { color: #E8484E; }
+
+  /* buttons read right on every band */
+  .btn--solid { background: var(--lp-red); color: var(--lp-paper); border-color: var(--lp-red); }
+  .btn--solid:hover { background: var(--lp-red-deep); border-color: var(--lp-red-deep); }
+  .band--red .btn--solid { background: var(--lp-paper); color: var(--lp-red); border-color: var(--lp-paper); }
+
+  /* the 3D wax seal where the faint outline used to bleed off the hero */
+  .hero__seal-bleed { color: inherit; }
+  .wax3d { position: relative; width: 100%; height: 100%; }
+  .wax3d canvas { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
+  .wax3d .fallback { position: absolute; inset: 0; display: grid; place-items: center; }
+  .wax3d .fallback[hidden] { display: none; }
+  .wax3d .fallback img { width: 78%; transform: rotate(-8deg); filter: drop-shadow(0 18px 26px rgba(23,26,31,0.28)); animation: lp-turn 30s linear infinite; }
+  @keyframes lp-turn { to { transform: rotate(352deg); } }
+  .seal-img { width: clamp(15rem, 34vw, 26rem); aspect-ratio: 1; transform: rotate(-8deg); filter: drop-shadow(0 22px 30px rgba(0,0,0,0.3)); }
+  .hero__title, .hero__aside { position: relative; z-index: 1; }
+  @media (min-width: 901px) {
+    /* the solid seal can't sit under copy the way the 7% outline did: keep it clear of the lede */
+    .hero__seal-bleed { width: clamp(22rem, 40vw, 40rem); right: clamp(-14rem, -10vw, -4rem); top: 44%; }
+    .hero__aside { max-width: 34ch; }
+  }
+  @media (max-width: 900px) {
+    .hero__seal-bleed { position: relative; top: auto; right: auto; transform: none; width: min(78vw, 420px); margin: 0 auto 1rem; order: 3; }
+  }
+  @media (prefers-reduced-motion: reduce) { .wax3d .fallback img { animation: none; } }
+
+  /* marquee on red */
+  .marquee { border: 0; }
+  .band--red .seal--tick { color: var(--lp-paper); }
+  .studio-anchor { position: relative; top: -80px; }
+
   </style>
 
   <!-- Social / Open Graph -->
@@ -577,8 +654,8 @@
         "logo":"https://security-arts.vercel.app/og-image.png",
         "email":"hello@securityarts.studio",
         "foundingDate":"2026",
-        "description":"A security studio that signs its work — offensive and defensive security, plus a platform that seals human-made art with cryptographic proof.",
-        "knowsAbout":["Penetration testing","Application security","Cloud security","Detection and response","Security architecture","vCISO advisory","Content authenticity"]
+        "description":"A security studio that signs its work — offensive and defensive security, plus a platform where artists seal finished files and get a public certificate of which account sealed them, and when.",
+        "knowsAbout":["Penetration testing","Application security","Cloud security","Detection and response","Security architecture","vCISO advisory","Content provenance"]
       },
       {
         "@type":"WebSite",
@@ -591,8 +668,6 @@
     ]
   }
   </script>
-
-  <script src="js/api.js"></script>
 </head>
 <body>
   <a class="skip-link" href="#main">Skip to content</a>
@@ -611,25 +686,24 @@
   <!-- ───────────────── Header ───────────────── -->
   <header class="site-head" id="siteHead">
     <a class="brand" href="#top" aria-label="SecurityArts — home">
-      <svg class="brand__seal seal" aria-hidden="true"><use href="#saSeal" /></svg>
+      <img class="brand__seal" src="/assets/seal/modern-24.svg" width="30" height="30" alt="">
       <span class="brand__word">Security<span class="brand__word-alt">Arts</span></span>
     </a>
 
     <nav class="nav" aria-label="Primary">
-      <a href="#practice"><span class="nav__idx">01</span> Practice</a>
-      <a href="#seal"><span class="nav__idx">02</span> The Seal</a>
-      <a href="#identity"><span class="nav__idx">03</span> Identity</a>
-      <a href="#standards"><span class="nav__idx">04</span> Standards</a>
-      <a href="/discover"><span class="nav__idx">05</span> Discover</a>
+      <a href="/wall"><span class="nav__idx">01</span> The wall</a>
+      <a href="/how-it-works"><span class="nav__idx">02</span> How it works</a>
+      <a href="/pricing"><span class="nav__idx">03</span> Pricing</a>
+      <a href="#studio"><span class="nav__idx">04</span> Studio</a>
     </nav>
 
-    <div class="head-auth">
-      <a href="/login">Sign in</a>
-      <a class="head-auth__join" href="/join">Join</a>
+    <div class="head-auth" data-auth-slot>
+      <a href="/join">Sign in</a>
+      <a class="head-auth__join" href="/join?mode=signup">Join</a>
     </div>
 
-    <a class="head-cta" href="#contact">
-      Request engagement
+    <a class="head-cta" href="/join?mode=signup" data-seal-cta>
+      Seal a piece
       <span class="head-cta__arrow" aria-hidden="true">→</span>
     </a>
 
@@ -641,64 +715,60 @@
   <!-- mobile menu -->
   <div class="mobile-menu" id="mobileMenu" aria-hidden="true">
     <nav class="mobile-menu__nav" aria-label="Mobile">
-      <a href="#practice"><span>01</span> Practice</a>
-      <a href="#seal"><span>02</span> The Seal</a>
-      <a href="#identity"><span>03</span> Identity</a>
-      <a href="#standards"><span>04</span> Standards</a>
-      <a href="#contact"><span>05</span> Contact</a>
-      <a href="/discover"><span>06</span> Discover</a>
-      <a href="market.html"><span>07</span> Market</a>
-      <a href="/login"><span>08</span> Sign in</a>
-      <a href="/join"><span>09</span> Join</a>
+      <a href="/wall"><span>01</span> The wall</a>
+      <a href="/how-it-works"><span>02</span> How it works</a>
+      <a href="/pricing"><span>03</span> Pricing</a>
+      <a href="#studio"><span>04</span> Studio</a>
+      <a href="/join"><span>05</span> Sign in</a>
+      <a href="/join?mode=signup"><span>06</span> Join</a>
     </nav>
-    <a class="mobile-menu__cta" href="#contact">Request an engagement →</a>
+    <a class="mobile-menu__cta" href="/join?mode=signup" data-seal-cta>Seal a piece →</a>
   </div>
 
   <main id="main">
-    <span id="top"></span>
 
     <!-- ───────────────── Hero ───────────────── -->
-    <section class="hero" aria-labelledby="hero-h">
+    <section class="hero band band--sky" aria-labelledby="hero-h">
       <div class="hero__seal-bleed" aria-hidden="true">
-        <svg class="seal seal--bleed" id="heroSeal"><use href="#saSeal" /></svg>
+        <div class="wax3d" id="heroSeal"><canvas aria-hidden="true"></canvas><div class="fallback" hidden><img src="/assets/seal/wax.svg" alt="" /></div></div>
       </div>
 
       <div class="hero__inner">
         <p class="eyebrow reveal" data-d="1">
           <span class="eyebrow__dot"></span>
-          Security studio — offensive &amp; defensive
+          For artists · sealed &amp; public
         </p>
 
         <h1 class="hero__title" id="hero-h">
-          <span class="reveal" data-d="2">Security is</span>
-          <span class="reveal" data-d="3">a craft. We</span>
-          <span class="reveal" data-d="4">sign <em>our work.</em></span>
+          <span class="reveal" data-d="2">A receipt</span>
+          <span class="reveal" data-d="3">for your</span>
+          <span class="reveal" data-d="4"><em>art.</em></span>
         </h1>
 
         <div class="hero__aside reveal" data-d="5">
           <p class="hero__lede">
-            SecurityArts is a security studio. We break what you've built before
-            an adversary does, harden what actually matters, and leave behind a
-            mark you can verify — not a PDF you file away and forget.
+            Seal a finished piece and get a public certificate anyone can check.
+            Not a guess about whether it's AI — a signed record that this exact
+            file was sealed by your account, at this moment.
           </p>
           <p class="hero__also">
-            SecurityArts also seals human-made art with the same cryptographic proof — see <a href="/verified">Verified art</a>.
+            SecurityArts is also a security studio that signs its work — <a href="#studio">see the studio</a>.
           </p>
           <div class="hero__actions">
-            <a class="btn btn--solid" href="#contact">Request an engagement</a>
-            <a class="btn btn--ghost" href="#practice">See the practice</a>
+            <a class="btn btn--solid" href="/join?mode=signup" data-seal-cta>Seal a piece</a>
+            <a class="btn btn--ghost" href="#discover">See the wall</a>
           </div>
         </div>
       </div>
 
       <div class="hero__foot reveal" data-d="6">
         <div class="hero__meta">
-          <span class="meta-k">Based</span>
-          <span class="meta-v">Remote-first · Worldwide</span>
+          <span class="meta-k">Sealed with</span>
+          <span class="meta-v">SHA-256 · ECDSA P-256</span>
         </div>
         <div class="hero__meta">
-          <span class="meta-k">Engagements</span>
-          <span class="meta-v">Now booking</span>
+          <span class="meta-k">Verify</span>
+          <span class="meta-v">Anyone, no account needed</span>
         </div>
         <div class="hero__meta hero__meta--end">
           <span class="meta-k">Est.</span>
@@ -708,26 +778,83 @@
     </section>
 
     <!-- ───────────────── Marquee ───────────────── -->
-    <div class="marquee" aria-hidden="true">
+    <div class="marquee band band--red" aria-hidden="true">
       <div class="marquee__track">
-        <span>Offensive Security</span><svg class="seal seal--tick"><use href="#saSeal"/></svg>
-        <span>Application Security</span><svg class="seal seal--tick"><use href="#saSeal"/></svg>
-        <span>Cloud &amp; Infrastructure</span><svg class="seal seal--tick"><use href="#saSeal"/></svg>
-        <span>Detection &amp; Response</span><svg class="seal seal--tick"><use href="#saSeal"/></svg>
-        <span>Security Architecture</span><svg class="seal seal--tick"><use href="#saSeal"/></svg>
-        <span>Advisory &amp; Training</span><svg class="seal seal--tick"><use href="#saSeal"/></svg>
-        <span>Offensive Security</span><svg class="seal seal--tick"><use href="#saSeal"/></svg>
-        <span>Application Security</span><svg class="seal seal--tick"><use href="#saSeal"/></svg>
-        <span>Cloud &amp; Infrastructure</span><svg class="seal seal--tick"><use href="#saSeal"/></svg>
-        <span>Detection &amp; Response</span><svg class="seal seal--tick"><use href="#saSeal"/></svg>
-        <span>Security Architecture</span><svg class="seal seal--tick"><use href="#saSeal"/></svg>
-        <span>Advisory &amp; Training</span><svg class="seal seal--tick"><use href="#saSeal"/></svg>
+        <span>Painting</span><svg class="seal seal--tick"><use href="#saSeal"/></svg>
+        <span>Illustration</span><svg class="seal seal--tick"><use href="#saSeal"/></svg>
+        <span>Photography</span><svg class="seal seal--tick"><use href="#saSeal"/></svg>
+        <span>Printmaking</span><svg class="seal seal--tick"><use href="#saSeal"/></svg>
+        <span>Digital</span><svg class="seal seal--tick"><use href="#saSeal"/></svg>
+        <span>Ceramics</span><svg class="seal seal--tick"><use href="#saSeal"/></svg>
+        <span>Painting</span><svg class="seal seal--tick"><use href="#saSeal"/></svg>
+        <span>Illustration</span><svg class="seal seal--tick"><use href="#saSeal"/></svg>
+        <span>Photography</span><svg class="seal seal--tick"><use href="#saSeal"/></svg>
+        <span>Printmaking</span><svg class="seal seal--tick"><use href="#saSeal"/></svg>
+        <span>Digital</span><svg class="seal seal--tick"><use href="#saSeal"/></svg>
+        <span>Ceramics</span><svg class="seal seal--tick"><use href="#saSeal"/></svg>
       </div>
     </div>
 
+    <!-- ───────────────── Discover entry ───────────────── -->
+    <section class="discover-cta band band--light" id="discover" aria-labelledby="discover-h">
+      <div class="discover-cta__copy">
+        <p class="section-label reveal"><span>01</span> The wall</p>
+        <h2 class="h-section reveal" id="discover-h">The wall. Every<br />piece is sealed.</h2>
+        <p class="discover-cta__lede reveal">
+          Finished work, sealed and public. Open any piece to see which account
+          sealed it, and when — every certificate is public and anyone can
+          check it. Then seal your own.
+        </p>
+        <div class="discover-cta__actions reveal">
+          <a class="btn btn--solid" href="/wall">Enter the wall →</a>
+          <a class="btn btn--ghost" href="/how-it-works">How the seal works →</a>
+        </div>
+        <a class="discover-cta__verify reveal" href="/join?mode=signup" data-seal-cta>Made it yourself? Seal it →</a>
+      </div>
+      <div class="discover-cta__tiles reveal" aria-hidden="true">
+        <span class="dt"><svg class="seal"><use href="#saSeal"/></svg></span>
+        <span class="dt"><svg class="seal"><use href="#saSeal"/></svg></span>
+        <span class="dt"><svg class="seal"><use href="#saSeal"/></svg></span>
+        <span class="dt"><svg class="seal"><use href="#saSeal"/></svg></span>
+        <span class="dt"><svg class="seal"><use href="#saSeal"/></svg></span>
+      </div>
+    </section>
+
+    <!-- ───────────────── The Seal ───────────────── -->
+    <section class="seal-section band band--blue" id="seal" aria-labelledby="seal-h">
+      <div class="seal-section__art" aria-hidden="true">
+        <img class="seal-img" src="/assets/seal/wax.svg" alt="" />
+      </div>
+      <div class="seal-section__copy">
+        <p class="section-label reveal"><span>02</span> The seal</p>
+        <h2 class="h-section reveal" id="seal-h">Every piece ends<br />in a receipt.</h2>
+        <p class="reveal seal-section__lede">
+          A postmark records <em>when a letter went through.</em> Ours does that
+          for a file: we fingerprint the exact bytes, sign that fingerprint, and
+          publish a certificate anyone can check. It doesn't judge the art — it
+          records which account sealed which file, and when.
+        </p>
+        <ul class="seal-points reveal">
+          <li>
+            <span class="seal-points__k">Checkable</span>
+            <span class="seal-points__v">Anyone can verify the certificate — no account needed.</span>
+          </li>
+          <li>
+            <span class="seal-points__k">Honest</span>
+            <span class="seal-points__v">It records who sealed which file, and when. It never claims more.</span>
+          </li>
+          <li>
+            <span class="seal-points__k">Exact</span>
+            <span class="seal-points__v">Change one pixel and the fingerprint no longer matches.</span>
+          </li>
+        </ul>
+      </div>
+    </section>
+    <div id="studio" class="studio-anchor" aria-hidden="true"></div>
+
     <!-- ───────────────── Manifesto ───────────────── -->
-    <section class="manifesto" aria-labelledby="man-h">
-      <p class="section-label reveal"><span>00</span> Position</p>
+    <section class="manifesto band band--red" aria-labelledby="man-h">
+      <p class="section-label reveal"><span>03</span> Also a security studio</p>
       <h2 class="manifesto__text reveal" id="man-h">
         Most security work disappears into a report nobody reads twice. Ours
         ends in a <span class="ul">seal</span> — a verifiable record of what we
@@ -736,9 +863,9 @@
     </section>
 
     <!-- ───────────────── Practice grid ───────────────── -->
-    <section class="practice" id="practice" aria-labelledby="practice-h">
+    <section class="practice band band--dark" id="practice" aria-labelledby="practice-h">
       <div class="practice__head">
-        <p class="section-label reveal"><span>01</span> Practice</p>
+        <p class="section-label reveal"><span>04</span> Practice</p>
         <h2 class="h-section reveal" id="practice-h">Six disciplines,<br />one standard of proof.</h2>
         <p class="practice__intro reveal">
           We work across the full surface — the systems you ship, the cloud they
@@ -842,107 +969,8 @@
       </ol>
     </section>
 
-    <!-- ───────────────── The Seal ───────────────── -->
-    <section class="seal-section" id="seal" aria-labelledby="seal-h">
-      <div class="seal-section__art" aria-hidden="true">
-        <svg class="seal seal--hero" id="philoSeal"><use href="#saSeal"/></svg>
-      </div>
-      <div class="seal-section__copy">
-        <p class="section-label reveal"><span>02</span> The Seal</p>
-        <h2 class="h-section reveal" id="seal-h">Every engagement<br />ends in a mark.</h2>
-        <p class="reveal seal-section__lede">
-          The seal is the whole idea. A notary's stamp says <em>a person stood
-          here and verified this.</em> Ours says the same about your systems.
-          When we close an engagement, you don't get a wall of findings — you get
-          a record of exactly what was tested, what was proven safe, and what is
-          still open, signed and dated.
-        </p>
-        <ul class="seal-points reveal">
-          <li>
-            <span class="seal-points__k">Verifiable</span>
-            <span class="seal-points__v">Every claim traces to a test you can re-run.</span>
-          </li>
-          <li>
-            <span class="seal-points__k">Honest</span>
-            <span class="seal-points__v">We mark what's still open as plainly as what's fixed.</span>
-          </li>
-          <li>
-            <span class="seal-points__k">Durable</span>
-            <span class="seal-points__v">A retest re-issues the seal — it isn't a one-day snapshot.</span>
-          </li>
-        </ul>
-      </div>
-    </section>
-
-    <!-- ───────────────── Identity / One logo. Any surface. ───────────────── -->
-    <section class="identity" id="identity" aria-labelledby="identity-h">
-      <div class="identity__head">
-        <p class="section-label reveal"><span>03</span> Identity</p>
-        <h2 class="identity__title reveal" id="identity-h">One logo. Any surface.</h2>
-        <p class="identity__intro reveal">
-          The mark is contrast-aware. A single-ink master drops onto anything —
-          from a billboard to a 16-pixel favicon — and takes black or white
-          depending on what the surface needs. No color version required to be
-          recognizable.
-        </p>
-      </div>
-
-      <div class="surfaces reveal" role="list">
-        <div class="surface surface--green"  role="listitem" data-light><svg class="seal"><use href="#saSeal"/></svg></div>
-        <div class="surface surface--red"    role="listitem" data-light><svg class="seal"><use href="#saSeal"/></svg></div>
-        <div class="surface surface--blue"   role="listitem" data-light><svg class="seal"><use href="#saSeal"/></svg></div>
-        <div class="surface surface--gold"   role="listitem" data-light><svg class="seal"><use href="#saSeal"/></svg></div>
-        <div class="surface surface--cream"  role="listitem"><svg class="seal"><use href="#saSeal"/></svg></div>
-        <div class="surface surface--taupe"  role="listitem" data-light><svg class="seal"><use href="#saSeal"/></svg></div>
-        <div class="surface surface--ink"    role="listitem" data-light><svg class="seal"><use href="#saSeal"/></svg></div>
-        <div class="surface surface--bone"   role="listitem"><svg class="seal"><use href="#saSeal"/></svg></div>
-      </div>
-
-      <div class="identity__pair reveal">
-        <figure class="lockup lockup--light">
-          <div class="lockup__mark">
-            <svg class="seal"><use href="#saSeal"/></svg>
-            <span class="lockup__word">SecurityArts</span>
-          </div>
-          <figcaption><span>Jet Black</span><span class="mono">#0C0C0B · LIGHT BG</span></figcaption>
-        </figure>
-        <figure class="lockup lockup--dark">
-          <div class="lockup__mark">
-            <svg class="seal"><use href="#saSeal"/></svg>
-            <span class="lockup__word">SecurityArts</span>
-          </div>
-          <figcaption><span>Pale White</span><span class="mono">#F4F1E9 · DARK BG</span></figcaption>
-        </figure>
-      </div>
-    </section>
-
-    <!-- ───────────────── Discover entry ───────────────── -->
-    <section class="discover-cta" id="discover" aria-labelledby="discover-h">
-      <div class="discover-cta__copy">
-        <p class="section-label reveal"><span>04</span> Discover</p>
-        <h2 class="h-section reveal" id="discover-h">The wall of verified<br />human work.</h2>
-        <p class="discover-cta__lede reveal">
-          A visual discovery engine where every piece carries the seal. Search it,
-          save it into boards, and — if you make it by hand — get your own work
-          cryptographically verified and listed for collectors who care.
-        </p>
-        <div class="discover-cta__actions reveal">
-          <a class="btn btn--solid" href="/discover">Enter the wall →</a>
-          <a class="btn btn--ghost" href="market.html">Shop the marketplace →</a>
-        </div>
-        <a class="discover-cta__verify reveal" href="/verified">Make it by hand? Get your work verified →</a>
-      </div>
-      <div class="discover-cta__tiles reveal" aria-hidden="true">
-        <span class="dt"><svg class="seal"><use href="#saSeal"/></svg></span>
-        <span class="dt"><svg class="seal"><use href="#saSeal"/></svg></span>
-        <span class="dt"><svg class="seal"><use href="#saSeal"/></svg></span>
-        <span class="dt"><svg class="seal"><use href="#saSeal"/></svg></span>
-        <span class="dt"><svg class="seal"><use href="#saSeal"/></svg></span>
-      </div>
-    </section>
-
     <!-- ───────────────── Standards ───────────────── -->
-    <section class="standards" id="standards" aria-labelledby="standards-h">
+    <section class="standards band band--dark" id="standards" aria-labelledby="standards-h">
       <div class="standards__head">
         <p class="section-label reveal"><span>05</span> Standards</p>
         <h2 class="h-section reveal" id="standards-h">
@@ -959,9 +987,71 @@
       </ul>
     </section>
 
+    <!-- ───────────────── Identity / One logo. Any surface. ───────────────── -->
+    <section class="identity band band--light" id="identity" aria-labelledby="identity-h">
+      <div class="identity__head">
+        <p class="section-label reveal"><span>06</span> Identity</p>
+        <h2 class="identity__title reveal" id="identity-h">One logo. Any surface.</h2>
+        <p class="identity__intro reveal">
+          One seal in six treatments, each built for where it lands. Same mark every
+          time: a scalloped edge, a ring and a star, in chop red on paper.
+        </p>
+      </div>
+
+      <ul class="treatments reveal">
+        <li class="treatment">
+          <div class="treatment__stage treatment__stage--wax"><img src="/assets/seal/wax.svg" alt="" loading="lazy" width="240" height="240"></div>
+          <p class="treatment__name">Wax</p>
+          <p class="treatment__job">The seal. The hero, the 3D object, every certificate.</p>
+        </li>
+        <li class="treatment">
+          <div class="treatment__stage treatment__stage--modern"><img src="/assets/seal/modern.svg" alt="" loading="lazy" width="240" height="240"></div>
+          <p class="treatment__name">Modernised</p>
+          <p class="treatment__job">Under 60px: the header, the favicon, the badge on a tile.</p>
+        </li>
+        <li class="treatment">
+          <div class="treatment__stage treatment__stage--rubber"><img src="/assets/seal/rubber.svg" alt="" loading="lazy" width="240" height="240"></div>
+          <p class="treatment__name">Rubber</p>
+          <p class="treatment__job">The moment a piece gets sealed. Stickers and posts.</p>
+        </li>
+        <li class="treatment">
+          <div class="treatment__stage treatment__stage--ringtext"><img src="/assets/seal/ringtext.svg" alt="" loading="lazy" width="240" height="240"></div>
+          <p class="treatment__name">Ring text</p>
+          <p class="treatment__job">Printed and mailed: certificate PDFs, email receipts.</p>
+        </li>
+        <li class="treatment">
+          <div class="treatment__stage treatment__stage--knockout"><img src="/assets/seal/knockout.svg" alt="" loading="lazy" width="240" height="240"></div>
+          <p class="treatment__name">Knockout</p>
+          <p class="treatment__job">On top of photos and artwork, where an outline would vanish.</p>
+        </li>
+        <li class="treatment">
+          <div class="treatment__stage treatment__stage--faithful"><img src="/assets/seal/faithful-dark.svg" alt="" loading="lazy" width="240" height="240"></div>
+          <p class="treatment__name">Faithful</p>
+          <p class="treatment__job">The security studio: report covers and studio pages.</p>
+        </li>
+      </ul>
+
+      <div class="identity__pair reveal">
+        <figure class="lockup lockup--light">
+          <div class="lockup__mark">
+            <svg class="seal"><use href="#saSeal"/></svg>
+            <span class="lockup__word">SecurityArts</span>
+          </div>
+          <figcaption><span>Chop red</span><span class="mono">#D42228 · ON PAPER</span></figcaption>
+        </figure>
+        <figure class="lockup lockup--dark">
+          <div class="lockup__mark">
+            <svg class="seal"><use href="#saSeal"/></svg>
+            <span class="lockup__word">SecurityArts</span>
+          </div>
+          <figcaption><span>Paper</span><span class="mono">#F5F4EF · ON CHARCOAL</span></figcaption>
+        </figure>
+      </div>
+    </section>
+
     <!-- ───────────────── Contact ───────────────── -->
-    <section class="contact" id="contact" aria-labelledby="contact-h">
-      <p class="section-label reveal"><span>06</span> Contact</p>
+    <section class="contact band band--sky" id="contact" aria-labelledby="contact-h">
+      <p class="section-label reveal"><span>07</span> Contact</p>
       <h2 class="contact__title reveal" id="contact-h">
         Let's put a mark<br />on it.
       </h2>
@@ -973,16 +1063,17 @@
         </p>
       </div>
     </section>
+  
   </main>
 
   <!-- ───────────────── Newsletter ───────────────── -->
   <section class="newsletter" aria-labelledby="news-h">
     <div class="newsletter__inner">
       <p class="newsletter__eyebrow reveal">Newsletter</p>
-      <h2 class="newsletter__title reveal" id="news-h">Dispatches from the<br />authenticity economy.</h2>
+      <h2 class="newsletter__title reveal" id="news-h">News from<br />the wall.</h2>
       <p class="newsletter__lede reveal">
-        Once a month: newly verified artists, how provenance is reshaping who
-        gets paid for original work, and the tools we ship. No noise, no filler.
+        Now and then: newly sealed work, what we're building, and how the seal
+        works. No noise, no filler.
       </p>
       <form class="newsletter__form reveal" id="newsForm" novalidate>
         <label class="sr-only" for="newsEmail">Email address</label>
@@ -990,7 +1081,7 @@
         <button type="submit">Subscribe <span aria-hidden="true">→</span></button>
       </form>
       <p class="newsletter__note" id="newsNote" role="status" aria-live="polite"></p>
-      <p style="margin-top:0.9rem;font-size:0.78rem;color:var(--bone-faint)">By subscribing you agree to our <a href="privacy.html" style="color:var(--bone-dim);text-decoration:underline">Privacy Policy</a>. Unsubscribe anytime.</p>
+      <p style="margin-top:0.9rem;font-size:0.78rem;color:var(--bone-faint)">By subscribing you agree to our <a href="/privacy" style="color:var(--bone-dim);text-decoration:underline">Privacy Policy</a>. Unsubscribe anytime.</p>
     </div>
   </section>
 
@@ -998,26 +1089,23 @@
   <footer class="site-foot">
     <div class="site-foot__top">
       <a class="brand brand--foot" href="#top" aria-label="SecurityArts — home">
-        <svg class="brand__seal seal" aria-hidden="true"><use href="#saSeal" /></svg>
+        <img class="brand__seal" src="/assets/seal/modern-24.svg" width="30" height="30" alt="">
         <span class="brand__word">Security<span class="brand__word-alt">Arts</span></span>
       </a>
       <nav class="foot-nav" aria-label="Footer">
-        <a href="#practice">Practice</a>
-        <a href="#seal">The Seal</a>
-        <a href="#identity">Identity</a>
-        <a href="#standards">Standards</a>
-        <a href="#contact">Contact</a>
-        <a href="/discover">Discover</a>
-        <a href="market.html">Market</a>
+        <a href="/wall">The wall</a>
         <a href="/how-it-works">How it works</a>
-        <a href="/faq">FAQ</a>
+        <a href="/verify">Verify a seal</a>
         <a href="/pricing">Pricing</a>
+        <a href="/faq">FAQ</a>
+        <a href="#studio">Studio</a>
+        <a href="#contact">Contact</a>
       </nav>
     </div>
     <div class="site-foot__base">
       <p class="mono">© 2026 SecurityArts — A security studio.</p>
-      <p class="mono"><a href="privacy.html" style="color:var(--bone-dim)">Privacy</a> · <a href="terms.html" style="color:var(--bone-dim)">Terms</a></p>
-      <p class="mono">Authentic · Verified · Sealed</p>
+      <p class="mono"><a href="/privacy" style="color:var(--bone-dim)">Privacy</a> · <a href="/terms" style="color:var(--bone-dim)">Terms</a></p>
+      <p class="mono">A receipt for your art.</p>
     </div>
   </footer>
 
@@ -1119,46 +1207,59 @@
     }
   })();
   </script>
+  <script src="/js/api.js"></script>
   <script>
-  /* Newsletter signup — client-side capture.
-     Backend hook: replace the localStorage block with a POST to your ESP
-     (e.g. /api/newsletter { email }). Everything else can stay. */
+  /* Newsletter signup — POST /api/newsletter. The success message only shows once the
+     server has the address; any failure says so and keeps what was typed. */
   (function () {
     var form = document.getElementById("newsForm");
     if (!form) return;
     var email = document.getElementById("newsEmail");
     var note = document.getElementById("newsNote");
+    var TRANSIENT = /^HTTP 5|Failed to fetch|NetworkError|Load failed|unavailable/i;
     form.addEventListener("submit", async function (e) {
       e.preventDefault();
       var v = email.value.trim();
       if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(v)) {
-        note.textContent = "Enter a valid email address.";
+        note.textContent = "That email doesn't look quite right.";
         note.className = "newsletter__note err";
         email.focus();
         return;
       }
       var btn = form.querySelector("button");
       btn.disabled = true;
-      note.textContent = "Sealing your subscription…";
+      note.textContent = "Adding you…";
       note.className = "newsletter__note";
       try {
-        if (window.SA_API) await window.SA_API.subscribe(v); // real backend capture
-        else throw new Error("offline");
-      } catch (_) {
-        // Backend unreachable (opened statically) — keep it locally so nothing is lost.
-        try {
-          var list = JSON.parse(localStorage.getItem("sa_news") || "[]");
-          if (list.indexOf(v) === -1) list.push(v);
-          localStorage.setItem("sa_news", JSON.stringify(list));
-        } catch (__) {}
+        if (!window.SA_API) throw new Error("unavailable");
+        await window.SA_API.subscribe(v);
+        form.reset();
+        note.textContent = "You're on the list. Thanks for following along.";
+        note.className = "newsletter__note ok";
+      } catch (err) {
+        var msg = (err && err.message) || "";
+        note.textContent = !msg || TRANSIENT.test(msg) ? "We couldn't add you just now. Give it another go in a bit." : msg;
+        note.className = "newsletter__note err";
       }
       btn.disabled = false;
-      form.reset();
-      note.textContent = "You're on the list — watch your inbox for the seal.";
-      note.className = "newsletter__note ok";
     });
   })();
   </script>
-<script src="/SecurityArts%20Design%20System/website/assets/analytics.js" defer></script>
+  <script type="module">
+  import { currentUser, showSignedIn } from "/assets/site.js";
+  const user = await currentUser();
+  if (user) showSignedIn(user);
+  </script>
+<script type="module">
+  // Three.js loads only here and may be blocked or unsupported: then the flat wax seal shows.
+  const el = document.getElementById("heroSeal");
+  const flat = () => { el.querySelector("canvas")?.remove(); el.querySelector(".fallback")?.removeAttribute("hidden"); };
+  if (el) {
+    try {
+      const { mountWaxSeal } = await import("/assets/stamp3d/wax-seal.js");
+      await mountWaxSeal(el, { mode: "hero", pointerTarget: document.querySelector(".hero") });
+    } catch { flat(); }
+  }
+</script>
 </body>
 </html>

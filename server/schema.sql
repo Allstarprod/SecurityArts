@@ -25,6 +25,9 @@ ALTER TABLE users ADD COLUMN IF NOT EXISTS email_verified BOOLEAN NOT NULL DEFAU
 -- Google's stable subject id; Google logins match on this FIRST, email second.
 ALTER TABLE users ADD COLUMN IF NOT EXISTS google_sub TEXT;
 CREATE UNIQUE INDEX IF NOT EXISTS users_google_sub_idx ON users (google_sub);
+-- Clerk's user id once sign-in moves to Clerk (see server/lib/clerk.mjs, CLERK.md).
+ALTER TABLE users ADD COLUMN IF NOT EXISTS clerk_id TEXT;
+CREATE UNIQUE INDEX IF NOT EXISTS users_clerk_id_idx ON users (clerk_id);
 
 CREATE TABLE IF NOT EXISTS works (
   id         TEXT PRIMARY KEY,

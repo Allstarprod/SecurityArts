@@ -33,6 +33,32 @@ const COPY = {
   reset: { eyebrow: "New password", title: <>Set a <em>new one.</em></>, sub: "Choose a new password for your account, then you're back in." },
 };
 
+// When sign-in runs on Clerk, Clerk's form replaces ours (dark theme to match this page).
+const CLERK_APPEARANCE = {
+  variables: {
+    colorPrimary: "#c2a14e", colorPrimaryForeground: "#0c0c0b", colorBackground: "#131312", colorForeground: "#f4f1e9",
+    colorMutedForeground: "#a39e92", colorInput: "#0c0c0b", colorInputForeground: "#f4f1e9", colorNeutral: "#f4f1e9",
+    colorBorder: "rgba(244,241,233,0.24)", borderRadius: "10px", fontFamily: "Geist, system-ui, sans-serif",
+  },
+  elements: { header: { display: "none" }, cardBox: { boxShadow: "none", width: "100%" }, rootBox: { width: "100%" } },
+};
+
+function ClerkForm({ clerk, mode }) {
+  const ref = React.useRef(null);
+  React.useEffect(() => {
+    const el = ref.current;
+    if (!el) return undefined;
+    const common = { routing: "hash", appearance: CLERK_APPEARANCE };
+    if (mode === "signup") {
+      clerk.mountSignUp(el, { ...common, signInUrl: "login.html", fallbackRedirectUrl: "onboarding.html" });
+      return () => clerk.unmountSignUp(el);
+    }
+    clerk.mountSignIn(el, { ...common, signUpUrl: "login.html?mode=signup", fallbackRedirectUrl: nextUrl() });
+    return () => clerk.unmountSignIn(el);
+  }, [clerk, mode]);
+  return <div ref={ref} className="card" style={{ padding: 0, background: "none", border: 0 }} />;
+}
+
 function App() {
   const q0 = new URLSearchParams(location.search);
   const resetToken = q0.get("token");
@@ -44,10 +70,12 @@ function App() {
   const [password, setPassword] = React.useState("");
   const [busy, setBusy] = React.useState(false);
   const [note, setNote] = React.useState({ t: "", kind: "" });
+  const [clerk, setClerk] = React.useState(null);
 
   React.useEffect(() => {
     if (!resetToken) Session.sync().then((u) => { if (u) setUser(u); }).catch(() => {});
     if (window.SA_API) window.SA_API.auth.config().then((c) => setGoogleOn(!!(c && c.google))).catch(() => {});
+    if (window.SA_API && window.SA_API.clerk) window.SA_API.clerk().then((c) => { if (c) setClerk(c); }).catch(() => {});
   }, []);
 
   const go = (m) => { setMode(m); setNote({ t: "", kind: "" }); };
@@ -112,7 +140,8 @@ function App() {
                 <span className="auth__eyebrow"><span className="dot" /> {c.eyebrow}</span>
                 <h1 className="auth__title">{c.title}</h1>
                 <p className="auth__sub">{c.sub}</p>
-                <form className="card" onSubmit={submit} noValidate>
+                {clerk ? <ClerkForm clerk={clerk} mode={mode === "signup" ? "signup" : "signin"} /> : null}
+                {clerk ? null : <form className="card" onSubmit={submit} noValidate>
                   {showOAuth ? (
                     <React.Fragment>
                       <a className="oauth" href="/api/auth/google">{GOOGLE_G}<span>Continue with Google</span></a>
@@ -144,7 +173,7 @@ function App() {
                     {mode === "forgot" ? <button type="button" onClick={() => go("signin")}>← Back to sign in</button> : null}
                     {mode === "reset" ? <button type="button" onClick={() => { go("signin"); history.replaceState(null, "", location.pathname); }}>← Back to sign in</button> : null}
                   </div>
-                </form>
+                </form>}
                 <p className="fineprint">
                   By continuing you agree to the <a href="../../../../terms.html">Terms</a> &amp; <a href="../../../../privacy.html">Privacy</a>.<br />
                   We sign our work — and protect yours.
