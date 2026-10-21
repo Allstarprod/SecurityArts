@@ -139,6 +139,19 @@
             <span id="likeCount"></span>
           </div>
           <p class="copied" id="copied" role="status"></p>
+          <section class="owner-tools" id="ownerTools" aria-labelledby="ownerToolsTitle" hidden>
+            <h2 id="ownerToolsTitle">This is your piece</h2>
+            <p>Deleting takes it off the wall and this certificate stops working. It can't be undone.</p>
+            <button class="btn btn--ghost" id="deleteBtn" type="button">Delete this piece</button>
+            <div class="owner-tools__confirm" id="deleteConfirm" hidden>
+              <p id="deleteAsk">Delete it for good?</p>
+              <div class="actions-row">
+                <button class="btn btn--red" id="deleteYes" type="button">Yes, delete it</button>
+                <button class="btn btn--ghost" id="deleteNo" type="button">Keep it</button>
+              </div>
+            </div>
+            <p class="notice notice--problem" id="deleteNote" role="alert" hidden></p>
+          </section>
         </div>
       </div>
     </div>

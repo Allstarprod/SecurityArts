@@ -1,6 +1,6 @@
 {
   "$schema": "https://openapi.vercel.sh/vercel.json",
-  "buildCommand": "npm run tokens:check",
+  "buildCommand": "npm run test:pages",
   "outputDirectory": ".",
   "functions": {
     "api/**": { "maxDuration": 30 }

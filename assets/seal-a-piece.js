@@ -43,6 +43,16 @@ function say(text, kind) {
   if (text) requestAnimationFrame(() => { live.textContent = text; });
 }
 
+// File problems show beside the drop zone, where the visitor is looking, not by the
+// Seal button further down. The notice is role=alert, so it's announced too.
+function fileProblem(text) {
+  const n = $("dropNote");
+  n.hidden = !text;
+  n.textContent = text || "";
+  $("drop").classList.toggle("is-invalid", !!text);
+  if (text) say("");
+}
+
 async function sha256Hex(buffer) {
   const digest = await crypto.subtle.digest("SHA-256", buffer);
   return [...new Uint8Array(digest)].map((b) => b.toString(16).padStart(2, "0")).join("");
@@ -64,8 +74,9 @@ const chosenCat = () => document.querySelector('input[name="cat"]:checked')?.val
 // ---------- choosing a file ----------
 async function pickFile(file) {
   if (!file) return;
-  if (!TYPES[file.type]) { say("That file type can't be sealed. Use a PNG, JPG or WebP image.", "problem"); return; }
-  if (file.size > MAX_BYTES) { say(`That file is ${sizeLabel(file.size)}. The limit is 6 MB, so export a smaller copy and seal that one.`, "problem"); return; }
+  if (!TYPES[file.type]) { fileProblem("That file type can't be sealed. Use a PNG, JPG or WebP image."); return; }
+  if (file.size > MAX_BYTES) { fileProblem(`That file is ${sizeLabel(file.size)}. The limit is 6 MB, so export a smaller copy and seal that one.`); return; }
+  fileProblem("");
   say("Reading your file…", "working");
   try {
     const [buffer, dataUrl] = await Promise.all([readAs(file, "readAsArrayBuffer"), readAs(file, "readAsDataURL")]);
@@ -74,7 +85,7 @@ async function pickFile(file) {
     await img.decode();
     Object.assign(state, { file, dataUrl, img, hash: await sha256Hex(buffer), duplicate: null });
   } catch {
-    say("We couldn't read that image. Try exporting it again.", "problem");
+    fileProblem("We couldn't read that image. Try exporting it again.");
     return;
   }
   $("previewImg").src = state.dataUrl;
@@ -111,6 +122,7 @@ function resetFile() {
   $("hash").classList.add("is-empty");
   $("file").value = "";
   say("");
+  fileProblem("");
   $("drop").focus();
 }
 
@@ -130,6 +142,12 @@ async function submit(e) {
   if (state.busy) return;
   const problem = validate();
   if (problem) {
+    if (problem[0] === "drop" && !state.file) {
+      fileProblem(problem[1]);
+      $("drop").scrollIntoView({ block: "center", behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth" });
+      $("drop").focus({ preventScroll: true });
+      return;
+    }
     say(problem[1], "problem");
     const target = problem[0] === "mediums" ? document.querySelector('input[name="cat"]') : $(problem[0]);
     target?.focus();
@@ -160,6 +178,15 @@ function cornerRect(img) {
   const w = img.naturalWidth, h = img.naturalHeight;
   const s = Math.min(w, h) * 0.3;
   return { x: w - s * 1.1, y: h - s * 1.1, w: s, h: s };
+}
+
+// The caption under the stamp. seal-ink's own `why` is a design note (contrast
+// ratios, "red would melt into this art"), so the page says it in plain words.
+function inkCaption(pick) {
+  if (!pick) return "";
+  if (pick.name === "red") return "Sealed in chop red wax.";
+  if (pick.name === "match") return "Sealed in wax matched to your art, so the seal stands out from it.";
+  return `Sealed in ${pick.label.toLowerCase()} wax, so the seal stands out from your art.`;
 }
 
 async function stampFlat(stage, pick) {
@@ -193,12 +220,12 @@ async function showSealed(work) {
   } catch {
     await stampFlat(stage, pick);                                  // Three.js didn't load: the flat stamp still lands
   }
-  $("stageWhy").textContent = pick ? `${pick.why}.` : "";
+  $("stageWhy").textContent = inkCaption(pick);
 
   const c = work.cert || {};
   $("doneTitle").textContent = `“${work.title}” is sealed.`;
   $("doneWhen").textContent = c.ts ? `Sealed ${when(c.ts)}` : "";
-  const who = state.user ? (state.user.handle ? `${state.user.name} (@${state.user.handle})` : state.user.name) : "Your account";
+  const who = state.user ? (state.user.handleClaimed && state.user.handle ? `${state.user.name} (@${state.user.handle})` : state.user.name) : "Your account";
   const sig = String(c.sig || "");
   const rows = [
     ["Sealed by", who],
@@ -218,6 +245,7 @@ async function showSealed(work) {
     match.textContent = "The server's fingerprint doesn't match the file in your browser. Please tell us at hello@securityarts.studio.";
   }
   $("seeOnWall").href = `/wall?piece=${encodeURIComponent(work.id)}`;
+  $("seeCert").href = `/seal/${encodeURIComponent(work.id)}`;
   $("done").hidden = false;
   say("");
   // Keep the stamp in view so nobody misses it landing (on narrow screens the

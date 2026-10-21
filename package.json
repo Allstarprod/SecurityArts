@@ -10,7 +10,8 @@
     "build:check": "node scripts/build-pages.mjs --check",
     "tokens": "node design-system/build-tokens.mjs",
     "tokens:check": "node design-system/build-tokens.mjs --check",
-    "test:tokens": "node --test design-system/build-tokens.test.mjs"
+    "test:tokens": "node --test design-system/build-tokens.test.mjs",
+    "test:pages": "node --test scripts/pages.test.mjs"
   },
   "dependencies": {
     "pg": "^8.13.0"

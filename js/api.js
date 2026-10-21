@@ -94,6 +94,8 @@
     viewWork: function (id) { return req("/works/" + encodeURIComponent(id) + "/view", { method: "POST" }); },
     workLikes: function (id) { return req("/works/" + encodeURIComponent(id) + "/likes"); },
     likeWork: function (id) { return req("/works/" + encodeURIComponent(id) + "/like", { method: "POST" }); },
+    // Owner only: takes the piece off the wall and its certificate stops resolving.
+    deleteWork: function (id) { return req("/works/" + encodeURIComponent(id), { method: "DELETE" }); },
     myStats: function () { return req("/me/stats"); },
     mySales: function () { return req("/me/sales"); },
     verify: function (hash) { return req("/verify/" + encodeURIComponent(hash)); },

@@ -17,6 +17,13 @@ jobs:
         run: npm ci
       - name: Verify compiled pages are in sync with their .jsx sources
         run: npm run build:check
+      # Not in the Vercel build: .vercelignore keeps the token sources off the deploy.
+      - name: Verify design-system/tokens.css matches tokens.json
+        run: npm run tokens:check
+      - name: Token build tests
+        run: npm run test:tokens
+      - name: Page structure checks
+        run: npm run test:pages
 
   test:
     runs-on: ubuntu-latest

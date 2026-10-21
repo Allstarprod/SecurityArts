@@ -24,6 +24,8 @@
   }
   .drop:hover { transform: translateY(-3px) rotate(-0.4deg); }
   .drop.is-over { background: #fff; border-style: solid; transform: scale(1.02); }
+  .drop.is-invalid { border-style: solid; }
+  .drop-note { width: min(100%, 36rem); margin: 1rem 0 0; }
   .drop__stamp { width: clamp(5rem, 12vw, 7.5rem); transform: rotate(-12deg); transition: transform 0.4s var(--ease); }
   .drop:hover .drop__stamp, .drop.is-over .drop__stamp { transform: rotate(-4deg) scale(1.06); }
   .drop__title { font: 700 clamp(1.5rem, 1rem + 1.8vw, 2.2rem)/1.05 var(--display); letter-spacing: -0.035em; max-width: 14ch; }
@@ -150,6 +152,7 @@
       <p class="drop__title">Drop your finished piece here</p>
       <p class="drop__hint" id="dropHint">or <span class="drop__browse">choose a file</span> · PNG, JPG or WebP · up to 6 MB</p>
     </div>
+    <p class="notice notice--problem drop-note" id="dropNote" role="alert" hidden></p>
     <input type="file" id="file" accept="image/png,image/jpeg,image/webp" hidden>
 
     <figure class="preview" id="preview" hidden>
@@ -170,7 +173,7 @@
         <h1 class="display">Sign in to <em>seal.</em></h1>
         <p class="lede">A seal is tied to the account that makes it, so you'll need one. It only takes a minute.</p>
         <div class="signed-out__actions">
-          <a class="btn btn--red" href="/join?mode=signup">Make an account</a>
+          <a class="btn btn--red" href="/join?mode=signup&amp;next=/seal-a-piece">Make an account</a>
           <a class="btn btn--ghost" href="/join?next=/seal-a-piece">Sign in</a>
         </div>
       </div>
@@ -222,6 +225,7 @@
         <p class="notice notice--ok" id="doneMatch" hidden></p>
         <div class="done__actions">
           <a class="btn btn--red" id="seeOnWall" href="/wall">See it on the wall</a>
+          <a class="btn btn--ghost" id="seeCert" href="/wall">Open the certificate</a>
           <button class="btn btn--ghost" id="copyLink" type="button">Copy link</button>
           <button class="btn btn--ghost" id="again" type="button">Seal another</button>
         </div>

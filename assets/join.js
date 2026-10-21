@@ -117,11 +117,28 @@ function go(next, { focus = true } = {}) {
 }
 
 // ---------- done / signed-in view ----------
+// After clicking the link in the confirmation email. Shown on the form and, since most
+// people confirm in the browser they're already signed in on, on the signed-in view too.
+const VERIFIED = {
+  1: { text: "Email confirmed — thanks. You're all set.", kind: "ok" },
+  0: { text: "That confirmation link didn't work. It may have expired.", kind: "problem" },
+}[params.get("verified")] || null;
+
+// Somewhere to go back to: only when the visitor arrived with a ?next= of their own.
+const hasNext = () => params.has("next") && nextUrl() !== DEFAULT_NEXT;
+
+function welcomeActions() {
+  return hasNext()
+    ? [link("Pick up where you left off", nextUrl(), "btn btn--red"), link("Seal your first piece", "/seal-a-piece", "btn btn--ghost")]
+    : [link("Seal your first piece", "/seal-a-piece", "btn btn--red"), link("Browse the wall", "/wall", "btn btn--ghost")];
+}
+
 function showDone(title, sub, actions) {
   $("formView").hidden = true;
   const view = $("doneView");
   $("doneTitle").textContent = title;
   $("doneSub").textContent = sub;
+  note($("doneNote"), VERIFIED?.text, VERIFIED?.kind);
   $("doneActions").replaceChildren(...actions);
   view.hidden = false;
   view.focus();
@@ -131,7 +148,8 @@ function showDone(title, sub, actions) {
 
 function signedInView(user) {
   showDone(`You're signed in, ${firstName(user)}.`, user.email ? `As ${user.email}.` : "", [
-    link("Go to the wall", "/wall", "btn btn--red"),
+    ...(hasNext() ? [link("Continue", nextUrl(), "btn btn--red")] : []),
+    link("Go to the wall", "/wall", hasNext() ? "btn btn--ghost" : "btn btn--red"),
     link("Seal a piece", "/seal-a-piece", "btn btn--ghost"),
     button("Sign out", async () => { try { await api.auth.logout(); } catch { /* reload shows the real state */ } location.reload(); }, "btn btn--ghost"),
   ]);
@@ -172,7 +190,7 @@ async function submit(e) {
       showSignedIn(user);
       showDone(`You're in, ${firstName(user)}.`,
         `We've sent a link to ${fields.email}. Confirm it when you get a sec — it keeps the account yours.`,
-        [link("Seal your first piece", "/seal-a-piece", "btn btn--red"), link("Browse the wall", "/wall", "btn btn--ghost")]);
+        welcomeActions());
       return;
     }
     if (mode === "signin") {
@@ -212,9 +230,7 @@ $("showPass").addEventListener("click", () => {
   $("showPass").setAttribute("aria-pressed", String(show));
 });
 
-const verified = params.get("verified");
-if (verified === "1") note($("banner"), "Email confirmed — thanks. You're all set.", "ok");
-if (verified === "0") note($("banner"), "That confirmation link didn't work. It may have expired.", "problem");
+if (VERIFIED) note($("banner"), VERIFIED.text, VERIFIED.kind);
 
 // ---------- Clerk ----------
 // When sign-in runs on Clerk, Clerk's own form (restyled to match) replaces ours. It
@@ -252,7 +268,7 @@ async function startClerk() {
     }
     if (isWelcome) {
       showDone(`You're in, ${firstName(user)}.`, "Your account is ready. Seal something you finished and it goes up on the wall with its certificate.",
-        [link("Seal your first piece", "/seal-a-piece", "btn btn--red"), link("Browse the wall", "/wall", "btn btn--ghost")]);
+        welcomeActions());
     } else signedInView(user);
     return true;
   }
@@ -260,7 +276,8 @@ async function startClerk() {
   mount.hidden = false;
   $("terms").hidden = mode !== "signup";
   const common = { routing: "hash", appearance: CLERK_APPEARANCE };
-  if (mode === "signup") clerk.mountSignUp(mount, { ...common, signInUrl: "/join", fallbackRedirectUrl: "/join?mode=welcome" });
+  const welcome = hasNext() ? `/join?mode=welcome&next=${encodeURIComponent(nextUrl())}` : "/join?mode=welcome";
+  if (mode === "signup") clerk.mountSignUp(mount, { ...common, signInUrl: "/join", fallbackRedirectUrl: welcome });
   else clerk.mountSignIn(mount, { ...common, signUpUrl: "/join?mode=signup", fallbackRedirectUrl: nextUrl() });
   return true;
 }

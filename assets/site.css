@@ -365,6 +365,11 @@ a.card:hover { transform: translateY(-3px); box-shadow: var(--shadow-lift); }
 .cert__check-note { font-size: 0.82rem; color: var(--ink-faint); margin: 0; }
 @media (max-width: 520px) { .cert dl > div { grid-template-columns: 1fr; gap: 0.15rem; } }
 .copied { font-size: 0.9rem; color: var(--ink-soft); min-height: 1.4em; margin: 0; }
+.owner-tools { display: grid; gap: 0.6rem; justify-items: start; padding-top: 1.2rem; border-top: 2px solid var(--line); }
+.owner-tools h2 { font: 700 1.15rem/1.1 var(--display); letter-spacing: -0.02em; margin: 0; }
+.owner-tools p { margin: 0; color: var(--ink-soft); font-size: 0.95rem; }
+.owner-tools__confirm { display: grid; gap: 0.6rem; }
+.owner-tools__confirm p { color: var(--ink); font-weight: 600; }
 
 .drop {
   width: min(100%, 36rem); border: 3px dashed var(--ink); border-radius: var(--radius-drop); background: var(--paper);

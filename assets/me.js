@@ -20,7 +20,10 @@ function note(text, kind) {
 
 function paintUser(user) {
   $("name").textContent = user.name || "Your account";
-  $("meta").textContent = [user.handle && `@${user.handle}`, user.email].filter(Boolean).join(" · ");
+  // An unclaimed handle is only a suggestion made from the email, and nobody else sees it,
+  // so it isn't shown as if it were yours yet.
+  const handle = user.handleClaimed && user.handle ? `@${user.handle}` : "No handle yet";
+  $("meta").textContent = [handle, user.email].filter(Boolean).join(" · ");
   // Only a claimed handle has a public profile page; until then the button explains how.
   const link = $("profileLink");
   if (user.handleClaimed && user.handle) { link.href = `/@${encodeURIComponent(user.handle)}`; link.textContent = "Your public profile"; }
@@ -33,7 +36,7 @@ async function totals() {
   try {
     const s = await api.myStats();
     const t = s?.totals || {};
-    for (const k of ["works", "views", "likes", "comments"]) $(`t-${k}`).textContent = String(t[k] ?? 0);
+    for (const k of ["works", "views", "likes"]) $(`t-${k}`).textContent = String(t[k] ?? 0);
   } catch {
     $("totalsFailed").hidden = false;
   }
@@ -44,6 +47,7 @@ async function works(user) {
   try {
     const list = (await api.users.works(user.id)) || [];
     if (!list.length) { $("empty").hidden = false; return; }
+    $("worksHint").hidden = false;
     grid.show(list);
   } catch {
     $("worksFailed").hidden = false;
@@ -85,6 +89,10 @@ if (!user) {
 } else {
   paintUser(user);
   show("in");
+  if (new URLSearchParams(location.search).get("deleted") === "1") {
+    $("deletedNote").hidden = false;
+    history.replaceState(null, "", "/me");   // a reload shouldn't repeat the notice
+  }
   $("name").focus({ preventScroll: true });
   editForm(user);
   totals();

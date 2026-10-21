@@ -71,6 +71,42 @@ async function likes(w, user) {
   });
 }
 
+// Only the account that sealed the piece sees this. The server checks ownership again.
+function ownerTools(w, user) {
+  if (!user || !w.ownerId || user.id !== w.ownerId) return;
+  const ask = $("deleteConfirm");
+  const note = $("deleteNote");
+  $("deleteAsk").textContent = `Delete “${w.title}” for good?`;
+  $("ownerTools").hidden = false;
+  $("deleteBtn").addEventListener("click", () => {
+    ask.hidden = false;
+    $("deleteBtn").hidden = true;
+    $("deleteNo").focus();
+  });
+  $("deleteNo").addEventListener("click", () => {
+    ask.hidden = true;
+    $("deleteBtn").hidden = false;
+    $("deleteBtn").focus();
+  });
+  $("deleteYes").addEventListener("click", async () => {
+    const yes = $("deleteYes");
+    yes.disabled = true;
+    yes.textContent = "Deleting…";
+    note.hidden = true;
+    try {
+      await api.deleteWork(w.id);
+      location.href = "/me?deleted=1";
+    } catch (err) {
+      note.textContent = err?.message && !/^HTTP 5|Failed to fetch|NetworkError|Load failed/i.test(err.message)
+        ? err.message
+        : "We couldn't delete that just now. Try again.";
+      note.hidden = false;
+      yes.disabled = false;
+      yes.textContent = "Yes, delete it";
+    }
+  });
+}
+
 async function copy(text, done) {
   const note = $("copied");
   note.textContent = "";
@@ -129,6 +165,7 @@ function render(w, user) {
   checkRecord(w);
   showAccount(w);
   likes(w, user);
+  ownerTools(w, user);
   api.viewWork(w.id).catch(() => {});
 }
 

@@ -214,7 +214,7 @@ function setState(kind) {
       el("p", { class: "lede", text: filtered ? "Try another medium or clear the search." : "Seal something you finished and it goes up here, with its certificate." }),
       filtered
         ? stateButton("Show everything", "btn btn--ghost", () => { state.cat = ""; state.q = ""; els.q.value = ""; syncChips(); els.chips.firstElementChild.focus(); reload(); })
-        : el("a", { class: "btn btn--red", href: "/join?mode=signup", text: "Seal your own" }));
+        : el("a", { class: "btn btn--red", href: "/seal-a-piece", text: "Seal your own" }));   // signed out, that page asks you to join
   } else {
     els.state.replaceChildren(
       el("p", { class: "notice notice--problem", text: "We couldn't reach the wall just now. Your connection or our server had a hiccup." }),
@@ -326,7 +326,12 @@ async function showAccount(w) {
   if (viewer.work !== w) return;
   const dd = $("viewerAccount");
   if (!dd) return;
-  dd.textContent = who ? (who.handle ? `${who.name} (@${who.handle})` : who.name) : "A SecurityArts account";
+  if (!who) { dd.textContent = "A SecurityArts account"; return; }
+  const name = who.name || "A SecurityArts account";
+  // Same rule as the certificate page: only a claimed handle has a profile to link to.
+  dd.replaceChildren(who.handleClaimed
+    ? el("a", { href: `/@${encodeURIComponent(who.handle)}`, text: `${name} (@${who.handle})` })
+    : name);
 }
 
 async function openViewer(id, from, { fromUrl = false } = {}) {
@@ -337,6 +342,7 @@ async function openViewer(id, from, { fromUrl = false } = {}) {
   $("viewerTitle").textContent = w.title;
   $("viewerBy").textContent = [`Credited to ${w.artist || "no one"}`, CAT_LABEL[w.cat]].filter(Boolean).join(" · ");
   $("viewerCert").replaceChildren(...certRows(w));
+  $("certLink").href = `/seal/${encodeURIComponent(w.id)}`;
   $("copied").textContent = "";
   $("checkResult").textContent = "";
   $("checkResult").className = "cert__check-result";

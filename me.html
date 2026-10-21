@@ -31,6 +31,8 @@
   .totals dd { margin: 0.2rem 0 0; font: 700 2.4rem/1 var(--display); letter-spacing: -0.04em; font-variant-numeric: tabular-nums; }
   .edit { display: grid; gap: var(--space-stack); max-width: 30rem; }
   .works-head { display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between; gap: 0.6rem 1.5rem; margin-bottom: 1.4rem; }
+  #deletedNote { margin-bottom: 1.2rem; max-width: 40rem; }
+  .works-hint { margin: -0.6rem 0 1.4rem; font-size: 0.9rem; color: var(--ink-soft); }
   .signed-out .wrap { padding-block: clamp(3rem, 8vw, 6rem); }
 </style>
 </head>
@@ -80,7 +82,7 @@
       <p class="lede">Your profile, your sealed work and its numbers live here.</p>
       <div class="me-actions">
         <a class="btn btn--red" href="/join?next=/me">Sign in</a>
-        <a class="btn btn--ghost" href="/join?mode=signup">Create an account</a>
+        <a class="btn btn--ghost" href="/join?mode=signup&amp;next=/me">Create an account</a>
       </div>
     </div>
   </section>
@@ -106,7 +108,6 @@
           <div><dt>Sealed</dt><dd id="t-works">–</dd></div>
           <div><dt>Views</dt><dd id="t-views">–</dd></div>
           <div><dt>Likes</dt><dd id="t-likes">–</dd></div>
-          <div><dt>Comments</dt><dd id="t-comments">–</dd></div>
         </dl>
         <p class="notice notice--problem" id="totalsFailed" hidden>We couldn't load your numbers just now.</p>
       </div>
@@ -115,6 +116,8 @@
     <section class="band band--paper-2" aria-labelledby="works-h">
       <div class="wrap">
         <div class="works-head"><h2 class="h2" id="works-h">Your sealed work</h2></div>
+        <p class="notice notice--ok" id="deletedNote" role="status" hidden>Piece deleted. It's off the wall and its certificate no longer resolves.</p>
+        <p class="works-hint" id="worksHint" hidden>To delete a piece, open its certificate. The delete button is at the bottom, and only you see it.</p>
         <ul class="masonry" id="grid"></ul>
         <div class="state" id="empty" hidden>
           <img class="state__mark" src="/assets/seal/rubber.svg" alt="">
